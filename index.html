@@ -298,6 +298,27 @@ footer a{color:var(--ink-soft);text-decoration:none;}
 <div class="main">
 
   <!-- PROFILES -->
+  <div style="margin-bottom:1.1rem;">
+    <div class="sec-label">📍 Your region</div>
+    <select id="regionSelectTop" onchange="document.getElementById('regionSelect').value=this.value;onRegionChange();" style="width:100%;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);background:white;cursor:pointer;outline:none;">
+      <option value="NatAv" selected>🇬🇧 UK average</option>
+      <option value="11">East Midlands</option>
+      <option value="10">Eastern</option>
+      <option value="12">London</option>
+      <option value="13">Manweb (N Wales)</option>
+      <option value="14">Midlands</option>
+      <option value="15">Northern</option>
+      <option value="16">Norweb (NW England)</option>
+      <option value="17">Scottish Hydro (N Scotland)</option>
+      <option value="18">Scottish Power (S Scotland)</option>
+      <option value="19">Seeboard (South East)</option>
+      <option value="20">Southern</option>
+      <option value="21">Swalec (South Wales)</option>
+      <option value="22">Sweb (South West)</option>
+      <option value="23">Yorkshire</option>
+    </select>
+  </div>
+
   <div class="sec-label">How big is your home?</div>
   <div class="profiles">
     <button class="prof-btn" id="prof-small" onclick="setProfile('small')">
@@ -456,20 +477,22 @@ footer a{color:var(--ink-soft);text-decoration:none;}
       <div class="region-pdf-row">
         <div class="region-wrap">
           <div class="sec-label" style="margin-bottom:.4rem">Your region</div>
-          <select id="regionSelect" onchange="onRegionChange()">
-            <option value="east_midlands" selected>East Midlands</option>
-            <option value="east_england">East of England</option>
-            <option value="london">London</option>
-            <option value="merseyside">Merseyside &amp; North Wales</option>
-            <option value="west_midlands">West Midlands</option>
-            <option value="north_east">North East</option>
-            <option value="north_west">North West</option>
-            <option value="north_scotland">North Scotland</option>
-            <option value="south_east">South East</option>
-            <option value="south_west">South West</option>
-            <option value="south_scotland">South Scotland</option>
-            <option value="south_wales">South Wales</option>
-            <option value="yorkshire">Yorkshire</option>
+          <select id="regionSelect" onchange="document.getElementById('regionSelectTop').value=this.value;onRegionChange()">
+            <option value="NatAv" selected>🇬🇧 UK average</option>
+            <option value="11">East Midlands</option>
+            <option value="10">Eastern</option>
+            <option value="12">London</option>
+            <option value="13">Manweb (N Wales)</option>
+            <option value="14">Midlands</option>
+            <option value="15">Northern</option>
+            <option value="16">Norweb (NW England)</option>
+            <option value="17">Scottish Hydro (N Scotland)</option>
+            <option value="18">Scottish Power (S Scotland)</option>
+            <option value="19">Seeboard (South East)</option>
+            <option value="20">Southern</option>
+            <option value="21">Swalec (South Wales)</option>
+            <option value="22">Sweb (South West)</option>
+            <option value="23">Yorkshire</option>
           </select>
         </div>
         <div>
@@ -598,17 +621,107 @@ if (typeof pdfjsLib !== 'undefined') {
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 }
 
-// ── RATES ──
-const DEFAULT_FIXED = { gSC:19.125, gU:6.177, eSC:42.575, eU:24.460, source:'built-in' };
-const NATIONAL_V1   = { gU:5.74, eU:24.67, gSC:29.09, eSC:57.21 };
-const REGION_FACTOR = {
-  east_midlands:0.968, east_england:0.987, london:1.022, merseyside:0.981,
-  west_midlands:0.974, north_east:0.975, north_west:0.988, north_scotland:0.962,
-  south_east:1.031, south_west:1.012, south_scotland:0.972, south_wales:0.979, yorkshire:0.983,
-};
-const VAT=1.05, APR_E=3.54, APR_G=0.33, DUAL=26;
+// ── GOOGLE SHEETS DATA ──
+const SHEETS_BASE = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vToE2Aa0X9mI8ZwrP2uLtTSH8IeRi0yaIpWiHi6ZJMNskIzPgvIuK_jTu7KJSg00ny3JgUW7WXbLcNK/pub?output=csv&sheet=';
+const SHEETS_UW     = SHEETS_BASE + 'UWFixedSaverTariffRates';
+const SHEETS_OFGEM  = SHEETS_BASE + 'OfgemStdVarPriceCap';
 
-let activeFixed = {...DEFAULT_FIXED};
+// Regional data stores — keyed by RegionCode
+let uwRates    = {};  // ex-VAT
+let ofgemRates = {};  // inc-VAT
+
+// Fallback hardcoded rates (East Midlands / NatAv) in case fetch fails
+const FALLBACK_UW = {
+  NatAv: { gSC:19.118, gU:6.294, eSC:46.114, eU:25.399 },
+  '11':  { gSC:19.125, gU:6.177, eSC:42.575, eU:24.460 },
+};
+const FALLBACK_OFGEM = {
+  NatAv: { gSC:29.09, gU:5.74, eSC:57.21, eU:24.67 },
+  '11':  { gSC:28.82, gU:5.60, eSC:53.61, eU:23.67 },
+};
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  const headers = lines[0].split(',').map(h => h.trim());
+  return lines.slice(1).map(line => {
+    const vals = line.split(',').map(v => v.trim());
+    return Object.fromEntries(headers.map((h,i) => [h, vals[i]]));
+  });
+}
+
+async function fetchSheetData() {
+  try {
+    const [uwRes, ofgemRes] = await Promise.all([
+      fetch(SHEETS_UW),
+      fetch(SHEETS_OFGEM)
+    ]);
+    const [uwText, ofgemText] = await Promise.all([uwRes.text(), ofgemRes.text()]);
+
+    // Parse UW — find latest active FS tariff per region
+    const today = new Date();
+    parseCSV(uwText).forEach(row => {
+      const validTo = row.ValidTo ? new Date(row.ValidTo) : new Date('2099-01-01');
+      const validFrom = row.ValidFrom ? new Date(row.ValidFrom) : new Date('2000-01-01');
+      if (today >= validFrom && today <= validTo) {
+        uwRates[row.RegionCode] = {
+          gSC: parseFloat(row.GasDSCPencePerDay),
+          gU:  parseFloat(row.GasUnitPencePerKwh),
+          eSC: parseFloat(row.ElecDSCPencePerDay),
+          eU:  parseFloat(row.ElecUnitPencePerKwh),
+          tariff: row.Tariff,
+          vatIncluded: row.VatIncluded === 'TRUE',
+        };
+      }
+    });
+
+    // Parse Ofgem — use Apr-Jun 2026 period
+    parseCSV(ofgemText).forEach(row => {
+      if (row.Period === 'Apr-Jun 2026') {
+        ofgemRates[row.RegionCode] = {
+          gSC: parseFloat(row.GasDSCPencePerDay),
+          gU:  parseFloat(row.GasUnitPencePerKwh),
+          eSC: parseFloat(row.ElecDSCPencePerDay),
+          eU:  parseFloat(row.ElecUnitPencePerKwh),
+        };
+      }
+    });
+
+    console.log('Sheets data loaded:', Object.keys(uwRates).length, 'UW regions,', Object.keys(ofgemRates).length, 'Ofgem regions');
+  } catch(e) {
+    console.warn('Sheets fetch failed, using fallback rates:', e);
+    uwRates    = {...FALLBACK_UW};
+    ofgemRates = {...FALLBACK_OFGEM};
+  }
+
+  // Set initial active rates and calculate
+  updateRatesForRegion(document.getElementById('regionSelect').value);
+  updateSourceNote();
+  calculate();
+}
+
+function getRegionRates() {
+  const code = document.getElementById('regionSelect').value;
+  const uw    = uwRates[code]    || uwRates['NatAv']    || FALLBACK_UW['NatAv'];
+  const ofgem = ofgemRates[code] || ofgemRates['NatAv'] || FALLBACK_OFGEM['NatAv'];
+  return { uw, ofgem };
+}
+
+function updateRatesForRegion(code) {
+  const { uw } = getRegionRates();
+  // Store as ex-VAT for getFX() compatibility
+  const factor = uw.vatIncluded ? (1/VAT) : 1;
+  activeFixed = {
+    gSC: uw.gSC * factor,
+    gU:  uw.gU  * factor,
+    eSC: uw.eSC * factor,
+    eU:  uw.eU  * factor,
+    source: 'sheets',
+    name: uw.tariff || 'UW Fixed Saver',
+  };
+}
+
+const VAT=1.05, APR_E=3.54, APR_G=0.33, DUAL=26;
+let activeFixed = {...(FALLBACK_UW['NatAv']), source:'fallback'};
 let pdfRates    = null;
 
 function getFX() {
@@ -619,9 +732,11 @@ function getFX() {
     eSC: activeFixed.eSC * VAT,
   };
 }
+
 function getV1() {
-  const f = REGION_FACTOR[document.getElementById('regionSelect').value] || 1;
-  return { gU:NATIONAL_V1.gU*f, eU:NATIONAL_V1.eU*f, gSC:NATIONAL_V1.gSC*f, eSC:NATIONAL_V1.eSC*f };
+  const { ofgem } = getRegionRates();
+  // Ofgem rates are already inc-VAT
+  return { gU: ofgem.gU, eU: ofgem.eU, gSC: ofgem.gSC, eSC: ofgem.eSC };
 }
 
 const CAPS=[1641,1641,1641,1897,1897,1897,1956,1956,1956,1956,1956,1956], CAP_Q1=1641;
@@ -686,18 +801,27 @@ function getEVkwh() {
 
 // ── REGION ──
 function onRegionChange() {
-  const r=document.getElementById('regionSelect').value;
-  if (pdfRates && pdfRates[r])      activeFixed={...pdfRates[r],source:'pdf'};
-  else if (pdfRates)                activeFixed={...DEFAULT_FIXED,source:'fallback'};
-  else                              activeFixed={...DEFAULT_FIXED,source:'built-in'};
+  const r = document.getElementById('regionSelect').value;
+  // Keep both pickers in sync
+  const top = document.getElementById('regionSelectTop');
+  if (top && top.value !== r) top.value = r;
+  if (pdfRates && pdfRates[r]) {
+    activeFixed = {...pdfRates[r], source:'pdf'};
+  } else {
+    updateRatesForRegion(r);
+  }
   updateSourceNote(); calculate();
 }
 function updateSourceNote() {
-  const n=document.getElementById('rateSourceNote');
+  const n = document.getElementById('rateSourceNote');
+  const code = document.getElementById('regionSelect').value;
+  const uw = uwRates[code] || uwRates['NatAv'];
+  const tariff = uw ? (uw.tariff || 'UW Fixed Saver') : 'UW Fixed Saver 79';
+  const regionName = document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
   if (activeFixed.source==='pdf')      { n.innerHTML='✅ Rates from imported PDF'; n.style.color='var(--green)'; }
   else if (activeFixed.source==='manual'){ n.innerHTML=`✅ Manual rates applied — ${activeFixed.name||'custom'}`; n.style.color='var(--green)'; }
-  else if (activeFixed.source==='fallback'){ n.innerHTML='⚠️ No PDF rates for this region — using East Midlands defaults'; n.style.color='var(--amber)'; }
-  else { n.innerHTML='Using built-in East Midlands rates · UW Fixed Saver 79 · Ofgem April 2026'; n.style.color=''; }
+  else if (activeFixed.source==='fallback'){ n.innerHTML=`⚠️ Using fallback rates · UW ${tariff} · ${regionName}`; n.style.color='var(--amber)'; }
+  else { n.innerHTML=`UW ${tariff} · ${regionName} · Ofgem Apr 2026 · Live from Google Sheets`; n.style.color='var(--green)'; }
 }
 
 // ── CALCULATE ──
@@ -792,8 +916,9 @@ function calculate() {
   const evStr = evKwh>0 ? ` EV charging adds ${evKwh.toLocaleString()} kWh/yr to electricity.` : '';
   const src   = activeFixed.source==='pdf' ? ' <span style="background:var(--green-light);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9.5px;font-weight:600">from PDF</span>' : activeFixed.source==='manual' ? ` <span style="background:var(--green-light);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9.5px;font-weight:600">manual: ${activeFixed.name||'custom'}</span>` : '';
   const region= document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
+  const tariff = (uwRates[document.getElementById('regionSelect').value] || uwRates['NatAv'] || {tariff:'FS79'}).tariff;
   document.getElementById('assumptionsBox').innerHTML=`
-    <strong>How this works:</strong> Fixed rates: UW Fixed Saver 79${src} (${region}, direct debit) with April 2026 government policy reductions applied (elec −3.54p, gas −0.33p inc. VAT). Variable uses <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE blended forecast</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> Gas is modelled seasonally. Standing charges held flat.${evStr} £26 dual-fuel credit on fixed. All figures inc. 5% VAT.<br><br>
+    <strong>How this works:</strong> Fixed rates: UW ${tariff}${src} (${region}, direct debit) with April 2026 government policy reductions applied (elec −3.54p, gas −0.33p inc. VAT). Variable uses <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE blended forecast</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> Gas is modelled seasonally. Standing charges held flat.${evStr} £26 dual-fuel credit on fixed. All figures inc. 5% VAT. Rates loaded live from <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vToE2Aa0X9mI8ZwrP2uLtTSH8IeRi0yaIpWiHi6ZJMNskIzPgvIuK_jTu7KJSg00ny3JgUW7WXbLcNK/pub" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">Google Sheets</a>.<br><br>
     <strong>Note:</strong> Forecasts beyond April 2026 are predictions — not guarantees. Fixing removes the uncertainty either way.`;
 }
 
@@ -971,6 +1096,7 @@ function shareOrCopy() {
 // ── INIT ──
 syncEVSlider();
 setProfile('medium');
+fetchSheetData();
 </script>
 </body>
 </html>
