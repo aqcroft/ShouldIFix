@@ -720,7 +720,7 @@ function updateRatesForRegion(code) {
   };
 }
 
-const VAT=1.05, APR_E=3.54, APR_G=0.33, DUAL=26;
+const VAT=1.05, APR_E=3.54, APR_G=0, DUAL=26;
 let activeFixed = {...(FALLBACK_UW['NatAv']), source:'fallback'};
 let pdfRates    = null;
 
@@ -918,7 +918,7 @@ function calculate() {
   const region= document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
   const tariff = (uwRates[document.getElementById('regionSelect').value] || uwRates['NatAv'] || {tariff:'FS79'}).tariff;
   document.getElementById('assumptionsBox').innerHTML=`
-    <strong>How this works:</strong> Fixed rates: UW ${tariff}${src} (${region}, direct debit) with April 2026 government policy reductions applied (elec −3.54p, gas −0.33p inc. VAT). Variable uses <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE blended forecast</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> Gas is modelled seasonally. Standing charges held flat.${evStr} £26 dual-fuel credit on fixed. All figures inc. 5% VAT. Rates loaded live from <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vToE2Aa0X9mI8ZwrP2uLtTSH8IeRi0yaIpWiHi6ZJMNskIzPgvIuK_jTu7KJSg00ny3JgUW7WXbLcNK/pub" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">Google Sheets</a>.<br><br>
+    <strong>How this works:</strong> Fixed rates: UW ${tariff}${src} (${region}, direct debit) with April 2026 government policy reduction applied to electricity only (−3.54p inc. VAT — RO reduction; ECO already priced into FS79 rates). Variable uses <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE blended forecast</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> Gas is modelled seasonally. Standing charges held flat.${evStr} £26 dual-fuel credit on fixed. All figures inc. 5% VAT. Rates loaded live from <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vToE2Aa0X9mI8ZwrP2uLtTSH8IeRi0yaIpWiHi6ZJMNskIzPgvIuK_jTu7KJSg00ny3JgUW7WXbLcNK/pub" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">Google Sheets</a>.<br><br>
     <strong>Note:</strong> Forecasts beyond April 2026 are predictions — not guarantees. Fixing removes the uncertainty either way.`;
 }
 
