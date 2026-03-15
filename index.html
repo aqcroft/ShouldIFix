@@ -306,27 +306,33 @@ footer a{color:var(--ink-soft);text-decoration:none;}
 
 <div class="main">
 
-  <!-- REGION PILLS -->
-  <div style="margin-bottom:1.1rem;">
-    <div class="sec-label">📍 Your region</div>
-    <div id="regionPills" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">
-      <button onclick="setRegion('NatAv',this)" class="reg-pill active" data-code="NatAv">UK average</button>
-      <button onclick="setRegion('10',this)" class="reg-pill" data-code="10">Eastern</button>
-      <button onclick="setRegion('11',this)" class="reg-pill" data-code="11">East Midlands</button>
-      <button onclick="setRegion('12',this)" class="reg-pill" data-code="12">London</button>
-      <button onclick="setRegion('13',this)" class="reg-pill" data-code="13">N Wales &amp; Mersey</button>
-      <button onclick="setRegion('14',this)" class="reg-pill" data-code="14">Midlands</button>
-      <button onclick="setRegion('15',this)" class="reg-pill" data-code="15">Northern</button>
-      <button onclick="setRegion('16',this)" class="reg-pill" data-code="16">North West</button>
-      <button onclick="setRegion('17',this)" class="reg-pill" data-code="17">N Scotland</button>
-      <button onclick="setRegion('18',this)" class="reg-pill" data-code="18">S Scotland</button>
-      <button onclick="setRegion('19',this)" class="reg-pill" data-code="19">South East</button>
-      <button onclick="setRegion('20',this)" class="reg-pill" data-code="20">Southern</button>
-      <button onclick="setRegion('21',this)" class="reg-pill" data-code="21">South Wales</button>
-      <button onclick="setRegion('22',this)" class="reg-pill" data-code="22">South West</button>
-      <button onclick="setRegion('23',this)" class="reg-pill" data-code="23">Yorkshire</button>
+  <!-- REGION PICKER -->
+  <details style="margin-bottom:1.1rem;">
+    <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--ink);box-shadow:var(--shadow);">
+      <span>📍 <span id="regionLabel">UK National Average</span></span>
+      <span style="font-size:11px;color:var(--ink-muted);font-weight:400;">specify region</span>
+    </summary>
+    <div style="background:white;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:.85rem 1rem;box-shadow:var(--shadow);">
+      <p style="font-size:11.5px;color:var(--ink-muted);margin-bottom:.75rem;line-height:1.6;">Not sure which region you're in? UK average works well for most people. If you know yours, tap it below.</p>
+      <div id="regionPills" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">
+        <button onclick="setRegion('NatAv',this)" class="reg-pill active" data-code="NatAv">UK National Average</button>
+        <button onclick="setRegion('10',this)" class="reg-pill" data-code="10">Eastern</button>
+        <button onclick="setRegion('11',this)" class="reg-pill" data-code="11">East Midlands</button>
+        <button onclick="setRegion('12',this)" class="reg-pill" data-code="12">London</button>
+        <button onclick="setRegion('13',this)" class="reg-pill" data-code="13">N Wales &amp; Mersey</button>
+        <button onclick="setRegion('14',this)" class="reg-pill" data-code="14">Midlands</button>
+        <button onclick="setRegion('15',this)" class="reg-pill" data-code="15">Northern</button>
+        <button onclick="setRegion('16',this)" class="reg-pill" data-code="16">North West</button>
+        <button onclick="setRegion('17',this)" class="reg-pill" data-code="17">N Scotland</button>
+        <button onclick="setRegion('18',this)" class="reg-pill" data-code="18">S Scotland</button>
+        <button onclick="setRegion('19',this)" class="reg-pill" data-code="19">South East</button>
+        <button onclick="setRegion('20',this)" class="reg-pill" data-code="20">Southern</button>
+        <button onclick="setRegion('21',this)" class="reg-pill" data-code="21">South Wales</button>
+        <button onclick="setRegion('22',this)" class="reg-pill" data-code="22">South West</button>
+        <button onclick="setRegion('23',this)" class="reg-pill" data-code="23">Yorkshire</button>
+      </div>
     </div>
-  </div>
+  </details>
 
   <!-- HOUSEHOLD SIZE -->
   <div class="sec-label">How big is your home?</div>
@@ -420,7 +426,6 @@ footer a{color:var(--ink-soft);text-decoration:none;}
       <div class="vs-price-label">est. full-year cost</div>
       <div class="vs-bar-bg"><div class="vs-bar-fill" id="bar-variable" style="width:70%"></div></div>
       <div class="vs-monthly" id="vs-var-mo">—</div>
-      <div style="margin-top:4px;font-size:11px;color:var(--amber);opacity:.85;">MSE forecast caps<br>Apr £1,641 · Jul £1,897<br>Oct–Mar £1,956</div>
     </div>
   </div>
 
@@ -433,21 +438,27 @@ footer a{color:var(--ink-soft);text-decoration:none;}
   </div>
 
   <!-- WORTH KNOWING — SAVING SECTION -->
-  <div style="background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.1rem;box-shadow:var(--shadow);font-size:12px;color:var(--ink-soft);line-height:1.7;">
-    ℹ️ <strong style="color:var(--ink);">Worth knowing —</strong> this comparison uses UW's best bundled fixed tariff for your region vs forecast rises in the standard variable price cap from Jul '26 to Mar '27.<br><br>
-    ⚡ With 2 in 3 UK homes still on a variable tariff, fixing could mean a few hundred pounds staying in your bank over winter rather than wasted on boring bills.
-  </div>
-
-  <!-- SHARE BUTTON -->
-  <button onclick="shareOrCopy()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;background:white;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);margin-bottom:1.1rem;">
-    <span>🔗</span><span id="shareLabel">Share this tool</span>
-  </button>
+  <details style="margin-bottom:1.1rem;">
+    <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);box-shadow:var(--shadow);">
+      <span>ℹ️ Worth knowing</span>
+      <span style="font-size:11px;color:var(--ink-muted);font-weight:400;">tap to read</span>
+    </summary>
+    <div style="background:white;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:1rem 1.1rem;box-shadow:var(--shadow);font-size:12px;color:var(--ink-soft);line-height:1.7;">
+      🔥⚡ This comparison uses UW's best bundled fixed tariff for your region vs forecast rises in the standard variable price cap from Jul '26 to Mar '27. With 2 in 3 UK homes still on a variable tariff, fixing could mean a few hundred pounds staying in your bank over winter rather than wasted on boring bills.
+    </div>
+  </details>
 
   <!-- PARTNER OPPORTUNITY -->
-  <div style="background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(219,39,119,0.03));border:1px solid rgba(124,58,237,0.15);border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.1rem;box-shadow:var(--shadow);font-size:12px;color:var(--ink-soft);line-height:1.7;">
-    🎁 <strong style="color:var(--ink);">And there's more to this story.</strong> This month, switching to UW and upgrading your customer account by helping just one friend fix and save — could be worth up to £450. That's £150 off your own bill next month, plus £300 paid straight into your bank.<br><br>
-    💎 <strong style="color:var(--ink);">And you can take it further.</strong> A beautician upgraded her customer account after joining the team in February. She's since helped six of her clients fix their energy — earning over £2,000. If that sounds interesting, tap the button below.
-  </div>
+  <details style="margin-bottom:1.1rem;">
+    <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);box-shadow:var(--shadow);">
+      <span>🎁 And there's more to this story</span>
+      <span style="font-size:11px;color:var(--ink-muted);font-weight:400;">tap to read</span>
+    </summary>
+    <div style="background:white;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:1rem 1.1rem;box-shadow:var(--shadow);font-size:12px;color:var(--ink-soft);line-height:1.7;">
+      💷 <strong style="color:var(--ink);">Up to £450?</strong> This month, switching to UW and upgrading your customer account by helping just one friend fix and save — could be worth up to £450. That's £150 off your own bill next month, plus £300 paid straight into your bank.<br><br>
+      💎 <strong style="color:var(--ink);">And you can take it further.</strong> A beautician upgraded her customer account after joining the team in February. She's since helped six of her clients fix their energy — earning over £2,000. If that sounds interesting, tap the button below.
+    </div>
+  </details>
 
   <!-- CTA STRIP -->
   <div style="background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.1rem;box-shadow:var(--shadow);">
@@ -479,6 +490,11 @@ footer a{color:var(--ink-soft);text-decoration:none;}
   <span id="tileVar" style="display:none"></span>
   <span id="tileSaving" style="display:none"></span>
   <span id="tileMonthly" style="display:none"></span>
+
+  <!-- SHARE BUTTON -->
+  <button onclick="shareOrCopy()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;background:linear-gradient(135deg,rgba(124,58,237,0.12),rgba(219,39,119,0.08));border:1.5px solid rgba(124,58,237,0.3);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:#4a1b8c;cursor:pointer;box-shadow:var(--shadow);margin-bottom:1.1rem;">
+    <span>🔗</span><span id="shareLabel">Share this tool</span>
+  </button>
 
   <!-- ADVANCED ACCORDION -->
   <div class="accordion">
@@ -800,6 +816,9 @@ function getEVkwh() {
 function setRegion(code, el) {
   document.querySelectorAll('.reg-pill').forEach(p => p.classList.remove('active'));
   if (el) el.classList.add('active');
+  const label = el ? el.textContent : 'UK average';
+  const regionLabel = document.getElementById('regionLabel');
+  if (regionLabel) regionLabel.textContent = label;
   document.getElementById('regionSelect').value = code;
   onRegionChange();
 }
