@@ -816,11 +816,13 @@ function getEVkwh() {
 function setRegion(code, el) {
   document.querySelectorAll('.reg-pill').forEach(p => p.classList.remove('active'));
   if (el) el.classList.add('active');
-  const label = el ? el.textContent : 'UK average';
+  const label = el ? el.textContent : 'UK National Average';
   const regionLabel = document.getElementById('regionLabel');
   if (regionLabel) regionLabel.textContent = label;
   document.getElementById('regionSelect').value = code;
   onRegionChange();
+  const details = el ? el.closest('details') : null;
+  if (details) setTimeout(() => { details.removeAttribute('open'); }, 2000);
 }
 function onRegionChange() {
   const r = document.getElementById('regionSelect').value;
