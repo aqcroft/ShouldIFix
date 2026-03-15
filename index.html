@@ -59,7 +59,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 }
 
 /* ── MAIN ── */
-.main{max-width:660px;margin:0 auto;padding:1.25rem 1.1rem 3.5rem;}
+.main{max-width:660px;margin:0 auto;padding:1.25rem 1.1rem 1.25rem;}
+.reg-pill{
+  padding:6px 3px;font-family:'DM Sans',sans-serif;font-size:10px;font-weight:500;
+  border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);
+  background:white;color:var(--ink-soft);cursor:pointer;text-align:center;
+  transition:background .12s,border-color .12s,color .12s;
+  -webkit-tap-highlight-color:transparent;line-height:1.3;
+}
+.reg-pill:hover:not(.active){background:var(--warm);}
+.reg-pill.active{background:var(--blue-light);border-color:var(--blue);color:var(--blue);font-weight:600;}
 .sec-label{font-size:11.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:.55rem;}
 
 /* ── PROFILES ── */
@@ -297,28 +306,29 @@ footer a{color:var(--ink-soft);text-decoration:none;}
 
 <div class="main">
 
-  <!-- PROFILES -->
+  <!-- REGION PILLS -->
   <div style="margin-bottom:1.1rem;">
     <div class="sec-label">📍 Your region</div>
-    <select id="regionSelectTop" onchange="document.getElementById('regionSelect').value=this.value;onRegionChange();" style="width:100%;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);background:white;cursor:pointer;outline:none;">
-      <option value="NatAv" selected>UK average</option>
-      <option value="11">East Midlands</option>
-      <option value="10">Eastern</option>
-      <option value="12">London</option>
-      <option value="13">North Wales and Mersey</option>
-      <option value="14">Midlands</option>
-      <option value="15">Northern</option>
-      <option value="16">North West</option>
-      <option value="17">Northern Scotland</option>
-      <option value="18">Southern Scotland</option>
-      <option value="19">South East</option>
-      <option value="20">Southern</option>
-      <option value="21">South Wales</option>
-      <option value="22">South West</option>
-      <option value="23">Yorkshire</option>
-    </select>
+    <div id="regionPills" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;">
+      <button onclick="setRegion('NatAv',this)" class="reg-pill active" data-code="NatAv">UK average</button>
+      <button onclick="setRegion('10',this)" class="reg-pill" data-code="10">Eastern</button>
+      <button onclick="setRegion('11',this)" class="reg-pill" data-code="11">East Midlands</button>
+      <button onclick="setRegion('12',this)" class="reg-pill" data-code="12">London</button>
+      <button onclick="setRegion('13',this)" class="reg-pill" data-code="13">N Wales &amp; Mersey</button>
+      <button onclick="setRegion('14',this)" class="reg-pill" data-code="14">Midlands</button>
+      <button onclick="setRegion('15',this)" class="reg-pill" data-code="15">Northern</button>
+      <button onclick="setRegion('16',this)" class="reg-pill" data-code="16">North West</button>
+      <button onclick="setRegion('17',this)" class="reg-pill" data-code="17">N Scotland</button>
+      <button onclick="setRegion('18',this)" class="reg-pill" data-code="18">S Scotland</button>
+      <button onclick="setRegion('19',this)" class="reg-pill" data-code="19">South East</button>
+      <button onclick="setRegion('20',this)" class="reg-pill" data-code="20">Southern</button>
+      <button onclick="setRegion('21',this)" class="reg-pill" data-code="21">South Wales</button>
+      <button onclick="setRegion('22',this)" class="reg-pill" data-code="22">South West</button>
+      <button onclick="setRegion('23',this)" class="reg-pill" data-code="23">Yorkshire</button>
+    </div>
   </div>
 
+  <!-- HOUSEHOLD SIZE -->
   <div class="sec-label">How big is your home?</div>
   <div class="profiles">
     <button class="prof-btn" id="prof-small" onclick="setProfile('small')">
@@ -338,47 +348,49 @@ footer a{color:var(--ink-soft);text-decoration:none;}
     </button>
   </div>
 
-  <!-- USAGE CARD -->
-  <div class="card">
-    <h2>Fine-tune your usage</h2>
-
-    <div class="slider-group">
-      <div class="slider-top">
-        <span class="s-label"><span class="s-emoji">🔥</span> Gas</span>
-        <span class="s-val" id="gasVal">—</span>
+  <!-- EV TICK (under size buttons) -->
+  <div style="margin-bottom:1.1rem;margin-top:.5rem;">
+    <label class="ev-check-label" id="evLabel" for="evCheck" style="border-radius:var(--radius-sm);">
+      <input type="checkbox" id="evCheck" onchange="toggleEV()">
+      <span class="ev-check-text">⚡🚗 I charge an EV at home</span>
+      <span class="ev-badge" id="evBadge">+3,000 kWh</span>
+    </label>
+    <div class="ev-slider-row" id="evSliderRow">
+      <div class="slider-top" style="margin-top:.7rem;margin-bottom:4px;">
+        <span class="s-label" style="font-size:12px;color:var(--amber)"><span class="s-emoji">🚗</span> EV charging</span>
+        <span class="s-val" id="evVal" style="color:var(--amber)">—</span>
       </div>
-      <input type="range" id="gasSlider" min="0" max="25000" step="100" value="11500" oninput="syncSlider('gas');calculate()">
-      <div class="slider-hints"><span>0</span><span>11,500 typical</span><span>25,000 kWh</span></div>
-    </div>
-
-    <div class="slider-group">
-      <div class="slider-top">
-        <span class="s-label"><span class="s-emoji">⚡</span> Electricity</span>
-        <span class="s-val" id="elecVal">—</span>
-      </div>
-      <input type="range" id="elecSlider" min="0" max="12000" step="100" value="2700" oninput="syncSlider('elec');calculate()">
-      <div class="slider-hints"><span>0</span><span>2,700 typical</span><span>12,000 kWh</span></div>
-    </div>
-
-    <!-- EV SECTION -->
-    <div class="ev-section">
-      <label class="ev-check-label" id="evLabel" for="evCheck">
-        <input type="checkbox" id="evCheck" onchange="toggleEV()">
-        <span class="ev-check-text">⚡🚗 I charge an EV at home</span>
-        <span class="ev-badge" id="evBadge">+3,000 kWh</span>
-      </label>
-
-      <div class="ev-slider-row" id="evSliderRow">
-        <div class="slider-top" style="margin-top:.7rem;margin-bottom:4px;">
-          <span class="s-label" style="font-size:12px;color:var(--amber)"><span class="s-emoji">🚗</span> EV charging</span>
-          <span class="s-val" id="evVal" style="color:var(--amber)">—</span>
-        </div>
-        <input type="range" id="evSlider" min="500" max="6000" step="100" value="3000" oninput="syncEVSlider();calculate()">
-        <div class="slider-hints"><span>500 kWh</span><span>3,000 typical</span><span>6,000 kWh</span></div>
-        <div class="ev-total-note" id="evTotalNote"></div>
-      </div>
+      <input type="range" id="evSlider" min="500" max="6000" step="100" value="3000" oninput="syncEVSlider();calculate()">
+      <div class="slider-hints"><span>500 kWh</span><span>3,000 typical</span><span>6,000 kWh</span></div>
+      <div class="ev-total-note" id="evTotalNote"></div>
     </div>
   </div>
+
+  <!-- USAGE CARD -->
+  <details style="margin-bottom:1.1rem;">
+    <summary style="list-style:none;display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);box-shadow:var(--shadow);">
+      <span>🔧 Fine-tune your usage</span>
+      <span style="font-size:11px;color:var(--ink-muted);font-weight:400;">optional</span>
+    </summary>
+    <div style="background:white;border:1px solid var(--border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:1rem 1rem .9rem;box-shadow:var(--shadow);">
+      <div class="slider-group">
+        <div class="slider-top">
+          <span class="s-label"><span class="s-emoji">🔥</span> Gas</span>
+          <span class="s-val" id="gasVal">—</span>
+        </div>
+        <input type="range" id="gasSlider" min="0" max="25000" step="100" value="11500" oninput="syncSlider('gas');calculate()">
+        <div class="slider-hints"><span>0</span><span>11,500 typical</span><span>25,000 kWh</span></div>
+      </div>
+      <div class="slider-group">
+        <div class="slider-top">
+          <span class="s-label"><span class="s-emoji">⚡</span> Electricity</span>
+          <span class="s-val" id="elecVal">—</span>
+        </div>
+        <input type="range" id="elecSlider" min="0" max="12000" step="100" value="2700" oninput="syncSlider('elec');calculate()">
+        <div class="slider-hints"><span>0</span><span>2,700 typical</span><span>12,000 kWh</span></div>
+      </div>
+    </div>
+  </details>
 
   <!-- SAVING HERO — leads the results -->
   <div class="saving-hero good" id="savingHero">
@@ -420,19 +432,23 @@ footer a{color:var(--ink-soft);text-decoration:none;}
     <table id="monthTable"></table>
   </div>
 
-  <!-- HONEST NUDGE -->
+  <!-- WORTH KNOWING — SAVING SECTION -->
   <div style="background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.1rem;box-shadow:var(--shadow);font-size:12px;color:var(--ink-soft);line-height:1.7;">
     ℹ️ <strong style="color:var(--ink);">Worth knowing —</strong> this comparison uses UW's best bundled Fixed Saver tariff for your selected region vs potential price cap rises from Jul '26 to Mar '27.<br><br>
     📞 But even if you just call your existing supplier and ask about fixing, you're almost certainly better off. From April, the government is reducing energy unit rates for all customers — including those on fixed tariffs. For UW Fixed Saver 79, this is equivalent to around £92 a year for medium usage, and has already been factored into this tool. Usually fixed means fixed — so this is an added bonus on top of your locked rate.<br><br>
-    ⚡ With 2 in 3 UK homes on a variable tariff, fixing could mean a few hundred pounds staying in your bank over winter '26/27 rather than wasted on boring bills — especially if 12 months of peace of mind matters to you.<br><br>
-    🎁 <strong style="color:var(--ink);">And there's more to this story.</strong> This month, referring just one friend onto a good bundled deal with UW could mean up to £150 off your own next bill — which for a typical home means wiping out a full month's energy.<br><br>
-    💎 <strong style="color:var(--ink);">And you can take it even further.</strong> A beautician I'm working with has helped six of her clients fix their energy since she joined in February. In the last four weeks she's earned over £2,000 - and wiped out her own April bill. If that sounds interesting, tap the button below.
+    ⚡ With 2 in 3 UK homes on a variable tariff, fixing could mean a few hundred pounds staying in your bank over winter '26/27 rather than wasted on boring bills — especially if 12 months of peace of mind matters to you.
   </div>
 
   <!-- SHARE BUTTON -->
   <button onclick="shareOrCopy()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;background:white;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;box-shadow:var(--shadow);margin-bottom:1.1rem;">
     <span>🔗</span><span id="shareLabel">Share this tool</span>
   </button>
+
+  <!-- PARTNER OPPORTUNITY -->
+  <div style="background:linear-gradient(135deg,rgba(124,58,237,0.04),rgba(219,39,119,0.03));border:1px solid rgba(124,58,237,0.15);border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.1rem;box-shadow:var(--shadow);font-size:12px;color:var(--ink-soft);line-height:1.7;">
+    🎁 <strong style="color:var(--ink);">And there's more to this story.</strong> This month, referring just one friend onto a good bundled deal with UW could mean up to £150 off your own next bill — which for a typical home means wiping out a full month's energy.<br><br>
+    💎 <strong style="color:var(--ink);">And you can take it even further.</strong> A beautician I'm working with has helped six of her clients fix their energy since she joined in February. In the last four weeks she's earned over £2,000 - and wiped out her own April bill. If that sounds interesting, tap the button below.
+  </div>
 
   <!-- CTA STRIP -->
   <div style="background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.1rem;box-shadow:var(--shadow);">
@@ -444,8 +460,7 @@ footer a{color:var(--ink-soft);text-decoration:none;}
       </a>
       <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener noreferrer" id="savingsBtn" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 8px;background:#eff6ff;border:1.5px solid #93c5fd;border-radius:var(--radius-sm);text-decoration:none;font-family:'DM Sans',sans-serif;">
         <span style="font-size:1.3rem;">💡</span>
-        <span id="savingsBtnLabel" style="font-size:11.5px;font-weight:700;color:#1d4ed8;text-align:center;">See the savings</span>
-      </a>
+        <span id="savingsBtnLabel" style="font-size:11.5px;font-weight:700;color:#1d4ed8;text-align:center;">See the savings</span>      </a>
       <a href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener noreferrer" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:10px 8px;background:#fef3c7;border:1.5px solid #fcd34d;border-radius:var(--radius-sm);text-decoration:none;font-family:'DM Sans',sans-serif;">
         <span style="font-size:1.3rem;">☕</span>
         <span style="font-size:11.5px;font-weight:700;color:#92400e;">Book a "fixing" chat</span>
@@ -459,7 +474,6 @@ footer a{color:var(--ink-soft);text-decoration:none;}
       <span style="font-size:1.3rem;">💎</span>
       <span style="font-size:12px;font-weight:700;color:white;text-align:center;line-height:1.4;">Help six of my clients save -<br>and earn £2,000 doing it?</span>
     </a>
-    <p style="font-size:10px;color:var(--ink-muted);text-align:center;margin-top:.65rem;">Adrian Croft · <a href="mailto:adrian.croft@uw.partners?subject=Your%20energy%20tool&body=Hi%20Adrian%2C%20I've%20just%20used%20your%20energy%20tool%20and%20I'd%20like%20to%20know%20more." style="color:var(--ink-muted);">adrian.croft@uw.partners</a></p>
   </div>
 
   <span id="tileFixed" style="display:none"></span>
@@ -493,8 +507,7 @@ footer a{color:var(--ink-soft);text-decoration:none;}
       </select>
       <div class="assumptions" id="assumptionsBox"></div>
       <div style="margin-top:.7rem;padding:.75rem .9rem;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--ink-muted);line-height:1.7;">
-        Built independently by Adrian Croft — not an official UW tool. Just a helpful tool meant as a conversation starter.<br><br>
-        The pricing here is just meant as a guide. For a full formal quote, tap one of the two buttons above: ☕ <em>Book a "fixing" chat</em> or 💡 <em>Save £ on your bills.</em>
+        Built independently by Adrian Croft — not an official UW tool, just a helpful conversation starter. Pricing is a guide only. For a full formal quote tap ☕ <em>Book a "fixing" chat</em> or 💡 <em>Save £ on your bills</em> above.
       </div>
     </div>
   </div>
@@ -598,7 +611,7 @@ footer a{color:var(--ink-soft);text-decoration:none;}
 </div>
 
 <footer>
-  Built with ♥ using Claude &nbsp;·&nbsp; UW Fixed Saver 79 · Ofgem April 2026 · MSE forecasts March 2026 &nbsp;·&nbsp; <a href="#">Not financial advice</a>
+  Adrian Croft &nbsp;·&nbsp; <a href="mailto:adrian.croft@uw.partners?subject=Your%20energy%20tool&body=Hi%20Adrian%2C%20I've%20just%20used%20your%20energy%20tool%20and%20I'd%20like%20to%20know%20more.">adrian.croft@uw.partners</a> &nbsp;·&nbsp; <a href="#">Not financial advice</a>
 </footer>
 
 <script>
@@ -785,11 +798,14 @@ function getEVkwh() {
 }
 
 // ── REGION ──
+function setRegion(code, el) {
+  document.querySelectorAll('.reg-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  document.getElementById('regionSelect').value = code;
+  onRegionChange();
+}
 function onRegionChange() {
   const r = document.getElementById('regionSelect').value;
-  // Keep both pickers in sync
-  const top = document.getElementById('regionSelectTop');
-  if (top && top.value !== r) top.value = r;
   if (pdfRates && pdfRates[r]) {
     activeFixed = {...pdfRates[r], source:'pdf'};
   } else {
@@ -866,7 +882,7 @@ function calculate() {
 
   // Dynamic savings button
   const savLbl = document.getElementById('savingsBtnLabel');
-  if (savLbl) savLbl.textContent = saving > 30 ? `Save ~${fmt(saving)} on your bills` : 'See the savings';
+  if (savLbl) savLbl.textContent = saving > 30 ? `Save ${fmt(saving)} on your bills?` : 'See the savings';
 
   document.getElementById('vs-fixed').textContent    = fmt(tf);
   document.getElementById('vs-variable').textContent = fmt(tv);
@@ -907,7 +923,7 @@ function calculate() {
   const aprReduction = (elec > 0) ? ` From 1 April, a government electricity unit rate reduction of 3.54p/kWh is expected — equivalent to around £63 for a small home, £95 for medium and £145 for larger households. Based on your current usage, the tool estimates your personal reduction at around £${Math.round(elec * 3.54 / 100)}/yr.` : '';
   document.getElementById('assumptionsBox').innerHTML=`
     <strong>How this works:</strong> Fixed costs are based on ${tariffName}${src} direct debit rates, adjusted for your selected region.${aprReduction} The variable side uses the <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE blended cap forecasts</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> A £26 dual-fuel credit applies to the UW Fixed Saver tariff. All figures include 5% VAT.${evStr}<br><br>
-    <strong>Note:</strong> Cap forecasts from July 2026 onwards are predictions, not guarantees. Fixing removes the uncertainty either way.`;
+    <strong>Note:</strong> Cap forecasts from July 2026 onwards are predictions, not guarantees. What <em>is</em> guaranteed: fixing your energy tariff removes the uncertainty.`;
 }
 
 function toggleDetail() {
