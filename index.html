@@ -301,20 +301,20 @@ footer a{color:var(--ink-soft);text-decoration:none;}
   <div style="margin-bottom:1.1rem;">
     <div class="sec-label">📍 Your region</div>
     <select id="regionSelectTop" onchange="document.getElementById('regionSelect').value=this.value;onRegionChange();" style="width:100%;padding:10px 12px;border:1.5px solid var(--border-strong);border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);background:white;cursor:pointer;outline:none;">
-      <option value="NatAv" selected>🇬🇧 UK average</option>
+      <option value="NatAv" selected>UK average</option>
       <option value="11">East Midlands</option>
       <option value="10">Eastern</option>
       <option value="12">London</option>
-      <option value="13">Manweb (N Wales)</option>
+      <option value="13">North Wales and Mersey</option>
       <option value="14">Midlands</option>
       <option value="15">Northern</option>
-      <option value="16">Norweb (NW England)</option>
-      <option value="17">Scottish Hydro (N Scotland)</option>
-      <option value="18">Scottish Power (S Scotland)</option>
-      <option value="19">Seeboard (South East)</option>
+      <option value="16">North West</option>
+      <option value="17">Northern Scotland</option>
+      <option value="18">Southern Scotland</option>
+      <option value="19">South East</option>
       <option value="20">Southern</option>
-      <option value="21">Swalec (South Wales)</option>
-      <option value="22">Sweb (South West)</option>
+      <option value="21">South Wales</option>
+      <option value="22">South West</option>
       <option value="23">Yorkshire</option>
     </select>
   </div>
@@ -422,8 +422,8 @@ footer a{color:var(--ink-soft);text-decoration:none;}
 
   <!-- HONEST NUDGE -->
   <div style="background:white;border:1px solid var(--border);border-radius:var(--radius-sm);padding:1rem 1.1rem;margin-bottom:1.1rem;box-shadow:var(--shadow);font-size:12px;color:var(--ink-soft);line-height:1.7;">
-    ℹ️ <strong style="color:var(--ink);">Worth knowing —</strong> this comparison uses UW's best bundled Fixed Saver tariff for the East Midlands region vs potential price cap rises from Jul '26 to Mar '27.<br><br>
-    But even if you just call your existing supplier and ask about fixing, you're almost certainly better off. From April, the government is cutting around £150 from fixed tariffs too — which has never happened before. Usually fixed means fixed. So lock in today's rates and there's still this to come off too.<br><br>
+    ℹ️ <strong style="color:var(--ink);">Worth knowing —</strong> this comparison uses UW's best bundled Fixed Saver tariff for your selected region vs potential price cap rises from Jul '26 to Mar '27.<br><br>
+    📞 But even if you just call your existing supplier and ask about fixing, you're almost certainly better off. From April, the government is reducing energy unit rates for all customers — including those on fixed tariffs. For UW Fixed Saver 79, this is equivalent to around £92 a year for medium usage, and has already been factored into this tool. Usually fixed means fixed — so this is an added bonus on top of your locked rate.<br><br>
     ⚡ With 2 in 3 UK homes on a variable tariff, fixing could mean a few hundred pounds staying in your bank over winter '26/27 rather than wasted on boring bills — especially if 12 months of peace of mind matters to you.<br><br>
     🎁 <strong style="color:var(--ink);">And there's more to this story.</strong> This month, referring just one friend onto a good bundled deal with UW could mean up to £150 off your own next bill — which for a typical home means wiping out a full month's energy.<br><br>
     💎 <strong style="color:var(--ink);">And you can take it even further.</strong> A beautician I'm working with has helped six of her clients fix their energy since she joined in February. In the last four weeks she's earned over £2,000 - and wiped out her own April bill. If that sounds interesting, tap the button below.
@@ -470,43 +470,28 @@ footer a{color:var(--ink-soft);text-decoration:none;}
   <!-- ADVANCED ACCORDION -->
   <div class="accordion">
     <button class="accordion-header" onclick="toggleAccordion()">
-      <span>⚙️ Region &amp; rate settings</span>
+      <span>⚙️ How this tool works</span>
       <span class="accordion-arrow" id="accArrow">▾</span>
     </button>
     <div class="accordion-body" id="accBody">
-      <div class="region-pdf-row">
-        <div class="region-wrap">
-          <div class="sec-label" style="margin-bottom:.4rem">Your region</div>
-          <select id="regionSelect" onchange="document.getElementById('regionSelectTop').value=this.value;onRegionChange()">
-            <option value="NatAv" selected>🇬🇧 UK average</option>
-            <option value="11">East Midlands</option>
-            <option value="10">Eastern</option>
-            <option value="12">London</option>
-            <option value="13">Manweb (N Wales)</option>
-            <option value="14">Midlands</option>
-            <option value="15">Northern</option>
-            <option value="16">Norweb (NW England)</option>
-            <option value="17">Scottish Hydro (N Scotland)</option>
-            <option value="18">Scottish Power (S Scotland)</option>
-            <option value="19">Seeboard (South East)</option>
-            <option value="20">Southern</option>
-            <option value="21">Swalec (South Wales)</option>
-            <option value="22">Sweb (South West)</option>
-            <option value="23">Yorkshire</option>
-          </select>
-        </div>
-        <div>
-          <div class="sec-label" style="margin-bottom:.4rem">Update rates</div>
-          <button class="pdf-btn" onclick="openModal()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-            Import PDF
-          </button>
-        </div>
-      </div>
-      <div class="rate-source-note" id="rateSourceNote">Using built-in East Midlands rates · UW Fixed Saver 79 · Ofgem April 2026</div>
-
+      <select id="regionSelect" style="display:none" onchange="document.getElementById('regionSelectTop').value=this.value;onRegionChange()">
+        <option value="NatAv" selected>UK average</option>
+        <option value="11">East Midlands</option>
+        <option value="10">Eastern</option>
+        <option value="12">London</option>
+        <option value="13">North Wales and Mersey</option>
+        <option value="14">Midlands</option>
+        <option value="15">Northern</option>
+        <option value="16">North West</option>
+        <option value="17">Northern Scotland</option>
+        <option value="18">Southern Scotland</option>
+        <option value="19">South East</option>
+        <option value="20">Southern</option>
+        <option value="21">South Wales</option>
+        <option value="22">South West</option>
+        <option value="23">Yorkshire</option>
+      </select>
       <div class="assumptions" id="assumptionsBox"></div>
-
       <div style="margin-top:.7rem;padding:.75rem .9rem;background:white;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;color:var(--ink-muted);line-height:1.7;">
         Built independently by Adrian Croft — not an official UW tool. Just a helpful tool meant as a conversation starter.<br><br>
         The pricing here is just meant as a guide. For a full formal quote, tap one of the two buttons above: ☕ <em>Book a "fixing" chat</em> or 💡 <em>Save £ on your bills.</em>
@@ -814,14 +799,15 @@ function onRegionChange() {
 }
 function updateSourceNote() {
   const n = document.getElementById('rateSourceNote');
+  if (!n) return;
   const code = document.getElementById('regionSelect').value;
   const uw = uwRates[code] || uwRates['NatAv'];
   const tariff = uw ? (uw.tariff || 'UW Fixed Saver') : 'UW Fixed Saver 79';
   const regionName = document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
   if (activeFixed.source==='pdf')      { n.innerHTML='✅ Rates from imported PDF'; n.style.color='var(--green)'; }
   else if (activeFixed.source==='manual'){ n.innerHTML=`✅ Manual rates applied — ${activeFixed.name||'custom'}`; n.style.color='var(--green)'; }
-  else if (activeFixed.source==='fallback'){ n.innerHTML=`⚠️ Using fallback rates · UW ${tariff} · ${regionName}`; n.style.color='var(--amber)'; }
-  else { n.innerHTML=`UW ${tariff} · ${regionName} · Ofgem Apr 2026 · Live from Google Sheets`; n.style.color='var(--green)'; }
+  else if (activeFixed.source==='fallback'){ n.innerHTML=`⚠️ Using fallback rates · ${regionName}`; n.style.color='var(--amber)'; }
+  else { n.innerHTML=`✅ Rates loaded · ${regionName} · Ofgem Apr 2026`; n.style.color='var(--green)'; }
 }
 
 // ── CALCULATE ──
@@ -916,10 +902,12 @@ function calculate() {
   const evStr = evKwh>0 ? ` EV charging adds ${evKwh.toLocaleString()} kWh/yr to electricity.` : '';
   const src   = activeFixed.source==='pdf' ? ' <span style="background:var(--green-light);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9.5px;font-weight:600">from PDF</span>' : activeFixed.source==='manual' ? ` <span style="background:var(--green-light);color:var(--green);border-radius:20px;padding:1px 7px;font-size:9.5px;font-weight:600">manual: ${activeFixed.name||'custom'}</span>` : '';
   const region= document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
-  const tariff = (uwRates[document.getElementById('regionSelect').value] || uwRates['NatAv'] || {tariff:'FS79'}).tariff;
+  const uwRow = uwRates[document.getElementById('regionSelect').value] || uwRates['NatAv'];
+  const tariffName = (uwRow && uwRow.tariff) ? 'UW Fixed Saver ' + uwRow.tariff.replace('FS','') : 'UW Fixed Saver 79';
+  const aprReduction = (elec > 0) ? ` From 1 April, a government electricity unit rate reduction of 3.54p/kWh is expected — equivalent to around £63 for a small home, £95 for medium and £145 for larger households. Based on your current usage, the tool estimates your personal reduction at around £${Math.round(elec * 3.54 / 100)}/yr.` : '';
   document.getElementById('assumptionsBox').innerHTML=`
-    <strong>How this works:</strong> Fixed rates: UW ${tariff}${src} (${region}, direct debit) with April 2026 government policy reduction applied to electricity only (−3.54p inc. VAT — RO reduction; ECO already priced into FS79 rates). Variable uses <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE blended forecast</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> Gas is modelled seasonally. Standing charges held flat.${evStr} £26 dual-fuel credit on fixed. All figures inc. 5% VAT. Rates loaded live from <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vToE2Aa0X9mI8ZwrP2uLtTSH8IeRi0yaIpWiHi6ZJMNskIzPgvIuK_jTu7KJSg00ny3JgUW7WXbLcNK/pub" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">Google Sheets</a>.<br><br>
-    <strong>Note:</strong> Forecasts beyond April 2026 are predictions — not guarantees. Fixing removes the uncertainty either way.`;
+    <strong>How this works:</strong> Fixed costs are based on ${tariffName}${src} direct debit rates, adjusted for your selected region.${aprReduction} The variable side uses the <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE blended cap forecasts</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> A £26 dual-fuel credit applies to the UW Fixed Saver tariff. All figures include 5% VAT.${evStr}<br><br>
+    <strong>Note:</strong> Cap forecasts from July 2026 onwards are predictions, not guarantees. Fixing removes the uncertainty either way.`;
 }
 
 function toggleDetail() {
