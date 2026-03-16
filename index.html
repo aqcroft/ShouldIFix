@@ -610,7 +610,7 @@ footer a{color:var(--ink-soft);text-decoration:none;}
           </label>
         </div>
         <div style="font-size:10.5px;color:var(--ink-muted);background:var(--warm);border-radius:6px;padding:6px 10px;margin-bottom:.75rem;">
-          April 2026 policy reductions (elec −3.54p, gas −0.33p inc. VAT) will still be applied automatically.
+          April 2026 policy reductions (elec −2.5p, gas −0.33p inc. VAT) will still be applied automatically.
         </div>
         <button onclick="applyManualRates()" style="width:100%;padding:8px;background:var(--green);color:white;border:none;border-radius:var(--radius-sm);font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:600;cursor:pointer;">
           Apply manual rates
@@ -734,7 +734,7 @@ function updateRatesForRegion(code) {
   };
 }
 
-const VAT=1.05, APR_E=3.54, APR_G=0, DUAL=26;
+const VAT=1.05, APR_E=2.5, APR_G=0, DUAL=26;
 let activeFixed = {...(FALLBACK_UW['NatAv']), source:'fallback'};
 let pdfRates    = null;
 
@@ -757,7 +757,7 @@ const CAPS=[1641,1641,1641,1897,1897,1897,1956,1956,1956,1956,1956,1956], CAP_Q1
 const PROFILES={ small:{gas:7500,elec:1800}, medium:{gas:11500,elec:2700}, large:{gas:17000,elec:4100} };
 const MONTHS=['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar'];
 const DAYS=[30,31,30,31,31,30,31,30,31,31,28,31];
-const GAS_Q=[.065,.045,.030,.025,.025,.035,.070,.110,.135,.150,.135,.175];
+const GAS_Q=[.086,.044,.027,.026,.024,.032,.069,.122,.151,.164,.128,.127];
 const ELEC_Q=[.075,.075,.075,.080,.080,.075,.085,.090,.095,.095,.090,.085];
 const Q_LBL=['Apr–Jun','Apr–Jun','Apr–Jun','Jul–Sep','Jul–Sep','Jul–Sep','Oct–Dec','Oct–Dec','Oct–Dec','Jan–Mar','Jan–Mar','Jan–Mar'];
 
@@ -941,11 +941,11 @@ function calculate() {
   const region= document.getElementById('regionSelect').options[document.getElementById('regionSelect').selectedIndex].text;
   const uwRow = uwRates[document.getElementById('regionSelect').value] || uwRates['NatAv'];
   const tariffName = (uwRow && uwRow.tariff) ? 'UW Fixed Saver ' + uwRow.tariff.replace('FS','') : 'UW Fixed Saver 79';
-  const aprReduction = (elec > 0) ? ` From 1 April, a government electricity unit rate reduction of 3.54p/kWh is expected — equivalent to around £63 for a small home, £95 for medium and £145 for larger households. Based on your current usage, the tool estimates your personal reduction at around £${Math.round(elec * 3.54 / 100)}/yr.` : '';
+  const aprReduction = (elec > 0) ? ` From 1 April, a government electricity unit rate reduction of 2.5p/kWh is expected — equivalent to around £45 for a small home, £68 for medium and £103 for larger households. Based on your current usage, the tool estimates your personal reduction at around £${Math.round(elec * 2.5 / 100)}/yr.` : '';
   document.getElementById('assumptionsBox').innerHTML=`
-    <strong>How this works:</strong> Fixed costs use UW Fixed Saver 79 rates for your selected region. The April government electricity reduction (3.54p/kWh) is already applied — worth around £63 small · £95 medium · £145 large, or ~£${Math.round(elec * 3.54 / 100)} based on your current usage. Variable costs use <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE national average cap forecasts</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> All figures include VAT.${evStr}<br><br>
+    <strong>How this works:</strong> Fixed costs use UW Fixed Saver 79 rates for your selected region. The April government electricity reduction (2.5p/kWh) is already applied — worth around £45 small · £68 medium · £103 large, or ~£${Math.round(elec * 2.5 / 100)} based on your current usage. Variable costs use <a href="https://www.moneysavingexpert.com/utilities/are-there-any-cheap-fixed-energy-deals-currently-worth-it/" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;">MSE national average cap forecasts</a> (March 2026): <strong>Apr–Jun £1,641 · Jul–Sep £1,897 · Oct–Dec £1,956 · Jan–Mar £1,956.</strong> All figures include VAT.${evStr}<br><br>
     The Ofgem national average reduction is £150 for typical usage. UW Fixed Saver 79 customers receive the Renewables Obligation (RO) portion only (~£92 equivalent), as Energy Company Obligation (ECO) costs are already included in this tariff. This RO reduction is already applied in the tool's calculations.<br><br>
-    Cap forecasts from July 2026 aren't guaranteed — they are just predictions.<br><br>
+    Seasonal gas usage is modelled using official DESNZ data (Energy Trends Table ET 4.2, 2023–24 average). Nearly half of annual gas usage falls in December, January and February — the same months when the variable cap is forecast to be at its highest. Cap forecasts from July 2026 aren't guaranteed — they are just predictions.<br><br>
     What <em>is</em> guaranteed: fixing removes uncertainty.`;
 }
 
