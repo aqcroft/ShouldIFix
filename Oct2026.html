@@ -33,8 +33,8 @@
   .share-row input{flex:1;min-width:0;font-family:inherit;font-size:.82rem;font-weight:600;color:var(--muted);padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:#faf8ff}
   .share-row button{flex:none;font-family:inherit;font-weight:800;font-size:.85rem;color:#fff;background:var(--grad);border:none;border-radius:11px;padding:0 16px;cursor:pointer;transition:.15s}
   .share-row button:hover{filter:brightness(1.05)}
-  .uw-cta{display:inline-block;margin-top:12px;font-weight:700;font-size:.85rem;color:var(--purple);text-decoration:none}
-  .uw-cta:hover{text-decoration:underline}
+  .uw-cta{display:block;margin-top:12px;font-weight:800;font-size:.92rem;color:#fff;background:var(--grad);text-decoration:none;text-align:center;border-radius:12px;padding:12px 14px;box-shadow:0 8px 18px rgba(124,58,237,.20);transition:.15s}
+  .uw-cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
   .disclosure b{color:#5c5478}
   .disclosure .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:4px}
 
@@ -52,7 +52,7 @@
   .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   .seg button{font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:.15s}
   .seg button svg{width:24px;height:24px;display:block}
-  .seg button .ic{display:flex;gap:2px;align-items:center;height:24px}
+  .seg button .ic{display:flex;gap:2px;align-items:center;height:24px;font-size:21px;line-height:1}
   .seg button:hover{border-color:#cdbff0}
   .seg button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(124,58,237,.24)}
   .seg button[aria-pressed="true"] svg{stroke:#fff;fill:none}
@@ -89,6 +89,7 @@
   .yearline b{color:var(--purple-deep)}
   .rlead{font-weight:700;color:#5c5478;font-size:.9rem;margin:0}
   .rhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .usage-card{padding-top:16px;padding-bottom:16px}
   .usage-block{flex:1;min-width:0}
   .usage-block .lab{margin-bottom:6px}
   .usage-pick{display:flex;gap:5px;flex:1;min-width:0}
@@ -97,6 +98,8 @@
   .usage-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
   .usage-pick .pencil{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;flex:none}
   .usage-manual{margin-top:12px}
+  .reset-usage{margin-top:10px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--purple);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
+  .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
   .headline{margin:7px 0 12px}
   .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--purple-deep);line-height:1}
   .hl-save.neg{color:var(--cap)}
@@ -172,19 +175,21 @@
     <div class="field">
       <div class="seg" id="fuelSeg" role="group" aria-label="Choose fuels">
         <button type="button" data-mode="dual" aria-pressed="true">
-          <span class="ic">
-            <svg viewBox="0 0 24 24"><path d="M12 3c2 3 5 4 5 8a5 5 0 0 1-10 0c0-2 1-4 2-5 .2 2 1.8 2.5 1.8 4a1.8 1.8 0 0 1-3 0"/></svg>
-            <svg viewBox="0 0 24 24"><path d="M13 2 5 13h5l-1 9 9-12h-6z"/></svg>
-          </span>Both
+          <span class="ic" aria-hidden="true">🔥⚡</span>Both
         </button>
         <button type="button" data-mode="gas" aria-pressed="false">
-          <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2c2.5 3.5 6 5 6 9.5a6 6 0 0 1-12 0c0-2.5 1.2-4.5 2.5-6 .2 2.5 2.2 3 2.2 5a2.2 2.2 0 0 1-3.6 0"/></svg></span>Gas
+          <span class="ic" aria-hidden="true">🔥</span>Gas
         </button>
         <button type="button" data-mode="elec" aria-pressed="false">
-          <span class="ic"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h6l-1 8 10-13h-7z"/></svg></span>Electricity
+          <span class="ic" aria-hidden="true">⚡</span>Electricity
         </button>
       </div>
     </div>
+
+    <label class="switch hidden" id="electricHeatRow" style="justify-content:space-between;margin:12px 0 0;">
+      <span>Electric heating<span class="sub">Use a winter-weighted profile for electricity</span></span>
+      <span style="display:flex;align-items:center"><input type="checkbox" id="electricHeat"><span class="track"></span></span>
+    </label>
 
     <div class="field reg" style="margin-bottom:0">
       <span class="lab">Choose your region</span>
@@ -192,14 +197,14 @@
     </div>
   </section>
 
-  <section class="card result" id="resultCard">
+  <section class="card usage-card" id="usageCard">
     <div class="rhead">
       <div class="usage-block">
         <span class="lab">Set your usage</span>
         <div class="usage-pick" id="usageSeg" role="group" aria-label="Choose usage">
-          <button type="button" data-e="1600" data-g="6000">Low</button>
-          <button type="button" data-e="2500" data-g="9500" aria-pressed="true">Med</button>
-          <button type="button" data-e="3800" data-g="14000">High</button>
+          <button type="button" data-band="low" data-e="1600" data-g="6000" data-eh="1900">Low</button>
+          <button type="button" data-band="med" data-e="2500" data-g="9500" data-eh="3400" aria-pressed="true">Med</button>
+          <button type="button" data-band="high" data-e="3800" data-g="14000" data-eh="6100">High</button>
           <button type="button" id="btnPersonal" aria-label="Enter your own usage" title="Enter your own usage"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
         </div>
       </div>
@@ -210,8 +215,11 @@
         <div class="field" id="elecUsageWrap" style="margin-bottom:0"><span class="lab">Elec kWh/yr</span><input id="elec" type="number" min="0" step="50" value="2500"></div>
         <div class="field" id="gasUsageWrap" style="margin-bottom:0"><span class="lab">Gas kWh/yr</span><input id="gas" type="number" min="0" step="100" value="9500"></div>
       </div>
-      <p class="hint" style="margin:8px 0 0">Ofgem's typical bands (elec / gas kWh): low 1,600 / 6,000, medium 2,500 / 9,500, high 3,800 / 14,000. Enter your own above.</p>
+      <button class="reset-usage hidden" id="resetUsageBtn" type="button">Reset to selected band</button>
     </div>
+  </section>
+
+  <section class="card result" id="resultCard">
     <p class="rlead" id="rlead">&nbsp;</p>
     <div class="headline">
       <span class="hl-save" id="ySaveTxt">–</span>
@@ -226,7 +234,7 @@
       <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
     </div>
     <details class="benchwrap">
-      <summary>Historical Ofgem benchmark options</summary>
+      <summary>Historic Ofgem medium benchmark figures</summary>
       <div class="body">
         <span class="benchlab">Load an Ofgem "medium" benchmark<span class="info" tabindex="0" role="button" aria-label="Why the benchmark matters">i<span class="tip">Ofgem's "typical home" keeps shrinking. Tap through them and watch the saving move. That's the whole point in building this tool: a medium figure is a blunt instrument for a personal decision.</span></span></span>
         <div class="benches" id="benches">
@@ -239,9 +247,8 @@
   </section>
 
   <section class="card" id="fixedCard">
-    <h2>Your fixed deal</h2>
     <label class="switch" style="justify-content:space-between">
-      <span>Use UW Fixed Saver 95<span class="info" tabindex="0" role="button" aria-label="About Fixed Saver 95">i<span class="tip" id="saverTip">Fixed Saver 95 is for UW members who bundle other services (a 3 or 4 service bundle). Fixed to 31 August 2027.</span></span><span class="sub">Switch off to test a different fixed deal instead</span></span>
+      <span>Use UW Fixed Saver 95<span class="info" tabindex="0" role="button" aria-label="About Fixed Saver 95">i<span class="tip" id="saverTip">Fixed Saver 95 is for UW members who bundle other services (a 3 or 4 service bundle). Fixed to 31 August 2027.</span></span><span class="sub">Toggle off to test a custom fixed deal instead</span></span>
       <span style="display:flex;align-items:center"><input type="checkbox" id="usePrefill" checked><span class="track"></span></span>
     </label>
     <div id="manualWrap" class="manual hidden">
@@ -267,7 +274,7 @@
       <input id="shareUrl" type="text" readonly aria-label="Shareable link">
       <button id="copyBtn" type="button">Copy link</button>
     </div>
-    <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">💡 See what UW could look like for your home →</a>
+    <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Could you switch, fix and save? Get a proper quote here →</a>
   </section>
 
   <details>
@@ -343,10 +350,11 @@ function capMult(ph,stress){
 }
 
 function compute(o){
-  const {region,elecY,gasY,mode,fix,disc,stress}=o;
+  const {region,elecY,gasY,mode,fix,disc,stress,electricHeat}=o;
   const incE=mode!=="gas", incG=mode!=="elec";
+  const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
-    const eK=incE?elecY*ELEC_W[m.cal]:0;
+    const eK=incE?elecY*eProfile[m.cal]:0;
     const gK=incG?gasY*GAS_W[m.cal]:0;
     const ev=1+elecVAT(m.k);
     const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
@@ -420,7 +428,30 @@ function draw(res,stress){
 }
 
 /* ---- state + render ---- */
+let lastBand={e:2500,g:9500};
 let lastCustom={e:2500,g:9500};
+let customTouched=false;
+function usageBandValues(button, mode=state().mode, electricHeat=state().electricHeat){
+  if(mode==="elec" && electricHeat) return {e:+button.dataset.eh, g:0};
+  return {e:+button.dataset.e, g:+button.dataset.g};
+}
+function selectedUsageBand(){
+  return document.querySelector('#usageSeg button[data-band][aria-pressed="true"]') || document.querySelector('#usageSeg button[data-band="med"]');
+}
+function applyUsageBand(button){
+  const vals=usageBandValues(button);
+  document.getElementById("btnPersonal").setAttribute("aria-pressed","false");
+  document.getElementById("elec").value=vals.e;
+  document.getElementById("gas").value=vals.g;
+  lastBand={...vals};
+  if(!customTouched) lastCustom={...lastBand};
+  render();
+}
+function refreshSelectedUsageBand(){
+  if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){ render(); return; }
+  const band=selectedUsageBand();
+  if(band) applyUsageBand(band);
+}
 function state(){
   return {
     mode:document.querySelector('#fuelSeg button[aria-pressed="true"]').dataset.mode,
@@ -429,6 +460,7 @@ function state(){
     gasY:Math.max(0,+document.getElementById("gas").value||0),
     prefill:document.getElementById("usePrefill").checked,
     personalise:document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true",
+    electricHeat:document.getElementById("electricHeat").checked,
     stress:document.getElementById("stress").checked
   };
 }
@@ -440,14 +472,19 @@ function fixedRates(s){
 function syncVisibility(s){
   const incE=s.mode!=="gas", incG=s.mode!=="elec";
   document.getElementById("manualUsage").classList.toggle("hidden",!s.personalise);
+  document.getElementById("electricHeatRow").classList.toggle("hidden",s.mode!=="elec");
   document.getElementById("elecUsageWrap").classList.toggle("hidden",!incE);
   document.getElementById("gasUsageWrap").classList.toggle("hidden",!incG);
   document.getElementById("manualWrap").classList.toggle("hidden",s.prefill);
   document.getElementById("mElec").classList.toggle("hidden",!incE);
   document.getElementById("mGas").classList.toggle("hidden",!incG);
+  document.getElementById("resetUsageBtn").classList.toggle("hidden",!s.personalise || !customTouched);
   // usage picker highlight: matching band, the pencil if personalising, or none
-  const bands=[...document.querySelectorAll('#usageSeg button[data-e]')];
-  const match=bands.find(b=>+b.dataset.e===s.elecY && +b.dataset.g===s.gasY);
+  const bands=[...document.querySelectorAll('#usageSeg button[data-band]')];
+  const match=bands.find(b=>{
+    const vals=usageBandValues(b,s.mode,s.electricHeat);
+    return vals.e===s.elecY && vals.g===s.gasY;
+  });
   bands.forEach(b=>b.setAttribute("aria-pressed", (!s.personalise && b===match)?"true":"false"));
   document.getElementById("btnPersonal").setAttribute("aria-pressed", s.personalise?"true":"false");
 }
@@ -461,6 +498,7 @@ function buildShareUrl(s){
   const p=new URLSearchParams();
   p.set("r", s.region.n); p.set("f", s.mode); p.set("e", s.elecY); p.set("g", s.gasY);
   if(s.stress) p.set("s","1");
+  if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
   if(!s.prefill){
     p.set("o","1");
     p.set("es",+document.getElementById("mESC").value||0);
@@ -478,6 +516,7 @@ function readParams(){
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
   if(P.has("g")) document.getElementById("gas").value=P.get("g");
   document.getElementById("stress").checked = P.get("s")==="1";
+  document.getElementById("electricHeat").checked = P.get("eh")==="1";
   const region=REGIONS.find(r=>r.n==+document.getElementById("region").value)||REGIONS[1];
   if(P.get("o")==="1"){
     document.getElementById("usePrefill").checked=false;
@@ -491,9 +530,15 @@ function readParams(){
   }
   // if the shared usage isn't one of the bands, show it as personalised figures
   const e=+document.getElementById("elec").value, g=+document.getElementById("gas").value;
-  const isBand=[...document.querySelectorAll('#usageSeg button[data-e]')].some(b=>+b.dataset.e===e && +b.dataset.g===g);
+  const sharedMode=state().mode;
+  const sharedHeat=document.getElementById("electricHeat").checked;
+  const isBand=[...document.querySelectorAll('#usageSeg button[data-band]')].some(b=>{
+    const vals=usageBandValues(b,sharedMode,sharedHeat);
+    return vals.e===e && vals.g===g;
+  });
   document.getElementById("btnPersonal").setAttribute("aria-pressed", isBand?"false":"true");
-  if(!isBand) lastCustom={e,g};
+  if(isBand) lastBand={e,g};
+  else { lastCustom={e,g}; customTouched=true; }
 }
 
 function render(){
@@ -502,7 +547,7 @@ function render(){
   document.getElementById("shareUrl").value=buildShareUrl(s);
   const disc=(s.prefill && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
-  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,stress:s.stress});
+  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,stress:s.stress,electricHeat:s.electricHeat});
 
   // Fixed Saver 95 details -> tooltip
   const saverTip=document.getElementById("saverTip");
@@ -531,6 +576,8 @@ function render(){
 
   const note = s.stress
     ? `Stress test on: the cap is held flat at today's confirmed level, no forecast rise. Even so, fixing stays ahead, the honest floor for the case.`
+    : s.mode==="elec" && s.electricHeat
+    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Purple is your fixed line, orange the cap.`
     : s.mode!=="elec"
     ? `Purple is your fixed line, orange the cap. The gap between them is your saving, widest through winter when the forecast rise meets your heaviest gas use.`
     : `Purple is your fixed line, orange the cap. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
@@ -548,7 +595,7 @@ function statics(){
     "The fixed side defaults to UW Fixed Saver 95 for your region, Direct Debit, fixed to 31 August 2027. Switch it off to test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the Fixed Saver 95 standing charge, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
-    "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation.",
+    "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
     "Confirmed price-cap quarters are used where available. Forecast quarters are shown as estimates and fade as they get less certain.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
@@ -559,7 +606,8 @@ function statics(){
     <div>Rates: UW Fixed Saver 95 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 27 August 2026. Not an official Utility Warehouse tool or quote. Go to <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
+    <div>Last updated: 27 August 2026. Not an official Utility Warehouse tool or quote.</div>
+    <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
 /* ---- init ---- */
@@ -572,18 +620,14 @@ function statics(){
   document.querySelectorAll('#fuelSeg button').forEach(b=>b.addEventListener("click",()=>{
     document.querySelectorAll('#fuelSeg button').forEach(x=>x.setAttribute("aria-pressed","false"));
     b.setAttribute("aria-pressed","true");
-    render();
+    refreshSelectedUsageBand();
   }));
-  document.querySelectorAll('#usageSeg button[data-e]').forEach(b=>b.addEventListener("click",()=>{
-    document.getElementById("btnPersonal").setAttribute("aria-pressed","false");
-    document.getElementById("elec").value=b.dataset.e;
-    document.getElementById("gas").value=b.dataset.g;
-    render();
-  }));
+  document.querySelectorAll('#usageSeg button[data-band]').forEach(b=>b.addEventListener("click",()=>applyUsageBand(b)));
   document.getElementById("btnPersonal").addEventListener("click",()=>{
     document.getElementById("btnPersonal").setAttribute("aria-pressed","true");
-    document.getElementById("elec").value=lastCustom.e;
-    document.getElementById("gas").value=lastCustom.g;
+    const values=customTouched?lastCustom:lastBand;
+    document.getElementById("elec").value=values.e;
+    document.getElementById("gas").value=values.g;
     render();
     document.getElementById("elec").focus();
   });
@@ -591,18 +635,31 @@ function statics(){
     document.getElementById("btnPersonal").setAttribute("aria-pressed","false");
     document.getElementById("elec").value=b.dataset.e;
     document.getElementById("gas").value=b.dataset.g;
+    lastBand={e:+b.dataset.e, g:+b.dataset.g};
+    if(!customTouched) lastCustom={...lastBand};
     render();
   }));
   rSel.addEventListener("change",()=>{ if(document.getElementById("usePrefill").checked===false) prefillManual(REGIONS.find(r=>r.n==+rSel.value)); render(); });
-  ["elec","gas","stress","usePrefill","mESC","mEU","mGSC","mGU"].forEach(id=>{
+  document.getElementById("electricHeat").addEventListener("change",refreshSelectedUsageBand);
+  ["stress","usePrefill","mESC","mEU","mGSC","mGU"].forEach(id=>{
     const el=document.getElementById(id);
     el.addEventListener("input",render); el.addEventListener("change",render);
   });
   // remember personalised figures so the pencil can bring them back
   ["elec","gas"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{
-    if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true")
+    if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){
+      customTouched=true;
       lastCustom={e:+document.getElementById("elec").value||0, g:+document.getElementById("gas").value||0};
+    }
+    render();
   }));
+  document.getElementById("resetUsageBtn").addEventListener("click",()=>{
+    document.getElementById("elec").value=lastBand.e;
+    document.getElementById("gas").value=lastBand.g;
+    lastCustom={...lastBand};
+    customTouched=false;
+    render();
+  });
   document.getElementById("usePrefill").addEventListener("change",e=>{ if(!e.target.checked) prefillManual(REGIONS.find(r=>r.n==+rSel.value)); });
 
   const copyBtn=document.getElementById("copyBtn");
