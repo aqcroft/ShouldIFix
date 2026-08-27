@@ -29,6 +29,12 @@
   .context b{color:var(--purple-deep)}
   .context .csrc{color:var(--muted);font-weight:700;font-size:.78rem;text-decoration:none;white-space:nowrap}
   .context .csrc:hover{text-decoration:underline}
+  .share-row{display:flex;gap:8px}
+  .share-row input{flex:1;min-width:0;font-family:inherit;font-size:.82rem;font-weight:600;color:var(--muted);padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:#faf8ff}
+  .share-row button{flex:none;font-family:inherit;font-weight:800;font-size:.85rem;color:#fff;background:var(--grad);border:none;border-radius:11px;padding:0 16px;cursor:pointer;transition:.15s}
+  .share-row button:hover{filter:brightness(1.05)}
+  .uw-cta{display:inline-block;margin-top:12px;font-weight:700;font-size:.85rem;color:var(--purple);text-decoration:none}
+  .uw-cta:hover{text-decoration:underline}
   .disclosure b{color:#5c5478}
   .disclosure .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:4px}
 
@@ -249,6 +255,16 @@
     </div>
   </section>
 
+  <section class="card share">
+    <h2 style="margin-bottom:4px">Share this</h2>
+    <p class="hint" style="margin:0 0 11px">Send this exact view, figures and all, to someone weighing it up. The link opens the tool already filled in.</p>
+    <div class="share-row">
+      <input id="shareUrl" type="text" readonly aria-label="Shareable link">
+      <button id="copyBtn" type="button">Copy link</button>
+    </div>
+    <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Want to take a look at bundling your services with UW? Get a proper quote →</a>
+  </section>
+
   <details>
     <summary>How this works, and who's behind it</summary>
     <div class="body"><p id="discText" style="margin:0 0 11px"></p><ul id="method"></ul></div>
@@ -434,10 +450,48 @@ function prefillManual(region){
   document.getElementById("mGSC").value=region.uw.gSC;
   document.getElementById("mGU").value=region.uw.gU;
 }
+function buildShareUrl(s){
+  const p=new URLSearchParams();
+  p.set("r", s.region.n); p.set("f", s.mode); p.set("e", s.elecY); p.set("g", s.gasY);
+  if(s.stress) p.set("s","1");
+  if(!s.prefill){
+    p.set("o","1");
+    p.set("es",+document.getElementById("mESC").value||0);
+    p.set("eu",+document.getElementById("mEU").value||0);
+    p.set("gs",+document.getElementById("mGSC").value||0);
+    p.set("gu",+document.getElementById("mGU").value||0);
+  }
+  return location.origin+location.pathname+"?"+p.toString();
+}
+function readParams(){
+  const P=new URLSearchParams(location.search);
+  if(!P.has("r")&&!P.has("e")) return;              // no shared state
+  if(P.has("r")) document.getElementById("region").value=P.get("r");
+  if(P.has("f")){const m=P.get("f");document.querySelectorAll('#fuelSeg button').forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m?"true":"false"));}
+  if(P.has("e")) document.getElementById("elec").value=P.get("e");
+  if(P.has("g")) document.getElementById("gas").value=P.get("g");
+  document.getElementById("stress").checked = P.get("s")==="1";
+  const region=REGIONS.find(r=>r.n==+document.getElementById("region").value)||REGIONS[1];
+  if(P.get("o")==="1"){
+    document.getElementById("usePrefill").checked=false;
+    if(P.has("es")) document.getElementById("mESC").value=P.get("es");
+    if(P.has("eu")) document.getElementById("mEU").value=P.get("eu");
+    if(P.has("gs")) document.getElementById("mGSC").value=P.get("gs");
+    if(P.has("gu")) document.getElementById("mGU").value=P.get("gu");
+  } else {
+    document.getElementById("usePrefill").checked=true;
+    prefillManual(region);
+  }
+  // if the shared usage isn't one of the bands, show it as personalised figures
+  const e=+document.getElementById("elec").value, g=+document.getElementById("gas").value;
+  const isBand=[...document.querySelectorAll('#usageSeg button')].some(b=>+b.dataset.e===e && +b.dataset.g===g);
+  document.getElementById("personalise").checked=!isBand;
+}
 
 function render(){
   const s=state();
   syncVisibility(s);
+  document.getElementById("shareUrl").value=buildShareUrl(s);
   const disc=(s.prefill && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
   const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,stress:s.stress});
@@ -492,7 +546,7 @@ function statics(){
   ].map(t=>`<li>${t}</li>`).join("");
 
   const today=new Date().toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
-  document.getElementById("foot").innerHTML=`Built by a UW partner. Rates: UW Fixed Saver 95 tariff information and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit). Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on. Seasonal gas weighting from <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a> (2023-24 average); electricity a lighter approximation. ${today}. Not financial advice.`;
+  document.getElementById("foot").innerHTML=`Built by a UW partner, <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">set up with UW</a>. Rates: UW Fixed Saver 95 tariff information and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit). Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on. Seasonal gas weighting from <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a> (2023-24 average); electricity a lighter approximation. ${today}. Not financial advice.`;
 }
 
 /* ---- init ---- */
@@ -524,6 +578,15 @@ function statics(){
   });
   document.getElementById("usePrefill").addEventListener("change",e=>{ if(!e.target.checked) prefillManual(REGIONS.find(r=>r.n==+rSel.value)); });
 
+  const copyBtn=document.getElementById("copyBtn");
+  copyBtn.addEventListener("click", async ()=>{
+    const inp=document.getElementById("shareUrl");
+    const done=()=>{copyBtn.textContent="Copied";setTimeout(()=>copyBtn.textContent="Copy link",1600);};
+    try{ await navigator.clipboard.writeText(inp.value); done(); }
+    catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy link",1600);} }
+  });
+
+  readParams();
   statics();
   render();
 })();
