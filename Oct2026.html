@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Should I Fix? UW Fixed Saver 95 vs the price cap</title>
+<title>Should I Fix? UW fixed tariffs vs the price cap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -33,8 +33,13 @@
   .share-row input{flex:1;min-width:0;font-family:inherit;font-size:.82rem;font-weight:600;color:var(--muted);padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:#faf8ff}
   .share-row button{flex:none;font-family:inherit;font-weight:800;font-size:.85rem;color:#fff;background:var(--grad);border:none;border-radius:11px;padding:0 16px;cursor:pointer;transition:.15s}
   .share-row button:hover{filter:brightness(1.05)}
-  .uw-cta{display:block;margin-top:12px;font-weight:800;font-size:.92rem;color:#fff;background:var(--grad);text-decoration:none;text-align:center;border-radius:12px;padding:12px 14px;box-shadow:0 8px 18px rgba(124,58,237,.20);transition:.15s}
+  .cta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .uw-cta{display:block;font-weight:800;font-size:.9rem;color:#fff;background:var(--grad);text-decoration:none;text-align:center;border-radius:12px;padding:11px 12px;box-shadow:0 8px 18px rgba(124,58,237,.20);transition:.15s;line-height:1.2}
+  .uw-cta span{display:block;font-size:.78rem;font-weight:700;opacity:.9;margin-top:2px}
+  .uw-cta.secondary{color:var(--purple-deep);background:#fff;border:1.5px solid var(--line);box-shadow:none}
   .uw-cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .uw-cta.secondary:hover{border-color:#cdbff0;background:#faf8ff}
+  @media(max-width:430px){.cta-row{grid-template-columns:1fr}}
   .disclosure b{color:#5c5478}
   .disclosure .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:4px}
 
@@ -73,6 +78,27 @@
   .manual{margin-top:12px;padding-top:14px;border-top:1px dashed var(--line)}
   .prefill-note{font-weight:600;color:var(--muted);font-size:.84rem;background:#f6f2ff;border-radius:10px;padding:10px 12px;text-align:center}
   .prefill-note b{color:var(--ink)}
+  .fixed-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:stretch}
+  .tariff-current{font-family:inherit;text-align:left;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 12px;line-height:1.15;transition:.15s}
+  .tariff-current b{display:block;font-size:.9rem}
+  .tariff-current span{display:block;margin-top:3px;font-weight:700;font-size:.64rem;text-transform:uppercase;letter-spacing:.02em;color:var(--muted)}
+  button.tariff-current{cursor:pointer}
+  button.tariff-current:hover{border-color:#cdbff0}
+  .tariff-current[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .tariff-current[aria-pressed="true"] span{color:rgba(255,255,255,.82)}
+  .tariff-open{font-family:inherit;font-weight:800;font-size:.86rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 13px;line-height:1.15;transition:.15s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:5px}
+  .tariff-open:hover{border-color:#cdbff0}
+  .tariff-open[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .tariff-open .pencil{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;flex:none}
+  .tariff-pick{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .tariff-pick button{font-family:inherit;font-weight:800;font-size:.86rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 9px;line-height:1.15;transition:.15s}
+  .tariff-pick button span{display:block;margin-top:3px;font-weight:700;font-size:.64rem;text-transform:uppercase;letter-spacing:.02em;color:var(--muted)}
+  .tariff-pick button:hover{border-color:#cdbff0}
+  .tariff-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .tariff-pick button[aria-pressed="true"] span{color:rgba(255,255,255,.82)}
+  .tariff-panel{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  #fixedCard.advanced .tariff-panel{display:block}
+  @media(max-width:430px){.fixed-row{grid-template-columns:1fr}.tariff-pick{grid-template-columns:1fr}.tariff-pick button,.tariff-current{text-align:left}}
 
   /* result */
   .result{background:linear-gradient(135deg,#f3ecff,#fde8f2);border:1px solid #ecd9f7}
@@ -166,7 +192,7 @@
 
   <header class="hero">
     <h1>Should I fix?</h1>
-    <p><b>Around 2 in 3 UK homes</b> are still on the variable price cap. Check whether fixing could put money back in your pocket before winter does its thing.</p>
+    <p><b>Around 2 in 3 UK homes</b> are still on the variable price cap. Check whether fixing could give you more freedom to say "Yes!" this winter.</p>
   </header>
 
   <section class="card">
@@ -247,10 +273,20 @@
   </section>
 
   <section class="card" id="fixedCard">
-    <label class="switch" style="justify-content:space-between">
-      <span>Use UW Fixed Saver 95<span class="info" tabindex="0" role="button" aria-label="About Fixed Saver 95">i<span class="tip" id="saverTip">Fixed Saver 95 is for UW members who bundle other services (a 3 or 4 service bundle). Fixed to 31 August 2027.</span></span><span class="sub">Toggle off to test a custom fixed deal instead</span></span>
-      <span style="display:flex;align-items:center"><input type="checkbox" id="usePrefill" checked><span class="track"></span></span>
-    </label>
+    <span class="lab">Compare with<span class="info" tabindex="0" role="button" aria-label="About the selected fixed tariff">i<span class="tip" id="saverTip">Fixed Saver 95 is for UW customers who take energy plus two or three non-energy services. Fixed to 31 August 2027.</span></span></span>
+    <div class="fixed-row">
+      <button type="button" class="tariff-current" id="tariffCurrent" data-tariff="saver" aria-pressed="true" title="Reset to Fixed Saver 95">
+        <b>Fixed Saver 95</b><span>energy plus 2 or 3 services</span>
+      </button>
+      <button type="button" class="tariff-open" id="openTariffs" aria-pressed="false" aria-label="Choose a custom fixed tariff" title="Choose a custom fixed tariff"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
+    </div>
+    <div class="tariff-panel" id="tariffPanel">
+      <div class="tariff-pick" role="group" aria-label="Other fixed tariff options">
+        <button type="button" data-tariff="fixed">Fixed 95<span>energy plus 1 service</span></button>
+        <button type="button" data-tariff="start">Fixed Start 95<span>energy only</span></button>
+        <button type="button" data-tariff="custom">Custom rates<span>another fixed deal</span></button>
+      </div>
+    </div>
     <div id="manualWrap" class="manual hidden">
       <p class="hint" style="margin-top:0">Rates before VAT, as printed on a tariff's official information sheet, so a touch lower than the figures on your bill.</p>
       <div id="mElec">
@@ -274,7 +310,10 @@
       <input id="shareUrl" type="text" readonly aria-label="Shareable link">
       <button id="copyBtn" type="button">Copy link</button>
     </div>
-    <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Could you switch, fix and save? Get a proper quote here →</a>
+    <div class="cta-row">
+      <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Switch, fix and save?<span>Get a proper quote →</span></a>
+      <a class="uw-cta secondary" href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener">Prefer a helping hand?<span>Book a free bill review →</span></a>
+    </div>
   </section>
 
   <details>
@@ -290,23 +329,25 @@
 
 /* ---------- DATA (Direct Debit) ----------
    uw = UW Fixed Saver 95, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
+   fixed = UW Fixed 95, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
+   start = UW Fixed Start 95, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
    cap.octdec / cap.julsep = Ofgem price cap, INCLUDING VAT as published
    (electricity 0% VAT Oct 2026-Mar 2027, gas 5%; July-Sep both 5%). */
 const REGIONS = [
-  {n:10,name:"Eastern (10)",           uw:{gSC:19.436,gU:7.313,eSC:45.827,eU:24.981}, cap:{julsep:{eSC:53.94,eU:26.38,gSC:28.70,gU:7.26}, octdec:{eSC:51.84,eU:26.61,gSC:29.34,gU:7.91}}},
-  {n:11,name:"East Midlands (11)",     uw:{gSC:19.439,gU:7.245,eSC:45.719,eU:23.726}, cap:{julsep:{eSC:53.60,eU:25.10,gSC:28.78,gU:7.19}, octdec:{eSC:51.45,eU:25.36,gSC:29.41,gU:7.82}}},
-  {n:12,name:"London (12)",            uw:{gSC:19.470,gU:7.562,eSC:35.168,eU:25.114}, cap:{julsep:{eSC:44.78,eU:26.35,gSC:29.52,gU:7.50}, octdec:{eSC:42.92,eU:26.60,gSC:30.20,gU:8.15}}},
-  {n:13,name:"Manweb / Merseyside & N Wales (13)", uw:{gSC:19.435,gU:7.321,eSC:60.586,eU:26.125}, cap:{julsep:{eSC:70.76,eU:27.66,gSC:29.42,gU:7.28}, octdec:{eSC:67.66,eU:27.86,gSC:30.08,gU:7.91}}},
-  {n:14,name:"Midlands / West Midlands (14)", uw:{gSC:19.435,gU:7.322,eSC:51.011,eU:23.970}, cap:{julsep:{eSC:59.71,eU:25.33,gSC:29.06,gU:7.27}, octdec:{eSC:57.23,eU:25.60,gSC:29.71,gU:7.90}}},
-  {n:15,name:"Northern / NE England (15)", uw:{gSC:19.435,gU:7.325,eSC:55.866,eU:23.840}, cap:{julsep:{eSC:64.29,eU:25.22,gSC:29.15,gU:7.28}, octdec:{eSC:61.58,eU:25.46,gSC:29.79,gU:7.92}}},
-  {n:16,name:"Norweb / NW England (16)", uw:{gSC:19.437,gU:7.295,eSC:41.112,eU:24.851}, cap:{julsep:{eSC:47.61,eU:26.13,gSC:29.17,gU:7.24}, octdec:{eSC:45.68,eU:26.49,gSC:29.81,gU:7.86}}},
-  {n:17,name:"Scottish Hydro / N Scotland (17)", uw:{gSC:19.560,gU:7.328,eSC:51.885,eU:24.475}, cap:{julsep:{eSC:57.55,eU:26.42,gSC:29.22,gU:7.23}, octdec:{eSC:55.14,eU:26.35,gSC:29.87,gU:7.87}}},
-  {n:18,name:"Scottish Power / S Scotland (18)", uw:{gSC:19.550,gU:7.321,eSC:55.612,eU:24.529}, cap:{julsep:{eSC:64.17,eU:25.85,gSC:29.24,gU:7.23}, octdec:{eSC:61.41,eU:26.11,gSC:29.89,gU:7.87}}},
-  {n:19,name:"Seeboard / SE England (19)", uw:{gSC:19.430,gU:7.431,eSC:47.054,eU:25.183}, cap:{julsep:{eSC:54.45,eU:26.67,gSC:28.63,gU:7.39}, octdec:{eSC:52.32,eU:26.88,gSC:29.26,gU:8.05}}},
-  {n:20,name:"Southern (20)",          uw:{gSC:19.150,gU:7.455,eSC:42.798,eU:24.815}, cap:{julsep:{eSC:49.70,eU:26.42,gSC:28.53,gU:7.53}, octdec:{eSC:47.81,eU:26.47,gSC:29.16,gU:8.17}}},
-  {n:21,name:"Swalec / S Wales (21)",  uw:{gSC:19.429,gU:7.463,eSC:49.588,eU:24.971}, cap:{julsep:{eSC:57.84,eU:26.33,gSC:29.30,gU:7.42}, octdec:{eSC:55.41,eU:26.55,gSC:29.96,gU:8.09}}},
-  {n:22,name:"Sweb / SW England (22)", uw:{gSC:19.426,gU:7.511,eSC:50.615,eU:25.011}, cap:{julsep:{eSC:57.89,eU:26.39,gSC:28.68,gU:7.48}, octdec:{eSC:55.58,eU:26.58,gSC:29.31,gU:8.12}}},
-  {n:23,name:"Yorkshire (23)",         uw:{gSC:19.436,gU:7.312,eSC:54.848,eU:23.986}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
+  {n:10,name:"Eastern (10)",           uw:{gSC:19.436,gU:7.313,eSC:45.827,eU:24.981}, fixed:{gSC:23.350,gU:7.392,eSC:49.741,eU:25.249}, start:{gSC:25.829,gU:7.649,eSC:52.219,eU:26.127}, cap:{julsep:{eSC:53.94,eU:26.38,gSC:28.70,gU:7.26}, octdec:{eSC:51.84,eU:26.61,gSC:29.34,gU:7.91}}},
+  {n:11,name:"East Midlands (11)",     uw:{gSC:19.439,gU:7.245,eSC:45.719,eU:23.726}, fixed:{gSC:23.353,gU:7.323,eSC:49.633,eU:23.982}, start:{gSC:25.832,gU:7.579,eSC:52.112,eU:24.820}, cap:{julsep:{eSC:53.60,eU:25.10,gSC:28.78,gU:7.19}, octdec:{eSC:51.45,eU:25.36,gSC:29.41,gU:7.82}}},
+  {n:12,name:"London (12)",            uw:{gSC:19.470,gU:7.562,eSC:35.168,eU:25.114}, fixed:{gSC:23.393,gU:7.641,eSC:39.091,eU:25.376}, start:{gSC:25.877,gU:7.900,eSC:41.575,eU:26.235}, cap:{julsep:{eSC:44.78,eU:26.35,gSC:29.52,gU:7.50}, octdec:{eSC:42.92,eU:26.60,gSC:30.20,gU:8.15}}},
+  {n:13,name:"Manweb / Merseyside & N Wales (13)", uw:{gSC:19.435,gU:7.321,eSC:60.586,eU:26.125}, fixed:{gSC:23.349,gU:7.403,eSC:64.500,eU:26.416}, start:{gSC:25.828,gU:7.667,eSC:66.979,eU:27.361}, cap:{julsep:{eSC:70.76,eU:27.66,gSC:29.42,gU:7.28}, octdec:{eSC:67.66,eU:27.86,gSC:30.08,gU:7.91}}},
+  {n:14,name:"Midlands / West Midlands (14)", uw:{gSC:19.435,gU:7.322,eSC:51.011,eU:23.970}, fixed:{gSC:23.349,gU:7.402,eSC:54.925,eU:24.232}, start:{gSC:25.828,gU:7.663,eSC:57.404,eU:25.087}, cap:{julsep:{eSC:59.71,eU:25.33,gSC:29.06,gU:7.27}, octdec:{eSC:57.23,eU:25.60,gSC:29.71,gU:7.90}}},
+  {n:15,name:"Northern / NE England (15)", uw:{gSC:19.435,gU:7.325,eSC:55.866,eU:23.840}, fixed:{gSC:23.349,gU:7.405,eSC:59.779,eU:24.103}, start:{gSC:25.828,gU:7.670,eSC:62.258,eU:24.964}, cap:{julsep:{eSC:64.29,eU:25.22,gSC:29.15,gU:7.28}, octdec:{eSC:61.58,eU:25.46,gSC:29.79,gU:7.92}}},
+  {n:16,name:"Norweb / NW England (16)", uw:{gSC:19.437,gU:7.295,eSC:41.112,eU:24.851}, fixed:{gSC:23.351,gU:7.373,eSC:45.025,eU:25.115}, start:{gSC:25.830,gU:7.626,eSC:47.504,eU:25.980}, cap:{julsep:{eSC:47.61,eU:26.13,gSC:29.17,gU:7.24}, octdec:{eSC:45.68,eU:26.49,gSC:29.81,gU:7.86}}},
+  {n:17,name:"Scottish Hydro / N Scotland (17)", uw:{gSC:19.560,gU:7.328,eSC:51.885,eU:24.475}, fixed:{gSC:23.498,gU:7.408,eSC:55.824,eU:24.743}, start:{gSC:25.993,gU:7.669,eSC:58.318,eU:25.617}, cap:{julsep:{eSC:57.55,eU:26.42,gSC:29.22,gU:7.23}, octdec:{eSC:55.14,eU:26.35,gSC:29.87,gU:7.87}}},
+  {n:18,name:"Scottish Power / S Scotland (18)", uw:{gSC:19.550,gU:7.321,eSC:55.612,eU:24.529}, fixed:{gSC:23.487,gU:7.402,eSC:59.549,eU:24.799}, start:{gSC:25.980,gU:7.666,eSC:62.042,eU:25.683}, cap:{julsep:{eSC:64.17,eU:25.85,gSC:29.24,gU:7.23}, octdec:{eSC:61.41,eU:26.11,gSC:29.89,gU:7.87}}},
+  {n:19,name:"Seeboard / SE England (19)", uw:{gSC:19.430,gU:7.431,eSC:47.054,eU:25.183}, fixed:{gSC:23.344,gU:7.511,eSC:50.968,eU:25.455}, start:{gSC:25.823,gU:7.772,eSC:53.447,eU:26.340}, cap:{julsep:{eSC:54.45,eU:26.67,gSC:28.63,gU:7.39}, octdec:{eSC:52.32,eU:26.88,gSC:29.26,gU:8.05}}},
+  {n:20,name:"Southern (20)",          uw:{gSC:19.150,gU:7.455,eSC:42.798,eU:24.815}, fixed:{gSC:23.009,gU:7.535,eSC:46.657,eU:25.079}, start:{gSC:25.453,gU:7.795,eSC:49.101,eU:25.944}, cap:{julsep:{eSC:49.70,eU:26.42,gSC:28.53,gU:7.53}, octdec:{eSC:47.81,eU:26.47,gSC:29.16,gU:8.17}}},
+  {n:21,name:"Swalec / S Wales (21)",  uw:{gSC:19.429,gU:7.463,eSC:49.588,eU:24.971}, fixed:{gSC:23.343,gU:7.544,eSC:53.502,eU:25.242}, start:{gSC:25.821,gU:7.808,eSC:55.981,eU:26.126}, cap:{julsep:{eSC:57.84,eU:26.33,gSC:29.30,gU:7.42}, octdec:{eSC:55.41,eU:26.55,gSC:29.96,gU:8.09}}},
+  {n:22,name:"Sweb / SW England (22)", uw:{gSC:19.426,gU:7.511,eSC:50.615,eU:25.011}, fixed:{gSC:23.340,gU:7.593,eSC:54.529,eU:25.282}, start:{gSC:25.819,gU:7.859,eSC:57.008,eU:26.169}, cap:{julsep:{eSC:57.89,eU:26.39,gSC:28.68,gU:7.48}, octdec:{eSC:55.58,eU:26.58,gSC:29.31,gU:8.12}}},
+  {n:23,name:"Yorkshire (23)",         uw:{gSC:19.436,gU:7.312,eSC:54.848,eU:23.986}, fixed:{gSC:23.350,gU:7.392,eSC:58.762,eU:24.251}, start:{gSC:25.828,gU:7.655,eSC:61.241,eU:25.114}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
 ];
 
 /* Forecast: Jan-Mar 2027 = MSE consensus +13.06% on the confirmed Oct-Dec cap;
@@ -431,6 +472,7 @@ function draw(res,stress){
 let lastBand={e:2500,g:9500};
 let lastCustom={e:2500,g:9500};
 let customTouched=false;
+let tariffPanelOpen=false;
 function usageBandValues(button, mode=state().mode, electricHeat=state().electricHeat){
   if(mode==="elec" && electricHeat) return {e:+button.dataset.eh, g:0};
   return {e:+button.dataset.e, g:+button.dataset.g};
@@ -458,14 +500,16 @@ function state(){
     region:REGIONS.find(r=>r.n==+document.getElementById("region").value),
     elecY:Math.max(0,+document.getElementById("elec").value||0),
     gasY:Math.max(0,+document.getElementById("gas").value||0),
-    prefill:document.getElementById("usePrefill").checked,
+    tariff:document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff || "saver",
     personalise:document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true",
     electricHeat:document.getElementById("electricHeat").checked,
     stress:document.getElementById("stress").checked
   };
 }
 function fixedRates(s){
-  if(s.prefill) return s.region.uw;
+  if(s.tariff==="saver") return s.region.uw;
+  if(s.tariff==="fixed") return s.region.fixed;
+  if(s.tariff==="start") return s.region.start;
   return {gSC:+document.getElementById("mGSC").value||0, gU:+document.getElementById("mGU").value||0,
           eSC:+document.getElementById("mESC").value||0, eU:+document.getElementById("mEU").value||0};
 }
@@ -475,7 +519,8 @@ function syncVisibility(s){
   document.getElementById("electricHeatRow").classList.toggle("hidden",s.mode!=="elec");
   document.getElementById("elecUsageWrap").classList.toggle("hidden",!incE);
   document.getElementById("gasUsageWrap").classList.toggle("hidden",!incG);
-  document.getElementById("manualWrap").classList.toggle("hidden",s.prefill);
+  document.getElementById("fixedCard").classList.toggle("advanced",tariffPanelOpen);
+  document.getElementById("manualWrap").classList.toggle("hidden",s.tariff!=="custom");
   document.getElementById("mElec").classList.toggle("hidden",!incE);
   document.getElementById("mGas").classList.toggle("hidden",!incG);
   document.getElementById("resetUsageBtn").classList.toggle("hidden",!s.personalise || !customTouched);
@@ -488,18 +533,25 @@ function syncVisibility(s){
   bands.forEach(b=>b.setAttribute("aria-pressed", (!s.personalise && b===match)?"true":"false"));
   document.getElementById("btnPersonal").setAttribute("aria-pressed", s.personalise?"true":"false");
 }
-function prefillManual(region){
-  document.getElementById("mESC").value=region.uw.eSC;
-  document.getElementById("mEU").value=region.uw.eU;
-  document.getElementById("mGSC").value=region.uw.gSC;
-  document.getElementById("mGU").value=region.uw.gU;
+function prefillManual(region, tariff=document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff || "saver"){
+  const rates=tariff==="fixed"?region.fixed:tariff==="start"?region.start:region.uw;
+  document.getElementById("mESC").value=rates.eSC;
+  document.getElementById("mEU").value=rates.eU;
+  document.getElementById("mGSC").value=rates.gSC;
+  document.getElementById("mGU").value=rates.gU;
+}
+function setTariffChoice(tariff){
+  document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.setAttribute("aria-pressed",b.dataset.tariff===tariff?"true":"false"));
+  tariffPanelOpen=!(tariff==="saver" || tariff==="custom");
+  document.getElementById("openTariffs").setAttribute("aria-pressed",tariffPanelOpen?"true":"false");
 }
 function buildShareUrl(s){
   const p=new URLSearchParams();
   p.set("r", s.region.n); p.set("f", s.mode); p.set("e", s.elecY); p.set("g", s.gasY);
   if(s.stress) p.set("s","1");
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
-  if(!s.prefill){
+  if(s.tariff!=="saver") p.set("t",s.tariff);
+  if(s.tariff==="custom"){
     p.set("o","1");
     p.set("es",+document.getElementById("mESC").value||0);
     p.set("eu",+document.getElementById("mEU").value||0);
@@ -519,13 +571,13 @@ function readParams(){
   document.getElementById("electricHeat").checked = P.get("eh")==="1";
   const region=REGIONS.find(r=>r.n==+document.getElementById("region").value)||REGIONS[1];
   if(P.get("o")==="1"){
-    document.getElementById("usePrefill").checked=false;
+    setTariffChoice("custom");
     if(P.has("es")) document.getElementById("mESC").value=P.get("es");
     if(P.has("eu")) document.getElementById("mEU").value=P.get("eu");
     if(P.has("gs")) document.getElementById("mGSC").value=P.get("gs");
     if(P.has("gu")) document.getElementById("mGU").value=P.get("gu");
   } else {
-    document.getElementById("usePrefill").checked=true;
+    setTariffChoice(["fixed","start"].includes(P.get("t"))?P.get("t"):"saver");
     prefillManual(region);
   }
   // if the shared usage isn't one of the bands, show it as personalised figures
@@ -545,15 +597,17 @@ function render(){
   const s=state();
   syncVisibility(s);
   document.getElementById("shareUrl").value=buildShareUrl(s);
-  const disc=(s.prefill && s.mode==="dual")?DISCOUNT:0;
+  const disc=(s.tariff!=="custom" && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
   const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,stress:s.stress,electricHeat:s.electricHeat});
 
-  // Fixed Saver 95 details -> tooltip
+  // Fixed tariff details
   const saverTip=document.getElementById("saverTip");
-  let tipHtml="Fixed Saver 95 is for UW members who bundle other services (a 3 or 4 service bundle). Fixed to 31 August 2027.";
-  if(s.prefill){
-    const u=s.region.uw, bits=[];
+  const tariffName=s.tariff==="fixed"?"Fixed 95":s.tariff==="start"?"Fixed Start 95":s.tariff==="custom"?"Custom fixed deal":"Fixed Saver 95";
+  const bundleText=s.tariff==="fixed"?"energy plus one non-energy service":s.tariff==="start"?"energy only":s.tariff==="saver"?"energy plus two or three non-energy services":"your entered rates";
+  let tipHtml=s.tariff==="custom" ? "Custom fixed deal: enter the rates before VAT from the tariff information sheet." : `${tariffName} is for UW customers who take ${bundleText}. Fixed to 31 August 2027.`;
+  if(s.tariff!=="custom"){
+    const u=fixedRates(s), bits=[];
     if(s.mode!=="gas") bits.push(`electricity ${u.eU.toFixed(1)}p + ${u.eSC.toFixed(1)}p/day`);
     if(s.mode!=="elec") bits.push(`gas ${u.gU.toFixed(1)}p + ${u.gSC.toFixed(1)}p/day`);
     tipHtml+=` ${s.region.name.replace(/\s*\(\d+\)/,"")}: ${bits.join(", ")} (before VAT).`;
@@ -570,7 +624,7 @@ function render(){
 
   document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
     const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
-    const val = sv<0 ? "−"+gbp(-sv) : (q.conf?"":"~")+gbp(sv);
+    const val = sv<0 ? "−"+gbp(-sv) : gbp(sv);
     return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv">${val}</span><span class="qn">${q.lab}</span></div>`;
   }).join("");
 
@@ -581,19 +635,19 @@ function render(){
     : s.mode!=="elec"
     ? `Purple is your fixed line, orange the cap. The gap between them is your saving, widest through winter when the forecast rise meets your heaviest gas use.`
     : `Purple is your fixed line, orange the cap. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
-  document.getElementById("chartTip").innerHTML = note + ` The dashed cap line and the ~ columns are forecast, fading as they get less certain. The % on each marks the consensus change from the quarter before. Sep to Dec are confirmed. The April step is the electricity VAT holiday ending.`;
+  document.getElementById("chartTip").innerHTML = note + ` The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the consensus change from the quarter before. Sep to Dec are confirmed. The April step is the electricity VAT holiday ending.`;
   draw(res,s.stress);
 }
 
 /* ---- statics ---- */
 function statics(){
   document.getElementById("discText").innerHTML =
-    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver 95 because that is the conversation this page was built to support, but you can switch the prefill off and type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
+    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver 95 because that is the conversation this page was built to support, but you can choose UW Fixed 95, UW Fixed Start 95, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
 
   document.getElementById("method").innerHTML=[
     "Compares a fixed tariff against the price cap over the year to August 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
-    "The fixed side defaults to UW Fixed Saver 95 for your region, Direct Debit, fixed to 31 August 2027. Switch it off to test any fixed deal.",
-    "Dual-fuel discount of £12.38 a year per fuel is applied to the Fixed Saver 95 standing charge, and only when both fuels are selected.",
+    "The fixed side defaults to UW Fixed Saver 95 for your region, Direct Debit, fixed to 31 August 2027. You can switch to UW Fixed 95, UW Fixed Start 95, or test any fixed deal.",
+    "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
     "Confirmed price-cap quarters are used where available. Forecast quarters are shown as estimates and fade as they get less certain.",
@@ -603,7 +657,7 @@ function statics(){
 
   document.getElementById("foot").innerHTML=`
     <div>Built by Authorised Utility Warehouse Partner Adrian Croft <a href="https://aqcroft.com" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">aqcroft.com</a>: helping people say "Yes!" each month</div>
-    <div>Rates: UW Fixed Saver 95 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
+    <div>Rates: UW Fixed Saver 95, UW Fixed 95 and UW Fixed Start 95 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
     <div>Last updated: 27 August 2026. Not an official Utility Warehouse tool or quote.</div>
@@ -639,9 +693,24 @@ function statics(){
     if(!customTouched) lastCustom={...lastBand};
     render();
   }));
-  rSel.addEventListener("change",()=>{ if(document.getElementById("usePrefill").checked===false) prefillManual(REGIONS.find(r=>r.n==+rSel.value)); render(); });
+  rSel.addEventListener("change",render);
+  document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.addEventListener("click",()=>{
+    const was=state().tariff;
+    setTariffChoice(b.dataset.tariff);
+    if(b.dataset.tariff==="custom" && was!=="custom") prefillManual(REGIONS.find(r=>r.n==+rSel.value), was);
+    render();
+  }));
+  document.getElementById("openTariffs").addEventListener("click",()=>{
+    tariffPanelOpen=!tariffPanelOpen;
+    document.getElementById("openTariffs").setAttribute("aria-pressed",tariffPanelOpen?"true":"false");
+    render();
+  });
+  document.getElementById("tariffCurrent").addEventListener("click",()=>{
+    setTariffChoice("saver");
+    render();
+  });
   document.getElementById("electricHeat").addEventListener("change",refreshSelectedUsageBand);
-  ["stress","usePrefill","mESC","mEU","mGSC","mGU"].forEach(id=>{
+  ["stress","mESC","mEU","mGSC","mGU"].forEach(id=>{
     const el=document.getElementById(id);
     el.addEventListener("input",render); el.addEventListener("change",render);
   });
@@ -660,8 +729,6 @@ function statics(){
     customTouched=false;
     render();
   });
-  document.getElementById("usePrefill").addEventListener("change",e=>{ if(!e.target.checked) prefillManual(REGIONS.find(r=>r.n==+rSel.value)); });
-
   const copyBtn=document.getElementById("copyBtn");
   copyBtn.addEventListener("click", async ()=>{
     const inp=document.getElementById("shareUrl");
