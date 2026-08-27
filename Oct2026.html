@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en-GB">
 <head>
@@ -223,14 +222,17 @@
       <span><i class="swatch save"></i>Saving</span>
       <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
     </div>
-    <div class="benchwrap">
-      <span class="benchlab">Load an Ofgem "medium" benchmark<span class="info" tabindex="0" role="button" aria-label="Why the benchmark matters">i<span class="tip">Ofgem's "typical home" keeps shrinking. Tap through them and watch the saving move. That's the whole point in building this tool: a medium figure is a blunt instrument for a personal decision.</span></span></span>
-      <div class="benches" id="benches">
-        <button type="button" data-e="2900" data-g="12000">2,900 / 12,000<span>pre 2023</span></button>
-        <button type="button" data-e="2700" data-g="11500">2,700 / 11,500<span>2023</span></button>
-        <button type="button" data-e="2500" data-g="9500">2,500 / 9,500<span>from Jul 26</span></button>
+    <details class="benchwrap">
+      <summary>Historical Ofgem benchmark options</summary>
+      <div class="body">
+        <span class="benchlab">Load an Ofgem "medium" benchmark<span class="info" tabindex="0" role="button" aria-label="Why the benchmark matters">i<span class="tip">Ofgem's "typical home" keeps shrinking. Tap through them and watch the saving move. That's the whole point in building this tool: a medium figure is a blunt instrument for a personal decision.</span></span></span>
+        <div class="benches" id="benches">
+          <button type="button" data-e="2900" data-g="12000">2,900 / 12,000<span>pre 2023</span></button>
+          <button type="button" data-e="2700" data-g="11500">2,700 / 11,500<span>2023</span></button>
+          <button type="button" data-e="2500" data-g="9500">2,500 / 9,500<span>from Jul 26</span></button>
+        </div>
       </div>
-    </div>
+    </details>
   </section>
 
   <section class="card" id="fixedCard">
