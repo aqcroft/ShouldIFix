@@ -24,7 +24,6 @@
   header.hero p{margin:0;opacity:.94;font-size:1rem;font-weight:600}
   header.hero p b{opacity:1;font-weight:800}
   header.hero p .hsrc{color:#fff;opacity:.9;font-weight:700;font-size:.82rem;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
-
   .disclosure{margin-top:13px;font-size:.8rem;font-weight:600;color:var(--muted);line-height:1.55;padding:0 4px}
   .context{margin:13px 3px 0;font-size:.92rem;font-weight:700;color:#544b70;line-height:1.5}
   .context b{color:var(--purple-deep)}
@@ -38,7 +37,6 @@
   .uw-cta:hover{text-decoration:underline}
   .disclosure b{color:#5c5478}
   .disclosure .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:4px}
-
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;margin-top:16px;box-shadow:0 4px 16px rgba(42,35,64,.04)}
   .card h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.15rem;margin:0 0 14px}
   .lab{font-weight:700;font-size:.92rem;display:block;margin-bottom:7px}
@@ -48,7 +46,6 @@
   select:focus,input:focus{outline:3px solid rgba(124,58,237,.28);border-color:var(--purple)}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:460px){.two{grid-template-columns:1fr}}
-
   /* segmented fuel control */
   .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
   .seg button{font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:.15s}
@@ -60,7 +57,6 @@
   .seg.usage button{padding:11px 4px 10px}
   .seg.usage button span{font-weight:700;font-size:.62rem;opacity:.72;margin-top:2px}
   .seg button svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
-
   /* toggle switch */
   .switch{display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:700;font-size:.9rem;user-select:none}
   .switch input{position:absolute;opacity:0;width:0;height:0}
@@ -70,11 +66,9 @@
   .switch input:checked + .track::after{left:21px}
   .switch input:focus + .track{outline:3px solid rgba(124,58,237,.28)}
   .switch .sub{font-weight:600;color:var(--muted);font-size:.78rem;display:block}
-
   .manual{margin-top:12px;padding-top:14px;border-top:1px dashed var(--line)}
   .prefill-note{font-weight:600;color:var(--muted);font-size:.84rem;background:#f6f2ff;border-radius:10px;padding:10px 12px;text-align:center}
   .prefill-note b{color:var(--ink)}
-
   /* result */
   .result{background:linear-gradient(135deg,#f3ecff,#fde8f2);border:1px solid #ecd9f7}
   .verdict{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.35rem,5.4vw,1.85rem);margin:0 0 4px;line-height:1.18}
@@ -135,7 +129,6 @@
   .callout{margin-top:13px;background:#fff7f4;border:1px solid var(--cap-soft);border-left:4px solid var(--cap);border-radius:12px;padding:12px 14px;font-weight:600;font-size:.92rem}
   .callout b{color:var(--cap)}
   .stress-row{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px}
-
   /* chart */
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
@@ -144,7 +137,6 @@
   .swatch.save{background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
   .cap-note{font-size:.78rem;font-weight:600;color:var(--muted);margin-top:8px}
-
   details{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 15px}
   details summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;font-size:.95rem}
   details summary::-webkit-details-marker{display:none}
@@ -159,15 +151,13 @@
 </head>
 <body>
 <div class="wrap">
-
   <header class="hero">
     <h1>Should I fix?</h1>
     <p><b>Around 2 in 3 UK homes</b> are still on the variable price cap, so for a lot of households there's a real saving worth checking. <a class="hsrc" href="https://www.ofgem.gov.uk/press-release/energy-price-cap-will-rise-4-october-2026" target="_blank" rel="noopener">Ofgem, Aug 2026</a></p>
+    <p><b>Around 2 in 3 UK homes</b> are still on the variable price cap. Check whether fixing could put money back in your pocket before winter does its thing.</p>
   </header>
-
   <section class="card">
     <h2 class="hidden">Your details</h2>
-
     <div class="field">
       <span class="lab">Which fuels?</span>
       <div class="seg" id="fuelSeg" role="group" aria-label="Choose fuels">
@@ -185,13 +175,11 @@
         </button>
       </div>
     </div>
-
     <div class="field reg" style="margin-bottom:0">
       <span class="lab">Region</span>
       <select id="region"></select>
     </div>
   </section>
-
   <section class="card result" id="resultCard">
     <div class="rhead">
       <div class="usage-pick" id="usageSeg" role="group" aria-label="Choose usage">
@@ -234,7 +222,6 @@
       </div>
     </details>
   </section>
-
   <section class="card" id="fixedCard">
     <h2>The fixed tariff</h2>
     <label class="switch" style="justify-content:space-between">
@@ -257,28 +244,26 @@
       </div>
     </div>
   </section>
-
   <section class="card share">
     <h2 style="margin-bottom:4px">Share this</h2>
     <p class="hint" style="margin:0 0 11px">Send this view, figures and all, to someone weighing it up.</p>
+    <p class="hint" style="margin:0 0 11px">Send this personalised view to someone who wants the simple version: fix, wait, or ask a better question.</p>
     <div class="share-row">
       <input id="shareUrl" type="text" readonly aria-label="Shareable link">
       <button id="copyBtn" type="button">Copy link</button>
     </div>
     <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">💡 Want to take a look at bundling your services with UW? Get a proper quote →</a>
+    <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">💡 See what UW could look like for your home →</a>
   </section>
-
   <details>
     <summary>How this works, and who's behind it</summary>
+    <summary>Assumptions, sources and small print</summary>
     <div class="body"><p id="discText" style="margin:0 0 11px"></p><ul id="method"></ul></div>
   </details>
-
   <footer id="foot"></footer>
 </div>
-
 <script>
 "use strict";
-
 /* ---------- DATA (Direct Debit) ----------
    uw = UW Fixed Saver 95, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
    cap.octdec / cap.julsep = Ofgem price cap, INCLUDING VAT as published
@@ -299,12 +284,10 @@ const REGIONS = [
   {n:22,name:"Sweb / SW England (22)", uw:{gSC:19.426,gU:7.511,eSC:50.615,eU:25.011}, cap:{julsep:{eSC:57.89,eU:26.39,gSC:28.68,gU:7.48}, octdec:{eSC:55.58,eU:26.58,gSC:29.31,gU:8.12}}},
   {n:23,name:"Yorkshire (23)",         uw:{gSC:19.436,gU:7.312,eSC:54.848,eU:23.986}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
 ];
-
 /* Forecast: Jan-Mar 2027 = MSE consensus +13.06% on the confirmed Oct-Dec cap;
    Apr-Jun down ~2.1% on Jan; Jul-Sep down ~10.2% on Apr (MSE average trajectory). */
 const JAN=1.1306, APR=JAN*0.97895, JUL=APR*0.89827;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
-
 const MONTHS=[
   {k:"Sep",cal:8, days:30,src:"julsep",ph:"now"},
   {k:"Oct",cal:9, days:31,src:"octdec",ph:"conf"},
@@ -339,7 +322,6 @@ function capMult(ph,stress){
   if(ph==="apr") return APR;
   return JUL;
 }
-
 function compute(o){
   const {region,elecY,gasY,mode,fix,disc,stress}=o;
   const incE=mode!=="gas", incG=mode!=="elec";
@@ -362,7 +344,6 @@ function compute(o){
     yCap:sum(r=>r.cap), yFix:sum(r=>r.fixed), ySave:sum(r=>r.save),
     wCap:sum(r=>r.cap,win), wFix:sum(r=>r.fixed,win), wSave:sum(r=>r.save,win)};
 }
-
 const gbp=n=>"£"+Math.round(n).toLocaleString("en-GB");
 function fillWindow(saveId,detailId,save,cap,fix){
   const el=document.getElementById(saveId);
@@ -370,7 +351,6 @@ function fillWindow(saveId,detailId,save,cap,fix){
   else{ el.classList.add("neg"); el.textContent="Cap wins by "+gbp(-save); }
   document.getElementById(detailId).textContent=`cap ${gbp(cap)} vs fixed ${gbp(fix)}`;
 }
-
 /* ---- chart ---- */
 function niceStep(max){const raw=max/4,pow=Math.pow(10,Math.floor(Math.log10(raw||1))),c=raw/pow;return (c<1.5?1:c<3?2:c<7?5:10)*pow;}
 function draw(res,stress){
@@ -416,7 +396,6 @@ function draw(res,stress){
     ${pcts}${xl}
   </svg>`;
 }
-
 /* ---- state + render ---- */
 let lastCustom={e:2500,g:9500};
 function state(){
@@ -493,7 +472,6 @@ function readParams(){
   document.getElementById("btnPersonal").setAttribute("aria-pressed", isBand?"false":"true");
   if(!isBand) lastCustom={e,g};
 }
-
 function render(){
   const s=state();
   syncVisibility(s);
@@ -501,7 +479,6 @@ function render(){
   const disc=(s.prefill && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
   const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,stress:s.stress});
-
   // Fixed Saver 95 details -> tooltip
   const saverTip=document.getElementById("saverTip");
   let tipHtml="Fixed Saver 95 is for UW members who bundle other services (a 3 or 4 service bundle). Fixed to 31 August 2027.";
@@ -513,20 +490,16 @@ function render(){
     if(s.mode==="dual") tipHtml+=" Dual-fuel discount applied.";
   }
   saverTip.textContent=tipHtml;
-
   const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
   document.getElementById("rlead").textContent=`Fixing your ${fuelWord} vs the price cap`;
-
   const yEl=document.getElementById("ySaveTxt"), ySub=document.getElementById("ySub");
   if(res.ySave>=0){ yEl.classList.remove("neg"); yEl.textContent=gbp(res.ySave); ySub.textContent="saved by fixing, over the year to Aug 2027"; }
   else{ yEl.classList.add("neg"); yEl.textContent=gbp(-res.ySave); ySub.textContent="cheaper to stay on the cap, over the year to Aug 2027"; }
-
   document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
     const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
     const val = sv<0 ? "−"+gbp(-sv) : (q.conf?"":"~")+gbp(sv);
     return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv">${val}</span><span class="qn">${q.lab}</span></div>`;
   }).join("");
-
   const note = s.stress
     ? `Stress test on: the cap is held flat at today's confirmed level, no forecast rise. Even so, fixing stays ahead, the honest floor for the case.`
     : s.mode!=="elec"
@@ -535,37 +508,41 @@ function render(){
   document.getElementById("chartTip").innerHTML = note + ` The dashed cap line and the ~ columns are forecast, fading as they get less certain. The % on each marks the consensus change from the quarter before. Sep to Dec are confirmed. The April step is the electricity VAT holiday ending.`;
   draw(res,s.stress);
 }
-
 /* ---- statics ---- */
 function statics(){
   document.getElementById("discText").innerHTML =
     `<b>Full disclosure:</b> I'm a UW partner, so I've skin in the game. But this tool doesn't much care who you fix with. It defaults to the UW deal so it's easy to compare if you're here and just curious, and you can drop in any fixed rates you like to show the potential savings. So whether it's fixing, or switching and fixing (swixing?), it'll tell you straight, even if the answer is "you're fine as you are."`;
-
+    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver 95 because that is the conversation this page was built to support, but you can switch the prefill off and type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
   document.getElementById("method").innerHTML=[
     "Compared against the Ofgem price cap, the benchmark for anyone on a standard variable tariff. A supplier's own variable can sit a little below the cap.",
     "Fixed side defaults to the current UW Fixed Saver 95 rates for your region, Direct Debit, fixed to 31 August 2027. Switch it off to test any fixed deal.",
+    "Compares a fixed tariff against the price cap over the year to August 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
+    "The fixed side defaults to UW Fixed Saver 95 for your region, Direct Debit, fixed to 31 August 2027. Switch it off to test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the Fixed Saver 95 standing charge, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months using a winter-weighted profile for gas, taken from DESNZ Energy Trends Table 4.2 (2023-24 average), where nearly half of annual gas falls in December, January and February, and a lighter seasonal approximation for electricity, which varies far less. So a rise landing in winter shows its true weight.",
     "October to December 2026 cap rates are confirmed by Ofgem. January to March 2027 uses the MoneySavingExpert consensus of EDF, British Gas and E.on. April onward follows the MSE average trajectory and is, in their words, crystal-ball gazing.",
     "Not financial advice, and not a prediction of your exact bill. A guide to help weigh up fixing."
+    "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation.",
+    "Confirmed price-cap quarters are used where available. Forecast quarters are shown as estimates and fade as they get less certain.",
+    "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
+    "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
   ].map(t=>`<li>${t}</li>`).join("");
-
   document.getElementById("foot").innerHTML=`
     <div>Built by Authorised Utility Warehouse Partner Adrian Croft <a href="https://aqcroft.com" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">aqcroft.com</a>: helping people say "Yes!" each month</div>
     <div>Rates: UW Fixed Saver 95 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting from <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a> (2023-24 average); electricity a lighter approximation.</div>
     <div>Last updated: 27 August 2026. Not an official Utility Warehouse tool. Not an official quote. Not financial advice. This tool is designed to start or facilitate a conversation about wider Utility Warehouse benefits. Go to <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
+    <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
+    <div>Last updated: 27 August 2026. Not an official Utility Warehouse tool or quote. Go to <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
-
 /* ---- init ---- */
 (function init(){
   const rSel=document.getElementById("region");
   REGIONS.forEach(r=>{const o=document.createElement("option");o.value=r.n;o.textContent=r.name;rSel.appendChild(o);});
   rSel.value=11;
   prefillManual(REGIONS.find(r=>r.n==11));
-
   document.querySelectorAll('#fuelSeg button').forEach(b=>b.addEventListener("click",()=>{
     document.querySelectorAll('#fuelSeg button').forEach(x=>x.setAttribute("aria-pressed","false"));
     b.setAttribute("aria-pressed","true");
@@ -601,7 +578,6 @@ function statics(){
       lastCustom={e:+document.getElementById("elec").value||0, g:+document.getElementById("gas").value||0};
   }));
   document.getElementById("usePrefill").addEventListener("change",e=>{ if(!e.target.checked) prefillManual(REGIONS.find(r=>r.n==+rSel.value)); });
-
   const copyBtn=document.getElementById("copyBtn");
   copyBtn.addEventListener("click", async ()=>{
     const inp=document.getElementById("shareUrl");
@@ -609,7 +585,6 @@ function statics(){
     try{ await navigator.clipboard.writeText(inp.value); done(); }
     catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy link",1600);} }
   });
-
   readParams();
   statics();
   render();
