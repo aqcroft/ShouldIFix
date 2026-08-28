@@ -473,6 +473,11 @@ let lastBand={e:2500,g:9500};
 let lastCustom={e:2500,g:9500};
 let customTouched=false;
 let tariffPanelOpen=false;
+function usageMatches(mode, electricHeat, e, g, vals){
+  if(mode==="gas") return vals.g===g;
+  if(mode==="elec") return vals.e===e;
+  return vals.e===e && vals.g===g;
+}
 function usageBandValues(button, mode=state().mode, electricHeat=state().electricHeat){
   if(mode==="elec" && electricHeat) return {e:+button.dataset.eh, g:0};
   return {e:+button.dataset.e, g:+button.dataset.g};
@@ -528,7 +533,7 @@ function syncVisibility(s){
   const bands=[...document.querySelectorAll('#usageSeg button[data-band]')];
   const match=bands.find(b=>{
     const vals=usageBandValues(b,s.mode,s.electricHeat);
-    return vals.e===s.elecY && vals.g===s.gasY;
+    return usageMatches(s.mode,s.electricHeat,s.elecY,s.gasY,vals);
   });
   bands.forEach(b=>b.setAttribute("aria-pressed", (!s.personalise && b===match)?"true":"false"));
   document.getElementById("btnPersonal").setAttribute("aria-pressed", s.personalise?"true":"false");
@@ -547,7 +552,9 @@ function setTariffChoice(tariff){
 }
 function buildShareUrl(s){
   const p=new URLSearchParams();
-  p.set("r", s.region.n); p.set("f", s.mode); p.set("e", s.elecY); p.set("g", s.gasY);
+  p.set("r", s.region.n); p.set("f", s.mode);
+  if(s.mode!=="gas") p.set("e", s.elecY);
+  if(s.mode!=="elec") p.set("g", s.gasY);
   if(s.stress) p.set("s","1");
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
   if(s.tariff!=="saver") p.set("t",s.tariff);
@@ -586,7 +593,7 @@ function readParams(){
   const sharedHeat=document.getElementById("electricHeat").checked;
   const isBand=[...document.querySelectorAll('#usageSeg button[data-band]')].some(b=>{
     const vals=usageBandValues(b,sharedMode,sharedHeat);
-    return vals.e===e && vals.g===g;
+    return usageMatches(sharedMode,sharedHeat,e,g,vals);
   });
   document.getElementById("btnPersonal").setAttribute("aria-pressed", isBand?"false":"true");
   if(isBand) lastBand={e,g};
