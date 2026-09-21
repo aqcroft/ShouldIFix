@@ -152,6 +152,28 @@
   .forecast-pick button:hover{border-color:#cdbff0}
   .forecast-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
   .forecast-hint{font-size:.66rem;font-weight:700;color:var(--muted);margin-top:5px;line-height:1.35}
+  .forecast-source-btn{width:100%;margin-top:8px;border:1.5px solid rgba(224,98,61,.28);background:#fff7f4;color:#6f321f;border-radius:11px;padding:9px 11px;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;font-family:inherit;font-size:.74rem;font-weight:700}
+  .forecast-source-btn:hover{border-color:var(--cap);background:#fff2ed}
+  .forecast-source-btn strong{font-size:.92rem;color:var(--cap)}
+  .forecast-source-btn .arrow{margin-left:auto;font-size:1.1rem;color:var(--cap)}
+  .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
+  .source-modal.open{display:flex}
+  .source-card{width:min(430px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(38,22,79,.28)}
+  .source-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .source-card h3{margin:0;color:var(--ink);font-size:1.2rem}
+  .source-card .source-kicker{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--cap);margin-bottom:3px}
+  .source-close{border:0;background:#f6f2fb;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:18px;color:var(--muted)}
+  .source-big{font-family:"Fraunces",Georgia,serif;font-size:2.35rem;line-height:1;color:var(--cap);font-weight:650;margin:6px 0 3px}
+  .source-sub{font-size:.82rem;color:var(--muted);font-weight:650;line-height:1.45;margin-bottom:12px}
+  .source-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0}
+  .source-q{border:1px solid var(--line);border-radius:10px;padding:8px 5px;text-align:center}
+  .source-q strong{display:block;font-size:.84rem;color:var(--ink)}
+  .source-q span{display:block;font-size:.62rem;color:var(--muted);font-weight:700;margin-top:2px;line-height:1.2}
+  .source-q.hot{border-color:rgba(224,98,61,.35);background:#fff7f4}
+  .source-q.hot strong{color:var(--cap)}
+  .source-card a.source-link{display:flex;align-items:center;justify-content:center;margin-top:12px;padding:10px 12px;border-radius:10px;background:var(--purple);color:#fff;text-decoration:none;font-size:.8rem;font-weight:800}
+  .source-note{margin-top:10px;font-size:.68rem;color:var(--muted);line-height:1.45;font-weight:600}
+  @media(max-width:430px){.source-grid{grid-template-columns:1fr 1fr}}
   .windows{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:460px){.windows{grid-template-columns:1fr}}
   .win{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px}
@@ -248,7 +270,7 @@
     <div class="forecast-row">
       <div class="forecast-top">
         <span class="lab">Jan 2027 price-cap rise</span>
-        <label class="forecast-current"><input id="janRise" type="number" min="-30" max="60" step="1" value="24" aria-label="January 2027 price cap rise percentage"><span>%</span></label>
+        <label class="forecast-current"><input id="janRise" type="number" min="-30" max="60" step="0.1" value="24.9" aria-label="January 2027 price cap rise percentage"><span>%</span></label>
       </div>
       <div class="forecast-pick" id="forecastSeg" role="group" aria-label="January 2027 price cap rise scenarios">
         <button type="button" data-rise="0" aria-pressed="false">0%</button>
@@ -256,7 +278,12 @@
         <button type="button" data-rise="20" aria-pressed="false">20%</button>
         <button type="button" data-rise="30" aria-pressed="false">30%</button>
       </div>
-      <div class="forecast-hint">Default 24% - rounded from the latest MSE consensus forecast of 24.9%. Tap a scenario or type your own figure.</div>
+      <div class="forecast-hint">Default 24.9%. The 0 / 10 / 20 / 30 buttons are quick sensitivity tests - or type any figure.</div>
+      <button class="forecast-source-btn" id="forecastSourceBtn" type="button" aria-haspopup="dialog" aria-controls="forecastSourceModal">
+        <span aria-hidden="true">📈</span>
+        <span><strong>24.9%?!</strong> Tap to see the latest forecast and source</span>
+        <span class="arrow" aria-hidden="true">›</span>
+      </button>
     </div>
     <div id="manualUsage" class="hidden usage-manual">
       <div class="two">
@@ -346,6 +373,28 @@
   <footer id="foot"></footer>
 </div>
 
+<div class="source-modal" id="forecastSourceModal" role="dialog" aria-modal="true" aria-labelledby="forecastSourceTitle">
+  <div class="source-card">
+    <div class="source-card-head">
+      <div>
+        <div class="source-kicker">MoneySavingExpert consensus forecast</div>
+        <h3 id="forecastSourceTitle">Yes - 24.9% is the current January forecast</h3>
+      </div>
+      <button class="source-close" id="forecastSourceClose" type="button" aria-label="Close forecast source">×</button>
+    </div>
+    <div class="source-big">+24.9%</div>
+    <div class="source-sub">Average of the latest EDF, British Gas and E.on Next predictions for the January-March 2027 Energy Price Cap, published for the week beginning 14 September 2026.</div>
+    <div class="source-grid">
+      <div class="source-q"><strong>£1,723</strong><span>Oct-Dec 2026<br>confirmed</span></div>
+      <div class="source-q hot"><strong>£2,152</strong><span>Jan-Mar 2027<br>+24.9%</span></div>
+      <div class="source-q"><strong>£2,118</strong><span>Apr-Jun 2027<br>-1.6%</span></div>
+      <div class="source-q"><strong>£1,892</strong><span>Jul-Sep 2027<br>-10.7%</span></div>
+    </div>
+    <a class="source-link" href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener">Open the MoneySavingExpert source →</a>
+    <div class="source-note">Forecasts can move materially before each cap is formally announced. The scenario buttons let you test a less dramatic January rise without changing the source default.</div>
+  </div>
+</div>
+
 <script>
 "use strict";
 
@@ -373,9 +422,9 @@ const REGIONS = [
 ];
 
 /* Forecast defaults (MSE consensus, week beginning 14 Sep 2026):
-   Jan-Mar +24.9% (rounded to 24% default in the UI), Apr-Jun -1.6%, Jul-Sep -10.7%.
+   Jan-Mar +24.9%, Apr-Jun -1.6%, Jul-Sep -10.7%.
    The Jan rise is user-adjustable via the scenario buttons / input. */
-const DEFAULT_JAN_RISE=24;
+const DEFAULT_JAN_RISE=24.9;
 const APR_FROM_JAN=0.984, JUL_FROM_APR=0.893;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
@@ -682,7 +731,7 @@ function statics(){
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
-    "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to a 24% rise, rounded from the latest MSE consensus of 24.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -1.6% April and -10.7% July trajectory and fade as certainty drops.",
+    "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to the latest MSE consensus of 24.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -1.6% April and -10.7% July trajectory and fade as certainty drops.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
   ].map(t=>`<li>${t}</li>`).join("");
@@ -772,6 +821,11 @@ function statics(){
     try{ await navigator.clipboard.writeText(inp.value); done(); }
     catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy link",1600);} }
   });
+
+  document.getElementById("forecastSourceBtn").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.add("open"));
+  document.getElementById("forecastSourceClose").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.remove("open"));
+  document.getElementById("forecastSourceModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("forecastSourceModal").classList.remove("open");});
 
   readParams();
   statics();
