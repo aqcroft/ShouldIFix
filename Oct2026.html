@@ -142,6 +142,16 @@
   .switch.mini .track{width:38px;height:22px}
   .switch.mini .track::after{width:16px;height:16px}
   .switch.mini input:checked + .track::after{left:19px}
+  .forecast-row{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .forecast-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .forecast-top .lab{margin:0}
+  .forecast-current{display:flex;align-items:center;gap:4px;font-size:.82rem;font-weight:800;color:var(--purple-deep)}
+  .forecast-current input{width:58px;padding:6px 7px;text-align:right;font-size:.88rem;border-radius:9px}
+  .forecast-pick{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .forecast-pick button{font-family:inherit;font-weight:800;font-size:.78rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:9px;padding:7px 4px;transition:.15s}
+  .forecast-pick button:hover{border-color:#cdbff0}
+  .forecast-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .forecast-hint{font-size:.66rem;font-weight:700;color:var(--muted);margin-top:5px;line-height:1.35}
   .windows{display:grid;grid-template-columns:1fr 1fr;gap:12px}
   @media(max-width:460px){.windows{grid-template-columns:1fr}}
   .win{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px}
@@ -234,7 +244,19 @@
           <button type="button" id="btnPersonal" aria-label="Enter your own usage" title="Enter your own usage"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
         </div>
       </div>
-      <label class="switch mini"><input type="checkbox" id="stress"><span class="track"></span><span class="ms">No Jan rise</span></label>
+    </div>
+    <div class="forecast-row">
+      <div class="forecast-top">
+        <span class="lab">Jan 2027 price-cap rise</span>
+        <label class="forecast-current"><input id="janRise" type="number" min="-30" max="60" step="1" value="24" aria-label="January 2027 price cap rise percentage"><span>%</span></label>
+      </div>
+      <div class="forecast-pick" id="forecastSeg" role="group" aria-label="January 2027 price cap rise scenarios">
+        <button type="button" data-rise="0" aria-pressed="false">0%</button>
+        <button type="button" data-rise="10" aria-pressed="false">10%</button>
+        <button type="button" data-rise="20" aria-pressed="false">20%</button>
+        <button type="button" data-rise="30" aria-pressed="false">30%</button>
+      </div>
+      <div class="forecast-hint">Default 24% - rounded from the latest MSE consensus forecast of 24.9%. Tap a scenario or type your own figure.</div>
     </div>
     <div id="manualUsage" class="hidden usage-manual">
       <div class="two">
@@ -350,9 +372,11 @@ const REGIONS = [
   {n:23,name:"Yorkshire (23)",         uw:{gSC:19.436,gU:7.312,eSC:54.848,eU:23.986}, fixed:{gSC:23.350,gU:7.392,eSC:58.762,eU:24.251}, start:{gSC:25.828,gU:7.655,eSC:61.241,eU:25.114}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
 ];
 
-/* Forecast: Jan-Mar 2027 = MSE consensus +13.06% on the confirmed Oct-Dec cap;
-   Apr-Jun down ~2.1% on Jan; Jul-Sep down ~10.2% on Apr (MSE average trajectory). */
-const JAN=1.1306, APR=JAN*0.97895, JUL=APR*0.89827;
+/* Forecast defaults (MSE consensus, week beginning 14 Sep 2026):
+   Jan-Mar +24.9% (rounded to 24% default in the UI), Apr-Jun -1.6%, Jul-Sep -10.7%.
+   The Jan rise is user-adjustable via the scenario buttons / input. */
+const DEFAULT_JAN_RISE=24;
+const APR_FROM_JAN=0.984, JUL_FROM_APR=0.893;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
 const MONTHS=[
@@ -382,16 +406,18 @@ const GAS_W =norm([16.4,12.8,12.7,8.6,4.4,2.7,2.6,2.4,3.2,6.9,12.2,15.1]);  /* D
 const ELEC_W=norm([9.5,9.0,8.5,7.5,7.5,7.5,8.0,8.0,7.5,8.5,9.0,9.5]);       /* lighter seasonal approximation */
 function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
 function elecVAT(k){return (k==="Oct"||k==="Nov"||k==="Dec"||k==="Jan"||k==="Feb"||k==="Mar")?0:0.05;}
-function capMult(ph,stress){
+function capMult(ph,janRisePct){
   if(ph==="now"||ph==="conf") return 1;
-  if(stress) return 1;             /* stress test: hold cap flat at confirmed Oct level */
+  const JAN=1+(janRisePct/100);
+  const APR=JAN*APR_FROM_JAN;
+  const JUL=APR*JUL_FROM_APR;
   if(ph==="jan") return JAN;
   if(ph==="apr") return APR;
   return JUL;
 }
 
 function compute(o){
-  const {region,elecY,gasY,mode,fix,disc,stress,electricHeat}=o;
+  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat}=o;
   const incE=mode!=="gas", incG=mode!=="elec";
   const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
@@ -401,7 +427,7 @@ function compute(o){
     const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
     const fixGas =incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0;
     const fixed=fixElec+fixGas;
-    const r=region.cap[m.src], mult=capMult(m.ph,stress);
+    const r=region.cap[m.src], mult=capMult(m.ph,janRise);
     const capElec=incE?(r.eSC*mult*m.days + r.eU*mult*eK)/100:0;
     const capGas =incG?(r.gSC*mult*m.days + r.gU*mult*gK)/100:0;
     const cap=capElec+capGas;
@@ -424,7 +450,7 @@ function fillWindow(saveId,detailId,save,cap,fix){
 
 /* ---- chart ---- */
 function niceStep(max){const raw=max/4,pow=Math.pow(10,Math.floor(Math.log10(raw||1))),c=raw/pow;return (c<1.5?1:c<3?2:c<7?5:10)*pow;}
-function draw(res,stress){
+function draw(res,janRise){
   const W=680,H=300,padL=38,padR=12,padT=14,padB=34;
   const rows=res.rows,n=rows.length;
   const maxV=Math.max(1,...rows.map(r=>r.cap),...rows.map(r=>r.fixed))*1.12;
@@ -450,12 +476,10 @@ function draw(res,stress){
   const segs=[[[b1,cap[4],cap[5],cap[6],b2],0.90],[[b2,cap[7],cap[8],cap[9],b3],0.60],[[b3,cap[10],cap[11]],0.42]];
   const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
   const capOp=i=> i<4?1 : i<7?0.9 : i<10?0.6 : 0.42;
-  let pcts="";
-  if(!stress){
-    const fmt=n=>(n>0?"+":"−")+Math.abs(n)+"%";
-    const items=[[(b1[0]+b2[0])/2, fmt(Math.round((JAN-1)*100)), 0.95],[(b2[0]+b3[0])/2, fmt(Math.round((APR/JAN-1)*100)), 0.62],[(b3[0]+x(11))/2, fmt(Math.round((JUL/APR-1)*100)), 0.42]];
-    pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${padT+9}" font-size="10.5" fill="var(--cap)" font-weight="800" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
-  }
+  const JAN=1+(janRise/100), APR=JAN*APR_FROM_JAN, JUL=APR*JUL_FROM_APR;
+  const fmt=n=>(n>=0?"+":"−")+Math.abs(n)+"%";
+  const items=[[(b1[0]+b2[0])/2, fmt(Math.round((JAN-1)*100)), 0.95],[(b2[0]+b3[0])/2, fmt(Math.round((APR/JAN-1)*100)), 0.62],[(b3[0]+x(11))/2, fmt(Math.round((JUL/APR-1)*100)), 0.42]];
+  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${padT+9}" font-size="10.5" fill="var(--cap)" font-weight="800" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
   document.getElementById("chart").innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
     ${grid}${qlines}
     <path d="${band}" fill="var(--save-soft)" opacity="0.75"/>
@@ -508,7 +532,7 @@ function state(){
     tariff:document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff || "saver",
     personalise:document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true",
     electricHeat:document.getElementById("electricHeat").checked,
-    stress:document.getElementById("stress").checked
+    janRise:Math.max(-30,Math.min(60,+document.getElementById("janRise").value||0))
   };
 }
 function fixedRates(s){
@@ -520,6 +544,7 @@ function fixedRates(s){
 }
 function syncVisibility(s){
   const incE=s.mode!=="gas", incG=s.mode!=="elec";
+  document.querySelectorAll('#forecastSeg button').forEach(b=>b.setAttribute("aria-pressed",(+b.dataset.rise===s.janRise)?"true":"false"));
   document.getElementById("manualUsage").classList.toggle("hidden",!s.personalise);
   document.getElementById("electricHeatRow").classList.toggle("hidden",s.mode!=="elec");
   document.getElementById("elecUsageWrap").classList.toggle("hidden",!incE);
@@ -555,7 +580,7 @@ function buildShareUrl(s){
   p.set("r", s.region.n); p.set("f", s.mode);
   if(s.mode!=="gas") p.set("e", s.elecY);
   if(s.mode!=="elec") p.set("g", s.gasY);
-  if(s.stress) p.set("s","1");
+  if(s.janRise!==DEFAULT_JAN_RISE) p.set("j",s.janRise);
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
   if(s.tariff!=="saver") p.set("t",s.tariff);
   if(s.tariff==="custom"){
@@ -574,7 +599,7 @@ function readParams(){
   if(P.has("f")){const m=P.get("f");document.querySelectorAll('#fuelSeg button').forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m?"true":"false"));}
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
   if(P.has("g")) document.getElementById("gas").value=P.get("g");
-  document.getElementById("stress").checked = P.get("s")==="1";
+  if(P.has("j")) document.getElementById("janRise").value=P.get("j");
   document.getElementById("electricHeat").checked = P.get("eh")==="1";
   const region=REGIONS.find(r=>r.n==+document.getElementById("region").value)||REGIONS[1];
   if(P.get("o")==="1"){
@@ -606,7 +631,7 @@ function render(){
   document.getElementById("shareUrl").value=buildShareUrl(s);
   const disc=(s.tariff!=="custom" && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
-  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,stress:s.stress,electricHeat:s.electricHeat});
+  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat});
 
   // Fixed tariff details
   const saverTip=document.getElementById("saverTip");
@@ -635,15 +660,15 @@ function render(){
     return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv">${val}</span><span class="qn">${q.lab}</span></div>`;
   }).join("");
 
-  const note = s.stress
-    ? `Stress test on: the cap is held flat at today's confirmed level, no forecast rise. Even so, fixing stays ahead, the honest floor for the case.`
+  const note = s.janRise===0
+    ? `0% January scenario selected: the January cap is held at the confirmed Oct-Dec level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
     ? `Electric heating is on, so electricity use is weighted more heavily into winter. Purple is your fixed line, orange the cap.`
     : s.mode!=="elec"
     ? `Purple is your fixed line, orange the cap. The gap between them is your saving, widest through winter when the forecast rise meets your heaviest gas use.`
     : `Purple is your fixed line, orange the cap. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
-  document.getElementById("chartTip").innerHTML = note + ` The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the consensus change from the quarter before. Sep to Dec are confirmed. The April step is the electricity VAT holiday ending.`;
-  draw(res,s.stress);
+  document.getElementById("chartTip").innerHTML = note + ` The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the assumed change from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step is the electricity VAT holiday ending.`;
+  draw(res,s.janRise);
 }
 
 /* ---- statics ---- */
@@ -657,7 +682,7 @@ function statics(){
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
-    "Confirmed price-cap quarters are used where available. Forecast quarters are shown as estimates and fade as they get less certain.",
+    "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to a 24% rise, rounded from the latest MSE consensus of 24.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -1.6% April and -10.7% July trajectory and fade as certainty drops.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
   ].map(t=>`<li>${t}</li>`).join("");
@@ -667,7 +692,7 @@ function statics(){
     <div>Rates: UW Fixed Saver 95, UW Fixed 95 and UW Fixed Start 95 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 27 August 2026. Not an official Utility Warehouse tool or quote.</div>
+    <div>Last updated: 21 September 2026. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -717,10 +742,14 @@ function statics(){
     render();
   });
   document.getElementById("electricHeat").addEventListener("change",refreshSelectedUsageBand);
-  ["stress","mESC","mEU","mGSC","mGU"].forEach(id=>{
+  ["janRise","mESC","mEU","mGSC","mGU"].forEach(id=>{
     const el=document.getElementById(id);
     el.addEventListener("input",render); el.addEventListener("change",render);
   });
+  document.querySelectorAll('#forecastSeg button').forEach(b=>b.addEventListener("click",()=>{
+    document.getElementById("janRise").value=b.dataset.rise;
+    render();
+  }));
   // remember personalised figures so the pencil can bring them back
   ["elec","gas"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{
     if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){
