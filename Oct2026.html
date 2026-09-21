@@ -726,15 +726,22 @@ function evExtraE7Shift(kind){
   if(kind==="storage") return 0.18;
   return 0.0556; // calibrated to the existing EV tool's 10% EV-window vs 15% E7 household defaults
 }
+function evHistoricHome(){
+  return Math.max(0,+document.getElementById("evHistoricAnnual").value||0);
+}
 function evSimpleEstimate(s){
-  const home=Math.max(0,s.elecY||2500);
+  const historic=evHistoricHome();
+  const home=historic>0?historic:Math.max(0,s.elecY||2500);
   const car=evHomeCharge();
   const homeOff=home*0.10;
-  return {peak:home-homeOff,off:homeOff+car};
+  return {peak:home-homeOff,off:homeOff+car,home,car,historic:historic>0};
 }
 function evSyncSimpleEstimate(s){
-  const car=evHomeCharge();
+  const car=evHomeCharge(),historic=evHistoricHome();
   document.getElementById("evChargeKwh").textContent=Math.round(car).toLocaleString("en-GB")+" kWh/year";
+  document.getElementById("evAnchoredTotal").textContent=historic>0
+    ? Math.round(historic+car).toLocaleString("en-GB")+" kWh/year assumed total = "+Math.round(historic).toLocaleString("en-GB")+" household + "+Math.round(car).toLocaleString("en-GB")+" home EV"
+    : "No historic annual anchor entered.";
   if(evProfileTouched) return;
   const est=evSimpleEstimate(s);
   document.getElementById("evAnnualPeak").value=Math.round(est.peak);
@@ -800,13 +807,25 @@ function evApplyBillEstimate(){
     const fromPeak=Math.min(hp,Math.max(0,sampleCar-fromOff));
     hp-=fromPeak; removed+=fromPeak;
   }
-  const annualHomePeak=hp/pDay.fraction;
-  const annualHomeOff=ho/pNight.fraction;
+  let annualHomePeak=hp/pDay.fraction;
+  let annualHomeOff=ho/pNight.fraction;
+  const rawHomeTotal=annualHomePeak+annualHomeOff;
+  const historic=evHistoricHome();
+  let anchored=false;
+  if(historic>0&&rawHomeTotal>0){
+    const scale=historic/rawHomeTotal;
+    annualHomePeak*=scale;
+    annualHomeOff*=scale;
+    anchored=true;
+  }
   const annualCar=evHomeCharge();
   document.getElementById("evAnnualPeak").value=Math.round(annualHomePeak);
   document.getElementById("evAnnualOff").value=Math.round(annualHomeOff+annualCar);
   evProfileTouched=true;
-  out.innerHTML="<b>Annual estimate:</b> "+Math.round(annualHomePeak).toLocaleString("en-GB")+" kWh peak + "+Math.round(annualHomeOff+annualCar).toLocaleString("en-GB")+" kWh off-peak. "+(removed?"About "+Math.round(removed).toLocaleString("en-GB")+" kWh of estimated EV charging was removed from this "+pDay.label+" sample before annualising the home.":"No EV charging was removed from the bill sample.");
+  const anchorText=anchored
+    ? " The bill-derived peak/off-peak shape was scaled to the trusted "+Math.round(historic).toLocaleString("en-GB")+" kWh historic household total, then "+Math.round(annualCar).toLocaleString("en-GB")+" kWh of estimated annual home EV charging was added back."
+    : " No historic annual anchor was entered, so the household total itself was annualised from this bill period.";
+  out.innerHTML="<b>Annual estimate:</b> "+Math.round(annualHomePeak).toLocaleString("en-GB")+" kWh peak + "+Math.round(annualHomeOff+annualCar).toLocaleString("en-GB")+" kWh off-peak = <b>"+Math.round(annualHomePeak+annualHomeOff+annualCar).toLocaleString("en-GB")+" kWh/year</b>."+anchorText+(removed?" About "+Math.round(removed).toLocaleString("en-GB")+" kWh of estimated EV charging was removed from this "+pDay.label+" sample first.":"");
   render();
 }
 function evVariableMult(ph,janRise){
@@ -889,16 +908,19 @@ function renderEvExtension(s){
     document.getElementById("evSaveSub").textContent="Custom fixed rates are not mapped to an EV tariff.";
     document.getElementById("evChart").innerHTML="";
     document.getElementById("evQstrip").innerHTML="";
+    document.getElementById("evRateSummary").hidden=true;
     return;
   }
   if(evFeedStatus==="loading"){
     status.className="ev-live";
     status.textContent="Loading current UW EV and Economy 7 tariff data…";
+    document.getElementById("evRateSummary").hidden=true;
     return;
   }
   if(evFeedStatus==="error"||!evFeedData){
     status.className="ev-live warn";
     status.textContent="Current EV tariff data could not be loaded. No rates are being guessed.";
+    document.getElementById("evRateSummary").hidden=true;
     return;
   }
   const map=evMapped(s.region.n),evRow=map[tier].ev,fixedRow=map[tier].fixed;
@@ -906,12 +928,17 @@ function renderEvExtension(s){
   if(!evR||!fixedR){
     status.className="ev-live warn";
     status.textContent="The live feed does not currently contain both EV and Economy 7 rates for this region and service level.";
+    document.getElementById("evRateSummary").hidden=true;
     return;
   }
   const fixedName=(fixedR.name||["Fixed Start 96","Fixed 96","Fixed Saver 96"][tier])+" Economy 7";
   const evName=evR.name||["EV Value","EV Gold","EV Double Gold"][tier];
   status.className="ev-live good";
   status.innerHTML='<span class="ev-pair">'+evName+' vs '+fixedName+'</span> · '+s.region.name.replace(/\s*\(\d+\)/,"")+' · live tariff feed';
+  const rateSummary=document.getElementById("evRateSummary");
+  rateSummary.hidden=false;
+  document.getElementById("evVariableRates").innerHTML='<strong>'+evName+' - variable</strong><div class="ev-rate-values"><span>Peak <b>'+evR.day.toFixed(3)+'p</b>/kWh</span><span>Off-peak <b>'+evR.night.toFixed(3)+'p</b>/kWh</span><span>Standing <b>'+evR.sc.toFixed(3)+'p</b>/day</span></div>';
+  document.getElementById("evFixedRates").innerHTML='<strong>'+fixedName+'</strong><div class="ev-rate-values"><span>Day <b>'+fixedR.day.toFixed(3)+'p</b>/kWh</span><span>Night <b>'+fixedR.night.toFixed(3)+'p</b>/kWh</span><span>Standing <b>'+fixedR.sc.toFixed(3)+'p</b>/day</span></div>'+(fixedR.fixedEnd?'<div class="ev-rate-values" style="margin-top:4px"><span>Fixed to <b>'+fixedR.fixedEnd+'</b></span></div>':'');
   const res=evCompute(s,evR,fixedR);
   const saving=res.ySave;
   document.getElementById("evSaveTxt").textContent=gbp(Math.abs(saving));
