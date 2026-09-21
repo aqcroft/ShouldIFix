@@ -1176,6 +1176,7 @@ function buildShareUrl(s){
     p.set("eef",evEfficiency);
     p.set("eaw",+document.getElementById("evAway").value||0);
     p.set("eht",document.getElementById("evHeating").value);
+    if(+document.getElementById("evHistoricAnnual").value>0) p.set("ehis",+document.getElementById("evHistoricAnnual").value);
   }
   return location.origin+location.pathname+"?"+p.toString();
 }
@@ -1218,6 +1219,7 @@ function readParams(){
     if(P.has("emi")) document.getElementById("evMiles").value=P.get("emi");
     if(P.has("eaw")) document.getElementById("evAway").value=P.get("eaw");
     if(P.has("eht")) document.getElementById("evHeating").value=P.get("eht");
+    if(P.has("ehis")) document.getElementById("evHistoricAnnual").value=P.get("ehis");
     if(P.has("eef")){
       evEfficiency=Math.max(1,Math.min(8,+P.get("eef")||3.2));
       document.querySelectorAll("#evEfficiency button").forEach(b=>b.setAttribute("aria-pressed",Math.abs(+b.dataset.eff-evEfficiency)<.001?"true":"false"));
@@ -1288,7 +1290,7 @@ function statics(){
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
     "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to the latest MSE consensus of 24.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -1.6% April and -10.7% July trajectory and fade as certainty drops.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
-    "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of Fixed Start 96, Fixed 96 or Fixed Saver 96. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
+    "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of Fixed Start 96, Fixed 96 or Fixed Saver 96. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
   ].map(t=>`<li>${t}</li>`).join("");
 
@@ -1394,7 +1396,7 @@ function statics(){
     document.querySelectorAll("#evEfficiency button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
     render();
   }));
-  ["evMiles","evAway"].forEach(id=>document.getElementById(id).addEventListener("input",render));
+  ["evMiles","evAway","evHistoricAnnual"].forEach(id=>document.getElementById(id).addEventListener("input",render));
   document.getElementById("evHeating").addEventListener("change",render);
 
   document.getElementById("forecastSourceClose").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.remove("open"));
