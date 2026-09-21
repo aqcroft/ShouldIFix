@@ -213,6 +213,58 @@
   svg.chart{width:100%;height:auto;display:block}
   .cap-note{font-size:.78rem;font-weight:600;color:var(--muted);margin-top:8px}
 
+  /* EV / Economy 7 extension */
+  details.evext{background:linear-gradient(135deg,#fbf8ff,#fff);border-color:#ddd3ef;box-shadow:0 4px 16px rgba(42,35,64,.04)}
+  details.evext>summary{font-family:"Fraunces",Georgia,serif;font-size:1.08rem;color:var(--purple-deep)}
+  details.evext>summary::before{content:"⚡ ";font-family:"Nunito",sans-serif}
+  .ev-intro{font-size:.83rem;line-height:1.5;color:var(--muted);margin:0 0 12px}
+  .ev-live{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 10px;font-size:.74rem;font-weight:700;color:var(--muted);margin-bottom:12px}
+  .ev-live.good{background:#f3fbf6;border-color:#cfe9d8;color:#397651}
+  .ev-live.warn{background:#fff7f4;border-color:#f1d0c6;color:#9b4c39}
+  .ev-pair{font-weight:800;color:var(--ink)}
+  .ev-section{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .ev-section:first-of-type{margin-top:0;padding-top:0;border-top:0}
+  .ev-section-title{font-size:.78rem;font-weight:850;color:var(--ink);margin-bottom:7px}
+  .ev-section-title small{display:block;font-size:.68rem;font-weight:650;color:var(--muted);margin-top:2px}
+  .ev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ev-grid.three{grid-template-columns:repeat(3,1fr)}
+  .ev-field label{display:block;font-size:.7rem;font-weight:800;color:var(--muted);margin-bottom:4px}
+  .ev-field input,.ev-field select{padding:9px 10px;font-size:.88rem;border-radius:9px}
+  .ev-mini-btn{font-family:inherit;font-size:.75rem;font-weight:800;border:1.5px solid var(--line);background:#fff;color:var(--purple-deep);border-radius:9px;padding:8px 10px;cursor:pointer}
+  .ev-mini-btn:hover{border-color:#cdbff0;background:#faf8ff}
+  .ev-car-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;align-items:end}
+  .ev-eff{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .ev-eff button{font-family:inherit;border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:7px 3px;font-size:.68rem;font-weight:800;color:var(--muted);cursor:pointer}
+  .ev-eff button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .ev-range{width:100%;accent-color:var(--purple)}
+  .ev-range-line{display:flex;justify-content:space-between;gap:8px;font-size:.68rem;font-weight:750;color:var(--muted);margin-top:2px}
+  .ev-bill-panel{margin-top:9px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#faf8ff}
+  .ev-bill-panel.hidden{display:none}
+  .ev-check{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:42px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;font-size:.72rem;font-weight:800;color:var(--muted)}
+  .ev-check input{width:18px;height:18px;accent-color:var(--purple)}
+  .ev-profile-note{margin-top:8px;font-size:.7rem;line-height:1.45;color:var(--muted);font-weight:650}
+  .ev-profile-result{margin-top:8px;background:#f3fbf6;border:1px solid #cfe9d8;border-radius:9px;padding:8px 10px;font-size:.72rem;line-height:1.45;color:#397651;font-weight:700}
+  .ev-result{margin-top:14px;padding:13px;border-radius:13px;background:linear-gradient(135deg,#f3ecff,#fff4f8);border:1px solid #eadcf4}
+  .ev-result-head{margin-bottom:7px}
+  .ev-result-head .ev-amount{font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1;color:var(--save)}
+  .ev-result-head .ev-sub{display:block;margin-top:3px;font-size:.76rem;font-weight:750;color:var(--muted)}
+  .ev-scenarios{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:7px 0 2px}
+  .ev-scenarios button{font-family:inherit;font-size:.7rem;font-weight:800;border:1.5px solid #ddd5eb;background:#fff;color:var(--muted);border-radius:8px;padding:7px 2px;cursor:pointer}
+  .ev-scenarios button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+  .ev-scenario-label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.67rem;font-weight:800;color:var(--muted);margin-top:8px}
+  .ev-scenario-label button{border:0;background:var(--line);color:var(--muted);border-radius:50%;width:18px;height:18px;font:800 10px Georgia,serif;cursor:pointer}
+  .ev-qstrip{display:flex;margin:7px 0 2px}
+  .ev-q{flex:1;text-align:center;border-left:1px dashed #e3ddf1;padding:0 2px}
+  .ev-q:first-child{border-left:0}
+  .ev-q b{display:block;font-size:.72rem;line-height:1.1}
+  .ev-q b.fix-win{color:var(--risk)}.ev-q b.var-win{color:var(--save)}
+  .ev-q span{display:block;font-size:.52rem;text-transform:uppercase;font-weight:800;color:var(--muted);margin-top:2px}
+  .ev-chart svg{width:100%;height:auto;display:block}
+  .ev-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.7rem;font-weight:750;color:var(--muted);margin-top:4px}
+  .ev-legend span{display:inline-flex;align-items:center;gap:4px}
+  .ev-note{font-size:.68rem;line-height:1.45;color:var(--muted);font-weight:650;margin-top:7px}
+  @media(max-width:520px){.ev-car-row,.ev-grid.three{grid-template-columns:1fr}.ev-grid{grid-template-columns:1fr}.ev-eff{grid-template-columns:repeat(4,1fr)}}
+
   details{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 15px}
   details summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;font-size:.95rem}
   details summary::-webkit-details-marker{display:none}
@@ -331,6 +383,87 @@
       </div>
     </div>
   </section>
+
+  <details class="evext" id="evExtension">
+    <summary>EV tariff vs fixed Economy 7</summary>
+    <div class="body">
+      <p class="ev-intro">Already on a UW EV tariff? This compares the matching EV Value, Gold or Double Gold variable tariff with the Economy 7 version of the fixed tariff selected above.</p>
+      <div class="ev-live" id="evLiveStatus">Loading current UW EV and Economy 7 tariff data…</div>
+
+      <div class="ev-section">
+        <div class="ev-section-title">Current annual peak / off-peak usage
+          <small>Current EV tariff totals including home EV charging. If you do not know them, use a recent bill below.</small>
+        </div>
+        <div class="ev-grid">
+          <div class="ev-field"><label for="evAnnualPeak">☀️ Peak kWh / year</label><input id="evAnnualPeak" type="number" min="0" step="50" value="2250"></div>
+          <div class="ev-field"><label for="evAnnualOff">🌙 Off-peak kWh / year</label><input id="evAnnualOff" type="number" min="0" step="50" value="3375"></div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">
+          <button class="ev-mini-btn" id="evResetEstimate" type="button">Reset to simple estimate</button>
+          <button class="ev-mini-btn" id="evBillToggle" type="button">Estimate from a recent bill</button>
+        </div>
+      </div>
+
+      <div class="ev-section">
+        <div class="ev-section-title">EV assumptions
+          <small>Reuses the same mileage / efficiency idea as the EV comparison tool.</small>
+        </div>
+        <div class="ev-car-row">
+          <div class="ev-field">
+            <label>Vehicle efficiency</label>
+            <div class="ev-eff" id="evEfficiency">
+              <button type="button" data-eff="3.8">3.8</button>
+              <button type="button" data-eff="3.2" aria-pressed="true">3.2</button>
+              <button type="button" data-eff="2.8">2.8</button>
+              <button type="button" data-eff="2.5">2.5</button>
+            </div>
+          </div>
+          <div class="ev-field"><label for="evMiles">Annual mileage</label><input id="evMiles" type="number" min="0" step="500" value="10000"></div>
+          <div class="ev-field"><label for="evAway">Charged away %</label><input id="evAway" type="number" min="0" max="100" step="5" value="0"></div>
+        </div>
+        <div class="ev-grid" style="margin-top:8px">
+          <div class="ev-field"><label for="evHeating">Home heating</label><select id="evHeating"><option value="none">Not electrically heated</option><option value="heatpump">Heat pump</option><option value="direct">Direct electric</option><option value="storage">Storage heaters</option></select></div>
+          <div class="ev-field"><label>Estimated home EV charging</label><div class="prefill-note" id="evChargeKwh">–</div></div>
+        </div>
+      </div>
+
+      <div class="ev-bill-panel hidden" id="evBillPanel">
+        <div class="ev-section-title">Estimate the annual split from one bill
+          <small>The car is stripped out first where possible, then the household usage is annualised using the bill period and heating type.</small>
+        </div>
+        <div class="ev-grid">
+          <div class="ev-field"><label for="evBillPeak">☀️ Peak kWh on bill</label><input id="evBillPeak" type="number" min="0" step="1" placeholder="e.g. 320"></div>
+          <div class="ev-field"><label for="evBillOff">🌙 Off-peak kWh on bill</label><input id="evBillOff" type="number" min="0" step="1" placeholder="e.g. 180"></div>
+        </div>
+        <div class="ev-grid" style="margin-top:8px">
+          <div class="ev-field"><label for="evBillMode">Bill period</label><select id="evBillMode"><option value="month">Whole calendar month</option><option value="dates">Exact dates</option></select></div>
+          <div class="ev-field" id="evBillMonthWrap"><label for="evBillMonth">Month</label><select id="evBillMonth"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div>
+        </div>
+        <div class="ev-grid hidden" id="evBillDates" style="margin-top:8px">
+          <div class="ev-field"><label for="evBillStart">From</label><input id="evBillStart" type="date"></div>
+          <div class="ev-field"><label for="evBillEnd">To</label><input id="evBillEnd" type="date"></div>
+        </div>
+        <div class="ev-check" style="margin-top:8px"><span>Does this bill include home EV charging?</span><input id="evBillIncludesCar" type="checkbox" checked></div>
+        <button class="ev-mini-btn" id="evApplyBill" type="button" style="width:100%;margin-top:8px">Build annual estimate</button>
+        <div class="ev-profile-result hidden" id="evProfileResult"></div>
+      </div>
+
+      <div class="ev-result">
+        <div class="ev-result-head"><span class="ev-amount" id="evSaveTxt">–</span><span class="ev-sub" id="evSaveSub">Waiting for tariff data…</span></div>
+        <div class="ev-qstrip" id="evQstrip"></div>
+        <div class="ev-scenario-label"><span>January EV rise - if it follows the price-cap scenario</span><button type="button" onclick="openForecastSource()" aria-label="Forecast source">i</button></div>
+        <div class="ev-scenarios" id="evScenarios"></div>
+        <div class="ev-chart" id="evChart"></div>
+        <div class="ev-legend">
+          <span><i class="swatch cap"></i>EV variable</span>
+          <span><i class="swatch fix"></i>Fixed E7</span>
+          <span><i class="swatch risk"></i>Fixed cheaper</span>
+          <span><i class="swatch cheaper"></i>EV cheaper</span>
+        </div>
+        <div class="ev-note" id="evNote">October defaults to an illustrative +4% EV tariff movement. January uses the scenario above, then April and July follow the same MSE percentage trajectory used by the main tool. This is a scenario, not a UW tariff forecast.</div>
+      </div>
+    </div>
+  </details>
 
   <section class="card share">
     <h2 style="margin-bottom:4px">Share this</h2>
