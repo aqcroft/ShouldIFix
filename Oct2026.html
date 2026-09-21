@@ -142,20 +142,19 @@
   .switch.mini .track{width:38px;height:22px}
   .switch.mini .track::after{width:16px;height:16px}
   .switch.mini input:checked + .track::after{left:19px}
-  .forecast-row{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
-  .forecast-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
-  .forecast-top .lab{margin:0}
-  .forecast-current{display:flex;align-items:center;gap:4px;font-size:.82rem;font-weight:800;color:var(--purple-deep)}
-  .forecast-current input{width:58px;padding:6px 7px;text-align:right;font-size:.88rem;border-radius:9px}
-  .forecast-pick{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
-  .forecast-pick button{font-family:inherit;font-weight:800;font-size:.78rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:9px;padding:7px 4px;transition:.15s}
-  .forecast-pick button:hover{border-color:#cdbff0}
-  .forecast-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
-  .forecast-hint{font-size:.66rem;font-weight:700;color:var(--muted);margin-top:5px;line-height:1.35}
-  .forecast-source-btn{width:100%;margin-top:8px;border:1.5px solid rgba(224,98,61,.28);background:#fff7f4;color:#6f321f;border-radius:11px;padding:9px 11px;display:flex;align-items:center;gap:8px;text-align:left;cursor:pointer;font-family:inherit;font-size:.74rem;font-weight:700}
-  .forecast-source-btn:hover{border-color:var(--cap);background:#fff2ed}
-  .forecast-source-btn strong{font-size:.92rem;color:var(--cap)}
-  .forecast-source-btn .arrow{margin-left:auto;font-size:1.1rem;color:var(--cap)}
+  .chart-shell{position:relative;border-radius:13px;background:rgba(255,255,255,.28);overflow:hidden}
+  .chart-forecast-label{position:absolute;z-index:3;top:8px;left:38px;font-size:.66rem;font-weight:800;color:var(--muted);letter-spacing:.01em}
+  .chart-scenarios{position:absolute;z-index:3;top:28px;left:38px;right:10px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+  .chart-scenarios button{min-width:0;font-family:inherit;font-size:.7rem;font-weight:800;line-height:1;border:1.5px solid #ddd5eb;background:rgba(255,255,255,.94);color:var(--muted);border-radius:9px;padding:7px 2px;cursor:pointer;box-shadow:0 1px 2px rgba(38,22,79,.04);transition:.15s}
+  .chart-scenarios button:hover{border-color:#cdbff0;color:var(--purple-deep)}
+  .chart-scenarios button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(124,58,237,.22)}
+  .chart-info{position:absolute;z-index:4;top:5px;right:8px;width:25px;height:25px;border-radius:50%;border:1.5px solid #d8d0e8;background:#fff;color:var(--purple-deep);font-family:Georgia,serif;font-weight:800;font-size:.8rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(38,22,79,.08)}
+  .chart-info:hover{border-color:var(--purple);background:#faf7ff}
+  @media(max-width:430px){
+    .chart-forecast-label{left:32px;font-size:.62rem}
+    .chart-scenarios{left:32px;right:8px;gap:3px}
+    .chart-scenarios button{font-size:.64rem;padding:6px 1px;border-radius:8px}
+  }
   .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
   .source-modal.open{display:flex}
   .source-card{width:min(430px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(38,22,79,.28)}
@@ -267,24 +266,6 @@
         </div>
       </div>
     </div>
-    <div class="forecast-row">
-      <div class="forecast-top">
-        <span class="lab">Jan 2027 price-cap rise</span>
-        <label class="forecast-current"><input id="janRise" type="number" min="-30" max="60" step="0.1" value="24.9" aria-label="January 2027 price cap rise percentage"><span>%</span></label>
-      </div>
-      <div class="forecast-pick" id="forecastSeg" role="group" aria-label="January 2027 price cap rise scenarios">
-        <button type="button" data-rise="0" aria-pressed="false">0%</button>
-        <button type="button" data-rise="10" aria-pressed="false">10%</button>
-        <button type="button" data-rise="20" aria-pressed="false">20%</button>
-        <button type="button" data-rise="30" aria-pressed="false">30%</button>
-      </div>
-      <div class="forecast-hint">Default 24.9%. The 0 / 10 / 20 / 30 buttons are quick sensitivity tests - or type any figure.</div>
-      <button class="forecast-source-btn" id="forecastSourceBtn" type="button" aria-haspopup="dialog" aria-controls="forecastSourceModal">
-        <span aria-hidden="true">📈</span>
-        <span><strong>24.9%?!</strong> Tap to see the latest forecast and source</span>
-        <span class="arrow" aria-hidden="true">›</span>
-      </button>
-    </div>
     <div id="manualUsage" class="hidden usage-manual">
       <div class="two">
         <div class="field" id="elecUsageWrap" style="margin-bottom:0"><span class="lab">Elec kWh/yr</span><input id="elec" type="number" min="0" step="50" value="2500"></div>
@@ -294,6 +275,7 @@
     </div>
   </section>
 
+  <input id="janRise" type="hidden" value="24.9">
   <section class="card result" id="resultCard">
     <p class="rlead" id="rlead">&nbsp;</p>
     <div class="headline">
@@ -322,17 +304,17 @@
   </section>
 
   <section class="card" id="fixedCard">
-    <span class="lab">Compare with<span class="info" tabindex="0" role="button" aria-label="About the selected fixed tariff">i<span class="tip" id="saverTip">Fixed Saver 95 is for UW customers who take energy plus two or three non-energy services. Fixed to 31 August 2027.</span></span></span>
+    <span class="lab">Compare with<span class="info" tabindex="0" role="button" aria-label="About the selected fixed tariff">i<span class="tip" id="saverTip">Fixed Saver 96 is for UW customers who take energy plus two or three non-energy services. Fixed to 30 September 2027.</span></span></span>
     <div class="fixed-row">
-      <button type="button" class="tariff-current" id="tariffCurrent" data-tariff="saver" aria-pressed="true" title="Reset to Fixed Saver 95">
-        <b>Fixed Saver 95</b><span>energy plus 2 or 3 services</span>
+      <button type="button" class="tariff-current" id="tariffCurrent" data-tariff="saver" aria-pressed="true" title="Reset to Fixed Saver 96">
+        <b>Fixed Saver 96</b><span>energy plus 2 or 3 services</span>
       </button>
       <button type="button" class="tariff-open" id="openTariffs" aria-pressed="false" aria-label="Choose a custom fixed tariff" title="Choose a custom fixed tariff"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
     </div>
     <div class="tariff-panel" id="tariffPanel">
       <div class="tariff-pick" role="group" aria-label="Other fixed tariff options">
-        <button type="button" data-tariff="fixed">Fixed 95<span>energy plus 1 service</span></button>
-        <button type="button" data-tariff="start">Fixed Start 95<span>energy only</span></button>
+        <button type="button" data-tariff="fixed">Fixed 96<span>energy plus 1 service</span></button>
+        <button type="button" data-tariff="start">Fixed Start 96<span>energy only</span></button>
         <button type="button" data-tariff="custom">Custom rates<span>another fixed deal</span></button>
       </div>
     </div>
@@ -378,12 +360,12 @@
     <div class="source-card-head">
       <div>
         <div class="source-kicker">MoneySavingExpert consensus forecast</div>
-        <h3 id="forecastSourceTitle">Yes - 24.9% is the current January forecast</h3>
+        <h3 id="forecastSourceTitle">Why is the default 24.9%?</h3>
       </div>
       <button class="source-close" id="forecastSourceClose" type="button" aria-label="Close forecast source">×</button>
     </div>
     <div class="source-big">+24.9%</div>
-    <div class="source-sub">Average of the latest EDF, British Gas and E.on Next predictions for the January-March 2027 Energy Price Cap, published for the week beginning 14 September 2026.</div>
+    <div class="source-sub">The 24.9% default is the MoneySavingExpert consensus average of the latest EDF, British Gas and E.on Next predictions for the January-March 2027 Energy Price Cap, published for the week beginning 14 September 2026.</div>
     <div class="source-grid">
       <div class="source-q"><strong>£1,723</strong><span>Oct-Dec 2026<br>confirmed</span></div>
       <div class="source-q hot"><strong>£2,152</strong><span>Jan-Mar 2027<br>+24.9%</span></div>
@@ -399,31 +381,31 @@
 "use strict";
 
 /* ---------- DATA (Direct Debit) ----------
-   uw = UW Fixed Saver 95, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
-   fixed = UW Fixed 95, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
-   start = UW Fixed Start 95, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
+   uw = UW Fixed Saver 96, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
+   fixed = UW Fixed 96, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
+   start = UW Fixed Start 96, fixed to 31 Aug 2027, rates EXCLUDING VAT (single-rate electricity).
    cap.octdec / cap.julsep = Ofgem price cap, INCLUDING VAT as published
    (electricity 0% VAT Oct 2026-Mar 2027, gas 5%; July-Sep both 5%). */
 const REGIONS = [
-  {n:10,name:"Eastern (10)",           uw:{gSC:19.436,gU:7.313,eSC:45.827,eU:24.981}, fixed:{gSC:23.350,gU:7.392,eSC:49.741,eU:25.249}, start:{gSC:25.829,gU:7.649,eSC:52.219,eU:26.127}, cap:{julsep:{eSC:53.94,eU:26.38,gSC:28.70,gU:7.26}, octdec:{eSC:51.84,eU:26.61,gSC:29.34,gU:7.91}}},
-  {n:11,name:"East Midlands (11)",     uw:{gSC:19.439,gU:7.245,eSC:45.719,eU:23.726}, fixed:{gSC:23.353,gU:7.323,eSC:49.633,eU:23.982}, start:{gSC:25.832,gU:7.579,eSC:52.112,eU:24.820}, cap:{julsep:{eSC:53.60,eU:25.10,gSC:28.78,gU:7.19}, octdec:{eSC:51.45,eU:25.36,gSC:29.41,gU:7.82}}},
-  {n:12,name:"London (12)",            uw:{gSC:19.470,gU:7.562,eSC:35.168,eU:25.114}, fixed:{gSC:23.393,gU:7.641,eSC:39.091,eU:25.376}, start:{gSC:25.877,gU:7.900,eSC:41.575,eU:26.235}, cap:{julsep:{eSC:44.78,eU:26.35,gSC:29.52,gU:7.50}, octdec:{eSC:42.92,eU:26.60,gSC:30.20,gU:8.15}}},
-  {n:13,name:"Manweb / Merseyside & N Wales (13)", uw:{gSC:19.435,gU:7.321,eSC:60.586,eU:26.125}, fixed:{gSC:23.349,gU:7.403,eSC:64.500,eU:26.416}, start:{gSC:25.828,gU:7.667,eSC:66.979,eU:27.361}, cap:{julsep:{eSC:70.76,eU:27.66,gSC:29.42,gU:7.28}, octdec:{eSC:67.66,eU:27.86,gSC:30.08,gU:7.91}}},
-  {n:14,name:"Midlands / West Midlands (14)", uw:{gSC:19.435,gU:7.322,eSC:51.011,eU:23.970}, fixed:{gSC:23.349,gU:7.402,eSC:54.925,eU:24.232}, start:{gSC:25.828,gU:7.663,eSC:57.404,eU:25.087}, cap:{julsep:{eSC:59.71,eU:25.33,gSC:29.06,gU:7.27}, octdec:{eSC:57.23,eU:25.60,gSC:29.71,gU:7.90}}},
-  {n:15,name:"Northern / NE England (15)", uw:{gSC:19.435,gU:7.325,eSC:55.866,eU:23.840}, fixed:{gSC:23.349,gU:7.405,eSC:59.779,eU:24.103}, start:{gSC:25.828,gU:7.670,eSC:62.258,eU:24.964}, cap:{julsep:{eSC:64.29,eU:25.22,gSC:29.15,gU:7.28}, octdec:{eSC:61.58,eU:25.46,gSC:29.79,gU:7.92}}},
-  {n:16,name:"Norweb / NW England (16)", uw:{gSC:19.437,gU:7.295,eSC:41.112,eU:24.851}, fixed:{gSC:23.351,gU:7.373,eSC:45.025,eU:25.115}, start:{gSC:25.830,gU:7.626,eSC:47.504,eU:25.980}, cap:{julsep:{eSC:47.61,eU:26.13,gSC:29.17,gU:7.24}, octdec:{eSC:45.68,eU:26.49,gSC:29.81,gU:7.86}}},
-  {n:17,name:"Scottish Hydro / N Scotland (17)", uw:{gSC:19.560,gU:7.328,eSC:51.885,eU:24.475}, fixed:{gSC:23.498,gU:7.408,eSC:55.824,eU:24.743}, start:{gSC:25.993,gU:7.669,eSC:58.318,eU:25.617}, cap:{julsep:{eSC:57.55,eU:26.42,gSC:29.22,gU:7.23}, octdec:{eSC:55.14,eU:26.35,gSC:29.87,gU:7.87}}},
-  {n:18,name:"Scottish Power / S Scotland (18)", uw:{gSC:19.550,gU:7.321,eSC:55.612,eU:24.529}, fixed:{gSC:23.487,gU:7.402,eSC:59.549,eU:24.799}, start:{gSC:25.980,gU:7.666,eSC:62.042,eU:25.683}, cap:{julsep:{eSC:64.17,eU:25.85,gSC:29.24,gU:7.23}, octdec:{eSC:61.41,eU:26.11,gSC:29.89,gU:7.87}}},
-  {n:19,name:"Seeboard / SE England (19)", uw:{gSC:19.430,gU:7.431,eSC:47.054,eU:25.183}, fixed:{gSC:23.344,gU:7.511,eSC:50.968,eU:25.455}, start:{gSC:25.823,gU:7.772,eSC:53.447,eU:26.340}, cap:{julsep:{eSC:54.45,eU:26.67,gSC:28.63,gU:7.39}, octdec:{eSC:52.32,eU:26.88,gSC:29.26,gU:8.05}}},
-  {n:20,name:"Southern (20)",          uw:{gSC:19.150,gU:7.455,eSC:42.798,eU:24.815}, fixed:{gSC:23.009,gU:7.535,eSC:46.657,eU:25.079}, start:{gSC:25.453,gU:7.795,eSC:49.101,eU:25.944}, cap:{julsep:{eSC:49.70,eU:26.42,gSC:28.53,gU:7.53}, octdec:{eSC:47.81,eU:26.47,gSC:29.16,gU:8.17}}},
-  {n:21,name:"Swalec / S Wales (21)",  uw:{gSC:19.429,gU:7.463,eSC:49.588,eU:24.971}, fixed:{gSC:23.343,gU:7.544,eSC:53.502,eU:25.242}, start:{gSC:25.821,gU:7.808,eSC:55.981,eU:26.126}, cap:{julsep:{eSC:57.84,eU:26.33,gSC:29.30,gU:7.42}, octdec:{eSC:55.41,eU:26.55,gSC:29.96,gU:8.09}}},
-  {n:22,name:"Sweb / SW England (22)", uw:{gSC:19.426,gU:7.511,eSC:50.615,eU:25.011}, fixed:{gSC:23.340,gU:7.593,eSC:54.529,eU:25.282}, start:{gSC:25.819,gU:7.859,eSC:57.008,eU:26.169}, cap:{julsep:{eSC:57.89,eU:26.39,gSC:28.68,gU:7.48}, octdec:{eSC:55.58,eU:26.58,gSC:29.31,gU:8.12}}},
-  {n:23,name:"Yorkshire (23)",         uw:{gSC:19.436,gU:7.312,eSC:54.848,eU:23.986}, fixed:{gSC:23.350,gU:7.392,eSC:58.762,eU:24.251}, start:{gSC:25.828,gU:7.655,eSC:61.241,eU:25.114}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
-];
+  {n:10,name:"Eastern (10)",           uw:{gSC:17.770,gU:7.875,eSC:50.671,eU:27.227}, fixed:{gSC:24.994,gU:7.875,eSC:52.568,eU:27.227}, start:{gSC:25.836,gU:8.278,eSC:52.788,eU:27.630}, cap:{julsep:{eSC:53.94,eU:26.38,gSC:28.70,gU:7.26}, octdec:{eSC:51.84,eU:26.61,gSC:29.34,gU:7.91}}},
+  {n:11,name:"East Midlands (11)",     uw:{gSC:17.943,gU:7.877,eSC:51.149,eU:26.177}, fixed:{gSC:25.227,gU:7.877,eSC:53.054,eU:26.177}, start:{gSC:26.103,gU:8.280,eSC:53.307,eU:26.568}, cap:{julsep:{eSC:53.60,eU:25.10,gSC:28.78,gU:7.19}, octdec:{eSC:51.45,eU:25.36,gSC:29.41,gU:7.82}}},
+  {n:12,name:"London (12)",            uw:{gSC:17.974,gU:8.165,eSC:40.197,eU:27.626}, fixed:{gSC:25.308,gU:8.165,eSC:42.101,eU:27.626}, start:{gSC:26.092,gU:8.581,eSC:42.357,eU:28.015}, cap:{julsep:{eSC:44.78,eU:26.35,gSC:29.52,gU:7.50}, octdec:{eSC:42.92,eU:26.60,gSC:30.20,gU:8.15}}},
+  {n:13,name:"Manweb / Merseyside & N Wales (13)", uw:{gSC:17.951,gU:7.950,eSC:65.890,eU:28.688}, fixed:{gSC:25.248,gU:7.950,eSC:67.836,eU:28.688}, start:{gSC:26.100,gU:8.357,eSC:67.983,eU:29.132}, cap:{julsep:{eSC:70.76,eU:27.66,gSC:29.42,gU:7.28}, octdec:{eSC:67.66,eU:27.86,gSC:30.08,gU:7.91}}},
+  {n:14,name:"Midlands / West Midlands (14)", uw:{gSC:17.951,gU:7.947,eSC:56.384,eU:26.454}, fixed:{gSC:25.247,gU:7.947,eSC:58.298,eU:26.454}, start:{gSC:26.100,gU:8.353,eSC:58.527,eU:26.857}, cap:{julsep:{eSC:59.71,eU:25.33,gSC:29.06,gU:7.27}, octdec:{eSC:57.23,eU:25.60,gSC:29.71,gU:7.90}}},
+  {n:15,name:"Northern / NE England (15)", uw:{gSC:17.953,gU:7.968,eSC:61.344,eU:26.262}, fixed:{gSC:25.253,gU:7.968,eSC:63.262,eU:26.262}, start:{gSC:26.099,gU:8.375,eSC:63.479,eU:26.672}, cap:{julsep:{eSC:64.29,eU:25.22,gSC:29.15,gU:7.28}, octdec:{eSC:61.58,eU:25.46,gSC:29.79,gU:7.92}}},
+  {n:16,name:"Norweb / NW England (16)", uw:{gSC:17.947,gU:7.912,eSC:46.834,eU:27.519}, fixed:{gSC:25.237,gU:7.912,eSC:48.745,eU:27.519}, start:{gSC:26.101,gU:8.317,eSC:48.982,eU:27.918}, cap:{julsep:{eSC:47.61,eU:26.13,gSC:29.17,gU:7.24}, octdec:{eSC:45.68,eU:26.49,gSC:29.81,gU:7.86}}},
+  {n:17,name:"Scottish Hydro / N Scotland (17)", uw:{gSC:18.129,gU:8.000,eSC:58.085,eU:26.642}, fixed:{gSC:25.495,gU:8.000,eSC:60.019,eU:26.642}, start:{gSC:26.365,gU:8.409,eSC:60.249,eU:27.050}, cap:{julsep:{eSC:57.55,eU:26.42,gSC:29.22,gU:7.23}, octdec:{eSC:55.14,eU:26.35,gSC:29.87,gU:7.87}}},
+  {n:18,name:"Scottish Power / S Scotland (18)", uw:{gSC:17.948,gU:7.920,eSC:60.740,eU:26.875}, fixed:{gSC:25.239,gU:7.920,eSC:62.663,eU:26.875}, start:{gSC:26.101,gU:8.325,eSC:62.868,eU:27.290}, cap:{julsep:{eSC:64.17,eU:25.85,gSC:29.24,gU:7.23}, octdec:{eSC:61.41,eU:26.11,gSC:29.89,gU:7.87}}},
+  {n:19,name:"Seeboard / SE England (19)", uw:{gSC:17.965,gU:8.076,eSC:52.563,eU:27.696}, fixed:{gSC:25.283,gU:8.076,eSC:54.483,eU:27.696}, start:{gSC:26.095,gU:8.488,eSC:54.696,eU:28.107}, cap:{julsep:{eSC:54.45,eU:26.67,gSC:28.63,gU:7.39}, octdec:{eSC:52.32,eU:26.88,gSC:29.26,gU:8.05}}},
+  {n:20,name:"Southern (20)",          uw:{gSC:17.977,gU:8.184,eSC:49.095,eU:27.518}, fixed:{gSC:25.313,gU:8.184,eSC:51.009,eU:27.518}, start:{gSC:26.091,gU:8.601,eSC:51.238,eU:27.921}, cap:{julsep:{eSC:49.70,eU:26.42,gSC:28.53,gU:7.53}, octdec:{eSC:47.81,eU:26.47,gSC:29.16,gU:8.17}}},
+  {n:21,name:"Swalec / S Wales (21)",  uw:{gSC:17.969,gU:8.111,eSC:55.084,eU:27.467}, fixed:{gSC:25.292,gU:8.111,eSC:57.006,eU:27.467}, start:{gSC:26.094,gU:8.524,eSC:57.216,eU:27.880}, cap:{julsep:{eSC:57.84,eU:26.33,gSC:29.30,gU:7.42}, octdec:{eSC:55.41,eU:26.55,gSC:29.96,gU:8.09}}},
+  {n:22,name:"Sweb / SW England (22)", uw:{gSC:17.972,gU:8.138,eSC:56.203,eU:27.490}, fixed:{gSC:25.300,gU:8.138,eSC:58.126,eU:27.490}, start:{gSC:26.093,gU:8.553,eSC:58.332,eU:27.904}, cap:{julsep:{eSC:57.89,eU:26.39,gSC:28.68,gU:7.48}, octdec:{eSC:55.58,eU:26.58,gSC:29.31,gU:8.12}}},
+  {n:23,name:"Yorkshire (23)",         uw:{gSC:17.950,gU:7.941,eSC:60.106,eU:26.500}, fixed:{gSC:25.245,gU:7.941,eSC:62.025,eU:26.500}, start:{gSC:26.100,gU:8.347,eSC:62.241,eU:26.910}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
+]
 
 /* Forecast defaults (MSE consensus, week beginning 14 Sep 2026):
    Jan-Mar +24.9%, Apr-Jun -1.6%, Jul-Sep -10.7%.
-   The Jan rise is user-adjustable via the scenario buttons / input. */
+   The Jan rise is user-adjustable via the scenario buttons in the chart. */
 const DEFAULT_JAN_RISE=24.9;
 const APR_FROM_JAN=0.984, JUL_FROM_APR=0.893;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
@@ -499,8 +481,15 @@ function fillWindow(saveId,detailId,save,cap,fix){
 
 /* ---- chart ---- */
 function niceStep(max){const raw=max/4,pow=Math.pow(10,Math.floor(Math.log10(raw||1))),c=raw/pow;return (c<1.5?1:c<3?2:c<7?5:10)*pow;}
+function setJanRise(value){
+  document.getElementById("janRise").value=String(value);
+  render();
+}
+function openForecastSource(){
+  document.getElementById("forecastSourceModal").classList.add("open");
+}
 function draw(res,janRise){
-  const W=680,H=300,padL=38,padR=12,padT=14,padB=34;
+  const W=680,H=330,padL=38,padR=12,padT=72,padB=34;
   const rows=res.rows,n=rows.length;
   const maxV=Math.max(1,...rows.map(r=>r.cap),...rows.map(r=>r.fixed))*1.12;
   const x=i=>padL+(W-padL-padR)*(i/(n-1));
@@ -508,7 +497,6 @@ function draw(res,janRise){
   const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
   const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
   const band="M"+cap.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ")+" L "+[...fix].reverse().map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ")+" Z";
-  const split=rows.findIndex(r=>r.ph==="jan");
   let grid="",step=niceStep(maxV);
   for(let v=0;v<=maxV;v+=step){const yy=y(v).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
@@ -518,7 +506,6 @@ function draw(res,janRise){
   let qlines="";
   qbounds.forEach(b=>{const bx=((x(b)+x(b+1))/2).toFixed(1);
     qlines+=`<line x1="${bx}" y1="${padT}" x2="${bx}" y2="${H-padB}" stroke="#d7cfe8" stroke-width="1" stroke-dasharray="2 3"/>`;});
-  // confirmed -> forecast split at the Dec/Jan season boundary; forecast fades as certainty drops
   const mid2=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
   const b1=mid2(cap[3],cap[4]), b2=mid2(cap[6],cap[7]), b3=mid2(cap[9],cap[10]);
   const solidCap=[...cap.slice(0,4),b1];
@@ -526,19 +513,34 @@ function draw(res,janRise){
   const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
   const capOp=i=> i<4?1 : i<7?0.9 : i<10?0.6 : 0.42;
   const JAN=1+(janRise/100), APR=JAN*APR_FROM_JAN, JUL=APR*JUL_FROM_APR;
-  const fmt=n=>(n>=0?"+":"−")+Math.abs(n)+"%";
-  const items=[[(b1[0]+b2[0])/2, fmt(Math.round((JAN-1)*100)), 0.95],[(b2[0]+b3[0])/2, fmt(Math.round((APR/JAN-1)*100)), 0.62],[(b3[0]+x(11))/2, fmt(Math.round((JUL/APR-1)*100)), 0.42]];
-  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${padT+9}" font-size="10.5" fill="var(--cap)" font-weight="800" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
-  document.getElementById("chart").innerHTML=`<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
-    ${grid}${qlines}
-    <path d="${band}" fill="var(--save-soft)" opacity="0.75"/>
-    <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
-    ${dashCap}
-    <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="2.5" stroke-linejoin="round"/>
-    ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
-    ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--fixed)"/>`).join("")}
-    ${pcts}${xl}
-  </svg>`;
+  const fmtPct=n=>{
+    if(Math.abs(n)<0.0001) return "0%";
+    const a=Math.abs(n), clean=Math.abs(a-Math.round(a))<0.0001?String(Math.round(a)):a.toFixed(1);
+    return (n>0?"+":"−")+clean+"%";
+  };
+  const items=[[(b1[0]+b2[0])/2,fmtPct(janRise),0.95],[(b2[0]+b3[0])/2,fmtPct((APR/JAN-1)*100),0.62],[(b3[0]+x(11))/2,fmtPct((JUL/APR-1)*100),0.42]];
+  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${padT+11}" font-size="10.5" fill="var(--cap)" font-weight="800" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
+  const scenarios=[0,10,20,24.9,30];
+  const scenarioButtons=scenarios.map(v=>{
+    const active=Math.abs(v-janRise)<0.001;
+    const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
+    return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
+  }).join("");
+  document.getElementById("chart").innerHTML=`<div class="chart-shell">
+    <div class="chart-forecast-label">Jan 2027 cap rise - tap to test a scenario</div>
+    <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
+    <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast source and explanation" title="Forecast source">i</button>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
+      ${grid}${qlines}
+      <path d="${band}" fill="var(--save-soft)" opacity="0.75"/>
+      <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
+      ${dashCap}
+      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="2.5" stroke-linejoin="round"/>
+      ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
+      ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--fixed)"/>`).join("")}
+      ${pcts}${xl}
+    </svg>
+  </div>`;
 }
 
 /* ---- state + render ---- */
@@ -593,7 +595,6 @@ function fixedRates(s){
 }
 function syncVisibility(s){
   const incE=s.mode!=="gas", incG=s.mode!=="elec";
-  document.querySelectorAll('#forecastSeg button').forEach(b=>b.setAttribute("aria-pressed",(+b.dataset.rise===s.janRise)?"true":"false"));
   document.getElementById("manualUsage").classList.toggle("hidden",!s.personalise);
   document.getElementById("electricHeatRow").classList.toggle("hidden",s.mode!=="elec");
   document.getElementById("elecUsageWrap").classList.toggle("hidden",!incE);
@@ -684,9 +685,9 @@ function render(){
 
   // Fixed tariff details
   const saverTip=document.getElementById("saverTip");
-  const tariffName=s.tariff==="fixed"?"Fixed 95":s.tariff==="start"?"Fixed Start 95":s.tariff==="custom"?"Custom fixed deal":"Fixed Saver 95";
+  const tariffName=s.tariff==="fixed"?"Fixed 96":s.tariff==="start"?"Fixed Start 96":s.tariff==="custom"?"Custom fixed deal":"Fixed Saver 96";
   const bundleText=s.tariff==="fixed"?"energy plus one non-energy service":s.tariff==="start"?"energy only":s.tariff==="saver"?"energy plus two or three non-energy services":"your entered rates";
-  let tipHtml=s.tariff==="custom" ? "Custom fixed deal: enter the rates before VAT from the tariff information sheet." : `${tariffName} is for UW customers who take ${bundleText}. Fixed to 31 August 2027.`;
+  let tipHtml=s.tariff==="custom" ? "Custom fixed deal: enter the rates before VAT from the tariff information sheet." : `${tariffName} is for UW customers who take ${bundleText}. Fixed to 30 September 2027.`;
   if(s.tariff!=="custom"){
     const u=fixedRates(s), bits=[];
     if(s.mode!=="gas") bits.push(`electricity ${u.eU.toFixed(1)}p + ${u.eSC.toFixed(1)}p/day`);
@@ -723,11 +724,11 @@ function render(){
 /* ---- statics ---- */
 function statics(){
   document.getElementById("discText").innerHTML =
-    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver 95 because that is the conversation this page was built to support, but you can choose UW Fixed 95, UW Fixed Start 95, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
+    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver 96 because that is the conversation this page was built to support, but you can choose UW Fixed 96, UW Fixed Start 96, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
 
   document.getElementById("method").innerHTML=[
     "Compares a fixed tariff against the price cap over the year to August 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
-    "The fixed side defaults to UW Fixed Saver 95 for your region, Direct Debit, fixed to 31 August 2027. You can switch to UW Fixed 95, UW Fixed Start 95, or test any fixed deal.",
+    "The fixed side defaults to UW Fixed Saver 96 for your region, Direct Debit, fixed to 30 September 2027. You can switch to UW Fixed 96, UW Fixed Start 96, or test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
@@ -738,7 +739,7 @@ function statics(){
 
   document.getElementById("foot").innerHTML=`
     <div>Built by Authorised Utility Warehouse Partner Adrian Croft <a href="https://aqcroft.com" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">aqcroft.com</a>: helping people say "Yes!" each month</div>
-    <div>Rates: UW Fixed Saver 95, UW Fixed 95 and UW Fixed Start 95 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
+    <div>Rates: UW Fixed Saver 96, UW Fixed 96 and UW Fixed Start 96 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
     <div>Last updated: 21 September 2026. Not an official Utility Warehouse tool or quote.</div>
@@ -791,14 +792,10 @@ function statics(){
     render();
   });
   document.getElementById("electricHeat").addEventListener("change",refreshSelectedUsageBand);
-  ["janRise","mESC","mEU","mGSC","mGU"].forEach(id=>{
+  ["mESC","mEU","mGSC","mGU"].forEach(id=>{
     const el=document.getElementById(id);
     el.addEventListener("input",render); el.addEventListener("change",render);
   });
-  document.querySelectorAll('#forecastSeg button').forEach(b=>b.addEventListener("click",()=>{
-    document.getElementById("janRise").value=b.dataset.rise;
-    render();
-  }));
   // remember personalised figures so the pencil can bring them back
   ["elec","gas"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{
     if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){
@@ -822,7 +819,6 @@ function statics(){
     catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy link",1600);} }
   });
 
-  document.getElementById("forecastSourceBtn").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.add("open"));
   document.getElementById("forecastSourceClose").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.remove("open"));
   document.getElementById("forecastSourceModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
   document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("forecastSourceModal").classList.remove("open");});
