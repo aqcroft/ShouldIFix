@@ -222,6 +222,17 @@
   .ev-live.good{background:#f3fbf6;border-color:#cfe9d8;color:#397651}
   .ev-live.warn{background:#fff7f4;border-color:#f1d0c6;color:#9b4c39}
   .ev-pair{font-weight:800;color:var(--ink)}
+  .ev-rates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-4px 0 12px}
+  .ev-rate-card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 10px}
+  .ev-rate-card strong{display:block;font-size:.75rem;color:var(--ink);margin-bottom:4px}
+  .ev-rate-values{display:flex;gap:8px;flex-wrap:wrap;font-size:.68rem;font-weight:750;color:var(--muted)}
+  .ev-rate-values b{color:var(--purple-deep)}
+  .ev-rate-note{grid-column:1/-1;font-size:.64rem;line-height:1.4;color:var(--muted);font-weight:650;margin-top:-2px}
+  .ev-anchor{margin-top:8px;padding:9px 10px;border:1px solid #dcd4ec;border-radius:10px;background:#fff}
+  .ev-anchor .ev-anchor-title{font-size:.74rem;font-weight:850;color:var(--ink);margin-bottom:3px}
+  .ev-anchor .ev-anchor-copy{font-size:.67rem;line-height:1.4;color:var(--muted);font-weight:650;margin-bottom:7px}
+  .ev-anchor-total{margin-top:6px;font-size:.68rem;font-weight:800;color:var(--purple-deep)}
+  @media(max-width:520px){.ev-rates{grid-template-columns:1fr}}
   .ev-section{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
   .ev-section:first-of-type{margin-top:0;padding-top:0;border-top:0}
   .ev-section-title{font-size:.78rem;font-weight:850;color:var(--ink);margin-bottom:7px}
@@ -389,6 +400,11 @@
     <div class="body">
       <p class="ev-intro">Already on a UW EV tariff? This compares the matching EV Value, Gold or Double Gold variable tariff with the Economy 7 version of the fixed tariff selected above.</p>
       <div class="ev-live" id="evLiveStatus">Loading current UW EV and Economy 7 tariff data…</div>
+      <div class="ev-rates" id="evRateSummary" hidden>
+        <div class="ev-rate-card" id="evVariableRates"></div>
+        <div class="ev-rate-card" id="evFixedRates"></div>
+        <div class="ev-rate-note">Rates shown are the live-feed tariff rates before VAT. The chart applies the electricity VAT treatment for each month of the comparison.</div>
+      </div>
 
       <div class="ev-section">
         <div class="ev-section-title">Current annual peak / off-peak usage
@@ -425,11 +441,17 @@
           <div class="ev-field"><label for="evHeating">Home heating</label><select id="evHeating"><option value="none">Not electrically heated</option><option value="heatpump">Heat pump</option><option value="direct">Direct electric</option><option value="storage">Storage heaters</option></select></div>
           <div class="ev-field"><label>Estimated home EV charging</label><div class="prefill-note" id="evChargeKwh">–</div></div>
         </div>
+        <div class="ev-anchor">
+          <div class="ev-anchor-title">Know the household's historic annual electricity use?</div>
+          <div class="ev-anchor-copy">Optional - especially useful when the EV was added recently. Enter the pre-EV household annual kWh and the estimated home EV charging above is added separately.</div>
+          <div class="ev-field"><label for="evHistoricAnnual">Historic household kWh / year before EV</label><input id="evHistoricAnnual" type="number" min="0" step="100" placeholder="e.g. 7700"></div>
+          <div class="ev-anchor-total" id="evAnchoredTotal">No historic annual anchor entered.</div>
+        </div>
       </div>
 
       <div class="ev-bill-panel hidden" id="evBillPanel">
         <div class="ev-section-title">Estimate the annual split from one bill
-          <small>The car is stripped out first where possible, then the household usage is annualised using the bill period and heating type.</small>
+          <small>The car is stripped out first. If a historic household annual figure is entered above, that figure anchors the total and this bill is used mainly to estimate the peak / off-peak split.</small>
         </div>
         <div class="ev-grid">
           <div class="ev-field"><label for="evBillPeak">☀️ Peak kWh on bill</label><input id="evBillPeak" type="number" min="0" step="1" placeholder="e.g. 320"></div>
