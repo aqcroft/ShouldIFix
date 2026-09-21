@@ -618,6 +618,297 @@ function capMult(ph,janRisePct){
   return JUL;
 }
 
+
+/* ---------- EV / ECONOMY 7 EXTENSION ---------- */
+const EV_FEED_URL="https://script.google.com/macros/s/AKfycbw-TllTpk_dbFjHhmojgeai9gKNGRzRaA_BtMooVSLeqvg614mONQyrpElC4M8vqP51/exec";
+const EV_OCT_RISE=4;
+let evFeedData=null, evFeedStatus="loading", evProfileTouched=false, evBillOpen=false, evEfficiency=3.2;
+
+function evNum(v){
+  if(v===null||v===undefined||v==="") return null;
+  const n=parseFloat(String(v).replace(/[^0-9.\-]/g,""));
+  return Number.isFinite(n)?n:null;
+}
+function evLower(v){return String(v||"").trim().toLowerCase();}
+function evTierFromName(name,type){
+  const s=evLower(name);
+  if(type==="fixed"){
+    if(s.includes("fixed saver")) return 2;
+    if(s.includes("fixed start")) return 0;
+    if(/^fixed\s+\d+/.test(s)||s==="fixed") return 1;
+  }
+  if(type==="variable_ev"){
+    if(s.includes("double gold")) return 2;
+    if(/(^|\s)gold(\s|$)/.test(s)) return 1;
+    if(/(^|\s)value(\s|$)/.test(s)) return 0;
+  }
+  return null;
+}
+function evTierForTariff(t){return t==="start"?0:t==="fixed"?1:t==="saver"?2:null;}
+function evRowsForRegion(regionNo){
+  const rows=evFeedData&&Array.isArray(evFeedData.tariffLive)?evFeedData.tariffLive:[];
+  return rows.filter(r=>{
+    const rg=parseInt(r.region_no!=null?r.region_no:r.regionNo,10);
+    const pm=evLower(r.payment_method!=null?r.payment_method:r.paymentMethod);
+    return rg===regionNo&&(!pm||pm==="dd"||pm==="direct debit");
+  });
+}
+function evMapped(regionNo){
+  const out={0:{},1:{},2:{}};
+  evRowsForRegion(regionNo).forEach(r=>{
+    const type=evLower(r.tariff_type!=null?r.tariff_type:r.tariffType);
+    const name=r.tariff_name!=null?r.tariff_name:r.tariffName;
+    const tier=evTierFromName(name,type);
+    if(tier===null) return;
+    if(type==="fixed") out[tier].fixed=r;
+    if(type==="variable_ev") out[tier].ev=r;
+  });
+  return out;
+}
+function evRate(row,kind){
+  if(!row) return null;
+  let sc,day,night;
+  if(kind==="ev"){
+    sc=evNum(row.EDSC_Std);
+    day=evNum(row.EUR_EV_Peak);
+    night=evNum(row.EUR_EV_OffPeak);
+  } else {
+    sc=evNum(row.EDSC_E7);
+    day=evNum(row.EUR_E7_Day);
+    night=evNum(row.EUR_E7_Night);
+  }
+  if(sc===null||day===null||night===null) return null;
+  return {
+    sc,day,night,
+    name:String(row.tariff_name||""),
+    series:String(row.fixed_series||""),
+    fixedEnd:String(row.fixed_end_date||row.contract_end_date||""),
+    sourceRef:String(row.source_ref||"")
+  };
+}
+function evHomeCharge(){
+  const miles=Math.max(0,+document.getElementById("evMiles").value||0);
+  const away=Math.max(0,Math.min(100,+document.getElementById("evAway").value||0));
+  return evEfficiency>0?(miles/evEfficiency)*(1-away/100):0;
+}
+function evBlend(a,b,r){return norm(a.map((v,i)=>v*(1-r)+b[i]*r));}
+function evSeasonalProfile(kind,night=false){
+  if(kind==="heatpump") return evBlend(ELEC_W,GAS_W,night?0.62:0.55);
+  if(kind==="direct") return evBlend(ELEC_W,GAS_W,night?0.68:0.76);
+  if(kind==="storage") return evBlend(ELEC_W,GAS_W,night?0.94:0.48);
+  return ELEC_W;
+}
+function evExtraE7Shift(kind){
+  if(kind==="heatpump") return 0.10;
+  if(kind==="direct") return 0.07;
+  if(kind==="storage") return 0.18;
+  return 0.0556; // calibrated to the existing EV tool's 10% EV-window vs 15% E7 household defaults
+}
+function evSimpleEstimate(s){
+  const home=Math.max(0,s.elecY||2500);
+  const car=evHomeCharge();
+  const homeOff=home*0.10;
+  return {peak:home-homeOff,off:homeOff+car};
+}
+function evSyncSimpleEstimate(s){
+  const car=evHomeCharge();
+  document.getElementById("evChargeKwh").textContent=Math.round(car).toLocaleString("en-GB")+" kWh/year";
+  if(evProfileTouched) return;
+  const est=evSimpleEstimate(s);
+  document.getElementById("evAnnualPeak").value=Math.round(est.peak);
+  document.getElementById("evAnnualOff").value=Math.round(est.off);
+}
+function evAnnualComponents(){
+  const peak=Math.max(0,+document.getElementById("evAnnualPeak").value||0);
+  const off=Math.max(0,+document.getElementById("evAnnualOff").value||0);
+  const car=evHomeCharge();
+  const carOff=Math.min(car,off);
+  const carPeak=Math.min(Math.max(0,car-carOff),peak);
+  const homePeak=Math.max(0,peak-carPeak);
+  const homeOff=Math.max(0,off-carOff);
+  const heat=document.getElementById("evHeating").value;
+  const shifted=homePeak*evExtraE7Shift(heat);
+  return {
+    peak,off,car,carOff,carPeak,homePeak,homeOff,
+    e7HomeDay:Math.max(0,homePeak-shifted),
+    e7HomeNight:homeOff+shifted,
+    heat
+  };
+}
+function evPeriodFraction(profile){
+  const mode=document.getElementById("evBillMode").value;
+  if(mode==="month"){
+    const m=+document.getElementById("evBillMonth").value;
+    const days=new Date(2026,m+1,0).getDate();
+    return {fraction:profile[m],days,label:document.getElementById("evBillMonth").options[document.getElementById("evBillMonth").selectedIndex].text};
+  }
+  const a=document.getElementById("evBillStart").value?new Date(document.getElementById("evBillStart").value+"T12:00:00"):null;
+  const b=document.getElementById("evBillEnd").value?new Date(document.getElementById("evBillEnd").value+"T12:00:00"):null;
+  if(!a||!b||Number.isNaN(a.getTime())||Number.isNaN(b.getTime())||b<a) return null;
+  let fraction=0,days=0,d=new Date(a);
+  while(d<=b&&days<370){
+    const m=d.getMonth(),dim=new Date(d.getFullYear(),m+1,0).getDate();
+    fraction+=profile[m]/dim;
+    days++;
+    d.setDate(d.getDate()+1);
+  }
+  return {fraction,days,label:a.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" - "+b.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
+}
+function evApplyBillEstimate(){
+  const samplePeak=Math.max(0,+document.getElementById("evBillPeak").value||0);
+  const sampleOff=Math.max(0,+document.getElementById("evBillOff").value||0);
+  const out=document.getElementById("evProfileResult");
+  out.classList.remove("hidden");
+  if(samplePeak+sampleOff<=0){
+    out.textContent="Add the peak and off-peak kWh from the bill first.";
+    return;
+  }
+  const heat=document.getElementById("evHeating").value;
+  const pDay=evPeriodFraction(evSeasonalProfile(heat,false));
+  const pNight=evPeriodFraction(evSeasonalProfile(heat,true));
+  if(!pDay||!pNight||pDay.fraction<=0||pNight.fraction<=0){
+    out.textContent="Choose a valid bill month or date range.";
+    return;
+  }
+  let hp=samplePeak,ho=sampleOff,removed=0;
+  if(document.getElementById("evBillIncludesCar").checked){
+    const sampleCar=evHomeCharge()*(pDay.days/365);
+    const fromOff=Math.min(ho,sampleCar);
+    ho-=fromOff; removed+=fromOff;
+    const fromPeak=Math.min(hp,Math.max(0,sampleCar-fromOff));
+    hp-=fromPeak; removed+=fromPeak;
+  }
+  const annualHomePeak=hp/pDay.fraction;
+  const annualHomeOff=ho/pNight.fraction;
+  const annualCar=evHomeCharge();
+  document.getElementById("evAnnualPeak").value=Math.round(annualHomePeak);
+  document.getElementById("evAnnualOff").value=Math.round(annualHomeOff+annualCar);
+  evProfileTouched=true;
+  out.innerHTML="<b>Annual estimate:</b> "+Math.round(annualHomePeak).toLocaleString("en-GB")+" kWh peak + "+Math.round(annualHomeOff+annualCar).toLocaleString("en-GB")+" kWh off-peak. "+(removed?"About "+Math.round(removed).toLocaleString("en-GB")+" kWh of estimated EV charging was removed from this "+pDay.label+" sample before annualising the home.":"No EV charging was removed from the bill sample.");
+  render();
+}
+function evVariableMult(ph,janRise){
+  const OCT=1+EV_OCT_RISE/100;
+  const JAN=OCT*(1+janRise/100);
+  const APR=JAN*APR_FROM_JAN;
+  const JUL=APR*JUL_FROM_APR;
+  if(ph==="now") return 1;
+  if(ph==="conf") return OCT;
+  if(ph==="jan") return JAN;
+  if(ph==="apr") return APR;
+  return JUL;
+}
+function evCompute(s,evR,fixedR){
+  const p=evAnnualComponents();
+  const dayW=evSeasonalProfile(p.heat,false),nightW=evSeasonalProfile(p.heat,true);
+  const rows=MONTHS.map(m=>{
+    const vat=1+elecVAT(m.k),daysFrac=m.days/365;
+    const mult=evVariableMult(m.ph,s.janRise);
+    const evPeakK=(p.homePeak*dayW[m.cal])+(p.carPeak*daysFrac);
+    const evOffK=(p.homeOff*nightW[m.cal])+(p.carOff*daysFrac);
+    const e7DayK=p.e7HomeDay*dayW[m.cal];
+    const e7NightK=(p.e7HomeNight*nightW[m.cal])+(p.car*daysFrac);
+    const variable=(evR.sc*mult*vat*m.days + evR.day*mult*vat*evPeakK + evR.night*mult*vat*evOffK)/100;
+    const fixed=(fixedR.sc*vat*m.days + fixedR.day*vat*e7DayK + fixedR.night*vat*e7NightK)/100;
+    return {k:m.k,ph:m.ph,cap:variable,fixed,save:variable-fixed};
+  });
+  return {rows,ySave:rows.reduce((a,r)=>a+r.save,0)};
+}
+function evDraw(res,janRise){
+  const W=680,H=276,padL=38,padR=12,padT=26,padB=32;
+  const rows=res.rows,n=rows.length;
+  const maxV=Math.max(1,...rows.map(r=>r.cap),...rows.map(r=>r.fixed))*1.12;
+  const x=i=>padL+(W-padL-padR)*(i/(n-1));
+  const y=v=>padT+(H-padT-padB)*(1-v/maxV);
+  const variable=rows.map((r,i)=>[x(i),y(r.cap)]),fixed=rows.map((r,i)=>[x(i),y(r.fixed)]);
+  const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+  const fill=(pts,kind,op)=>'<path d="'+L(pts)+' Z" fill="'+(kind==="fix"?"var(--risk-soft)":"var(--save-soft)")+'" opacity="'+op+'"/>';
+  let fills="";
+  for(let i=0;i<n-1;i++){
+    const s0=rows[i].save,s1=rows[i+1].save,op=i<3?.82:i<6?.76:i<9?.68:.60;
+    if(Math.abs(s0)<.0001&&Math.abs(s1)<.0001) continue;
+    if(s0===0||s1===0||s0*s1>0){
+      fills+=fill([variable[i],variable[i+1],fixed[i+1],fixed[i]],(Math.abs(s0)>.0001?s0:s1)>=0?"fix":"var",op);
+    } else {
+      const t=s0/(s0-s1);
+      const cross=[variable[i][0]+(variable[i+1][0]-variable[i][0])*t,variable[i][1]+(variable[i+1][1]-variable[i][1])*t];
+      fills+=fill([variable[i],cross,fixed[i]],s0>0?"fix":"var",op);
+      fills+=fill([cross,variable[i+1],fixed[i+1]],s1>0?"fix":"var",op);
+    }
+  }
+  let grid="",step=niceStep(maxV);
+  for(let v=0;v<=maxV;v+=step){
+    const yy=y(v).toFixed(1);
+    grid+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#eee7f7"/>';
+    grid+='<text x="'+(padL-6)+'" y="'+(+yy+4)+'" font-size="10" fill="#9a92b3" text-anchor="end" font-weight="700">£'+Math.round(v)+'</text>';
+  }
+  const labels=rows.map((r,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-padB+16)+'" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">'+r.k+'</text>').join("");
+  const janX=((x(3)+x(4))/2).toFixed(1);
+  const scenarios=[0,10,20,24.9,30];
+  document.getElementById("evScenarios").innerHTML=scenarios.map(v=>{
+    const active=Math.abs(v-janRise)<.001;
+    return '<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(active?"true":"false")+'">'+(Number.isInteger(v)?v:v.toFixed(1))+'%</button>';
+  }).join("");
+  document.getElementById("evChart").innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Monthly EV variable versus fixed Economy 7 cost">'+grid+fills+
+    '<line x1="'+janX+'" y1="'+padT+'" x2="'+janX+'" y2="'+(H-padB)+'" stroke="#d7cfe8" stroke-dasharray="3 3"/>'+
+    '<path d="'+L(variable)+'" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round"/>'+
+    '<path d="'+L(fixed)+'" fill="none" stroke="var(--fixed)" stroke-width="2.5" stroke-linejoin="round"/>'+labels+
+    '<text x="'+(x(1)+4)+'" y="'+(padT+10)+'" font-size="10" fill="var(--cap)" font-weight="800">Oct +'+EV_OCT_RISE+'%</text>'+
+    '<text x="'+(+janX+4)+'" y="'+(padT+10)+'" font-size="10" fill="var(--cap)" font-weight="800">Jan +'+janRise+'%</text></svg>';
+}
+function renderEvExtension(s){
+  evSyncSimpleEstimate(s);
+  const status=document.getElementById("evLiveStatus");
+  const tier=evTierForTariff(s.tariff);
+  if(tier===null){
+    status.className="ev-live warn";
+    status.textContent="Choose Fixed Saver 96, Fixed 96 or Fixed Start 96 above so the matching UW EV tariff can be selected.";
+    document.getElementById("evSaveTxt").textContent="–";
+    document.getElementById("evSaveSub").textContent="Custom fixed rates are not mapped to an EV tariff.";
+    document.getElementById("evChart").innerHTML="";
+    document.getElementById("evQstrip").innerHTML="";
+    return;
+  }
+  if(evFeedStatus==="loading"){
+    status.className="ev-live";
+    status.textContent="Loading current UW EV and Economy 7 tariff data…";
+    return;
+  }
+  if(evFeedStatus==="error"||!evFeedData){
+    status.className="ev-live warn";
+    status.textContent="Current EV tariff data could not be loaded. No rates are being guessed.";
+    return;
+  }
+  const map=evMapped(s.region.n),evRow=map[tier].ev,fixedRow=map[tier].fixed;
+  const evR=evRate(evRow,"ev"),fixedR=evRate(fixedRow,"e7");
+  if(!evR||!fixedR){
+    status.className="ev-live warn";
+    status.textContent="The live feed does not currently contain both EV and Economy 7 rates for this region and service level.";
+    return;
+  }
+  const fixedName=(fixedR.name||["Fixed Start 96","Fixed 96","Fixed Saver 96"][tier])+" Economy 7";
+  const evName=evR.name||["EV Value","EV Gold","EV Double Gold"][tier];
+  status.className="ev-live good";
+  status.innerHTML='<span class="ev-pair">'+evName+' vs '+fixedName+'</span> · '+s.region.name.replace(/\s*\(\d+\)/,"")+' · live tariff feed';
+  const res=evCompute(s,evR,fixedR);
+  const saving=res.ySave;
+  document.getElementById("evSaveTxt").textContent=gbp(Math.abs(saving));
+  document.getElementById("evSaveSub").textContent=saving>=0?"cheaper by fixing to Economy 7, Sep 2026 to Aug 2027":"cheaper by staying on the EV tariff, Sep 2026 to Aug 2027";
+  document.getElementById("evQstrip").innerHTML=QUARTERS.map(q=>{
+    const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
+    return '<div class="ev-q"><b class="'+(sv>=0?"fix-win":"var-win")+'">'+gbp(Math.abs(sv))+'</b><span>'+q.lab+'</span></div>';
+  }).join("");
+  const p=evAnnualComponents();
+  document.getElementById("evNote").textContent="October assumes the EV tariff rises "+EV_OCT_RISE+"%. January applies the selected price-cap scenario to the EV tariff, followed by the same -1.6% April and -10.7% July trajectory used by the main tool. Fixed E7 stays fixed. The current split implies about "+Math.round(p.e7HomeNight+p.car).toLocaleString("en-GB")+" kWh/year on the Economy 7 night rate after allowing for the longer cheap window. These are modelling assumptions, not a UW forecast.";
+  evDraw(res,s.janRise);
+}
+function loadEvFeed(){
+  fetch(EV_FEED_URL,{cache:"no-store"})
+    .then(r=>{if(!r.ok) throw new Error("HTTP "+r.status);return r.json();})
+    .then(d=>{evFeedData=d;evFeedStatus="live";render();})
+    .catch(()=>{evFeedStatus="error";render();});
+}
+
 function compute(o){
   const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat}=o;
   const incE=mode!=="gas", incG=mode!=="elec";
@@ -909,6 +1200,7 @@ function render(){
     : `Purple is your fixed line, orange the cap. Red shading means fixed is cheaper; green shading means staying variable is cheaper. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
   document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the assumed change from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step is the electricity VAT holiday ending.`;
   draw(res,s.janRise);
+  renderEvExtension(s);
 }
 
 /* ---- statics ---- */
