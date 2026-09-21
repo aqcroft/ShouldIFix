@@ -13,7 +13,7 @@
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
     --cap:#e0623d;--cap-soft:#f6d6ca;--fixed:#7c3aed;
-    --save:#3f9e6a;--save-soft:#d8efe1;
+    --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
   *{box-sizing:border-box}
@@ -127,13 +127,15 @@
   .reset-usage{margin-top:10px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--purple);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
   .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
   .headline{margin:7px 0 12px}
-  .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--purple-deep);line-height:1}
-  .hl-save.neg{color:var(--cap)}
+  .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--save);line-height:1}
+  .hl-save.neg{color:var(--save)}
   .hl-sub{display:block;font-weight:700;color:var(--muted);font-size:.88rem;margin-top:3px}
   .qstrip{display:flex;padding:0 1.8% 0 5.6%;align-items:flex-end;margin-bottom:1px}
   .qcol{flex-basis:0;text-align:center;padding:0 2px 3px;min-width:0}
   .qcol + .qcol{border-left:1px dashed #e3ddf1}
   .qcol .qv{display:block;font-size:.85rem;font-weight:800;color:var(--purple-deep);line-height:1.15}
+  .qcol .qv.fix-win{color:var(--risk)}
+  .qcol .qv.var-win{color:var(--save)}
   .qcol .qn{display:block;font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.01em;color:var(--muted);white-space:nowrap;line-height:1.1}
   .qcol.fc .qv{color:#a08fce}
   .qcol.fc .qn{color:#b3a9cc}
@@ -206,7 +208,8 @@
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
   .swatch{width:14px;height:4px;border-radius:2px;display:inline-block}
   .swatch.cap{background:var(--cap)}.swatch.fix{background:var(--fixed)}
-  .swatch.save{background:var(--save-soft);height:12px;border:1px solid var(--save)}
+  .swatch.risk{background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
+  .swatch.cheaper{background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
   .cap-note{font-size:.78rem;font-weight:600;color:var(--muted);margin-top:8px}
 
@@ -291,7 +294,8 @@
     <div class="legend">
       <span><i class="swatch cap"></i>Price cap</span>
       <span><i class="swatch fix"></i>Fixed</span>
-      <span><i class="swatch save"></i>Saving</span>
+      <span><i class="swatch risk"></i>Fixed cheaper</span>
+      <span><i class="swatch cheaper"></i>Variable cheaper</span>
       <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
     </div>
   </section>
@@ -530,7 +534,24 @@ function draw(res,janRise){
   const y=v=>padT+(H-padT-padB)*(1-v/maxV);
   const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
   const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
-  const band="M"+cap.map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ")+" L "+[...fix].reverse().map(p=>p[0].toFixed(1)+" "+p[1].toFixed(1)).join(" L ")+" Z";
+  const fillPath=(pts,kind,op=0.78)=>`<path d="${L(pts)} Z" fill="${kind==="fix"?"var(--risk-soft)":"var(--save-soft)"}" opacity="${op}"/>`;
+  let bandFills="";
+  for(let i=0;i<n-1;i++){
+    const s0=rows[i].save,s1=rows[i+1].save;
+    const opacity=i<3?0.82:i<6?0.76:i<9?0.68:0.60;
+    if(Math.abs(s0)<0.0001 && Math.abs(s1)<0.0001) continue;
+    if(s0===0 || s1===0 || s0*s1>0){
+      const kind=(Math.abs(s0)>0.0001?s0:s1)>=0?"fix":"var";
+      bandFills+=fillPath([cap[i],cap[i+1],fix[i+1],fix[i]],kind,opacity);
+    }else{
+      const t=s0/(s0-s1);
+      const crossCap=[cap[i][0]+(cap[i+1][0]-cap[i][0])*t,cap[i][1]+(cap[i+1][1]-cap[i][1])*t];
+      const crossFix=[fix[i][0]+(fix[i+1][0]-fix[i][0])*t,fix[i][1]+(fix[i+1][1]-fix[i][1])*t];
+      const cross=[(crossCap[0]+crossFix[0])/2,(crossCap[1]+crossFix[1])/2];
+      bandFills+=fillPath([cap[i],cross,fix[i]],s0>0?"fix":"var",opacity);
+      bandFills+=fillPath([cross,cap[i+1],fix[i+1]],s1>0?"fix":"var",opacity);
+    }
+  }
   let grid="",step=niceStep(maxV);
   for(let v=0;v<=maxV;v+=step){const yy=y(v).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
@@ -566,7 +587,7 @@ function draw(res,janRise){
     <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast source and explanation" title="Forecast source">i</button>
     <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
       ${grid}${qlines}
-      <path d="${band}" fill="var(--save-soft)" opacity="0.75"/>
+      ${bandFills}
       <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
       ${dashCap}
       <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="2.5" stroke-linejoin="round"/>
@@ -735,23 +756,25 @@ function render(){
   document.getElementById("rlead").textContent=`Fixing your ${fuelWord} vs the price cap`;
 
   const yEl=document.getElementById("ySaveTxt"), ySub=document.getElementById("ySub");
-  if(res.ySave>=0){ yEl.classList.remove("neg"); yEl.textContent=gbp(res.ySave); ySub.textContent="saved by fixing, over the year to Aug 2027"; }
-  else{ yEl.classList.add("neg"); yEl.textContent=gbp(-res.ySave); ySub.textContent="cheaper to stay on the cap, over the year to Aug 2027"; }
+  if(res.ySave>=0){ yEl.classList.remove("neg"); yEl.textContent=gbp(res.ySave); ySub.textContent="cheaper by fixing, over the year to Aug 2027"; }
+  else{ yEl.classList.add("neg"); yEl.textContent=gbp(-res.ySave); ySub.textContent="cheaper by staying variable, over the year to Aug 2027"; }
 
   document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
     const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
     const val = sv<0 ? "−"+gbp(-sv) : gbp(sv);
-    return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv">${val}</span><span class="qn">${q.lab}</span></div>`;
+    const outcomeClass=sv>=0?"fix-win":"var-win";
+    const outcomeTitle=sv>=0?"Fixed is cheaper in this period":"Variable is cheaper in this period";
+    return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv ${outcomeClass}" title="${outcomeTitle}">${val}</span><span class="qn">${q.lab}</span></div>`;
   }).join("");
 
   const note = s.janRise===0
     ? `0% January scenario selected: the January cap is held at the confirmed Oct-Dec level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
-    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Purple is your fixed line, orange the cap.`
+    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Purple is your fixed line, orange the cap. Red shading means fixed is cheaper; green shading means staying variable is cheaper.`
     : s.mode!=="elec"
-    ? `Purple is your fixed line, orange the cap. The gap between them is your saving, widest through winter when the forecast rise meets your heaviest gas use.`
-    : `Purple is your fixed line, orange the cap. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
-  document.getElementById("chartTip").innerHTML = note + ` The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the assumed change from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step is the electricity VAT holiday ending.`;
+    ? `Purple is your fixed line, orange the cap. Red shading means fixed is cheaper; green shading means staying variable is cheaper. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
+    : `Purple is your fixed line, orange the cap. Red shading means fixed is cheaper; green shading means staying variable is cheaper. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
+  document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the assumed change from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step is the electricity VAT holiday ending.`;
   draw(res,s.janRise);
 }
 
