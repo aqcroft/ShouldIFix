@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Should I Fix? UW fixed tariffs vs the price cap</title>
+<title>Should I Fix or Track? Compare fixed, Tracker and the price cap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#596579;--cap-soft:#e9edf3;--fixed:#2563c7;--tracker:#7a42c8;--doom:#b5473f;
+    --cap:#667085;--cap-soft:#eef1f4;--fixed:#2457a7;--fixed-soft:#eef4fc;--tracker:#c96a24;--tracker-soft:#fff3e8;--doom:#2f3136;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -127,6 +127,38 @@
   .reset-usage{margin-top:10px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--purple);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
   .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
   .headline{margin:7px 0 16px}
+  .choice-heroes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0 12px}
+  .choice-hero{border-radius:14px;padding:13px 14px 12px;border:1px solid transparent;min-width:0}
+  .choice-hero.fix{background:var(--fixed-soft);border-color:#d8e4f5}
+  .choice-hero.tracker{background:var(--tracker-soft);border-color:#f2dcc7}
+  .choice-kicker{display:block;font-size:.65rem;font-weight:900;letter-spacing:.08em;margin-bottom:2px}
+  .choice-hero.fix .choice-kicker,.choice-hero.fix .choice-amount{color:var(--fixed)}
+  .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
+  .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
+  .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
+  .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
+  .quarter-compare{display:grid;grid-template-columns:72px repeat(4,1fr);font-size:.66rem}
+  .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
+  .qc-cell:nth-child(5n){border-right:0}
+  .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
+  .qc-label{text-align:left;font-weight:900;padding-left:9px}
+  .qc-fix{background:var(--fixed-soft)}
+  .qc-track{background:var(--tracker-soft)}
+  .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
+  .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
+  .qc-value{font-weight:850;white-space:nowrap}
+  .qc-muted{color:var(--muted)!important}
+  @media(max-width:430px){
+    .choice-heroes{gap:7px}
+    .choice-hero{padding:11px 10px 10px}
+    .choice-amount{font-size:1.55rem}
+    .choice-copy{font-size:.65rem}
+    .quarter-compare{grid-template-columns:60px repeat(4,1fr);font-size:.59rem}
+    .qc-cell{padding:6px 2px}
+    .qc-label{padding-left:6px}
+    .qc-head{font-size:.5rem}
+  }
   .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--save);line-height:1}
   .hl-save.neg{color:var(--risk)}
   .hl-sub{display:block;font-weight:700;color:var(--muted);font-size:.88rem;margin-top:3px}
@@ -308,8 +340,8 @@
 <div class="wrap">
 
   <header class="hero">
-    <h1>Should I fix?</h1>
-    <p><b>Around 2 in 3 UK homes</b> are still on the variable price cap. Check whether fixing could give you more freedom to say "Yes!" this winter.</p>
+    <h1>Should I fix or track?</h1>
+    <p><b>Compare three routes:</b> stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
   </header>
 
   <section class="card">
@@ -364,15 +396,28 @@
   <input id="janRise" type="hidden" value="22.9">
   <section class="card result" id="resultCard">
     <p class="rlead" id="rlead">&nbsp;</p>
-    <div class="headline">
-      <span class="hl-save" id="ySaveTxt">–</span>
-      <span class="hl-sub" id="ySub"></span>
+
+    <div class="choice-heroes">
+      <div class="choice-hero fix">
+        <span class="choice-kicker">FIX</span>
+        <strong class="choice-amount" id="fixHeroAmt">–</strong>
+        <span class="choice-copy" id="fixHeroCopy">vs Do Nothing</span>
+      </div>
+      <div class="choice-hero tracker">
+        <span class="choice-kicker">TRACK</span>
+        <strong class="choice-amount" id="trackHeroAmt">–</strong>
+        <span class="choice-copy" id="trackHeroCopy">vs Do Nothing</span>
+      </div>
     </div>
-    <div class="qstrip" id="qstrip"></div>
-    <div class="quarter-key" style="display:none"><span class="good">● cheaper if you fix</span><span class="bad">● more if you fix</span></div>
+
+    <div class="quarter-compare-wrap">
+      <div class="quarter-compare-title">Saving vs Do Nothing - variable price cap</div>
+      <div class="quarter-compare" id="quarterCompare"></div>
+    </div>
+
     <div id="chart"></div>
     <div class="legend">
-      <span><i class="swatch cap"></i>Do-nothing forecast</span>
+      <span><i class="swatch cap"></i>Do Nothing - variable price cap</span>
       <span><i class="swatch doom"></i>30% doomsday</span>
       <span><i class="swatch fix"></i>Fixed</span>
       <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
@@ -1420,20 +1465,51 @@ function render(){
   saverTip.textContent=tipHtml;
 
   const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
-  document.getElementById("rlead").textContent="Will fixing my energy save me or cost me more?";
+  document.getElementById("rlead").textContent="Should I fix or track?";
 
-  const yEl=document.getElementById("ySaveTxt"), ySub=document.getElementById("ySub");
-  if(res.ySave>=0){ yEl.classList.remove("neg"); yEl.textContent=gbp(res.ySave); ySub.textContent="saved by fixing, over the year to Aug 2027"; }
-  else{ yEl.classList.add("neg"); yEl.textContent=gbp(-res.ySave); ySub.textContent="more by fixing, over the year to Aug 2027"; }
+  const trackerTotal=tracker
+    ? res.rows.reduce((a,r)=>a+(Number.isFinite(r.tracker)?r.tracker:0),0)
+    : null;
+  const trackerSave=trackerTotal===null?null:res.yCap-trackerTotal;
 
-  document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
-    const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
-    const verb = sv>=0 ? "SAVE" : "MORE";
-    const amount = gbp(Math.abs(sv));
-    const outcomeClass=sv>=0?"fix-win":"var-win";
-    const outcomeTitle=sv>=0?"Fixing saves money in this period":"Fixing costs more in this period";
-    return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv ${outcomeClass}" title="${outcomeTitle}"><span class="qverb">${verb} </span><span class="qamount">${amount}</span></span><span class="qn">${q.lab}</span></div>`;
-  }).join("");
+  const setChoiceHero=(amountId,copyId,diff,label)=>{
+    const amt=document.getElementById(amountId), copy=document.getElementById(copyId);
+    if(diff===null){
+      amt.textContent="–";
+      copy.textContent=label+" unavailable";
+      return;
+    }
+    amt.textContent=gbp(Math.abs(diff));
+    copy.textContent=diff>=0 ? "saved vs Do Nothing" : "more than Do Nothing";
+  };
+  setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
+  setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
+
+  const chartQuarters=[
+    {lab:"Oct-Dec",mk:["Oct","Nov","Dec"]},
+    {lab:"Jan-Mar",mk:["Jan","Feb","Mar"]},
+    {lab:"Apr-Jun",mk:["Apr","May","Jun"]},
+    {lab:"Jul-Aug",mk:["Jul","Aug"]}
+  ];
+  const quarterDiff=(q,key)=>{
+    const rr=res.rows.filter(r=>q.mk.includes(r.k));
+    if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
+    const baseline=rr.reduce((a,r)=>a+r.cap,0);
+    const option=rr.reduce((a,r)=>a+(key==="fixed"?r.fixed:r.tracker),0);
+    return baseline-option;
+  };
+  const qValue=(d,cls)=>{
+    if(d===null) return '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>';
+    const word=d>=0?"Save ":"More ";
+    return '<div class="qc-cell qc-value '+cls+'">'+word+gbp(Math.abs(d))+'</div>';
+  };
+  document.getElementById("quarterCompare").innerHTML =
+    '<div class="qc-cell qc-head"></div>'+
+    chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
+    '<div class="qc-cell qc-label qc-fix">FIX</div>'+
+    chartQuarters.map(q=>qValue(quarterDiff(q,"fixed"),"qc-fix")).join("")+
+    '<div class="qc-cell qc-label qc-track">TRACK</div>'+
+    chartQuarters.map(q=>qValue(quarterDiff(q,"tracker"),"qc-track")).join("");
 
   const note = s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
@@ -1442,7 +1518,7 @@ function render(){
     : s.mode!=="elec"
     ? `Gas use is weighted heavily into winter, so January changes have a much bigger effect for gas-heated homes.`
     : `Electricity is less seasonal than gas, so the monthly shape is steadier.`;
-  document.getElementById("chartTip").innerHTML = note + ` The slate line is the do-nothing price-cap forecast; red is a 30% January doomsday scenario; blue is the selected fixed tariff; purple is the matching UW Tracker tariff from the live feed. Sep-Dec price-cap rates are confirmed. From January, standing charges are held at the confirmed Oct-Dec level and the published headline movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of ${s.janRise}% for January. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle. Tracker future rates are estimates that preserve today's regional Tracker-to-cap relationship. Green/red shading still compares the fixed tariff with the do-nothing forecast only.`;
+  document.getElementById("chartTip").innerHTML = note + ` The slate line is Do Nothing - staying on the variable price cap; charcoal is the 30% January doomsday scenario; cobalt is the selected fixed tariff; copper is the matching UW Tracker tariff from the live feed. Sep-Dec price-cap rates are confirmed. From January, standing charges are held at the confirmed Oct-Dec level and the published headline movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of ${s.janRise}% for January. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle. Tracker future rates are estimates that preserve today's regional Tracker-to-cap relationship. Green/red shading still compares the fixed tariff with the do-nothing forecast only.`;
   draw(res,s.janRise);
   renderEvExtension(s);
 }
