@@ -1436,13 +1436,13 @@ function render(){
   }).join("");
 
   const note = s.janRise===0
-    ? `0% January scenario selected: the January cap is held at the confirmed Oct-Dec level before the later forecast changes are applied.`
+    ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
-    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more.`
+    ? `Electric heating is on, so electricity use is weighted more heavily into winter.`
     : s.mode!=="elec"
-    ? `Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
-    : `Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
-  document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The vertical scale shows monthly energy cost in pounds and auto-zooms to the relevant cost range, so changes are easier to see. The saving is the gap between the fixed and price-cap lines. The small grey "Cap +/-x%" labels at the bottom show the assumed price-cap movement from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step also reflects the electricity VAT holiday ending.`;
+    ? `Gas use is weighted heavily into winter, so January changes have a much bigger effect for gas-heated homes.`
+    : `Electricity is less seasonal than gas, so the monthly shape is steadier.`;
+  document.getElementById("chartTip").innerHTML = note + ` The slate line is the do-nothing price-cap forecast; red is a 30% January doomsday scenario; blue is the selected fixed tariff; purple is the matching UW Tracker tariff from the live feed. Sep-Dec price-cap rates are confirmed. From January, standing charges are held at the confirmed Oct-Dec level and the published headline movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of ${s.janRise}% for January. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle. Tracker future rates are estimates that preserve today's regional Tracker-to-cap relationship. Green/red shading still compares the fixed tariff with the do-nothing forecast only.`;
   draw(res,s.janRise);
   renderEvExtension(s);
 }
