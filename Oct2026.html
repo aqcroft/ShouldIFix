@@ -716,7 +716,7 @@ function fixedDisplayName(tariff,regionNo){
   if(tariff==="custom") return "Custom fixed deal";
   const row=liveFixedRow(regionNo,tariff);
   if(row){
-    const name=String(row.tariff_name!=null?row.tariff_name:r.tariffName||"").trim();
+    const name=String(row.tariff_name!=null?row.tariff_name:row.tariffName||"").trim();
     if(name) return name.replace(/^UW\s+/i,"");
   }
   const series=liveFixedSeries();
