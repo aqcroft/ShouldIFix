@@ -12,7 +12,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#667085;--cap-soft:#eef1f4;--fixed:#9b1b7a;--fixed-soft:#f8eaf4;--tracker:#f07b00;--tracker-soft:#fff0df;--doom:#2f3136;
+    --cap:#667085;--cap-soft:#eef1f4;--fixed:#701a8c;--fixed-soft:#f5eafa;--tracker:#ff7800;--tracker-soft:#fff0e0;--doom:#2f3136;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -254,11 +254,16 @@
   .compare-tip .vat-toggle button.active{background:#fff;color:#2a2340}
   .compare-tip table{width:100%;border-collapse:collapse;background:transparent;border:0;border-radius:0;overflow:visible;font-size:.66rem;color:#fff}
   .compare-tip th,.compare-tip td{padding:5px 4px;border:0;border-bottom:1px solid rgba(255,255,255,.12);text-align:right;background:transparent;color:#fff;text-transform:none;letter-spacing:0}
-  .compare-tip th{font-size:.58rem;color:#bfb7cf;font-weight:800}
+  .compare-tip th{font-size:.58rem;color:#bfb7cf;font-weight:800;line-height:1.2}
+  .compare-tip thead tr:first-child th{font-size:.63rem;padding-top:6px;padding-bottom:3px}
+  .compare-tip thead tr:nth-child(2) th{padding-top:2px;padding-bottom:5px}
   .compare-tip th:first-child,.compare-tip td:first-child{text-align:left}
   .compare-tip .fix-h{color:#ff9be5}.compare-tip .track-h{color:#ffb45c}
   .compare-tip .ct-note{margin-top:7px;font-size:.58rem;line-height:1.35;color:#c8c1d4;font-weight:650}
-  @media(max-width:430px){.info .tip.compare-tip{width:340px;max-width:90vw;left:auto;right:-20px;transform:none}.info .tip.compare-tip::after{left:auto;right:23px;transform:none}}
+  @media(max-width:520px){
+    .info .tip.compare-tip{position:fixed;left:12px;right:12px;bottom:74px;top:auto;transform:none;width:auto;max-width:none;max-height:68vh;overflow:auto;padding:12px;z-index:5000}
+    .info .tip.compare-tip::after{display:none}
+  }
   .info .tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#2a2340}
   .info:hover .tip,.info:focus .tip{opacity:1;visibility:visible}
   .callout{margin-top:13px;background:#fff7f4;border:1px solid var(--cap-soft);border-left:4px solid var(--cap);border-radius:12px;padding:12px 14px;font-weight:600;font-size:.92rem}
@@ -891,7 +896,7 @@ function renderCompareInfo(s,tracker){
   const rows=[];
   if(s.mode!=="gas") rows.push(`<tr><td>Electricity</td><td class="fix-h">${rateForInfo(fixedRate.eU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.eSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.eU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.eSC,vat)+"/day":"–"}</td></tr>`);
   if(s.mode!=="elec") rows.push(`<tr><td>Gas</td><td class="fix-h">${rateForInfo(fixedRate.gU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.gSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.gU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.gSC,vat)+"/day":"–"}</td></tr>`);
-  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub"><span class="fix-h">${fixedName}</span>${end?" · fixed to "+end:""}<br><span class="track-h">${trackName}</span></div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th>Fuel</th><th class="fix-h">Fix unit</th><th class="fix-h">Fix SC</th><th class="track-h">Track unit</th><th class="track-h">Track SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT adds 5% for tariff-sheet comparison. The chart separately applies the modelled electricity VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div>`;
+  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub">${end?fixedName+" · fixed to "+end:fixedName}<br>${trackName}</div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th rowspan="2">Fuel</th><th class="fix-h" colspan="2">${fixedName}</th><th class="track-h" colspan="2">${trackName}</th></tr><tr><th class="fix-h">Unit</th><th class="fix-h">SC</th><th class="track-h">Unit</th><th class="track-h">SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT adds 5% for tariff-sheet comparison. The chart separately applies the modelled electricity VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div>`;
 }
 function applyLiveFixedTariffs(data){
   if(!data||!Array.isArray(data.tariffLive)) return false;
@@ -1289,8 +1294,8 @@ function draw(res,janRise){
     const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
     return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
   }).join("");
-  const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="3.6" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
-  const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.5:2.7}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
+  const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="4.2" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
+  const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, doomsday scenario, fixed tariff and Tracker">
       <text x="${padL}" y="13" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
@@ -1299,10 +1304,10 @@ function draw(res,janRise){
       <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
       ${dashCap}
       <path d="${L(doom.slice(3))}" fill="none" stroke="var(--doom)" stroke-width="2.2" stroke-dasharray="3 4" stroke-linejoin="round" opacity=".88"/>
-      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="3.8" stroke-linejoin="round"/>
+      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="4.4" stroke-linejoin="round"/>
       ${trackerPath}
       ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
-      ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.2" fill="var(--fixed)"/>`).join("")}
+      ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
       ${trackerDots}
       ${pcts}${xl}
     </svg>
