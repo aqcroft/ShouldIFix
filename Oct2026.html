@@ -227,6 +227,12 @@
   .tariff-custom-row button{width:100%;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 9px;text-align:left}
   .tariff-custom-row button span{display:block;margin-top:3px;font-size:.64rem;color:var(--muted)}
   .tariff-details{display:block!important;background:#2a2340;color:#fff;border-radius:12px;padding:12px}
+  .tariff-copy-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .tariff-copy-btn{font-family:inherit;border:0;border-radius:10px;padding:10px 9px;font-size:.72rem;font-weight:850;cursor:pointer;line-height:1.2}
+  .tariff-copy-btn.fix{background:#f8eaf4;color:var(--fixed)}
+  .tariff-copy-btn.track{background:#fff0df;color:#b45200}
+  .tariff-copy-btn.copied{background:#fff;color:#2a2340}
+  @media(max-width:430px){.tariff-copy-actions{grid-template-columns:1fr}.tariff-copy-btn{padding:11px 10px;font-size:.76rem}}
   @media(max-width:520px){
     .source-modal{padding:10px;align-items:flex-end}
     .source-card{width:100%;max-height:88dvh;border-radius:18px 18px 12px 12px;padding:14px}
@@ -998,6 +1004,68 @@ function setCompareInfoVat(on,event){
   renderCompareInfo(lastCompareInfoState&&lastCompareInfoState.s,lastCompareInfoState&&lastCompareInfoState.tracker);
 }
 let lastCompareInfoState=null;
+const WHATSAPP_EXIT_FEE=75;
+function plainRate(rate,withVat){
+  if(rate==null||!Number.isFinite(rate)) return "–";
+  return (rate*(withVat?1.05:1)).toFixed(3).replace(/0+$/,"").replace(/\.$/,"");
+}
+function whatsappTariffText(kind){
+  const st=lastCompareInfoState;
+  if(!st||!st.s) return "";
+  const s=st.s, vat=compareInfoVat;
+  const isFixed=kind==="fixed";
+  const fixedRow=liveFixedRow(s.region.n,s.tariff);
+  const fixedRate=s.tariff==="custom"?fixedRates(s):standardFixedRate(fixedRow)||fixedRates(s);
+  const trackerRow=liveTrackerRow(s.region.n,s.tariff);
+  const trackerRate=standardTrackerRate(trackerRow);
+  const rate=isFixed?fixedRate:trackerRate;
+  if(!rate) return "";
+  const rawName=isFixed?fixedDisplayName(s.tariff,s.region.n):String((trackerRow&&trackerRow.tariff_name)||"Tracker").replace(/^UW\s+/i,"");
+  const tariffName=/^UW\s+/i.test(rawName)?rawName:"UW "+rawName;
+  const end=isFixed && s.tariff!=="custom"?compareInfoDate(fixedEndLabel(s.tariff,s.region.n)):"";
+  const vatLabel=vat?"including VAT":"excluding VAT";
+  const bits=["Hi, please can you move both my electricity and gas tariffs onto "+tariffName+"."];
+  if(end) bits.push("","📅 Fixed until: "+end);
+  bits.push("",
+    "⚡ Electricity",
+    "Unit rate: "+plainRate(rate.eU,vat)+"p/kWh",
+    "Standing charge: "+plainRate(rate.eSC,vat)+"p/day",
+    "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
+    "",
+    "🔥 Gas",
+    "Unit rate: "+plainRate(rate.gU,vat)+"p/kWh",
+    "Standing charge: "+plainRate(rate.gSC,vat)+"p/day",
+    "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
+    "",
+    "Rates shown "+vatLabel+".",
+    "",
+    "Please confirm once this has been arranged. Thanks 👍",
+    "",
+    "*Name*",
+    "Customer number: *number*",
+    "Email: *email*",
+    "DOB: *DOB*"
+  );
+  return bits.join("\n");
+}
+async function copyTariffWhatsApp(kind,btn){
+  const txt=whatsappTariffText(kind);
+  if(!txt) return;
+  const done=()=>{
+    const old=btn.dataset.oldText||btn.textContent;
+    btn.dataset.oldText=old;
+    btn.textContent="Copied ✓";
+    btn.classList.add("copied");
+    setTimeout(()=>{btn.textContent=old;btn.classList.remove("copied");},1600);
+  };
+  try{await navigator.clipboard.writeText(txt);done();}
+  catch{
+    const ta=document.createElement("textarea");
+    ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}finally{ta.remove();}
+  }
+}
 function renderCompareInfo(s,tracker){
   if(!s) return;
   const tip=document.getElementById("tariffDetailsBody"); if(!tip) return;
@@ -1012,7 +1080,7 @@ function renderCompareInfo(s,tracker){
   const rows=[];
   if(s.mode!=="gas") rows.push(`<tr><td>Electricity</td><td class="fix-h">${rateForInfo(fixedRate.eU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.eSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.eU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.eSC,vat)+"/day":"–"}</td></tr>`);
   if(s.mode!=="elec") rows.push(`<tr><td>Gas</td><td class="fix-h">${rateForInfo(fixedRate.gU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.gSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.gU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.gSC,vat)+"/day":"–"}</td></tr>`);
-  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub">${end?fixedName+" · fixed to "+end:fixedName}<br>${trackName}</div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th rowspan="2">Fuel</th><th class="fix-h" colspan="2">${fixedName}</th><th class="track-h" colspan="2">${trackName}</th></tr><tr><th class="fix-h">Unit</th><th class="fix-h">SC</th><th class="track-h">Unit</th><th class="track-h">SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT adds 5% for tariff-sheet comparison. The chart separately applies the modelled electricity VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div>`;
+  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub">${end?fixedName+" · fixed to "+end:fixedName}<br>${trackName}</div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th rowspan="2">Fuel</th><th class="fix-h" colspan="2">${fixedName}</th><th class="track-h" colspan="2">${trackName}</th></tr><tr><th class="fix-h">Unit</th><th class="fix-h">SC</th><th class="track-h">Unit</th><th class="track-h">SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT adds 5% for tariff-sheet comparison. The chart separately applies the modelled electricity VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div><div class="tariff-copy-actions"><button type="button" class="tariff-copy-btn fix" onclick="copyTariffWhatsApp(\'fixed\',this)">Copy Fixed WhatsApp</button><button type="button" class="tariff-copy-btn track" onclick="copyTariffWhatsApp(\'tracker\',this)">Copy Tracker WhatsApp</button></div>`;
 }
 function applyLiveFixedTariffs(data){
   if(!data||!Array.isArray(data.tariffLive)) return false;
