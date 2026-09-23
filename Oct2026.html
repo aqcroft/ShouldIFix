@@ -1157,7 +1157,8 @@ function draw(res,janRise){
     return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
   }).join("");
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
-    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds, price cap versus fixed">
+      <text x="${padL}" y="13" font-size="10" fill="#7c8797" font-weight="700">Monthly energy cost (£)</text>
       ${grid}${qlines}
       ${bandFills}
       <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
@@ -1380,7 +1381,7 @@ function render(){
     : s.mode!=="elec"
     ? `Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
     : `Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
-  document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The small grey "Cap +/-x%" labels at the bottom show the assumed price-cap movement from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step also reflects the electricity VAT holiday ending.`;
+  document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The vertical scale shows monthly energy cost in pounds. The saving is the gap between the fixed and price-cap lines. The small grey "Cap +/-x%" labels at the bottom show the assumed price-cap movement from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step also reflects the electricity VAT holiday ending.`;
   draw(res,s.janRise);
   renderEvExtension(s);
 }
