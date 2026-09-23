@@ -223,7 +223,7 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
   .swatch{width:28px;height:4px;border-radius:2px;display:inline-block;flex:0 0 auto}
-  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}
+  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}.swatch.tracker{height:0;border-top:3px dashed var(--tracker);background:none}.swatch.doom{height:0;border-top:3px dashed var(--doom);background:none}
   .swatch.risk{width:14px;background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
   .swatch.cheaper{width:14px;background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
@@ -372,9 +372,10 @@
     <div class="quarter-key" style="display:none"><span class="good">● cheaper if you fix</span><span class="bad">● more if you fix</span></div>
     <div id="chart"></div>
     <div class="legend">
-      <span><i class="swatch cap"></i>Confirmed price cap</span>
-      <span><i class="swatch cap-forecast"></i>Forecast price cap</span>
+      <span><i class="swatch cap"></i>Do-nothing forecast</span>
+      <span><i class="swatch doom"></i>30% doomsday</span>
       <span><i class="swatch fix"></i>Fixed</span>
+      <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
       <span class="outcome-legend"><i class="swatch cheaper"></i>Fixing saves</span>
       <span class="outcome-legend"><i class="swatch risk"></i>Fixing costs more</span>
       <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
@@ -1145,7 +1146,7 @@ function openForecastSource(){
 function draw(res,janRise){
   const W=680,H=342,padL=38,padR=12,padT=28,padB=70;
   const rows=res.rows,n=rows.length;
-  const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed)];
+  const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.doom),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
   const span=Math.max(20,rawMax-rawMin);
   const yMin=Math.max(0,Math.floor((rawMin-span*0.22)/10)*10);
@@ -1153,6 +1154,8 @@ function draw(res,janRise){
   const x=i=>padL+(W-padL-padR)*(i/(n-1));
   const y=v=>padT+(H-padT-padB)*(1-(v-yMin)/(yMax-yMin));
   const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
+  const doom=rows.map((r,i)=>[x(i),y(r.doom)]);
+  const track=rows.every(r=>Number.isFinite(r.tracker))?rows.map((r,i)=>[x(i),y(r.tracker)]):[];
   const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
   const fillPath=(pts,kind,op=0.78)=>`<path d="${L(pts)} Z" fill="${kind==="fix"?"var(--save-soft)":"var(--risk-soft)"}" opacity="${op}"/>`;
   let bandFills="";
@@ -1206,16 +1209,21 @@ function draw(res,janRise){
     const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
     return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
   }).join("");
+  const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="2.7" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
+  const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?2.8:2.1}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
-    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds, price cap versus fixed">
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: do-nothing forecast, doomsday scenario, fixed tariff and Tracker">
       <text x="${padL}" y="13" font-size="10" fill="#7c8797" font-weight="700">Monthly energy cost (£)</text>
       ${grid}${qlines}
       ${bandFills}
       <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
       ${dashCap}
+      <path d="${L(doom.slice(3))}" fill="none" stroke="var(--doom)" stroke-width="2.2" stroke-dasharray="3 4" stroke-linejoin="round" opacity=".88"/>
       <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="2.8" stroke-linejoin="round"/>
+      ${trackerPath}
       ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
       ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--fixed)"/>`).join("")}
+      ${trackerDots}
       ${pcts}${xl}
     </svg>
   </div>
@@ -1452,6 +1460,7 @@ function statics(){
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
     "Confirmed price-cap rates are used through December. From January, standing charges stay at the confirmed Oct-Dec level and the forecast movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of 22.9%. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle.",
+    "The chart also shows a 30% January doomsday line and the matching live UW Tracker tariff. Future Tracker rates are estimated by keeping the current regional Tracker-to-cap relationship as the cap moves; they are not a UW forecast.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
