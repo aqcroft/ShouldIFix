@@ -12,7 +12,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#e0623d;--cap-soft:#f6d6ca;--fixed:#7c3aed;
+    --cap:#e0623d;--cap-soft:#f6d6ca;--fixed:#2563c7;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -150,7 +150,6 @@
   .chart-scenarios button{min-width:0;font-family:inherit;font-size:.7rem;font-weight:800;line-height:1;border:1.5px solid #ddd5eb;background:rgba(255,255,255,.94);color:var(--muted);border-radius:9px;padding:7px 2px;cursor:pointer;box-shadow:0 1px 2px rgba(38,22,79,.04);transition:.15s}
   .chart-scenarios button:hover{border-color:#cdbff0;color:var(--purple-deep)}
   .chart-scenarios button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(124,58,237,.22)}
-  .chart-forecast-steps{position:absolute;z-index:3;top:62px;left:38px;right:38px;display:flex;justify-content:space-between;gap:8px;font-size:.61rem;font-weight:800;color:var(--cap)}
   .chart-info{position:absolute;z-index:4;top:5px;right:8px;width:25px;height:25px;border-radius:50%;border:1.5px solid #d8d0e8;background:#fff;color:var(--purple-deep);font-family:Georgia,serif;font-weight:800;font-size:.8rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(38,22,79,.08)}
   .chart-info:hover{border-color:var(--purple);background:#faf7ff}
   @media(max-width:430px){
@@ -165,9 +164,6 @@
     .quarter-key .good{color:var(--save)}.quarter-key .bad{color:var(--risk)}
     .chart-forecast-label{left:32px;font-size:.62rem}
     .chart-scenarios{left:32px;right:8px;gap:3px}
-    .chart-forecast-steps{left:32px;right:12px;font-size:.56rem;justify-content:center}
-    .chart-forecast-steps span:first-child{display:none}
-    .chart-forecast-steps span+span::before{content:"•";margin-right:7px;color:var(--muted)}
     .chart-scenarios button{font-size:.64rem;padding:6px 1px;border-radius:8px}
     .legend{gap:9px 12px;font-size:.72rem;margin-top:4px}
     .legend .outcome-legend{display:none}
@@ -222,10 +218,10 @@
   /* chart */
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
-  .swatch{width:14px;height:4px;border-radius:2px;display:inline-block}
+  .swatch{width:28px;height:4px;border-radius:2px;display:inline-block;flex:0 0 auto}
   .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}
-  .swatch.risk{background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
-  .swatch.cheaper{background:var(--save-soft);height:12px;border:1px solid var(--save)}
+  .swatch.risk{width:14px;background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
+  .swatch.cheaper{width:14px;background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
   .cap-note{font-size:.78rem;font-weight:600;color:var(--muted);margin-top:8px}
 
@@ -1098,7 +1094,7 @@ function openForecastSource(){
   document.getElementById("forecastSourceModal").classList.add("open");
 }
 function draw(res,janRise){
-  const W=680,H=350,padL=38,padR=12,padT=94,padB=34;
+  const W=680,H=334,padL=38,padR=12,padT=72,padB=38;
   const rows=res.rows,n=rows.length;
   const maxV=Math.max(1,...rows.map(r=>r.cap),...rows.map(r=>r.fixed))*1.12;
   const x=i=>padL+(W-padL-padR)*(i/(n-1));
@@ -1144,8 +1140,12 @@ function draw(res,janRise){
     const a=Math.abs(n), clean=Math.abs(a-Math.round(a))<0.0001?String(Math.round(a)):a.toFixed(1);
     return (n>0?"+":"−")+clean+"%";
   };
-  const items=[[(b1[0]+b2[0])/2,fmtPct(janRise),0.95],[(b2[0]+b3[0])/2,fmtPct((APR/JAN-1)*100),0.62],[(b3[0]+x(11))/2,fmtPct((JUL/APR-1)*100),0.42]];
-  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${padT+11}" font-size="10.5" fill="var(--cap)" font-weight="800" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
+  const items=[
+    [(b1[0]+b2[0])/2,"Cap "+fmtPct(janRise),0.92],
+    [(b2[0]+b3[0])/2,"Cap "+fmtPct((APR/JAN-1)*100),0.72],
+    [(b3[0]+x(11))/2,"Cap "+fmtPct((JUL/APR-1)*100),0.56]
+  ];
+  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB-7}" font-size="9.2" fill="#70798c" font-weight="600" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
   const scenarios=[0,10,20,22.9,30];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
@@ -1155,7 +1155,6 @@ function draw(res,janRise){
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-forecast-label">Jan 2027 cap rise - tap to test a scenario</div>
     <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
-    <div class="chart-forecast-steps"><span>Jan-Mar ${fmtPct(janRise)}</span><span>Apr-Jun ${fmtPct((APR/JAN-1)*100)}</span><span>Jul-Sep ${fmtPct((JUL/APR-1)*100)}</span></div>
     <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast source and explanation" title="Forecast source">i</button>
     <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
       ${grid}${qlines}
@@ -1351,11 +1350,11 @@ function render(){
   saverTip.textContent=tipHtml;
 
   const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
-  document.getElementById("rlead").textContent=`Fixing your ${fuelWord} vs the price cap`;
+  document.getElementById("rlead").textContent="What happens if you fix?";
 
   const yEl=document.getElementById("ySaveTxt"), ySub=document.getElementById("ySub");
-  if(res.ySave>=0){ yEl.classList.remove("neg"); yEl.textContent=gbp(res.ySave); ySub.textContent="cheaper by fixing, over the year to Aug 2027"; }
-  else{ yEl.classList.add("neg"); yEl.textContent=gbp(-res.ySave); ySub.textContent="cheaper by staying variable, over the year to Aug 2027"; }
+  if(res.ySave>=0){ yEl.classList.remove("neg"); yEl.textContent=gbp(res.ySave); ySub.textContent="saved by fixing, over the year to Aug 2027"; }
+  else{ yEl.classList.add("neg"); yEl.textContent=gbp(-res.ySave); ySub.textContent="more by fixing, over the year to Aug 2027"; }
 
   document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
     const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
@@ -1369,11 +1368,11 @@ function render(){
   const note = s.janRise===0
     ? `0% January scenario selected: the January cap is held at the confirmed Oct-Dec level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
-    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Purple is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more.`
+    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Blue is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more.`
     : s.mode!=="elec"
-    ? `Purple is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
-    : `Purple is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
-  document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the assumed change from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step is the electricity VAT holiday ending.`;
+    ? `Blue is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
+    : `Blue is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
+  document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The small grey "Cap +/-x%" labels at the bottom show the assumed price-cap movement from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step also reflects the electricity VAT holiday ending.`;
   draw(res,s.janRise);
   renderEvExtension(s);
 }
