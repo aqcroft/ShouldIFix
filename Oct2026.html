@@ -128,14 +128,14 @@
   .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
   .headline{margin:7px 0 12px}
   .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--save);line-height:1}
-  .hl-save.neg{color:var(--save)}
+  .hl-save.neg{color:var(--risk)}
   .hl-sub{display:block;font-weight:700;color:var(--muted);font-size:.88rem;margin-top:3px}
   .qstrip{display:flex;padding:0 1.8% 0 5.6%;align-items:flex-end;margin-bottom:1px}
   .qcol{flex-basis:0;text-align:center;padding:0 2px 3px;min-width:0}
   .qcol + .qcol{border-left:1px dashed #e3ddf1}
   .qcol .qv{display:block;font-size:.85rem;font-weight:800;color:var(--purple-deep);line-height:1.15}
-  .qcol .qv.fix-win{color:var(--risk)}
-  .qcol .qv.var-win{color:var(--save)}
+  .qcol .qv.fix-win{color:var(--save)}
+  .qcol .qv.var-win{color:var(--risk)}
   .qcol .qn{display:block;font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.01em;color:var(--muted);white-space:nowrap;line-height:1.1}
   .qcol.fc .qv{color:#a08fce}
   .qcol.fc .qn{color:#b3a9cc}
@@ -150,11 +150,13 @@
   .chart-scenarios button{min-width:0;font-family:inherit;font-size:.7rem;font-weight:800;line-height:1;border:1.5px solid #ddd5eb;background:rgba(255,255,255,.94);color:var(--muted);border-radius:9px;padding:7px 2px;cursor:pointer;box-shadow:0 1px 2px rgba(38,22,79,.04);transition:.15s}
   .chart-scenarios button:hover{border-color:#cdbff0;color:var(--purple-deep)}
   .chart-scenarios button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(124,58,237,.22)}
+  .chart-forecast-steps{position:absolute;z-index:3;top:62px;left:38px;right:38px;display:flex;justify-content:space-between;gap:8px;font-size:.61rem;font-weight:800;color:var(--cap)}
   .chart-info{position:absolute;z-index:4;top:5px;right:8px;width:25px;height:25px;border-radius:50%;border:1.5px solid #d8d0e8;background:#fff;color:var(--purple-deep);font-family:Georgia,serif;font-weight:800;font-size:.8rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(38,22,79,.08)}
   .chart-info:hover{border-color:var(--purple);background:#faf7ff}
   @media(max-width:430px){
     .chart-forecast-label{left:32px;font-size:.62rem}
     .chart-scenarios{left:32px;right:8px;gap:3px}
+    .chart-forecast-steps{left:32px;right:12px;font-size:.56rem}
     .chart-scenarios button{font-size:.64rem;padding:6px 1px;border-radius:8px}
   }
   .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
@@ -207,7 +209,7 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
   .swatch{width:14px;height:4px;border-radius:2px;display:inline-block}
-  .swatch.cap{background:var(--cap)}.swatch.fix{background:var(--fixed)}
+  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}
   .swatch.risk{background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
   .swatch.cheaper{background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
@@ -345,7 +347,7 @@
     </div>
   </section>
 
-  <input id="janRise" type="hidden" value="24.9">
+  <input id="janRise" type="hidden" value="22.9">
   <section class="card result" id="resultCard">
     <p class="rlead" id="rlead">&nbsp;</p>
     <div class="headline">
@@ -355,10 +357,11 @@
     <div class="qstrip" id="qstrip"></div>
     <div id="chart"></div>
     <div class="legend">
-      <span><i class="swatch cap"></i>Price cap</span>
+      <span><i class="swatch cap"></i>Confirmed price cap</span>
+      <span><i class="swatch cap-forecast"></i>Forecast price cap</span>
       <span><i class="swatch fix"></i>Fixed</span>
-      <span><i class="swatch risk"></i>Fixed cheaper</span>
-      <span><i class="swatch cheaper"></i>Variable cheaper</span>
+      <span><i class="swatch cheaper"></i>Fixing saves</span>
+      <span><i class="swatch risk"></i>Fixing costs more</span>
       <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
     </div>
   </section>
@@ -512,14 +515,14 @@
     <div class="source-card-head">
       <div>
         <div class="source-kicker">MoneySavingExpert consensus forecast</div>
-        <h3 id="forecastSourceTitle">Why is the default 24.9%?</h3>
+        <h3 id="forecastSourceTitle">Why is the default 22.9%?</h3>
       </div>
       <button class="source-close" id="forecastSourceClose" type="button" aria-label="Close forecast source">×</button>
     </div>
-    <div class="source-big">+24.9%</div>
-    <div class="source-sub">The 24.9% default is the MoneySavingExpert consensus average of the latest EDF, British Gas and E.on Next predictions for the January-March 2027 Energy Price Cap, published for the week beginning 14 September 2026.</div>
+    <div class="source-big">+22.9%</div>
+    <div class="source-sub">The 22.9% default is the MoneySavingExpert consensus average of the latest EDF, British Gas and E.on Next predictions for the January-March 2027 Energy Price Cap, published for the week beginning 21 September 2026.</div>
     <div class="forecast-snapshot" aria-label="MoneySavingExpert annual price cap prediction table">
-      <div class="forecast-snapshot-title"><strong>Annual Price Cap predictions</strong> for week starting 14 Sept</div>
+      <div class="forecast-snapshot-title"><strong>Annual Price Cap predictions</strong> for week starting 21 Sept</div>
       <div class="forecast-table-wrap">
         <table class="forecast-table">
           <thead>
@@ -535,36 +538,36 @@
             <tr>
               <td class="supplier">EDF</td>
               <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
-              <td><span class="move">Up 25.7%</span><span class="amount">£2,165 a year</span></td>
-              <td><span class="move">Down 1.9%</span><span class="amount">£2,124 a year</span></td>
-              <td><span class="move">Down 11.3%</span><span class="amount">£1,883 a year</span></td>
+              <td><span class="move">Up 21.8%</span><span class="amount">£2,098 a year</span></td>
+              <td><span class="move">Down 2.0%</span><span class="amount">£2,056 a year</span></td>
+              <td><span class="move">Down 10.5%</span><span class="amount">£1,841 a year</span></td>
             </tr>
             <tr>
               <td class="supplier">British Gas</td>
               <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
-              <td><span class="move">Up 25.4%</span><span class="amount">£2,160 a year</span></td>
-              <td><span class="move">Down 2.8%</span><span class="amount">£2,100 a year</span></td>
+              <td><span class="move">Up 23.9%</span><span class="amount">£2,135 a year</span></td>
+              <td><span class="move">Down 4.7%</span><span class="amount">£2,035 a year</span></td>
               <td><span class="move">No prediction yet</span></td>
             </tr>
             <tr>
               <td class="supplier">E.on Next</td>
               <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
-              <td><span class="move">Up 23.7%</span><span class="amount">£2,131 a year</span></td>
-              <td><span class="move">No change</span><span class="amount">£2,131 a year</span></td>
-              <td><span class="move">Down 10.8%</span><span class="amount">£1,901 a year</span></td>
+              <td><span class="move">Up 22.9%</span><span class="amount">£2,118 a year</span></td>
+              <td><span class="move">Up 1.0%</span><span class="amount">£2,120 a year</span></td>
+              <td><span class="move">Down 10.7%</span><span class="amount">£1,894 a year</span></td>
             </tr>
             <tr class="avg">
               <td class="supplier">Average</td>
               <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
-              <td><span class="move">Up 24.9%</span><span class="amount">£2,152 a year</span></td>
-              <td><span class="move">Down 1.6%</span><span class="amount">£2,118 a year</span></td>
-              <td><span class="move">Down 10.7%</span><span class="amount">£1,892 a year</span></td>
+              <td><span class="move">Up 22.9%</span><span class="amount">£2,117 a year</span></td>
+              <td><span class="move">Down 2.2%</span><span class="amount">£2,070 a year</span></td>
+              <td><span class="move">Down 9.8%</span><span class="amount">£1,868 a year</span></td>
             </tr>
           </tbody>
         </table>
       </div>
     </div>
-    <div class="source-note">Based on a dual-fuel household paying by Direct Debit using 2,500 kWh of electricity and 9,500 kWh of gas. EDF prediction dated 15 September 2026; British Gas and E.on Next predictions dated 14 September 2026.</div>
+    <div class="source-note">Based on a dual-fuel household paying by Direct Debit using 2,500 kWh of electricity and 9,500 kWh of gas. EDF prediction dated 22 September 2026; British Gas prediction dated 21 September 2026; E.on Next prediction dated 23 September 2026.</div>
     <a class="source-link" href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener">View the original MoneySavingExpert source ↗</a>
     <div class="source-note">Forecasts can move materially before each cap is formally announced. The scenario buttons let you test a less dramatic January rise without changing the source default.</div>
   </div>
@@ -596,11 +599,11 @@ const REGIONS = [
   {n:23,name:"Yorkshire (23)",         uw:{gSC:17.950,gU:7.941,eSC:60.106,eU:26.500}, fixed:{gSC:25.245,gU:7.941,eSC:62.025,eU:26.500}, start:{gSC:26.100,gU:8.347,eSC:62.241,eU:26.910}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
 ]
 
-/* Forecast defaults (MSE consensus, week beginning 14 Sep 2026):
-   Jan-Mar +24.9%, Apr-Jun -1.6%, Jul-Sep -10.7%.
+/* Forecast defaults (MSE consensus, week beginning 21 Sep 2026):
+   Jan-Mar +22.9%, Apr-Jun -2.2%, Jul-Sep -9.8%.
    The Jan rise is user-adjustable via the scenario buttons in the chart. */
-const DEFAULT_JAN_RISE=24.9;
-const APR_FROM_JAN=0.984, JUL_FROM_APR=0.893;
+const DEFAULT_JAN_RISE=22.9;
+const APR_FROM_JAN=0.978, JUL_FROM_APR=0.902;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
 const MONTHS=[
@@ -964,7 +967,7 @@ function evDraw(res,janRise){
   }
   const labels=rows.map((r,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-padB+16)+'" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">'+r.k+'</text>').join("");
   const janX=((x(3)+x(4))/2).toFixed(1);
-  const scenarios=[0,10,20,24.9,30];
+  const scenarios=[0,10,20,22.9,30];
   document.getElementById("evScenarios").innerHTML=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<.001;
     return '<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(active?"true":"false")+'">'+(Number.isInteger(v)?v:v.toFixed(1))+'%</button>';
@@ -1080,14 +1083,14 @@ function openForecastSource(){
   document.getElementById("forecastSourceModal").classList.add("open");
 }
 function draw(res,janRise){
-  const W=680,H=330,padL=38,padR=12,padT=72,padB=34;
+  const W=680,H=350,padL=38,padR=12,padT=94,padB=34;
   const rows=res.rows,n=rows.length;
   const maxV=Math.max(1,...rows.map(r=>r.cap),...rows.map(r=>r.fixed))*1.12;
   const x=i=>padL+(W-padL-padR)*(i/(n-1));
   const y=v=>padT+(H-padT-padB)*(1-v/maxV);
   const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
   const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
-  const fillPath=(pts,kind,op=0.78)=>`<path d="${L(pts)} Z" fill="${kind==="fix"?"var(--risk-soft)":"var(--save-soft)"}" opacity="${op}"/>`;
+  const fillPath=(pts,kind,op=0.78)=>`<path d="${L(pts)} Z" fill="${kind==="fix"?"var(--save-soft)":"var(--risk-soft)"}" opacity="${op}"/>`;
   let bandFills="";
   for(let i=0;i<n-1;i++){
     const s0=rows[i].save,s1=rows[i+1].save;
@@ -1128,7 +1131,7 @@ function draw(res,janRise){
   };
   const items=[[(b1[0]+b2[0])/2,fmtPct(janRise),0.95],[(b2[0]+b3[0])/2,fmtPct((APR/JAN-1)*100),0.62],[(b3[0]+x(11))/2,fmtPct((JUL/APR-1)*100),0.42]];
   const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${padT+11}" font-size="10.5" fill="var(--cap)" font-weight="800" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
-  const scenarios=[0,10,20,24.9,30];
+  const scenarios=[0,10,20,22.9,30];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
     const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
@@ -1137,6 +1140,7 @@ function draw(res,janRise){
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-forecast-label">Jan 2027 cap rise - tap to test a scenario</div>
     <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
+    <div class="chart-forecast-steps"><span>Jan-Mar ${fmtPct(janRise)}</span><span>Apr-Jun ${fmtPct((APR/JAN-1)*100)}</span><span>Jul-Sep ${fmtPct((JUL/APR-1)*100)}</span></div>
     <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast source and explanation" title="Forecast source">i</button>
     <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
       ${grid}${qlines}
@@ -1340,19 +1344,19 @@ function render(){
 
   document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
     const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
-    const val = sv<0 ? "−"+gbp(-sv) : gbp(sv);
+    const val = sv>=0 ? "SAVE "+gbp(sv) : gbp(-sv)+" MORE";
     const outcomeClass=sv>=0?"fix-win":"var-win";
-    const outcomeTitle=sv>=0?"Fixed is cheaper in this period":"Variable is cheaper in this period";
+    const outcomeTitle=sv>=0?"Fixing saves money in this period":"Fixing costs more in this period";
     return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv ${outcomeClass}" title="${outcomeTitle}">${val}</span><span class="qn">${q.lab}</span></div>`;
   }).join("");
 
   const note = s.janRise===0
     ? `0% January scenario selected: the January cap is held at the confirmed Oct-Dec level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
-    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Purple is your fixed line, orange the cap. Red shading means fixed is cheaper; green shading means staying variable is cheaper.`
+    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Purple is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more.`
     : s.mode!=="elec"
-    ? `Purple is your fixed line, orange the cap. Red shading means fixed is cheaper; green shading means staying variable is cheaper. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
-    : `Purple is your fixed line, orange the cap. Red shading means fixed is cheaper; green shading means staying variable is cheaper. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
+    ? `Purple is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
+    : `Purple is your fixed line, orange the cap. Green shading means fixing is cheaper; red shading means fixing costs more. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
   document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The % on each marks the assumed change from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step is the electricity VAT holiday ending.`;
   draw(res,s.janRise);
   renderEvExtension(s);
@@ -1370,7 +1374,7 @@ function statics(){
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
-    "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to the latest MSE consensus of 24.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -1.6% April and -10.7% July trajectory and fade as certainty drops.",
+    "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to the latest MSE consensus of 22.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -2.2% April and -9.8% July trajectory and fade as certainty drops.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
@@ -1381,7 +1385,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 21 September 2026. Not an official Utility Warehouse tool or quote.</div>
+    <div>Last updated: 23 September 2026. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
