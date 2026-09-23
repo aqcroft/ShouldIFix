@@ -12,7 +12,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#596579;--cap-soft:#e9edf3;--fixed:#2563c7;
+    --cap:#596579;--cap-soft:#e9edf3;--fixed:#2563c7;--tracker:#7a42c8;--doom:#b5473f;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -618,7 +618,13 @@ const REGIONS = [
    Jan-Mar +22.9%, Apr-Jun -2.2%, Jul-Sep -9.8%.
    The Jan rise is user-adjustable via the scenario buttons in the chart. */
 const DEFAULT_JAN_RISE=22.9;
+const DOOMSDAY_JAN_RISE=30;
 const APR_FROM_JAN=0.978, JUL_FROM_APR=0.902;
+/* Forecast split: use the fresher headline forecast, but keep standing charges
+   at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
+   January component forecast gives the electricity-v-gas unit-rate shape. */
+const FORECAST_E_SHAPE=7.6, FORECAST_G_SHAPE=12.2;
+const FORECAST_MED_E=2500, FORECAST_MED_G=9500;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
 const MONTHS=[
@@ -648,14 +654,34 @@ const GAS_W =norm([16.4,12.8,12.7,8.6,4.4,2.7,2.6,2.4,3.2,6.9,12.2,15.1]);  /* D
 const ELEC_W=norm([9.5,9.0,8.5,7.5,7.5,7.5,8.0,8.0,7.5,8.5,9.0,9.5]);       /* lighter seasonal approximation */
 function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
 function elecVAT(k){return (k==="Oct"||k==="Nov"||k==="Dec"||k==="Jan"||k==="Feb"||k==="Mar")?0:0.05;}
-function capMult(ph,janRisePct){
-  if(ph==="now"||ph==="conf") return 1;
-  const JAN=1+(janRisePct/100);
-  const APR=JAN*APR_FROM_JAN;
-  const JUL=APR*JUL_FROM_APR;
-  if(ph==="jan") return JAN;
-  if(ph==="apr") return APR;
-  return JUL;
+const forecastStepCache=new Map();
+function avgRegionalCap(src){
+  const out={eSC:0,eU:0,gSC:0,gU:0};
+  REGIONS.forEach(r=>{out.eSC+=r.cap[src].eSC;out.eU+=r.cap[src].eU;out.gSC+=r.cap[src].gSC;out.gU+=r.cap[src].gU;});
+  const n=REGIONS.length; Object.keys(out).forEach(k=>out[k]/=n); return out;
+}
+function benchmarkCapAnnual(r){ return ((r.eSC+r.gSC)*365 + r.eU*FORECAST_MED_E + r.gU*FORECAST_MED_G)/100; }
+function shapedUnitStep(base,headlinePct){
+  if(Math.abs(headlinePct)<0.000001) return {e:1,g:1};
+  const targetDelta=benchmarkCapAnnual(base)*(headlinePct/100);
+  const eAnnual=base.eU*FORECAST_MED_E/100, gAnnual=base.gU*FORECAST_MED_G/100;
+  const denom=eAnnual*FORECAST_E_SHAPE + gAnnual*FORECAST_G_SHAPE;
+  const k=denom?targetDelta/denom:0;
+  return {e:Math.max(0,1+k*FORECAST_E_SHAPE),g:Math.max(0,1+k*FORECAST_G_SHAPE)};
+}
+function applyUnitStep(base,m){ return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g}; }
+function forecastSteps(janRisePct){
+  const key=Number(janRisePct).toFixed(4); if(forecastStepCache.has(key)) return forecastStepCache.get(key);
+  const oct=avgRegionalCap("octdec"), janStep=shapedUnitStep(oct,janRisePct), jan=applyUnitStep(oct,janStep);
+  const aprStep=shapedUnitStep(jan,(APR_FROM_JAN-1)*100), apr=applyUnitStep(jan,aprStep);
+  const julStep=shapedUnitStep(apr,(JUL_FROM_APR-1)*100);
+  const result={jan:{e:janStep.e,g:janStep.g},apr:{e:janStep.e*aprStep.e,g:janStep.g*aprStep.g},jul:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g}};
+  forecastStepCache.set(key,result); return result;
+}
+function projectedCapRate(region,ph,janRisePct){
+  if(ph==="now") return region.cap.julsep; if(ph==="conf") return region.cap.octdec;
+  const steps=forecastSteps(janRisePct), m=steps[ph]||steps.jul, base=region.cap.octdec;
+  return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g};
 }
 
 
@@ -753,6 +779,27 @@ function standardFixedRate(row){
     eU:evNum(row.EUR_Std)
   };
   return Object.values(rate).every(v=>v!==null)?rate:null;
+}
+function trackerTierForTariff(t){ return t==="start"?0:t==="fixed"?1:2; }
+function liveTrackerRow(regionNo,tariff){
+  const tier=trackerTierForTariff(tariff);
+  return evRowsForRegion(regionNo).find(r=>{
+    const type=evLower(r.tariff_type!=null?r.tariff_type:r.tariffType); if(type!=="tracker") return false;
+    const name=evLower(r.tariff_name!=null?r.tariff_name:r.tariffName);
+    const rt=name.includes("tracker saver")?2:name.includes("tracker plus")?1:name.includes("tracker start")?0:null;
+    return rt===tier;
+  })||null;
+}
+function standardTrackerRate(row){
+  if(!row) return null; const rate={gSC:evNum(row.GDSC),gU:evNum(row.GUR),eSC:evNum(row.EDSC_Std),eU:evNum(row.EUR_Std)};
+  return Object.values(rate).every(v=>v!==null)?rate:null;
+}
+function trackerModel(region,tariff){
+  const row=liveTrackerRow(region.n,tariff), ex=standardTrackerRate(row); if(!row||!ex) return null;
+  const actual={eSC:ex.eSC*1.05,eU:ex.eU*1.05,gSC:ex.gSC*1.05,gU:ex.gU*1.05}, cap=region.cap.julsep;
+  return {name:String(row.tariff_name||"Tracker").replace(/^UW\s+/i,""),actual,ratio:{
+    eSC:cap.eSC?actual.eSC/cap.eSC:1,eU:cap.eU?actual.eU/cap.eU:1,gSC:cap.gSC?actual.gSC/cap.gSC:1,gU:cap.gU?actual.gU/cap.gU:1
+  }};
 }
 function applyLiveFixedTariffs(data){
   if(!data||!Array.isArray(data.tariffLive)) return false;
@@ -1057,27 +1104,25 @@ function loadEvFeed(){
 }
 
 function compute(o){
-  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat}=o;
-  const incE=mode!=="gas", incG=mode!=="elec";
-  const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
+  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker}=o;
+  const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
-    const eK=incE?elecY*eProfile[m.cal]:0;
-    const gK=incG?gasY*GAS_W[m.cal]:0;
-    const ev=1+elecVAT(m.k);
+    const eK=incE?elecY*eProfile[m.cal]:0, gK=incG?gasY*GAS_W[m.cal]:0, ev=1+elecVAT(m.k);
     const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
-    const fixGas =incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0;
-    const fixed=fixElec+fixGas;
-    const r=region.cap[m.src], mult=capMult(m.ph,janRise);
-    const capElec=incE?(r.eSC*mult*m.days + r.eU*mult*eK)/100:0;
-    const capGas =incG?(r.gSC*mult*m.days + r.gU*mult*gK)/100:0;
-    const cap=capElec+capGas;
-    return {k:m.k,ph:m.ph,fixed,cap,save:cap-fixed};
+    const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
+    const r=projectedCapRate(region,m.ph,janRise);
+    const capElec=incE?(r.eSC*m.days+r.eU*eK)/100:0, capGas=incG?(r.gSC*m.days+r.gU*gK)/100:0, cap=capElec+capGas;
+    const dr=projectedCapRate(region,m.ph,DOOMSDAY_JAN_RISE);
+    const doomElec=incE?(dr.eSC*m.days+dr.eU*eK)/100:0, doomGas=incG?(dr.gSC*m.days+dr.gU*gK)/100:0, doom=doomElec+doomGas;
+    let trackerCost=null;
+    if(tracker){
+      const tr=m.ph==="now"?tracker.actual:{eSC:r.eSC*tracker.ratio.eSC,eU:r.eU*tracker.ratio.eU,gSC:r.gSC*tracker.ratio.gSC,gU:r.gU*tracker.ratio.gU};
+      trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
+    }
+    return {k:m.k,ph:m.ph,fixed,cap,doom,tracker:trackerCost,save:cap-fixed};
   });
-  const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0);
-  const win=r=>WINTER.includes(r.k);
-  return {rows,
-    yCap:sum(r=>r.cap), yFix:sum(r=>r.fixed), ySave:sum(r=>r.save),
-    wCap:sum(r=>r.cap,win), wFix:sum(r=>r.fixed,win), wSave:sum(r=>r.save,win)};
+  const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0), win=r=>WINTER.includes(r.k);
+  return {rows,yCap:sum(r=>r.cap),yFix:sum(r=>r.fixed),ySave:sum(r=>r.save),wCap:sum(r=>r.cap,win),wFix:sum(r=>r.fixed,win),wSave:sum(r=>r.save,win)};
 }
 
 const gbp=n=>"£"+Math.round(n).toLocaleString("en-GB");
@@ -1346,7 +1391,10 @@ function render(){
   document.getElementById("shareUrl").value=buildShareUrl(s);
   const disc=(s.tariff!=="custom" && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
-  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat});
+  const tracker=trackerModel(s.region,s.tariff);
+  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat,tracker});
+  const trackerLegend=document.getElementById("trackerLegend");
+  if(trackerLegend) trackerLegend.innerHTML='<i class="swatch tracker"></i>'+(tracker?tracker.name:"Tracker unavailable");
 
   // Fixed tariff details
   const saverTip=document.getElementById("saverTip");
@@ -1403,7 +1451,7 @@ function statics(){
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
-    "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to the latest MSE consensus of 22.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -2.2% April and -9.8% July trajectory and fade as certainty drops.",
+    "Confirmed price-cap rates are used through December. From January, standing charges stay at the confirmed Oct-Dec level and the forecast movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of 22.9%. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
