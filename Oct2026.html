@@ -12,7 +12,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#667085;--cap-soft:#eef1f4;--fixed:#2457a7;--fixed-soft:#eef4fc;--tracker:#c96a24;--tracker-soft:#fff3e8;--doom:#2f3136;
+    --cap:#667085;--cap-soft:#eef1f4;--fixed:#7b2c83;--fixed-soft:#f7edf8;--tracker:#d06a1a;--tracker-soft:#fff1e5;--doom:#2f3136;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -129,8 +129,8 @@
   .headline{margin:7px 0 16px}
   .choice-heroes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0 12px}
   .choice-hero{border-radius:14px;padding:13px 14px 12px;border:1px solid transparent;min-width:0}
-  .choice-hero.fix{background:var(--fixed-soft);border-color:#d8e4f5}
-  .choice-hero.tracker{background:var(--tracker-soft);border-color:#f2dcc7}
+  .choice-hero.fix{background:var(--fixed-soft);border-color:#e6cfe9}
+  .choice-hero.tracker{background:var(--tracker-soft);border-color:#f2d0b3}
   .choice-kicker{display:block;font-size:.65rem;font-weight:900;letter-spacing:.08em;margin-bottom:2px}
   .choice-hero.fix .choice-kicker,.choice-hero.fix .choice-amount{color:var(--fixed)}
   .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
@@ -401,28 +401,26 @@
       <div class="choice-hero fix">
         <span class="choice-kicker">FIX</span>
         <strong class="choice-amount" id="fixHeroAmt">–</strong>
-        <span class="choice-copy" id="fixHeroCopy">vs Do Nothing</span>
+        <span class="choice-copy" id="fixHeroCopy">vs variable price cap</span>
       </div>
       <div class="choice-hero tracker">
         <span class="choice-kicker">TRACK</span>
         <strong class="choice-amount" id="trackHeroAmt">–</strong>
-        <span class="choice-copy" id="trackHeroCopy">vs Do Nothing</span>
+        <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
       </div>
     </div>
 
     <div class="quarter-compare-wrap">
-      <div class="quarter-compare-title">Saving vs Do Nothing - variable price cap</div>
+      <div class="quarter-compare-title">Saving vs variable price cap - variable price cap</div>
       <div class="quarter-compare" id="quarterCompare"></div>
     </div>
 
     <div id="chart"></div>
     <div class="legend">
-      <span><i class="swatch cap"></i>Do Nothing - variable price cap</span>
+      <span><i class="swatch cap"></i>Variable price cap</span>
       <span><i class="swatch doom"></i>30% doomsday</span>
       <span><i class="swatch fix"></i>Fixed</span>
       <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
-      <span class="outcome-legend"><i class="swatch cheaper"></i>Fixing saves</span>
-      <span class="outcome-legend"><i class="swatch risk"></i>Fixing costs more</span>
       <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
     </div>
   </section>
@@ -1189,7 +1187,7 @@ function openForecastSource(){
   document.getElementById("forecastSourceModal").classList.add("open");
 }
 function draw(res,janRise){
-  const W=680,H=342,padL=38,padR=12,padT=28,padB=70;
+  const W=620,H=382,padL=42,padR=14,padT=32,padB=76;
   const rows=res.rows,n=rows.length;
   const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.doom),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
@@ -1202,30 +1200,19 @@ function draw(res,janRise){
   const doom=rows.map((r,i)=>[x(i),y(r.doom)]);
   const track=rows.every(r=>Number.isFinite(r.tracker))?rows.map((r,i)=>[x(i),y(r.tracker)]):[];
   const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
-  const fillPath=(pts,kind,op=0.78)=>`<path d="${L(pts)} Z" fill="${kind==="fix"?"var(--save-soft)":"var(--risk-soft)"}" opacity="${op}"/>`;
+  const optionFill=(pts,colour,op)=>`<path d="${L(pts)} Z" fill="${colour}" opacity="${op}"/>`;
   let bandFills="";
   for(let i=0;i<n-1;i++){
-    const s0=rows[i].save,s1=rows[i+1].save;
-    const opacity=i<3?0.82:i<6?0.76:i<9?0.68:0.60;
-    if(Math.abs(s0)<0.0001 && Math.abs(s1)<0.0001) continue;
-    if(s0===0 || s1===0 || s0*s1>0){
-      const kind=(Math.abs(s0)>0.0001?s0:s1)>=0?"fix":"var";
-      bandFills+=fillPath([cap[i],cap[i+1],fix[i+1],fix[i]],kind,opacity);
-    }else{
-      const t=s0/(s0-s1);
-      const crossCap=[cap[i][0]+(cap[i+1][0]-cap[i][0])*t,cap[i][1]+(cap[i+1][1]-cap[i][1])*t];
-      const crossFix=[fix[i][0]+(fix[i+1][0]-fix[i][0])*t,fix[i][1]+(fix[i+1][1]-fix[i][1])*t];
-      const cross=[(crossCap[0]+crossFix[0])/2,(crossCap[1]+crossFix[1])/2];
-      bandFills+=fillPath([cap[i],cross,fix[i]],s0>0?"fix":"var",opacity);
-      bandFills+=fillPath([cross,cap[i+1],fix[i+1]],s1>0?"fix":"var",opacity);
-    }
+    const fade=i<3?0.28:i<6?0.23:i<9?0.18:0.14;
+    bandFills+=optionFill([cap[i],cap[i+1],fix[i+1],fix[i]],"var(--fixed-soft)",fade);
+    if(track.length) bandFills+=optionFill([cap[i],cap[i+1],track[i+1],track[i]],"var(--tracker-soft)",fade*0.95);
   }
   let grid="",step=niceStep(yMax-yMin);
   const gridStart=Math.ceil(yMin/step)*step;
   for(let v=gridStart;v<=yMax+0.001;v+=step){const yy=y(v).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
-    grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="10" fill="#9a92b3" text-anchor="end" font-weight="700">£${Math.round(v)}</text>`;}
-  let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">${r.k}</text>`;});
+    grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="11" fill="#8b849f" text-anchor="end" font-weight="750">£${Math.round(v)}</text>`;}
+  let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="11" fill="#8b849f" text-anchor="middle" font-weight="750">${r.k}</text>`;});
   const qbounds=[0,3,6,9];
   let qlines="";
   qbounds.forEach(b=>{const bx=((x(b)+x(b+1))/2).toFixed(1);
@@ -1247,7 +1234,7 @@ function draw(res,janRise){
     [(b2[0]+b3[0])/2,"Cap "+fmtPct((APR/JAN-1)*100),0.72],
     [(b3[0]+x(11))/2,"Cap "+fmtPct((JUL/APR-1)*100),0.56]
   ];
-  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB+43}" font-size="8.7" fill="#7c8797" font-weight="600" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
+  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB+43}" font-size="9.5" fill="#6f7786" font-weight="650" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
   const scenarios=[0,10,20,22.9,30];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
@@ -1257,8 +1244,8 @@ function draw(res,janRise){
   const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="2.7" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
   const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?2.8:2.1}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
-    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: do-nothing forecast, doomsday scenario, fixed tariff and Tracker">
-      <text x="${padL}" y="13" font-size="10" fill="#7c8797" font-weight="700">Monthly energy cost (£)</text>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, doomsday scenario, fixed tariff and Tracker">
+      <text x="${padL}" y="13" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
       ${grid}${qlines}
       ${bandFills}
       <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
@@ -1480,7 +1467,7 @@ function render(){
       return;
     }
     amt.textContent=gbp(Math.abs(diff));
-    copy.textContent=diff>=0 ? "saved vs Do Nothing" : "more than Do Nothing";
+    copy.textContent=diff>=0 ? "saved vs variable price cap" : "more than variable price cap";
   };
   setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
   setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
@@ -1518,7 +1505,7 @@ function render(){
     : s.mode!=="elec"
     ? `Gas use is weighted heavily into winter, so January changes have a much bigger effect for gas-heated homes.`
     : `Electricity is less seasonal than gas, so the monthly shape is steadier.`;
-  document.getElementById("chartTip").innerHTML = note + ` The slate line is Do Nothing - staying on the variable price cap; charcoal is the 30% January doomsday scenario; cobalt is the selected fixed tariff; copper is the matching UW Tracker tariff from the live feed. Sep-Dec price-cap rates are confirmed. From January, standing charges are held at the confirmed Oct-Dec level and the published headline movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of ${s.janRise}% for January. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle. Tracker future rates are estimates that preserve today's regional Tracker-to-cap relationship. Green/red shading still compares the fixed tariff with the do-nothing forecast only.`;
+  document.getElementById("chartTip").innerHTML = note + ` The slate line is the variable price cap; charcoal is the 30% January doomsday scenario; plum is the selected fixed tariff; copper is the matching UW Tracker tariff from the live feed. Sep-Dec price-cap rates are confirmed. From January, standing charges are held at the confirmed Oct-Dec level and the published headline movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of ${s.janRise}% for January. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle. Tracker future rates are estimates that preserve today's regional Tracker-to-cap relationship. The pale plum and copper bands show the gap between each option and the variable price cap.`;
   draw(res,s.janRise);
   renderEvExtension(s);
 }
