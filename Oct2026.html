@@ -154,10 +154,24 @@
   .chart-info{position:absolute;z-index:4;top:5px;right:8px;width:25px;height:25px;border-radius:50%;border:1.5px solid #d8d0e8;background:#fff;color:var(--purple-deep);font-family:Georgia,serif;font-weight:800;font-size:.8rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(38,22,79,.08)}
   .chart-info:hover{border-color:var(--purple);background:#faf7ff}
   @media(max-width:430px){
+    .qstrip{display:grid;grid-template-columns:repeat(4,1fr);padding:0;margin:2px 0 4px;gap:0}
+    .qcol{padding:0 2px 4px}
+    .qcol:first-child{display:none}
+    .qcol + .qcol{border-left:1px dashed #e3ddf1}
+    .qcol .qv{font-size:.78rem;white-space:nowrap}
+    .qcol .qverb{display:none}
+    .qcol .qn{font-size:.52rem}
+    .quarter-key{display:flex!important;justify-content:center;gap:12px;margin:0 0 6px;font-size:.62rem;font-weight:800;color:var(--muted)}
+    .quarter-key .good{color:var(--save)}.quarter-key .bad{color:var(--risk)}
     .chart-forecast-label{left:32px;font-size:.62rem}
     .chart-scenarios{left:32px;right:8px;gap:3px}
-    .chart-forecast-steps{left:32px;right:12px;font-size:.56rem}
+    .chart-forecast-steps{left:32px;right:12px;font-size:.56rem;justify-content:center}
+    .chart-forecast-steps span:first-child{display:none}
+    .chart-forecast-steps span+span::before{content:"•";margin-right:7px;color:var(--muted)}
     .chart-scenarios button{font-size:.64rem;padding:6px 1px;border-radius:8px}
+    .legend{gap:9px 12px;font-size:.72rem;margin-top:4px}
+    .legend .outcome-legend{display:none}
+    .legend .info{margin-left:0!important}
   }
   .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
   .source-modal.open{display:flex}
@@ -355,13 +369,14 @@
       <span class="hl-sub" id="ySub"></span>
     </div>
     <div class="qstrip" id="qstrip"></div>
+    <div class="quarter-key" style="display:none"><span class="good">● cheaper if you fix</span><span class="bad">● more if you fix</span></div>
     <div id="chart"></div>
     <div class="legend">
       <span><i class="swatch cap"></i>Confirmed price cap</span>
       <span><i class="swatch cap-forecast"></i>Forecast price cap</span>
       <span><i class="swatch fix"></i>Fixed</span>
-      <span><i class="swatch cheaper"></i>Fixing saves</span>
-      <span><i class="swatch risk"></i>Fixing costs more</span>
+      <span class="outcome-legend"><i class="swatch cheaper"></i>Fixing saves</span>
+      <span class="outcome-legend"><i class="swatch risk"></i>Fixing costs more</span>
       <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
     </div>
   </section>
@@ -1344,10 +1359,11 @@ function render(){
 
   document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
     const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
-    const val = sv>=0 ? "SAVE "+gbp(sv) : gbp(-sv)+" MORE";
+    const verb = sv>=0 ? "SAVE" : "MORE";
+    const amount = gbp(Math.abs(sv));
     const outcomeClass=sv>=0?"fix-win":"var-win";
     const outcomeTitle=sv>=0?"Fixing saves money in this period":"Fixing costs more in this period";
-    return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv ${outcomeClass}" title="${outcomeTitle}">${val}</span><span class="qn">${q.lab}</span></div>`;
+    return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv ${outcomeClass}" title="${outcomeTitle}"><span class="qverb">${verb} </span><span class="qamount">${amount}</span></span><span class="qn">${q.lab}</span></div>`;
   }).join("");
 
   const note = s.janRise===0
