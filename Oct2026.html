@@ -144,14 +144,14 @@
   .switch.mini .track{width:38px;height:22px}
   .switch.mini .track::after{width:16px;height:16px}
   .switch.mini input:checked + .track::after{left:19px}
-  .chart-controls{margin:10px 0 14px;padding:11px 12px 12px;border:1px solid #e4dfec;border-radius:12px;background:rgba(255,255,255,.72)}
-  .chart-control-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px}
-  .chart-forecast-label{font-size:.72rem;font-weight:800;color:var(--muted);letter-spacing:.01em}
+  .chart-controls{margin:14px 0 2px;padding:9px 10px 10px;border-top:1px solid #e7e2f2;background:rgba(255,255,255,.36)}
+  .chart-control-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .chart-forecast-label{font-size:.67rem;font-weight:750;color:var(--muted);letter-spacing:.01em}
   .chart-scenarios{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
-  .chart-scenarios button{min-width:0;font-family:inherit;font-size:.72rem;font-weight:800;line-height:1;border:1.5px solid #ddd5eb;background:#fff;color:var(--muted);border-radius:9px;padding:9px 4px;cursor:pointer;box-shadow:0 1px 2px rgba(38,22,79,.04);transition:.15s}
-  .chart-scenarios button:hover{border-color:#cdbff0;color:var(--purple-deep)}
-  .chart-scenarios button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 2px 6px rgba(124,58,237,.22)}
-  .chart-info{width:27px;height:27px;border-radius:50%;border:1.5px solid #d8d0e8;background:#fff;color:var(--purple-deep);font-family:Georgia,serif;font-weight:800;font-size:.82rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(38,22,79,.08);flex:0 0 auto}
+  .chart-scenarios button{min-width:0;font-family:inherit;font-size:.67rem;font-weight:750;line-height:1;border:1px solid #d9dfe8;background:rgba(255,255,255,.86);color:#6f7786;border-radius:7px;padding:7px 3px;cursor:pointer;box-shadow:none;transition:.15s}
+  .chart-scenarios button:hover{border-color:#aab4c2;color:#344052}
+  .chart-scenarios button[aria-pressed="true"]{background:#0f8f83;border-color:#0f8f83;color:#fff;box-shadow:none}
+  .chart-info{width:25px;height:25px;border-radius:50%;border:1px solid #d8dfe8;background:#fff;color:#596579;font-family:Georgia,serif;font-weight:800;font-size:.78rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;flex:0 0 auto}
   .chart-info:hover{border-color:var(--purple);background:#faf7ff}
   .chart-shell{position:relative;border-radius:13px;background:rgba(255,255,255,.28);overflow:hidden}
   @media(max-width:430px){
@@ -164,11 +164,11 @@
     .qcol .qn{font-size:.52rem}
     .quarter-key{display:flex!important;justify-content:center;gap:12px;margin:0 0 6px;font-size:.62rem;font-weight:800;color:var(--muted)}
     .quarter-key .good{color:var(--save)}.quarter-key .bad{color:var(--risk)}
-    .chart-controls{margin:12px 0 16px;padding:10px}
-    .chart-control-head{margin-bottom:8px}
-    .chart-forecast-label{font-size:.66rem}
-    .chart-scenarios{gap:5px}
-    .chart-scenarios button{font-size:.67rem;padding:9px 2px;border-radius:8px}
+    .chart-controls{margin:12px 0 0;padding:8px 6px 7px}
+    .chart-control-head{margin-bottom:6px}
+    .chart-forecast-label{font-size:.61rem}
+    .chart-scenarios{gap:4px}
+    .chart-scenarios button{font-size:.59rem;padding:6px 1px;border-radius:6px}
     .legend{gap:10px 14px;font-size:.72rem;margin-top:8px}
     .legend .outcome-legend{display:none}
     .legend .info{margin-left:0!important}
@@ -1098,7 +1098,7 @@ function openForecastSource(){
   document.getElementById("forecastSourceModal").classList.add("open");
 }
 function draw(res,janRise){
-  const W=680,H=318,padL=38,padR=12,padT=24,padB=42;
+  const W=680,H=342,padL=38,padR=12,padT=28,padB=70;
   const rows=res.rows,n=rows.length;
   const maxV=Math.max(1,...rows.map(r=>r.cap),...rows.map(r=>r.fixed))*1.12;
   const x=i=>padL+(W-padL-padR)*(i/(n-1));
@@ -1127,7 +1127,7 @@ function draw(res,janRise){
   for(let v=0;v<=maxV;v+=step){const yy=y(v).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
     grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="10" fill="#9a92b3" text-anchor="end" font-weight="700">£${Math.round(v)}</text>`;}
-  let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+16}" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">${r.k}</text>`;});
+  let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">${r.k}</text>`;});
   const qbounds=[0,3,6,9];
   let qlines="";
   qbounds.forEach(b=>{const bx=((x(b)+x(b+1))/2).toFixed(1);
@@ -1149,31 +1149,31 @@ function draw(res,janRise){
     [(b2[0]+b3[0])/2,"Cap "+fmtPct((APR/JAN-1)*100),0.72],
     [(b3[0]+x(11))/2,"Cap "+fmtPct((JUL/APR-1)*100),0.56]
   ];
-  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB-7}" font-size="9.2" fill="#70798c" font-weight="600" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
+  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB+43}" font-size="8.7" fill="#7c8797" font-weight="600" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
   const scenarios=[0,10,20,22.9,30];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
     const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
     return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
   }).join("");
-  document.getElementById("chart").innerHTML=`<div class="chart-controls">
-    <div class="chart-control-head">
-      <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
-      <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast source and explanation" title="Forecast source">i</button>
-    </div>
-    <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
-  </div>
-  <div class="chart-shell">
+  document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly cost, cap versus fixed">
       ${grid}${qlines}
       ${bandFills}
       <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
       ${dashCap}
-      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="2.8" stroke-linejoin="round"/>
       ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
       ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--fixed)"/>`).join("")}
       ${pcts}${xl}
     </svg>
+  </div>
+  <div class="chart-controls">
+    <div class="chart-control-head">
+      <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
+      <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast source and explanation" title="Forecast source">i</button>
+    </div>
+    <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
   </div>`;
 }
 
