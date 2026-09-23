@@ -982,7 +982,8 @@ function renderEvExtension(s){
   const tier=evTierForTariff(s.tariff);
   if(tier===null){
     status.className="ev-live warn";
-    status.textContent="Choose Fixed Saver 96, Fixed 96 or Fixed Start 96 above so the matching UW EV tariff can be selected.";
+    const series=liveFixedSeries();
+    status.textContent="Choose Fixed Saver "+series+", Fixed "+series+" or Fixed Start "+series+" above so the matching UW EV tariff can be selected.";
     document.getElementById("evSaveTxt").textContent="–";
     document.getElementById("evSaveSub").textContent="Custom fixed rates are not mapped to an EV tariff.";
     document.getElementById("evChart").innerHTML="";
@@ -1371,13 +1372,13 @@ function statics(){
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
     "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to the latest MSE consensus of 24.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -1.6% April and -10.7% July trajectory and fade as certainty drops.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
-    "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of Fixed Start 96, Fixed 96 or Fixed Saver 96. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
+    "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
   ].map(t=>`<li>${t}</li>`).join("");
 
   document.getElementById("foot").innerHTML=`
     <div>Built by Authorised Utility Warehouse Partner Adrian Croft <a href="https://aqcroft.com" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">aqcroft.com</a>: helping people say "Yes!" each month</div>
-    <div>Rates: UW Fixed Saver 96, UW Fixed 96 and UW Fixed Start 96 tariff information full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
+    <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
     <div>Last updated: 21 September 2026. Not an official Utility Warehouse tool or quote.</div>
