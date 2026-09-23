@@ -364,7 +364,7 @@
   </section>
 
   <section class="card" id="fixedCard">
-    <span class="lab">Compare with<span class="info" tabindex="0" role="button" aria-label="About the selected fixed tariff">i<span class="tip" id="saverTip">Fixed Saver 96 is for UW customers who take energy plus two or three non-energy services. Fixed to 30 September 2027.</span></span></span>
+    <span class="lab">Compare with<span class="info" tabindex="0" role="button" aria-label="About the selected fixed tariff">i<span class="tip" id="saverTip">Loading latest UW fixed tariff…</span></span></span>
     <div class="fixed-row">
       <button type="button" class="tariff-current" id="tariffCurrent" data-tariff="saver" aria-pressed="true" title="Reset to Fixed Saver 96">
         <b>Fixed Saver 96</b><span>energy plus 2 or 3 services</span>
@@ -687,6 +687,85 @@ function evMapped(regionNo){
   });
   return out;
 }
+
+function liveFixedSeries(){
+  const rows=evFeedData&&Array.isArray(evFeedData.tariffLive)?evFeedData.tariffLive:[];
+  const counts={};
+  rows.forEach(r=>{
+    if(evLower(r.tariff_type!=null?r.tariff_type:r.tariffType)!=="fixed") return;
+    let series=String(r.fixed_series!=null?r.fixed_series:r.fixedSeries||"").replace(/\D/g,"");
+    if(!series){
+      const name=String(r.tariff_name!=null?r.tariff_name:r.tariffName||"");
+      const m=name.match(/fixed(?:\s+saver|\s+start)?\s*(\d+)/i);
+      if(m) series=m[1];
+    }
+    if(series) counts[series]=(counts[series]||0)+1;
+  });
+  const keys=Object.keys(counts);
+  if(!keys.length) return "96";
+  keys.sort((a,b)=>counts[b]-counts[a]||(+b)-(+a));
+  return keys[0];
+}
+function liveFixedRow(regionNo,tariff){
+  const tier=tariff==="start"?0:tariff==="fixed"?1:tariff==="saver"?2:null;
+  if(tier===null) return null;
+  const mapped=evMapped(regionNo);
+  return mapped[tier]&&mapped[tier].fixed?mapped[tier].fixed:null;
+}
+function fixedDisplayName(tariff,regionNo){
+  if(tariff==="custom") return "Custom fixed deal";
+  const row=liveFixedRow(regionNo,tariff);
+  if(row){
+    const name=String(row.tariff_name!=null?row.tariff_name:r.tariffName||"").trim();
+    if(name) return name.replace(/^UW\s+/i,"");
+  }
+  const series=liveFixedSeries();
+  return tariff==="start"?"Fixed Start "+series:tariff==="fixed"?"Fixed "+series:"Fixed Saver "+series;
+}
+function fixedEndLabel(tariff,regionNo){
+  const row=liveFixedRow(regionNo,tariff);
+  return row?String(row.fixed_end_date||row.contract_end_date||"").trim():"30 September 2027";
+}
+function standardFixedRate(row){
+  if(!row) return null;
+  const rate={
+    gSC:evNum(row.GDSC),
+    gU:evNum(row.GUR),
+    eSC:evNum(row.EDSC_Std),
+    eU:evNum(row.EUR_Std)
+  };
+  return Object.values(rate).every(v=>v!==null)?rate:null;
+}
+function applyLiveFixedTariffs(data){
+  if(!data||!Array.isArray(data.tariffLive)) return false;
+  evFeedData=data;
+  let applied=0;
+  REGIONS.forEach(region=>{
+    const mapped=evMapped(region.n);
+    const start=standardFixedRate(mapped[0]&&mapped[0].fixed);
+    const fixed=standardFixedRate(mapped[1]&&mapped[1].fixed);
+    const saver=standardFixedRate(mapped[2]&&mapped[2].fixed);
+    if(start){region.start=start;applied++;}
+    if(fixed){region.fixed=fixed;applied++;}
+    if(saver){region.uw=saver;applied++;}
+  });
+  updateFixedTariffCopy();
+  if(document.getElementById("discText")&&document.getElementById("method")) statics();
+  return applied>0;
+}
+function updateFixedTariffCopy(){
+  const series=liveFixedSeries();
+  const saver=document.querySelector('#tariffCurrent b');
+  const fixed=document.querySelector('#fixedCard button[data-tariff="fixed"]');
+  const start=document.querySelector('#fixedCard button[data-tariff="start"]');
+  if(saver) saver.textContent="Fixed Saver "+series;
+  if(fixed && fixed.firstChild) fixed.firstChild.nodeValue="Fixed "+series;
+  if(start && start.firstChild) start.firstChild.nodeValue="Fixed Start "+series;
+  const current=document.getElementById("tariffCurrent");
+  if(current) current.title="Reset to Fixed Saver "+series;
+  const tip=document.getElementById("saverTip");
+  if(tip && evFeedStatus!=="live") tip.textContent="Fixed Saver "+series+" is for UW customers who take energy plus two or three non-energy services.";
+}
 function evRate(row,kind){
   if(!row) return null;
   let sc,day,night;
@@ -931,7 +1010,7 @@ function renderEvExtension(s){
     document.getElementById("evRateSummary").hidden=true;
     return;
   }
-  const fixedName=(fixedR.name||["Fixed Start 96","Fixed 96","Fixed Saver 96"][tier])+" Economy 7";
+  const fixedName=(fixedR.name||[fixedDisplayName("start",s.region.n),fixedDisplayName("fixed",s.region.n),fixedDisplayName("saver",s.region.n)][tier])+" Economy 7";
   const evName=evR.name||["EV Value","EV Gold","EV Double Gold"][tier];
   status.className="ev-live good";
   status.innerHTML='<span class="ev-pair">'+evName+' vs '+fixedName+'</span> · '+s.region.name.replace(/\s*\(\d+\)/,"")+' · live tariff feed';
@@ -954,7 +1033,7 @@ function renderEvExtension(s){
 function loadEvFeed(){
   fetch(EV_FEED_URL,{cache:"no-store"})
     .then(r=>{if(!r.ok) throw new Error("HTTP "+r.status);return r.json();})
-    .then(d=>{evFeedData=d;evFeedStatus="live";render();})
+    .then(d=>{evFeedStatus="live";applyLiveFixedTariffs(d);render();})
     .catch(()=>{evFeedStatus="error";render();});
 }
 
@@ -1238,9 +1317,10 @@ function render(){
 
   // Fixed tariff details
   const saverTip=document.getElementById("saverTip");
-  const tariffName=s.tariff==="fixed"?"Fixed 96":s.tariff==="start"?"Fixed Start 96":s.tariff==="custom"?"Custom fixed deal":"Fixed Saver 96";
+  const tariffName=fixedDisplayName(s.tariff,s.region.n);
   const bundleText=s.tariff==="fixed"?"energy plus one non-energy service":s.tariff==="start"?"energy only":s.tariff==="saver"?"energy plus two or three non-energy services":"your entered rates";
-  let tipHtml=s.tariff==="custom" ? "Custom fixed deal: enter the rates before VAT from the tariff information sheet." : `${tariffName} is for UW customers who take ${bundleText}. Fixed to 30 September 2027.`;
+  const fixedEnd=fixedEndLabel(s.tariff,s.region.n);
+  let tipHtml=s.tariff==="custom" ? "Custom fixed deal: enter the rates before VAT from the tariff information sheet." : `${tariffName} is for UW customers who take ${bundleText}.${fixedEnd?" Fixed to "+fixedEnd+".":""}`;
   if(s.tariff!=="custom"){
     const u=fixedRates(s), bits=[];
     if(s.mode!=="gas") bits.push(`electricity ${u.eU.toFixed(1)}p + ${u.eSC.toFixed(1)}p/day`);
@@ -1279,12 +1359,13 @@ function render(){
 
 /* ---- statics ---- */
 function statics(){
+  const series=liveFixedSeries();
   document.getElementById("discText").innerHTML =
-    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver 96 because that is the conversation this page was built to support, but you can choose UW Fixed 96, UW Fixed Start 96, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
+    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver ${series} because that is the conversation this page was built to support, but you can choose UW Fixed ${series}, UW Fixed Start ${series}, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
 
   document.getElementById("method").innerHTML=[
     "Compares a fixed tariff against the price cap over the year to August 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
-    "The fixed side defaults to UW Fixed Saver 96 for your region, Direct Debit, fixed to 30 September 2027. You can switch to UW Fixed 96, UW Fixed Start 96, or test any fixed deal.",
+    "The fixed side defaults to the latest live UW Fixed Saver series for your region and Direct Debit. You can switch to the matching UW Fixed or UW Fixed Start tariff, or test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
