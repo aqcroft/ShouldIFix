@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Should I Fix? UW fixed tariffs vs the price cap</title>
+<title>Should I Fix or Track? Compare fixed, Tracker and the price cap</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#596579;--cap-soft:#e9edf3;--fixed:#2563c7;
+    --cap:#667085;--cap-soft:#eef1f4;--fixed:#701a8c;--fixed-soft:#f5eafa;--tracker:#ff7800;--tracker-soft:#fff0e0;--doom:#2f3136;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -127,6 +127,38 @@
   .reset-usage{margin-top:10px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--purple);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
   .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
   .headline{margin:7px 0 16px}
+  .choice-heroes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0 12px}
+  .choice-hero{border-radius:14px;padding:13px 14px 12px;border:1px solid transparent;min-width:0}
+  .choice-hero.fix{background:var(--fixed-soft);border-color:#e6cfe9}
+  .choice-hero.tracker{background:var(--tracker-soft);border-color:#f2d0b3}
+  .choice-kicker{display:block;font-size:.65rem;font-weight:900;letter-spacing:.08em;margin-bottom:2px}
+  .choice-hero.fix .choice-kicker,.choice-hero.fix .choice-amount{color:var(--fixed)}
+  .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
+  .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
+  .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
+  .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
+  .quarter-compare{display:grid;grid-template-columns:72px repeat(4,1fr);font-size:.66rem}
+  .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
+  .qc-cell:nth-child(5n){border-right:0}
+  .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
+  .qc-label{text-align:left;font-weight:900;padding-left:9px}
+  .qc-fix{background:var(--fixed-soft)}
+  .qc-track{background:var(--tracker-soft)}
+  .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
+  .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
+  .qc-value{font-weight:850;white-space:nowrap}
+  .qc-muted{color:var(--muted)!important}
+  @media(max-width:430px){
+    .choice-heroes{gap:7px}
+    .choice-hero{padding:11px 10px 10px}
+    .choice-amount{font-size:1.55rem}
+    .choice-copy{font-size:.65rem}
+    .quarter-compare{grid-template-columns:60px repeat(4,1fr);font-size:.59rem}
+    .qc-cell{padding:6px 2px}
+    .qc-label{padding-left:6px}
+    .qc-head{font-size:.5rem}
+  }
   .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--save);line-height:1}
   .hl-save.neg{color:var(--risk)}
   .hl-sub{display:block;font-weight:700;color:var(--muted);font-size:.88rem;margin-top:3px}
@@ -174,6 +206,41 @@
     .legend .info{margin-left:0!important}
   }
   .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
+  .forecast-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 12px}
+  .forecast-choice{font-family:inherit;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:13px;padding:13px;cursor:pointer;color:var(--ink);transition:.15s}
+  .forecast-choice:hover,.forecast-choice[aria-pressed="true"]{border-color:#bba9df;background:#faf7ff}
+  .forecast-choice b{display:block;font-size:.88rem;margin-bottom:3px}
+  .forecast-choice span{display:block;font-size:.69rem;line-height:1.4;color:var(--muted);font-weight:650}
+  .forecast-panel{display:none;margin-top:10px}
+  .forecast-panel.open{display:block}
+  .forecast-model{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .forecast-model-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:10px 11px;border-bottom:1px solid var(--line);align-items:start}
+  .forecast-model-row:last-child{border-bottom:0}
+  .forecast-model-key{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+  .forecast-model-val{font-size:.76rem;font-weight:650;line-height:1.45;color:var(--ink)}
+  .forecast-model-badge{display:inline-block;background:#f2eef9;border-radius:999px;padding:2px 7px;margin:0 3px 2px 0;font-size:.63rem;font-weight:850;color:var(--purple-deep)}
+  .compare-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .compare-head .lab{margin:0}
+  .detail-link{font-family:inherit;border:0;background:none;color:var(--purple-deep);font-weight:800;font-size:.74rem;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px 0}
+  .tariff-pick button b{display:block;font-size:.88rem}
+  .tariff-custom-row{margin-top:8px}
+  .tariff-custom-row button{width:100%;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 9px;text-align:left}
+  .tariff-custom-row button span{display:block;margin-top:3px;font-size:.64rem;color:var(--muted)}
+  .tariff-details{display:block!important;background:#2a2340;color:#fff;border-radius:12px;padding:12px}
+  .tariff-copy-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .tariff-copy-btn{font-family:inherit;border:0;border-radius:10px;padding:10px 9px;font-size:.72rem;font-weight:850;cursor:pointer;line-height:1.2}
+  .tariff-copy-btn.fix{background:#f8eaf4;color:var(--fixed)}
+  .tariff-copy-btn.track{background:#fff0df;color:#b45200}
+  .tariff-copy-btn.copied{background:#fff;color:#2a2340}
+  @media(max-width:430px){.tariff-copy-actions{grid-template-columns:1fr}.tariff-copy-btn{padding:11px 10px;font-size:.76rem}}
+  @media(max-width:520px){
+    .source-modal{padding:10px;align-items:flex-end}
+    .source-card{width:100%;max-height:88dvh;border-radius:18px 18px 12px 12px;padding:14px}
+    .forecast-choices{grid-template-columns:1fr;gap:8px}
+    .forecast-choice{padding:12px}
+    .forecast-model-row{grid-template-columns:86px 1fr;gap:8px;padding:9px}
+    .detail-link{font-size:.7rem}
+  }
   .source-modal.open{display:flex}
   .source-card{width:min(760px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(38,22,79,.28)}
   .source-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
@@ -213,6 +280,34 @@
   .info{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--line);color:var(--muted);font-size:10px;font-weight:800;font-style:normal;cursor:help;position:relative;vertical-align:middle;margin-left:5px}
   .info:focus{outline:2px solid rgba(124,58,237,.4);outline-offset:1px}
   .info .tip{position:absolute;bottom:155%;left:50%;transform:translateX(-50%);width:210px;max-width:72vw;background:#2a2340;color:#fff;font-weight:600;font-size:.76rem;line-height:1.45;text-align:left;padding:9px 11px;border-radius:9px;opacity:0;visibility:hidden;transition:.14s;z-index:30;box-shadow:0 8px 22px rgba(0,0,0,.28)}
+  .forecast-tip{display:block!important;width:360px;max-width:88vw;padding:12px 13px}
+  .forecast-tip .ft-title{font-size:.86rem;font-weight:900;color:#fff;margin-bottom:2px}
+  .forecast-tip .ft-sub{font-size:.64rem;color:#cfc8de;font-weight:650;margin-bottom:9px;line-height:1.35}
+  .forecast-tip .ft-row{display:grid;grid-template-columns:84px 1fr;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,.12);align-items:start}
+  .forecast-tip .ft-key{font-size:.61rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em;color:#bfb7cf}
+  .forecast-tip .ft-val{font-size:.68rem;font-weight:700;color:#fff;line-height:1.4}
+  .forecast-tip .ft-badge{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:2px 6px;margin:1px 3px 1px 0;font-size:.58rem;font-weight:850;color:#fff}
+  .forecast-tip .ft-note{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.12);font-size:.59rem;line-height:1.4;color:#c8c1d4;font-weight:650}
+  @media(max-width:520px){.info .tip.forecast-tip{position:fixed;left:12px;right:12px;bottom:74px;top:auto;transform:none;width:auto;max-width:none;max-height:70vh;overflow:auto;padding:13px;z-index:5000}.info .tip.forecast-tip::after{display:none}}
+  .info .tip.compare-tip{display:block!important;width:390px;max-width:88vw;padding:12px 12px 11px}
+  .compare-tip .ct-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .compare-tip .ct-title{font-size:.82rem;font-weight:900;line-height:1.25;color:#fff}
+  .compare-tip .ct-sub{font-size:.64rem;font-weight:650;color:#cfc8de;margin-top:2px}
+  .compare-tip .vat-toggle{display:flex;flex:none;border:1px solid rgba(255,255,255,.22);border-radius:7px;overflow:hidden}
+  .compare-tip .vat-toggle button{border:0;background:transparent;color:#dcd6e8;padding:5px 7px;font:700 .61rem "Nunito",sans-serif;cursor:pointer}
+  .compare-tip .vat-toggle button.active{background:#fff;color:#2a2340}
+  .compare-tip table{width:100%;border-collapse:collapse;background:transparent;border:0;border-radius:0;overflow:visible;font-size:.66rem;color:#fff}
+  .compare-tip th,.compare-tip td{padding:5px 4px;border:0;border-bottom:1px solid rgba(255,255,255,.12);text-align:right;background:transparent;color:#fff;text-transform:none;letter-spacing:0}
+  .compare-tip th{font-size:.58rem;color:#bfb7cf;font-weight:800;line-height:1.2}
+  .compare-tip thead tr:first-child th{font-size:.63rem;padding-top:6px;padding-bottom:3px}
+  .compare-tip thead tr:nth-child(2) th{padding-top:2px;padding-bottom:5px}
+  .compare-tip th:first-child,.compare-tip td:first-child{text-align:left}
+  .compare-tip .fix-h{color:#ff9be5}.compare-tip .track-h{color:#ffb45c}
+  .compare-tip .ct-note{margin-top:7px;font-size:.58rem;line-height:1.35;color:#c8c1d4;font-weight:650}
+  @media(max-width:520px){
+    .info .tip.compare-tip{position:fixed;left:12px;right:12px;bottom:74px;top:auto;transform:none;width:auto;max-width:none;max-height:68vh;overflow:auto;padding:12px;z-index:5000}
+    .info .tip.compare-tip::after{display:none}
+  }
   .info .tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#2a2340}
   .info:hover .tip,.info:focus .tip{opacity:1;visibility:visible}
   .callout{margin-top:13px;background:#fff7f4;border:1px solid var(--cap-soft);border-left:4px solid var(--cap);border-radius:12px;padding:12px 14px;font-weight:600;font-size:.92rem}
@@ -222,8 +317,8 @@
   /* chart */
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
-  .swatch{width:28px;height:4px;border-radius:2px;display:inline-block;flex:0 0 auto}
-  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}
+  .swatch{width:30px;height:5px;border-radius:2px;display:inline-block;flex:0 0 auto}
+  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}.swatch.tracker{height:0;border-top:4px dashed var(--tracker);background:none}.swatch.doom{height:0;border-top:3px dashed var(--doom);background:none}
   .swatch.risk{width:14px;background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
   .swatch.cheaper{width:14px;background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
@@ -308,8 +403,8 @@
 <div class="wrap">
 
   <header class="hero">
-    <h1>Should I fix?</h1>
-    <p><b>Around 2 in 3 UK homes</b> are still on the variable price cap. Check whether fixing could give you more freedom to say "Yes!" this winter.</p>
+    <h1>Should I fix or track?</h1>
+    <p><b>Compare three routes:</b> stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
   </header>
 
   <section class="card">
@@ -364,36 +459,53 @@
   <input id="janRise" type="hidden" value="22.9">
   <section class="card result" id="resultCard">
     <p class="rlead" id="rlead">&nbsp;</p>
-    <div class="headline">
-      <span class="hl-save" id="ySaveTxt">–</span>
-      <span class="hl-sub" id="ySub"></span>
+
+    <div class="choice-heroes">
+      <div class="choice-hero fix">
+        <span class="choice-kicker">FIX</span>
+        <strong class="choice-amount" id="fixHeroAmt">–</strong>
+        <span class="choice-copy" id="fixHeroCopy">vs variable price cap</span>
+      </div>
+      <div class="choice-hero tracker">
+        <span class="choice-kicker">TRACK</span>
+        <strong class="choice-amount" id="trackHeroAmt">–</strong>
+        <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
+      </div>
     </div>
-    <div class="qstrip" id="qstrip"></div>
-    <div class="quarter-key" style="display:none"><span class="good">● cheaper if you fix</span><span class="bad">● more if you fix</span></div>
+
+    <div class="quarter-compare-wrap">
+      <div class="quarter-compare-title">Saving vs variable price cap</div>
+      <div class="quarter-compare" id="quarterCompare"></div>
+    </div>
+
     <div id="chart"></div>
     <div class="legend">
-      <span><i class="swatch cap"></i>Confirmed price cap</span>
-      <span><i class="swatch cap-forecast"></i>Forecast price cap</span>
+      <span><i class="swatch cap"></i>Variable price cap</span>
+      <span><i class="swatch doom"></i>30% doomsday</span>
       <span><i class="swatch fix"></i>Fixed</span>
-      <span class="outcome-legend"><i class="swatch cheaper"></i>Fixing saves</span>
-      <span class="outcome-legend"><i class="swatch risk"></i>Fixing costs more</span>
-      <span class="info" tabindex="0" role="button" aria-label="How to read this chart" style="margin-left:auto">i<span class="tip" id="chartTip"></span></span>
+      <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
     </div>
   </section>
 
   <section class="card" id="fixedCard">
-    <span class="lab">Compare with<span class="info" tabindex="0" role="button" aria-label="About the selected fixed tariff">i<span class="tip" id="saverTip">Loading latest UW fixed tariff…</span></span></span>
+    <div class="compare-head">
+      <span class="lab">Compare using</span>
+      <button class="detail-link" id="tariffDetailsBtn" type="button">Detailed tariff information</button>
+    </div>
     <div class="fixed-row">
-      <button type="button" class="tariff-current" id="tariffCurrent" data-tariff="saver" aria-pressed="true" title="Reset to Fixed Saver 96">
-        <b>Fixed Saver 96</b><span>energy plus 2 or 3 services</span>
+      <button type="button" class="tariff-current" id="tariffCurrent" aria-pressed="true" title="Change service level">
+        <b id="bundleChoiceTitle">3 services</b><span id="bundleChoicePair">Fixed Saver + Tracker Saver</span>
       </button>
-      <button type="button" class="tariff-open" id="openTariffs" aria-pressed="false" aria-label="Choose a custom fixed tariff" title="Choose a custom fixed tariff"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
+      <button type="button" class="tariff-open" id="openTariffs" aria-pressed="false" aria-label="Change service level" title="Change service level">Change</button>
     </div>
     <div class="tariff-panel" id="tariffPanel">
-      <div class="tariff-pick" role="group" aria-label="Other fixed tariff options">
-        <button type="button" data-tariff="fixed">Fixed 96<span>energy plus 1 service</span></button>
-        <button type="button" data-tariff="start">Fixed Start 96<span>energy only</span></button>
-        <button type="button" data-tariff="custom">Custom rates<span>another fixed deal</span></button>
+      <div class="tariff-pick" role="group" aria-label="Choose service level">
+        <button type="button" data-tariff="start"><b>1 service</b><span id="pairStart">Fixed Start + Tracker Start</span></button>
+        <button type="button" data-tariff="fixed"><b>2 services</b><span id="pairFixed">Fixed + Tracker Plus</span></button>
+        <button type="button" data-tariff="saver" aria-pressed="true"><b>3 services</b><span id="pairSaver">Fixed Saver + Tracker Saver</span></button>
+      </div>
+      <div class="tariff-custom-row">
+        <button type="button" data-tariff="custom"><b>Own fixed tariff</b><span>Enter another fixed deal - Tracker comparison stays on the 3-service Tracker tier</span></button>
       </div>
     </div>
     <div id="manualWrap" class="manual hidden">
@@ -529,14 +641,27 @@
   <div class="source-card">
     <div class="source-card-head">
       <div>
-        <div class="source-kicker">MoneySavingExpert consensus forecast</div>
-        <h3 id="forecastSourceTitle">Why is the default 22.9%?</h3>
+        <div class="source-kicker">Forecast details</div>
+        <h3 id="forecastSourceTitle">What would you like to see?</h3>
       </div>
-      <button class="source-close" id="forecastSourceClose" type="button" aria-label="Close forecast source">×</button>
+      <button class="source-close" id="forecastSourceClose" type="button" aria-label="Close forecast details">×</button>
     </div>
-    <div class="source-big">+22.9%</div>
-    <div class="source-sub">The 22.9% default is the MoneySavingExpert consensus average of the latest EDF, British Gas and E.on Next predictions for the January-March 2027 Energy Price Cap, published for the week beginning 21 September 2026.</div>
-    <div class="forecast-snapshot" aria-label="MoneySavingExpert annual price cap prediction table">
+
+    <div class="forecast-choices">
+      <button class="forecast-choice" id="forecastChoiceSource" type="button" onclick="showForecastPanel('source')" aria-pressed="false">
+        <b>Price cap forecasts</b>
+        <span>See the MoneySavingExpert consensus and the EDF, British Gas and E.on figures behind the headline forecast.</span>
+      </button>
+      <button class="forecast-choice" id="forecastChoiceModel" type="button" onclick="showForecastPanel('model')" aria-pressed="false">
+        <b>How the forecast is calculated</b>
+        <span>See how seasonality, standing charges, the gas/electricity split and Tracker assumptions are applied.</span>
+      </button>
+    </div>
+
+    <div class="forecast-panel" id="forecastPanelSource">
+      <div class="source-big">+22.9%</div>
+      <div class="source-sub">MoneySavingExpert consensus average of the latest EDF, British Gas and E.on Next predictions for January-March 2027, for the week beginning 21 September 2026.</div>
+<div class="forecast-snapshot" aria-label="MoneySavingExpert annual price cap prediction table">
       <div class="forecast-snapshot-title"><strong>Annual Price Cap predictions</strong> for week starting 21 Sept</div>
       <div class="forecast-table-wrap">
         <table class="forecast-table">
@@ -582,9 +707,37 @@
         </table>
       </div>
     </div>
+
     <div class="source-note">Based on a dual-fuel household paying by Direct Debit using 2,500 kWh of electricity and 9,500 kWh of gas. EDF prediction dated 22 September 2026; British Gas prediction dated 21 September 2026; E.on Next prediction dated 23 September 2026.</div>
     <a class="source-link" href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener">View the original MoneySavingExpert source ↗</a>
-    <div class="source-note">Forecasts can move materially before each cap is formally announced. The scenario buttons let you test a less dramatic January rise without changing the source default.</div>
+
+    </div>
+
+    <div class="forecast-panel" id="forecastPanelModel">
+      <div class="forecast-model">
+        <div class="forecast-model-row"><div class="forecast-model-key">Confirmed</div><div class="forecast-model-val">Sep-Dec uses published regional price-cap rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">22.9%</span> Standing charges stay at the Oct-Dec level. The forecast movement is applied to unit rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Gas vs electricity</div><div class="forecast-model-val">The split follows Cornwall Insight's late-August component forecast shape, scaled to the fresher MSE consensus.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr -2.2%</span><span class="forecast-model-badge">Jul -9.8%</span> The same unit-rate-only approach is used.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Gas is weighted heavily into winter. Electricity uses a lighter seasonal pattern, or winter weighting for electric heating.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Tracker</div><div class="forecast-model-val">Future Tracker rates preserve today's regional Tracker-to-price-cap relationship. They are estimates, not published future UW rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Chart lines</div><div class="forecast-model-val">Slate = variable price cap · Magenta = Fix · Orange = Track · Charcoal = 30% doomsday.</div></div>
+      </div>
+      <div class="source-note">This is a personalised estimate using the selected region and annual usage. Forecasts can change as wholesale prices and Ofgem inputs change.</div>
+    </div>
+  </div>
+</div>
+
+<div class="source-modal" id="tariffDetailsModal" role="dialog" aria-modal="true" aria-labelledby="tariffDetailsTitle">
+  <div class="source-card">
+    <div class="source-card-head">
+      <div>
+        <div class="source-kicker">Current tariff rates</div>
+        <h3 id="tariffDetailsTitle">Detailed tariff information</h3>
+      </div>
+      <button class="source-close" id="tariffDetailsClose" type="button" aria-label="Close tariff details">×</button>
+    </div>
+    <div class="compare-tip tariff-details" id="tariffDetailsBody">Loading current tariff information…</div>
   </div>
 </div>
 
@@ -618,7 +771,13 @@ const REGIONS = [
    Jan-Mar +22.9%, Apr-Jun -2.2%, Jul-Sep -9.8%.
    The Jan rise is user-adjustable via the scenario buttons in the chart. */
 const DEFAULT_JAN_RISE=22.9;
+const DOOMSDAY_JAN_RISE=30;
 const APR_FROM_JAN=0.978, JUL_FROM_APR=0.902;
+/* Forecast split: use the fresher headline forecast, but keep standing charges
+   at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
+   January component forecast gives the electricity-v-gas unit-rate shape. */
+const FORECAST_E_SHAPE=7.6, FORECAST_G_SHAPE=12.2;
+const FORECAST_MED_E=2500, FORECAST_MED_G=9500;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
 const MONTHS=[
@@ -648,14 +807,34 @@ const GAS_W =norm([16.4,12.8,12.7,8.6,4.4,2.7,2.6,2.4,3.2,6.9,12.2,15.1]);  /* D
 const ELEC_W=norm([9.5,9.0,8.5,7.5,7.5,7.5,8.0,8.0,7.5,8.5,9.0,9.5]);       /* lighter seasonal approximation */
 function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
 function elecVAT(k){return (k==="Oct"||k==="Nov"||k==="Dec"||k==="Jan"||k==="Feb"||k==="Mar")?0:0.05;}
-function capMult(ph,janRisePct){
-  if(ph==="now"||ph==="conf") return 1;
-  const JAN=1+(janRisePct/100);
-  const APR=JAN*APR_FROM_JAN;
-  const JUL=APR*JUL_FROM_APR;
-  if(ph==="jan") return JAN;
-  if(ph==="apr") return APR;
-  return JUL;
+const forecastStepCache=new Map();
+function avgRegionalCap(src){
+  const out={eSC:0,eU:0,gSC:0,gU:0};
+  REGIONS.forEach(r=>{out.eSC+=r.cap[src].eSC;out.eU+=r.cap[src].eU;out.gSC+=r.cap[src].gSC;out.gU+=r.cap[src].gU;});
+  const n=REGIONS.length; Object.keys(out).forEach(k=>out[k]/=n); return out;
+}
+function benchmarkCapAnnual(r){ return ((r.eSC+r.gSC)*365 + r.eU*FORECAST_MED_E + r.gU*FORECAST_MED_G)/100; }
+function shapedUnitStep(base,headlinePct){
+  if(Math.abs(headlinePct)<0.000001) return {e:1,g:1};
+  const targetDelta=benchmarkCapAnnual(base)*(headlinePct/100);
+  const eAnnual=base.eU*FORECAST_MED_E/100, gAnnual=base.gU*FORECAST_MED_G/100;
+  const denom=eAnnual*FORECAST_E_SHAPE + gAnnual*FORECAST_G_SHAPE;
+  const k=denom?targetDelta/denom:0;
+  return {e:Math.max(0,1+k*FORECAST_E_SHAPE),g:Math.max(0,1+k*FORECAST_G_SHAPE)};
+}
+function applyUnitStep(base,m){ return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g}; }
+function forecastSteps(janRisePct){
+  const key=Number(janRisePct).toFixed(4); if(forecastStepCache.has(key)) return forecastStepCache.get(key);
+  const oct=avgRegionalCap("octdec"), janStep=shapedUnitStep(oct,janRisePct), jan=applyUnitStep(oct,janStep);
+  const aprStep=shapedUnitStep(jan,(APR_FROM_JAN-1)*100), apr=applyUnitStep(jan,aprStep);
+  const julStep=shapedUnitStep(apr,(JUL_FROM_APR-1)*100);
+  const result={jan:{e:janStep.e,g:janStep.g},apr:{e:janStep.e*aprStep.e,g:janStep.g*aprStep.g},jul:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g}};
+  forecastStepCache.set(key,result); return result;
+}
+function projectedCapRate(region,ph,janRisePct){
+  if(ph==="now") return region.cap.julsep; if(ph==="conf") return region.cap.octdec;
+  const steps=forecastSteps(janRisePct), m=steps[ph]||steps.jul, base=region.cap.octdec;
+  return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g};
 }
 
 
@@ -724,6 +903,38 @@ function liveFixedSeries(){
   keys.sort((a,b)=>counts[b]-counts[a]||(+b)-(+a));
   return keys[0];
 }
+function liveTrackerSeries(){
+  const rows=evFeedData&&Array.isArray(evFeedData.tariffLive)?evFeedData.tariffLive:[];
+  const counts={};
+  rows.forEach(r=>{
+    if(evLower(r.tariff_type!=null?r.tariff_type:r.tariffType)!=="tracker") return;
+    let series=String(r.tracker_series!=null?r.tracker_series:r.trackerSeries||"").replace(/\D/g,"");
+    if(!series){
+      const name=String(r.tariff_name!=null?r.tariff_name:r.tariffName||"");
+      const m=name.match(/tracker(?:\s+saver|\s+plus|\s+start)?\s*(\d+)/i);
+      if(m) series=m[1];
+    }
+    if(series) counts[series]=(counts[series]||0)+1;
+  });
+  const keys=Object.keys(counts);
+  if(!keys.length) return "6";
+  keys.sort((a,b)=>counts[b]-counts[a]||(+b)-(+a));
+  return keys[0];
+}
+function bundleCopy(tariff){
+  const fs=liveFixedSeries(), ts=liveTrackerSeries();
+  if(tariff==="start") return {label:"1 service",pair:"Fixed Start "+fs+" + Tracker Start "+ts};
+  if(tariff==="fixed") return {label:"2 services",pair:"Fixed "+fs+" + Tracker Plus "+ts};
+  if(tariff==="custom") return {label:"Own fixed tariff",pair:"Custom fix + Tracker Saver "+ts};
+  return {label:"3 services",pair:"Fixed Saver "+fs+" + Tracker Saver "+ts};
+}
+function updateBundleChoiceCopy(tariff){
+  const x=bundleCopy(tariff);
+  const title=document.getElementById("bundleChoiceTitle"), pair=document.getElementById("bundleChoicePair");
+  if(title) title.textContent=x.label;
+  if(pair) pair.textContent=x.pair;
+}
+
 function liveFixedRow(regionNo,tariff){
   const tier=tariff==="start"?0:tariff==="fixed"?1:tariff==="saver"?2:null;
   if(tier===null) return null;
@@ -754,6 +965,123 @@ function standardFixedRate(row){
   };
   return Object.values(rate).every(v=>v!==null)?rate:null;
 }
+function trackerTierForTariff(t){ return t==="start"?0:t==="fixed"?1:2; }
+function liveTrackerRow(regionNo,tariff){
+  const tier=trackerTierForTariff(tariff);
+  return evRowsForRegion(regionNo).find(r=>{
+    const type=evLower(r.tariff_type!=null?r.tariff_type:r.tariffType); if(type!=="tracker") return false;
+    const name=evLower(r.tariff_name!=null?r.tariff_name:r.tariffName);
+    const rt=name.includes("tracker saver")?2:name.includes("tracker plus")?1:name.includes("tracker start")?0:null;
+    return rt===tier;
+  })||null;
+}
+function standardTrackerRate(row){
+  if(!row) return null; const rate={gSC:evNum(row.GDSC),gU:evNum(row.GUR),eSC:evNum(row.EDSC_Std),eU:evNum(row.EUR_Std)};
+  return Object.values(rate).every(v=>v!==null)?rate:null;
+}
+function trackerModel(region,tariff){
+  const row=liveTrackerRow(region.n,tariff), ex=standardTrackerRate(row); if(!row||!ex) return null;
+  const actual={eSC:ex.eSC*1.05,eU:ex.eU*1.05,gSC:ex.gSC*1.05,gU:ex.gU*1.05}, cap=region.cap.julsep;
+  return {name:String(row.tariff_name||"Tracker").replace(/^UW\s+/i,""),actual,ratio:{
+    eSC:cap.eSC?actual.eSC/cap.eSC:1,eU:cap.eU?actual.eU/cap.eU:1,gSC:cap.gSC?actual.gSC/cap.gSC:1,gU:cap.gU?actual.gU/cap.gU:1
+  }};
+}
+let compareInfoVat=false;
+function compareInfoDate(v){
+  if(!v) return "";
+  const s=String(v);
+  const d=new Date(s);
+  if(Number.isNaN(d.getTime())) return s;
+  return d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+}
+function rateForInfo(rate,withVat){
+  if(rate==null||!Number.isFinite(rate)) return "–";
+  return (rate*(withVat?1.05:1)).toFixed(2)+"p";
+}
+function setCompareInfoVat(on,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  compareInfoVat=!!on;
+  renderCompareInfo(lastCompareInfoState&&lastCompareInfoState.s,lastCompareInfoState&&lastCompareInfoState.tracker);
+}
+let lastCompareInfoState=null;
+const WHATSAPP_EXIT_FEE=75;
+function plainRate(rate,withVat){
+  if(rate==null||!Number.isFinite(rate)) return "–";
+  return (rate*(withVat?1.05:1)).toFixed(3).replace(/0+$/,"").replace(/\.$/,"");
+}
+function whatsappTariffText(kind){
+  const st=lastCompareInfoState;
+  if(!st||!st.s) return "";
+  const s=st.s, vat=compareInfoVat;
+  const isFixed=kind==="fixed";
+  const fixedRow=liveFixedRow(s.region.n,s.tariff);
+  const fixedRate=s.tariff==="custom"?fixedRates(s):standardFixedRate(fixedRow)||fixedRates(s);
+  const trackerRow=liveTrackerRow(s.region.n,s.tariff);
+  const trackerRate=standardTrackerRate(trackerRow);
+  const rate=isFixed?fixedRate:trackerRate;
+  if(!rate) return "";
+  const rawName=isFixed?fixedDisplayName(s.tariff,s.region.n):String((trackerRow&&trackerRow.tariff_name)||"Tracker").replace(/^UW\s+/i,"");
+  const tariffName=/^UW\s+/i.test(rawName)?rawName:"UW "+rawName;
+  const end=isFixed && s.tariff!=="custom"?compareInfoDate(fixedEndLabel(s.tariff,s.region.n)):"";
+  const vatLabel=vat?"including VAT":"excluding VAT";
+  const bits=["Hi, please can you move both my electricity and gas tariffs onto "+tariffName+"."];
+  if(end) bits.push("","📅 Fixed until: "+end);
+  bits.push("",
+    "⚡ Electricity",
+    "Unit rate: "+plainRate(rate.eU,vat)+"p/kWh",
+    "Standing charge: "+plainRate(rate.eSC,vat)+"p/day",
+    "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
+    "",
+    "🔥 Gas",
+    "Unit rate: "+plainRate(rate.gU,vat)+"p/kWh",
+    "Standing charge: "+plainRate(rate.gSC,vat)+"p/day",
+    "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
+    "",
+    "Rates shown "+vatLabel+".",
+    "",
+    "Please confirm once this has been arranged. Thanks 👍",
+    "",
+    "*Name*",
+    "Customer number: *number*",
+    "Email: *email*",
+    "DOB: *DOB*"
+  );
+  return bits.join("\n");
+}
+async function copyTariffWhatsApp(kind,btn){
+  const txt=whatsappTariffText(kind);
+  if(!txt) return;
+  const done=()=>{
+    const old=btn.dataset.oldText||btn.textContent;
+    btn.dataset.oldText=old;
+    btn.textContent="Copied ✓";
+    btn.classList.add("copied");
+    setTimeout(()=>{btn.textContent=old;btn.classList.remove("copied");},1600);
+  };
+  try{await navigator.clipboard.writeText(txt);done();}
+  catch{
+    const ta=document.createElement("textarea");
+    ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}finally{ta.remove();}
+  }
+}
+function renderCompareInfo(s,tracker){
+  if(!s) return;
+  const tip=document.getElementById("tariffDetailsBody"); if(!tip) return;
+  lastCompareInfoState={s,tracker};
+  const fixedName=fixedDisplayName(s.tariff,s.region.n);
+  const fixedRate=s.tariff==="custom"?fixedRates(s):standardFixedRate(liveFixedRow(s.region.n,s.tariff))||fixedRates(s);
+  const trackRow=liveTrackerRow(s.region.n,s.tariff);
+  const trackRate=standardTrackerRate(trackRow);
+  const trackName=trackRow?String(trackRow.tariff_name||"Tracker").replace(/^UW\s+/i,""):"Tracker unavailable";
+  const end=s.tariff==="custom"?"":compareInfoDate(fixedEndLabel(s.tariff,s.region.n));
+  const vat=compareInfoVat;
+  const rows=[];
+  if(s.mode!=="gas") rows.push(`<tr><td>Electricity</td><td class="fix-h">${rateForInfo(fixedRate.eU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.eSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.eU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.eSC,vat)+"/day":"–"}</td></tr>`);
+  if(s.mode!=="elec") rows.push(`<tr><td>Gas</td><td class="fix-h">${rateForInfo(fixedRate.gU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.gSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.gU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.gSC,vat)+"/day":"–"}</td></tr>`);
+  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub">${end?fixedName+" · fixed to "+end:fixedName}<br>${trackName}</div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th rowspan="2">Fuel</th><th class="fix-h" colspan="2">${fixedName}</th><th class="track-h" colspan="2">${trackName}</th></tr><tr><th class="fix-h">Unit</th><th class="fix-h">SC</th><th class="track-h">Unit</th><th class="track-h">SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT adds 5% for tariff-sheet comparison. The chart separately applies the modelled electricity VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div><div class="tariff-copy-actions"><button type="button" class="tariff-copy-btn fix" onclick="copyTariffWhatsApp(\'fixed\',this)">Copy Fixed WhatsApp</button><button type="button" class="tariff-copy-btn track" onclick="copyTariffWhatsApp(\'tracker\',this)">Copy Tracker WhatsApp</button></div>`;
+}
 function applyLiveFixedTariffs(data){
   if(!data||!Array.isArray(data.tariffLive)) return false;
   evFeedData=data;
@@ -772,17 +1100,15 @@ function applyLiveFixedTariffs(data){
   return applied>0;
 }
 function updateFixedTariffCopy(){
-  const series=liveFixedSeries();
-  const saver=document.querySelector('#tariffCurrent b');
-  const fixed=document.querySelector('#fixedCard button[data-tariff="fixed"]');
-  const start=document.querySelector('#fixedCard button[data-tariff="start"]');
-  if(saver) saver.textContent="Fixed Saver "+series;
-  if(fixed && fixed.firstChild) fixed.firstChild.nodeValue="Fixed "+series;
-  if(start && start.firstChild) start.firstChild.nodeValue="Fixed Start "+series;
-  const current=document.getElementById("tariffCurrent");
-  if(current) current.title="Reset to Fixed Saver "+series;
-  const tip=document.getElementById("saverTip");
-  if(tip && evFeedStatus!=="live") tip.textContent="Fixed Saver "+series+" is for UW customers who take energy plus two or three non-energy services.";
+  const fs=liveFixedSeries(), ts=liveTrackerSeries();
+  const pStart=document.getElementById("pairStart");
+  const pFixed=document.getElementById("pairFixed");
+  const pSaver=document.getElementById("pairSaver");
+  if(pStart) pStart.textContent="Fixed Start "+fs+" + Tracker Start "+ts;
+  if(pFixed) pFixed.textContent="Fixed "+fs+" + Tracker Plus "+ts;
+  if(pSaver) pSaver.textContent="Fixed Saver "+fs+" + Tracker Saver "+ts;
+  const selected=document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff||"saver";
+  updateBundleChoiceCopy(selected);
 }
 function evRate(row,kind){
   if(!row) return null;
@@ -1057,27 +1383,25 @@ function loadEvFeed(){
 }
 
 function compute(o){
-  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat}=o;
-  const incE=mode!=="gas", incG=mode!=="elec";
-  const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
+  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker}=o;
+  const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
-    const eK=incE?elecY*eProfile[m.cal]:0;
-    const gK=incG?gasY*GAS_W[m.cal]:0;
-    const ev=1+elecVAT(m.k);
+    const eK=incE?elecY*eProfile[m.cal]:0, gK=incG?gasY*GAS_W[m.cal]:0, ev=1+elecVAT(m.k);
     const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
-    const fixGas =incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0;
-    const fixed=fixElec+fixGas;
-    const r=region.cap[m.src], mult=capMult(m.ph,janRise);
-    const capElec=incE?(r.eSC*mult*m.days + r.eU*mult*eK)/100:0;
-    const capGas =incG?(r.gSC*mult*m.days + r.gU*mult*gK)/100:0;
-    const cap=capElec+capGas;
-    return {k:m.k,ph:m.ph,fixed,cap,save:cap-fixed};
+    const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
+    const r=projectedCapRate(region,m.ph,janRise);
+    const capElec=incE?(r.eSC*m.days+r.eU*eK)/100:0, capGas=incG?(r.gSC*m.days+r.gU*gK)/100:0, cap=capElec+capGas;
+    const dr=projectedCapRate(region,m.ph,DOOMSDAY_JAN_RISE);
+    const doomElec=incE?(dr.eSC*m.days+dr.eU*eK)/100:0, doomGas=incG?(dr.gSC*m.days+dr.gU*gK)/100:0, doom=doomElec+doomGas;
+    let trackerCost=null;
+    if(tracker){
+      const tr=m.ph==="now"?tracker.actual:{eSC:r.eSC*tracker.ratio.eSC,eU:r.eU*tracker.ratio.eU,gSC:r.gSC*tracker.ratio.gSC,gU:r.gU*tracker.ratio.gU};
+      trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
+    }
+    return {k:m.k,ph:m.ph,fixed,cap,doom,tracker:trackerCost,save:cap-fixed};
   });
-  const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0);
-  const win=r=>WINTER.includes(r.k);
-  return {rows,
-    yCap:sum(r=>r.cap), yFix:sum(r=>r.fixed), ySave:sum(r=>r.save),
-    wCap:sum(r=>r.cap,win), wFix:sum(r=>r.fixed,win), wSave:sum(r=>r.save,win)};
+  const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0), win=r=>WINTER.includes(r.k);
+  return {rows,yCap:sum(r=>r.cap),yFix:sum(r=>r.fixed),ySave:sum(r=>r.save),wCap:sum(r=>r.cap,win),wFix:sum(r=>r.fixed,win),wSave:sum(r=>r.save,win)};
 }
 
 const gbp=n=>"£"+Math.round(n).toLocaleString("en-GB");
@@ -1095,12 +1419,30 @@ function setJanRise(value){
   render();
 }
 function openForecastSource(){
-  document.getElementById("forecastSourceModal").classList.add("open");
+  const m=document.getElementById("forecastSourceModal");
+  document.getElementById("forecastPanelSource").classList.remove("open");
+  document.getElementById("forecastPanelModel").classList.remove("open");
+  document.getElementById("forecastChoiceSource").setAttribute("aria-pressed","false");
+  document.getElementById("forecastChoiceModel").setAttribute("aria-pressed","false");
+  const j=document.getElementById("forecastJanChosen");
+  if(j) j.textContent=(+document.getElementById("janRise").value||0)+"%";
+  m.classList.add("open");
+}
+function showForecastPanel(which){
+  const source=which==="source";
+  document.getElementById("forecastPanelSource").classList.toggle("open",source);
+  document.getElementById("forecastPanelModel").classList.toggle("open",!source);
+  document.getElementById("forecastChoiceSource").setAttribute("aria-pressed",source?"true":"false");
+  document.getElementById("forecastChoiceModel").setAttribute("aria-pressed",source?"false":"true");
+}
+function openTariffDetails(){
+  render();
+  document.getElementById("tariffDetailsModal").classList.add("open");
 }
 function draw(res,janRise){
-  const W=680,H=342,padL=38,padR=12,padT=28,padB=70;
+  const W=620,H=382,padL=42,padR=14,padT=32,padB=76;
   const rows=res.rows,n=rows.length;
-  const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed)];
+  const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.doom),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
   const span=Math.max(20,rawMax-rawMin);
   const yMin=Math.max(0,Math.floor((rawMin-span*0.22)/10)*10);
@@ -1108,31 +1450,22 @@ function draw(res,janRise){
   const x=i=>padL+(W-padL-padR)*(i/(n-1));
   const y=v=>padT+(H-padT-padB)*(1-(v-yMin)/(yMax-yMin));
   const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
+  const doom=rows.map((r,i)=>[x(i),y(r.doom)]);
+  const track=rows.every(r=>Number.isFinite(r.tracker))?rows.map((r,i)=>[x(i),y(r.tracker)]):[];
   const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
-  const fillPath=(pts,kind,op=0.78)=>`<path d="${L(pts)} Z" fill="${kind==="fix"?"var(--save-soft)":"var(--risk-soft)"}" opacity="${op}"/>`;
+  const optionFill=(pts,colour,op)=>`<path d="${L(pts)} Z" fill="${colour}" opacity="${op}"/>`;
   let bandFills="";
   for(let i=0;i<n-1;i++){
-    const s0=rows[i].save,s1=rows[i+1].save;
-    const opacity=i<3?0.82:i<6?0.76:i<9?0.68:0.60;
-    if(Math.abs(s0)<0.0001 && Math.abs(s1)<0.0001) continue;
-    if(s0===0 || s1===0 || s0*s1>0){
-      const kind=(Math.abs(s0)>0.0001?s0:s1)>=0?"fix":"var";
-      bandFills+=fillPath([cap[i],cap[i+1],fix[i+1],fix[i]],kind,opacity);
-    }else{
-      const t=s0/(s0-s1);
-      const crossCap=[cap[i][0]+(cap[i+1][0]-cap[i][0])*t,cap[i][1]+(cap[i+1][1]-cap[i][1])*t];
-      const crossFix=[fix[i][0]+(fix[i+1][0]-fix[i][0])*t,fix[i][1]+(fix[i+1][1]-fix[i][1])*t];
-      const cross=[(crossCap[0]+crossFix[0])/2,(crossCap[1]+crossFix[1])/2];
-      bandFills+=fillPath([cap[i],cross,fix[i]],s0>0?"fix":"var",opacity);
-      bandFills+=fillPath([cross,cap[i+1],fix[i+1]],s1>0?"fix":"var",opacity);
-    }
+    const fade=i<3?0.28:i<6?0.23:i<9?0.18:0.14;
+    bandFills+=optionFill([cap[i],cap[i+1],fix[i+1],fix[i]],"var(--fixed-soft)",fade);
+    if(track.length) bandFills+=optionFill([cap[i],cap[i+1],track[i+1],track[i]],"var(--tracker-soft)",fade*0.95);
   }
   let grid="",step=niceStep(yMax-yMin);
   const gridStart=Math.ceil(yMin/step)*step;
   for(let v=gridStart;v<=yMax+0.001;v+=step){const yy=y(v).toFixed(1);
     grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
-    grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="10" fill="#9a92b3" text-anchor="end" font-weight="700">£${Math.round(v)}</text>`;}
-  let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">${r.k}</text>`;});
+    grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="11" fill="#8b849f" text-anchor="end" font-weight="750">£${Math.round(v)}</text>`;}
+  let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="11" fill="#8b849f" text-anchor="middle" font-weight="750">${r.k}</text>`;});
   const qbounds=[0,3,6,9];
   let qlines="";
   qbounds.forEach(b=>{const bx=((x(b)+x(b+1))/2).toFixed(1);
@@ -1154,30 +1487,35 @@ function draw(res,janRise){
     [(b2[0]+b3[0])/2,"Cap "+fmtPct((APR/JAN-1)*100),0.72],
     [(b3[0]+x(11))/2,"Cap "+fmtPct((JUL/APR-1)*100),0.56]
   ];
-  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB+43}" font-size="8.7" fill="#7c8797" font-weight="600" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
+  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB+43}" font-size="9.5" fill="#6f7786" font-weight="650" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
   const scenarios=[0,10,20,22.9,30];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
     const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
     return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
   }).join("");
+  const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="4.2" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
+  const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
-    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds, price cap versus fixed">
-      <text x="${padL}" y="13" font-size="10" fill="#7c8797" font-weight="700">Monthly energy cost (£)</text>
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, doomsday scenario, fixed tariff and Tracker">
+      <text x="${padL}" y="13" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
       ${grid}${qlines}
       ${bandFills}
       <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
       ${dashCap}
-      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="2.8" stroke-linejoin="round"/>
+      <path d="${L(doom.slice(3))}" fill="none" stroke="var(--doom)" stroke-width="2.2" stroke-dasharray="3 4" stroke-linejoin="round" opacity=".88"/>
+      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="4.4" stroke-linejoin="round"/>
+      ${trackerPath}
       ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
-      ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--fixed)"/>`).join("")}
+      ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
+      ${trackerDots}
       ${pcts}${xl}
     </svg>
   </div>
   <div class="chart-controls">
     <div class="chart-control-head">
       <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
-      <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast source and explanation" title="Forecast source">i</button>
+      <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast details" title="Forecast details">i</button>
     </div>
     <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
   </div>`;
@@ -1346,47 +1684,69 @@ function render(){
   document.getElementById("shareUrl").value=buildShareUrl(s);
   const disc=(s.tariff!=="custom" && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
-  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat});
+  const tracker=trackerModel(s.region,s.tariff);
+  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat,tracker});
+  const trackerLegend=document.getElementById("trackerLegend");
+  if(trackerLegend) trackerLegend.innerHTML='<i class="swatch tracker"></i>'+(tracker?tracker.name:"Tracker unavailable");
+  updateBundleChoiceCopy(s.tariff);
 
-  // Fixed tariff details
-  const saverTip=document.getElementById("saverTip");
-  const tariffName=fixedDisplayName(s.tariff,s.region.n);
-  const bundleText=s.tariff==="fixed"?"energy plus one non-energy service":s.tariff==="start"?"energy only":s.tariff==="saver"?"energy plus two or three non-energy services":"your entered rates";
-  const fixedEnd=fixedEndLabel(s.tariff,s.region.n);
-  let tipHtml=s.tariff==="custom" ? "Custom fixed deal: enter the rates before VAT from the tariff information sheet." : `${tariffName} is for UW customers who take ${bundleText}.${fixedEnd?" Fixed to "+fixedEnd+".":""}`;
-  if(s.tariff!=="custom"){
-    const u=fixedRates(s), bits=[];
-    if(s.mode!=="gas") bits.push(`electricity ${u.eU.toFixed(1)}p + ${u.eSC.toFixed(1)}p/day`);
-    if(s.mode!=="elec") bits.push(`gas ${u.gU.toFixed(1)}p + ${u.gSC.toFixed(1)}p/day`);
-    tipHtml+=` ${s.region.name.replace(/\s*\(\d+\)/,"")}: ${bits.join(", ")} (before VAT).`;
-    if(s.mode==="dual") tipHtml+=" Dual-fuel discount applied.";
-  }
-  saverTip.textContent=tipHtml;
+  // Fixed + Tracker tariff details
+  renderCompareInfo(s,tracker);
 
   const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
-  document.getElementById("rlead").textContent="Will fixing my energy save me or cost me more?";
+  document.getElementById("rlead").textContent="Should I fix or track?";
 
-  const yEl=document.getElementById("ySaveTxt"), ySub=document.getElementById("ySub");
-  if(res.ySave>=0){ yEl.classList.remove("neg"); yEl.textContent=gbp(res.ySave); ySub.textContent="saved by fixing, over the year to Aug 2027"; }
-  else{ yEl.classList.add("neg"); yEl.textContent=gbp(-res.ySave); ySub.textContent="more by fixing, over the year to Aug 2027"; }
+  const trackerTotal=tracker
+    ? res.rows.reduce((a,r)=>a+(Number.isFinite(r.tracker)?r.tracker:0),0)
+    : null;
+  const trackerSave=trackerTotal===null?null:res.yCap-trackerTotal;
 
-  document.getElementById("qstrip").innerHTML = QUARTERS.map(q=>{
-    const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
-    const verb = sv>=0 ? "SAVE" : "MORE";
-    const amount = gbp(Math.abs(sv));
-    const outcomeClass=sv>=0?"fix-win":"var-win";
-    const outcomeTitle=sv>=0?"Fixing saves money in this period":"Fixing costs more in this period";
-    return `<div class="qcol" style="flex-grow:${q.grow};opacity:${q.op}"><span class="qv ${outcomeClass}" title="${outcomeTitle}"><span class="qverb">${verb} </span><span class="qamount">${amount}</span></span><span class="qn">${q.lab}</span></div>`;
-  }).join("");
+  const setChoiceHero=(amountId,copyId,diff,label)=>{
+    const amt=document.getElementById(amountId), copy=document.getElementById(copyId);
+    if(diff===null){
+      amt.textContent="–";
+      copy.textContent=label+" unavailable";
+      return;
+    }
+    amt.textContent=gbp(Math.abs(diff));
+    copy.textContent=diff>=0 ? "saved vs variable price cap" : "more than variable price cap";
+  };
+  setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
+  setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
+
+  const chartQuarters=[
+    {lab:"Oct-Dec",mk:["Oct","Nov","Dec"]},
+    {lab:"Jan-Mar",mk:["Jan","Feb","Mar"]},
+    {lab:"Apr-Jun",mk:["Apr","May","Jun"]},
+    {lab:"Jul-Aug",mk:["Jul","Aug"]}
+  ];
+  const quarterDiff=(q,key)=>{
+    const rr=res.rows.filter(r=>q.mk.includes(r.k));
+    if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
+    const baseline=rr.reduce((a,r)=>a+r.cap,0);
+    const option=rr.reduce((a,r)=>a+(key==="fixed"?r.fixed:r.tracker),0);
+    return baseline-option;
+  };
+  const qValue=(d,cls)=>{
+    if(d===null) return '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>';
+    const word=d>=0?"Save ":"More ";
+    return '<div class="qc-cell qc-value '+cls+'">'+word+gbp(Math.abs(d))+'</div>';
+  };
+  document.getElementById("quarterCompare").innerHTML =
+    '<div class="qc-cell qc-head"></div>'+
+    chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
+    '<div class="qc-cell qc-label qc-fix">FIX</div>'+
+    chartQuarters.map(q=>qValue(quarterDiff(q,"fixed"),"qc-fix")).join("")+
+    '<div class="qc-cell qc-label qc-track">TRACK</div>'+
+    chartQuarters.map(q=>qValue(quarterDiff(q,"tracker"),"qc-track")).join("");
 
   const note = s.janRise===0
-    ? `0% January scenario selected: the January cap is held at the confirmed Oct-Dec level before the later forecast changes are applied.`
+    ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
-    ? `Electric heating is on, so electricity use is weighted more heavily into winter. Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more.`
+    ? `Electric heating is on, so electricity use is weighted more heavily into winter.`
     : s.mode!=="elec"
-    ? `Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more. The gap is often widest through winter when the forecast rise meets your heaviest gas use.`
-    : `Blue is your fixed line, slate grey the price cap. Green shading means fixing is cheaper; red shading means fixing costs more. Electricity is far less seasonal than gas, so the gap is steadier across the year.`;
-  document.getElementById("chartTip").innerHTML = note + ` The shading always follows the cheaper outcome - it does not favour either tariff. The dashed cap line and faded columns are forecast, getting lighter as they become less certain. The vertical scale shows monthly energy cost in pounds and auto-zooms to the relevant cost range, so changes are easier to see. The saving is the gap between the fixed and price-cap lines. The small grey "Cap +/-x%" labels at the bottom show the assumed price-cap movement from the quarter before. Sep to Dec are confirmed. January is currently set to ${s.janRise}%. The April step also reflects the electricity VAT holiday ending.`;
+    ? `Gas use is weighted heavily into winter, so January changes have a much bigger effect for gas-heated homes.`
+    : `Electricity is less seasonal than gas, so the monthly shape is steadier.`;
   draw(res,s.janRise);
   renderEvExtension(s);
 }
@@ -1403,7 +1763,8 @@ function statics(){
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
-    "Confirmed price-cap quarters are used where available. The January 2027 forecast defaults to the latest MSE consensus of 22.9%; the scenario controls let you test alternatives. Later forecast quarters currently use MSE's -2.2% April and -9.8% July trajectory and fade as certainty drops.",
+    "Confirmed price-cap rates are used through December. From January, standing charges stay at the confirmed Oct-Dec level and the forecast movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of 22.9%. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle.",
+    "The chart also shows a 30% January doomsday line and the matching live UW Tracker tariff. Future Tracker rates are estimated by keeping the current regional Tracker-to-cap relationship as the cap moves; they are not a UW forecast.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
@@ -1452,9 +1813,11 @@ function statics(){
     render();
   });
   document.getElementById("tariffCurrent").addEventListener("click",()=>{
-    setTariffChoice("saver");
+    tariffPanelOpen=!tariffPanelOpen;
+    document.getElementById("openTariffs").setAttribute("aria-pressed",tariffPanelOpen?"true":"false");
     render();
   });
+  document.getElementById("tariffDetailsBtn").addEventListener("click",openTariffDetails);
   document.getElementById("electricHeat").addEventListener("change",refreshSelectedUsageBand);
   ["mESC","mEU","mGSC","mGU"].forEach(id=>{
     const el=document.getElementById(id);
@@ -1516,7 +1879,9 @@ function statics(){
 
   document.getElementById("forecastSourceClose").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.remove("open"));
   document.getElementById("forecastSourceModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("forecastSourceModal").classList.remove("open");});
+  document.getElementById("tariffDetailsClose").addEventListener("click",()=>document.getElementById("tariffDetailsModal").classList.remove("open"));
+  document.getElementById("tariffDetailsModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.getElementById("forecastSourceModal").classList.remove("open");document.getElementById("tariffDetailsModal").classList.remove("open");}});
 
   readParams();
   statics();
