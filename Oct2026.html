@@ -219,6 +219,20 @@
   .forecast-model-key{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
   .forecast-model-val{font-size:.76rem;font-weight:650;line-height:1.45;color:var(--ink)}
   .forecast-model-badge{display:inline-block;background:#f2eef9;border-radius:999px;padding:2px 7px;margin:0 3px 2px 0;font-size:.63rem;font-weight:850;color:var(--purple-deep)}
+  .seasonality-link{margin-top:10px;width:100%;font-family:inherit;border:1.5px solid var(--line);background:#fff;color:var(--purple-deep);border-radius:11px;padding:10px 12px;font-size:.76rem;font-weight:850;cursor:pointer;text-align:left}
+  .seasonality-link span{display:block;margin-top:2px;color:var(--muted);font-size:.65rem;font-weight:650}
+  .seasonality-grid{display:grid;grid-template-columns:80px 1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:10px}
+  .seasonality-cell{padding:8px 9px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:.74rem}
+  .seasonality-cell:nth-child(3n){border-right:0}
+  .seasonality-head{font-weight:900;background:#faf9fc;color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.03em}
+  .seasonality-month{font-weight:850;color:var(--ink)}
+  .seasonality-gas{color:#b45200;font-weight:800}
+  .seasonality-elec{color:var(--fixed);font-weight:800}
+  .seasonality-note{margin-top:10px;font-size:.68rem;line-height:1.45;color:var(--muted);font-weight:650}
+  @media(max-width:430px){
+    .seasonality-grid{grid-template-columns:64px 1fr 1fr}
+    .seasonality-cell{padding:7px 6px;font-size:.7rem}
+  }
   .compare-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
   .compare-head .lab{margin:0}
   .detail-link{font-family:inherit;border:0;background:none;color:var(--purple-deep);font-weight:800;font-size:.74rem;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px 0}
@@ -719,12 +733,28 @@
         <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">22.9%</span> Standing charges stay at the Oct-Dec level. The forecast movement is applied to unit rates.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Gas vs electricity</div><div class="forecast-model-val">The split follows Cornwall Insight's late-August component forecast shape, scaled to the fresher MSE consensus.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr -2.2%</span><span class="forecast-model-badge">Jul -9.8%</span> The same unit-rate-only approach is used.</div></div>
-        <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Gas is weighted heavily into winter. Electricity uses a lighter seasonal pattern, or winter weighting for electric heating.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Annual usage is spread month by month rather than divided evenly by 12. Gas follows the DESNZ seasonal profile; electricity uses the same gentler monthly profile carried forward from the original tool. Electric-heating mode switches electricity to the winter-heavy heating profile.</div></div>
+        <button class="seasonality-link" type="button" onclick="openSeasonalityModal()">View monthly usage split<span>See the exact percentage of annual gas and electricity usage allocated to each month.</span></button>
         <div class="forecast-model-row"><div class="forecast-model-key">Tracker</div><div class="forecast-model-val">Future Tracker rates preserve today's regional Tracker-to-price-cap relationship. They are estimates, not published future UW rates.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Chart lines</div><div class="forecast-model-val">Slate = variable price cap · Magenta = Fix · Orange = Track · Charcoal = 30% doomsday.</div></div>
       </div>
       <div class="source-note">This is a personalised estimate using the selected region and annual usage. Forecasts can change as wholesale prices and Ofgem inputs change.</div>
     </div>
+  </div>
+</div>
+
+<div class="source-modal" id="seasonalityModal" role="dialog" aria-modal="true" aria-labelledby="seasonalityTitle">
+  <div class="source-card">
+    <div class="source-card-head">
+      <div>
+        <div class="source-kicker">Monthly usage modelling</div>
+        <h3 id="seasonalityTitle">Seasonal usage split</h3>
+      </div>
+      <button class="source-close" id="seasonalityClose" type="button" aria-label="Close seasonal usage split">×</button>
+    </div>
+    <div class="source-sub">These percentages show how the tool converts annual kWh into monthly usage before applying each month's tariff rates.</div>
+    <div class="seasonality-grid" id="seasonalityGrid"></div>
+    <div class="seasonality-note">Gas uses the DESNZ Energy Trends monthly profile. Standard electricity uses the gentler monthly profile already used in the original Should I Fix tool. If Electric heating is selected, electricity uses the winter-heavy heating profile instead.</div>
   </div>
 </div>
 
@@ -1435,6 +1465,18 @@ function showForecastPanel(which){
   document.getElementById("forecastChoiceSource").setAttribute("aria-pressed",source?"true":"false");
   document.getElementById("forecastChoiceModel").setAttribute("aria-pressed",source?"false":"true");
 }
+function openSeasonalityModal(){
+  const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const grid=document.getElementById("seasonalityGrid");
+  let html='<div class="seasonality-cell seasonality-head">Month</div><div class="seasonality-cell seasonality-head">Gas</div><div class="seasonality-cell seasonality-head">Electricity</div>';
+  months.forEach((m,i)=>{
+    html+='<div class="seasonality-cell seasonality-month">'+m+'</div>'+
+      '<div class="seasonality-cell seasonality-gas">'+(GAS_W[i]*100).toFixed(1)+'%</div>'+
+      '<div class="seasonality-cell seasonality-elec">'+(ELEC_W[i]*100).toFixed(1)+'%</div>';
+  });
+  grid.innerHTML=html;
+  document.getElementById("seasonalityModal").classList.add("open");
+}
 function openTariffDetails(){
   render();
   document.getElementById("tariffDetailsModal").classList.add("open");
@@ -1879,9 +1921,11 @@ function statics(){
 
   document.getElementById("forecastSourceClose").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.remove("open"));
   document.getElementById("forecastSourceModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+  document.getElementById("seasonalityClose").addEventListener("click",()=>document.getElementById("seasonalityModal").classList.remove("open"));
+  document.getElementById("seasonalityModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
   document.getElementById("tariffDetailsClose").addEventListener("click",()=>document.getElementById("tariffDetailsModal").classList.remove("open"));
   document.getElementById("tariffDetailsModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
-  document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.getElementById("forecastSourceModal").classList.remove("open");document.getElementById("tariffDetailsModal").classList.remove("open");}});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.getElementById("forecastSourceModal").classList.remove("open");document.getElementById("seasonalityModal").classList.remove("open");document.getElementById("tariffDetailsModal").classList.remove("open");}});
 
   readParams();
   statics();
