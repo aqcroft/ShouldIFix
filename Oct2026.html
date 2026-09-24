@@ -4,7 +4,73 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Should I Fix or Track? Compare fixed, Tracker and the price cap</title>
+<title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
+<meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27">
+<meta property="og:description" content="Compare fixing, tracking and staying on the Ofgem price cap using your own UK region and annual energy usage.">
+<meta property="og:url" content="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator">
+<meta name="twitter:description" content="A personalised UK energy comparison using regional rates, forecast price caps and month-by-month seasonal usage.">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebApplication",
+      "@id":"https://aqcroft.github.io/ShouldIFix/Oct2026.html#app",
+      "name":"Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator",
+      "url":"https://aqcroft.github.io/ShouldIFix/Oct2026.html",
+      "description":"A free UK energy calculator comparing a fixed tariff, a Tracker tariff and the Ofgem price cap using regional rates, annual gas and electricity usage, and month-by-month seasonal modelling.",
+      "applicationCategory":"FinanceApplication",
+      "operatingSystem":"Any",
+      "browserRequirements":"Requires a modern web browser with JavaScript enabled",
+      "inLanguage":"en-GB",
+      "isAccessibleForFree":true,
+      "dateModified":"2026-09-24",
+      "author":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
+      "provider":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
+      "audience":{"@type":"PeopleAudience","geographicArea":{"@type":"Country","name":"United Kingdom"}},
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"}
+    },
+    {
+      "@type":"FAQPage",
+      "@id":"https://aqcroft.github.io/ShouldIFix/Oct2026.html#faq",
+      "mainEntity":[
+        {
+          "@type":"Question",
+          "name":"Should I fix my energy tariff now?",
+          "acceptedAnswer":{"@type":"Answer","text":"It depends on your region, energy use, tariff rates and how future price caps change. This calculator compares fixing, choosing a Tracker tariff and staying on the price cap using your own annual usage and month-by-month seasonal modelling."}
+        },
+        {
+          "@type":"Question",
+          "name":"Are UK energy prices expected to rise in January 2027?",
+          "acceptedAnswer":{"@type":"Answer","text":"The MoneySavingExpert consensus for the week beginning 21 September 2026 is a 22.9% rise in the January to March 2027 Energy Price Cap. It is an early forecast and could change before Ofgem confirms the cap."}
+        },
+        {
+          "@type":"Question",
+          "name":"Does the energy price cap limit my total bill?",
+          "acceptedAnswer":{"@type":"Answer","text":"No. The Energy Price Cap limits the rates charged for each unit of gas and electricity and standing charges on standard variable tariffs. Your total bill still depends on how much energy you use."}
+        },
+        {
+          "@type":"Question",
+          "name":"Does this calculator account for winter energy use?",
+          "acceptedAnswer":{"@type":"Answer","text":"Yes. Annual gas and electricity usage is converted into month-by-month consumption. Gas follows a DESNZ seasonal profile with much heavier winter use, while electricity uses a gentler monthly profile. Electric-heating mode uses a winter-heavy electricity profile."}
+        },
+        {
+          "@type":"Question",
+          "name":"What does the calculator compare?",
+          "acceptedAnswer":{"@type":"Answer","text":"It compares the selected UW fixed tariff, the matching UW Tracker tariff and the regional Ofgem price cap over the modelled period. Forecast figures are estimates, not guarantees or an official supplier quote."}
+        }
+      ]
+    }
+  ]
+}
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -41,6 +107,18 @@
   .uw-cta.secondary:hover{border-color:#cdbff0;background:#faf8ff}
   @media(max-width:430px){.cta-row{grid-template-columns:1fr}}
   .disclosure b{color:#5c5478}
+  .search-intro{margin:12px 3px 0;padding:0 2px;font-size:.83rem;line-height:1.48;color:#5c5478;font-weight:650}
+  .search-intro strong{color:var(--ink)}
+  .outlook-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-top:16px}
+  .outlook-card h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.05rem;margin:0 0 6px}
+  .outlook-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}
+  .outlook-cell{background:#faf9fc;border-radius:9px;padding:8px 6px;text-align:center}
+  .outlook-cell b{display:block;font-size:.8rem}
+  .outlook-cell span{display:block;font-size:.62rem;font-weight:750;color:var(--muted);margin-top:2px}
+  .outlook-note{font-size:.68rem;line-height:1.45;color:var(--muted);font-weight:650;margin:8px 0 0}
+  .answer-faq h3{font-size:.84rem;margin:12px 0 3px;color:var(--ink)}
+  .answer-faq p{margin:0;font-size:.78rem;line-height:1.5}
+  @media(max-width:430px){.outlook-grid{grid-template-columns:1fr 1fr}.search-intro{font-size:.78rem}}
   .disclosure .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:4px}
 
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;margin-top:16px;box-shadow:0 4px 16px rgba(42,35,64,.04)}
@@ -421,6 +499,8 @@
     <p><b>Compare three routes:</b> stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
   </header>
 
+  <p class="search-intro"><strong>Should you fix your energy tariff?</strong> This free UK calculator compares a fixed tariff, a Tracker tariff and staying on the Ofgem price cap using your region and annual gas and electricity usage. Unlike a simple annual comparison, it models usage month by month so heavier winter consumption is reflected in the result.</p>
+
   <section class="card">
     <h2 class="hidden">Your details</h2>
 
@@ -642,6 +722,37 @@
       <a class="uw-cta secondary" href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener">Prefer a helping hand?<span>Book a free bill review →</span></a>
     </div>
   </section>
+
+  <section class="outlook-card" aria-labelledby="energyOutlookTitle">
+    <h2 id="energyOutlookTitle">UK energy price outlook - September 2026</h2>
+    <div class="outlook-grid">
+      <div class="outlook-cell"><b>+3.6%</b><span>Oct-Dec 2026 confirmed</span></div>
+      <div class="outlook-cell"><b>+22.9%</b><span>Jan-Mar 2027 consensus forecast</span></div>
+      <div class="outlook-cell"><b>-2.2%</b><span>Apr-Jun 2027 consensus forecast</span></div>
+      <div class="outlook-cell"><b>-9.8%</b><span>Jul-Sep 2027 consensus forecast</span></div>
+    </div>
+    <p class="outlook-note">Updated 24 September 2026. Forecast figures use the MoneySavingExpert consensus of current EDF, British Gas and E.on Next predictions. January and later figures are forecasts and can change before Ofgem confirms each cap.</p>
+  </section>
+
+  <details class="answer-faq">
+    <summary>Energy fixing questions - quick answers</summary>
+    <div class="body">
+      <h3>Should I fix my energy tariff now?</h3>
+      <p>There is no single answer for every household. The useful comparison is your own fixed or Tracker rates against the price-cap path, using your region and expected consumption. This tool does that month by month.</p>
+
+      <h3>Are energy prices expected to rise in January 2027?</h3>
+      <p>As of 24 September 2026, the MoneySavingExpert consensus for January-March 2027 is a 22.9% rise from the October cap. It is still an early forecast rather than a confirmed Ofgem cap.</p>
+
+      <h3>Does the Energy Price Cap limit my total bill?</h3>
+      <p>No. It limits unit rates and standing charges on standard variable tariffs. The amount you actually pay still depends on your energy use.</p>
+
+      <h3>Why does winter usage matter?</h3>
+      <p>Annual usage is not divided evenly by 12. Gas use is heavily weighted into winter using DESNZ seasonal data, while electricity uses a gentler monthly profile. That means a price rise arriving in winter can affect a gas-heated household more than an annual-average figure suggests.</p>
+
+      <h3>What does the calculator compare?</h3>
+      <p>It compares the selected UW fixed tariff, matching UW Tracker tariff and regional price cap. Forecast outputs are personalised estimates rather than an official UW quote or a guarantee of future prices.</p>
+    </div>
+  </details>
 
   <details>
     <summary>Assumptions, sources and small print</summary>
