@@ -225,8 +225,10 @@
   .qc-variable{color:var(--cap)}
   .qc-fix{color:var(--fixed)}
   .qc-track{color:var(--tracker)}
-  .qc-best{background:var(--save-soft);box-shadow:inset 3px 0 0 var(--save)}
-  .qc-saving{background:#f3fbf6;color:var(--save);font-weight:950;border-top:2px solid #bfe4cc}
+  .qc-track-save{background:#fff7ef;color:var(--tracker);font-weight:950}
+  .qc-fix-save{background:#fbf4fd;color:var(--fixed);font-weight:950}
+  .qc-track-best{background:#ffe8cf!important;box-shadow:inset 3px 0 0 var(--tracker)}
+  .qc-fix-best{background:#f0dcf5!important;box-shadow:inset 3px 0 0 var(--fixed)}
   .qc-saving.qc-label{letter-spacing:.01em}
   .qc-muted{color:var(--muted)!important}
   @media(max-width:430px){
@@ -1663,7 +1665,7 @@ function draw(res,janRise){
     </svg>
   </div>
   <div class="quarter-compare-wrap">
-    <div class="quarter-compare-title">Estimated cost by period - highlighted row is the lowest-cost option overall</div>
+    <div class="quarter-compare-title">Estimated cost by period - highlighted option is the lowest-cost choice overall</div>
     <div class="quarter-compare" id="quarterCompare"></div>
   </div>
   <div class="chart-controls">
@@ -1887,30 +1889,35 @@ function render(){
     ...(trackerTotal===null?[]:[{key:"tracker",total:trackerTotal}])
   ];
   const winner=winnerCosts.reduce((best,x)=>x.total<best.total?x:best).key;
+  const winnerClass=key=>winner===key?(key==="tracker"?" qc-track-best":key==="fixed"?" qc-fix-best":""):"";
   const rowHtml=(key,label,cls)=>{
-    const best=winner===key?" qc-best":"";
+    const best=winnerClass(key);
     return '<div class="qc-cell qc-label '+cls+best+'">'+label+'</div>'+
       chartQuarters.map(q=>{
         const v=quarterCost(q,key);
         return '<div class="qc-cell qc-value '+cls+best+(v===null?' qc-muted':'')+'">'+(v===null?'–':gbp(v))+'</div>';
       }).join("");
   };
-  const savingHtml=
-    '<div class="qc-cell qc-label qc-saving">Saving</div>'+
-    chartQuarters.map(q=>{
-      const variable=quarterCost(q,"variable");
-      const bestCost=quarterCost(q,winner);
-      const saving=(variable===null||bestCost===null)?null:variable-bestCost;
-      return '<div class="qc-cell qc-value qc-saving'+(saving===null?' qc-muted':'')+'">'+(saving===null?'–':gbp(Math.max(0,saving)))+'</div>';
-    }).join("");
+  const savingRow=(key,label,cls)=>{
+    const best=winnerClass(key);
+    return '<div class="qc-cell qc-label qc-saving '+cls+best+'">'+label+'</div>'+
+      chartQuarters.map(q=>{
+        const variable=quarterCost(q,"variable");
+        const option=quarterCost(q,key);
+        const saving=(variable===null||option===null)?null:variable-option;
+        const display=saving===null?'–':(saving<0?'-'+gbp(Math.abs(saving)):gbp(saving));
+        return '<div class="qc-cell qc-value qc-saving '+cls+best+(saving===null?' qc-muted':'')+'">'+display+'</div>';
+      }).join("");
+  };
 
   document.getElementById("quarterCompare").innerHTML =
     '<div class="qc-cell qc-head"></div>'+
     chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
     rowHtml("variable","STAY VARIABLE","qc-variable")+
     rowHtml("tracker","TRACK","qc-track")+
+    savingRow("tracker","TRACK SAVING","qc-track-save")+
     rowHtml("fixed","FIX","qc-fix")+
-    savingHtml;
+    savingRow("fixed","FIX SAVING","qc-fix-save");
 
   const note = s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
