@@ -1,0 +1,2066 @@
+
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
+<meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+<link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:title" content="Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27">
+<meta property="og:description" content="Compare fixing, tracking and staying on the Ofgem price cap using your own UK region and annual energy usage.">
+<meta property="og:url" content="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator">
+<meta name="twitter:description" content="A personalised UK energy comparison using regional rates, forecast price caps and month-by-month seasonal usage.">
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {
+      "@type":"WebApplication",
+      "@id":"https://aqcroft.github.io/ShouldIFix/Oct2026.html#app",
+      "name":"Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator",
+      "url":"https://aqcroft.github.io/ShouldIFix/Oct2026.html",
+      "description":"A free UK energy calculator comparing a fixed tariff, a Tracker tariff and the Ofgem price cap using regional rates, annual gas and electricity usage, and month-by-month seasonal modelling.",
+      "applicationCategory":"FinanceApplication",
+      "operatingSystem":"Any",
+      "browserRequirements":"Requires a modern web browser with JavaScript enabled",
+      "inLanguage":"en-GB",
+      "isAccessibleForFree":true,
+      "dateModified":"2026-09-24",
+      "author":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
+      "provider":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
+      "audience":{"@type":"PeopleAudience","geographicArea":{"@type":"Country","name":"United Kingdom"}},
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"GBP"}
+    },
+    {
+      "@type":"FAQPage",
+      "@id":"https://aqcroft.github.io/ShouldIFix/Oct2026.html#faq",
+      "mainEntity":[
+        {
+          "@type":"Question",
+          "name":"Should I fix my energy tariff now?",
+          "acceptedAnswer":{"@type":"Answer","text":"It depends on your region, energy use, tariff rates and how future price caps change. This calculator compares fixing, choosing a Tracker tariff and staying on the price cap using your own annual usage and month-by-month seasonal modelling."}
+        },
+        {
+          "@type":"Question",
+          "name":"Are UK energy prices expected to rise in January 2027?",
+          "acceptedAnswer":{"@type":"Answer","text":"The MoneySavingExpert consensus for the week beginning 21 September 2026 is a 22.9% rise in the January to March 2027 Energy Price Cap. It is an early forecast and could change before Ofgem confirms the cap."}
+        },
+        {
+          "@type":"Question",
+          "name":"Does the energy price cap limit my total bill?",
+          "acceptedAnswer":{"@type":"Answer","text":"No. The Energy Price Cap limits the rates charged for each unit of gas and electricity and standing charges on standard variable tariffs. Your total bill still depends on how much energy you use."}
+        },
+        {
+          "@type":"Question",
+          "name":"Does this calculator account for winter energy use?",
+          "acceptedAnswer":{"@type":"Answer","text":"Yes. Annual gas and electricity usage is converted into month-by-month consumption. Gas follows a DESNZ seasonal profile with much heavier winter use, while electricity uses a gentler monthly profile. Electric-heating mode uses a winter-heavy electricity profile."}
+        },
+        {
+          "@type":"Question",
+          "name":"What does the calculator compare?",
+          "acceptedAnswer":{"@type":"Answer","text":"It compares the selected UW fixed tariff, the matching UW Tracker tariff and the regional Ofgem price cap over the modelled period. Forecast figures are estimates, not guarantees or an official supplier quote."}
+        }
+      ]
+    }
+  ]
+}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
+    --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
+    --cap:#667085;--cap-soft:#eef1f4;--fixed:#701a8c;--fixed-soft:#f5eafa;--tracker:#ff7800;--tracker-soft:#fff0e0;--doom:#2f3136;
+    --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
+    --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:760px;margin:0 auto;padding:20px 16px 56px}
+  header.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px 24px;box-shadow:0 12px 30px rgba(124,58,237,.22)}
+  header.hero h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.7rem,6vw,2.4rem);margin:0 0 6px;letter-spacing:-.01em}
+  header.hero p{margin:0;opacity:.94;font-size:1rem;font-weight:600}
+  header.hero p b{opacity:1;font-weight:800}
+  header.hero p .hsrc{color:#fff;opacity:.9;font-weight:700;font-size:.82rem;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
+
+  .disclosure{margin-top:13px;font-size:.8rem;font-weight:600;color:var(--muted);line-height:1.55;padding:0 4px}
+  .context{margin:13px 3px 0;font-size:.92rem;font-weight:700;color:#544b70;line-height:1.5}
+  .context b{color:var(--purple-deep)}
+  .share-row{display:flex;gap:8px}
+  .share-row input{flex:1;min-width:0;font-family:inherit;font-size:.82rem;font-weight:600;color:var(--muted);padding:11px 12px;border:1.5px solid var(--line);border-radius:11px;background:#faf8ff}
+  .share-row button{flex:none;font-family:inherit;font-weight:800;font-size:.85rem;color:#fff;background:var(--grad);border:none;border-radius:11px;padding:0 16px;cursor:pointer;transition:.15s}
+  .share-row button:hover{filter:brightness(1.05)}
+  .cta-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+  .uw-cta{display:block;font-weight:800;font-size:.9rem;color:#fff;background:var(--grad);text-decoration:none;text-align:center;border-radius:12px;padding:11px 12px;box-shadow:0 8px 18px rgba(124,58,237,.20);transition:.15s;line-height:1.2}
+  .uw-cta span{display:block;font-size:.78rem;font-weight:700;opacity:.9;margin-top:2px}
+  .uw-cta.secondary{color:var(--purple-deep);background:#fff;border:1.5px solid var(--line);box-shadow:none}
+  .uw-cta:hover{filter:brightness(1.05);transform:translateY(-1px)}
+  .uw-cta.secondary:hover{border-color:#cdbff0;background:#faf8ff}
+  @media(max-width:430px){.cta-row{grid-template-columns:1fr}}
+  .disclosure b{color:#5c5478}
+  .search-intro{margin:12px 3px 0;padding:0 2px;font-size:.83rem;line-height:1.48;color:#5c5478;font-weight:650}
+  .search-intro strong{color:var(--ink)}
+  .outlook-card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px;margin-top:16px}
+  .outlook-card h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.05rem;margin:0 0 6px}
+  .outlook-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:9px}
+  .outlook-cell{background:#faf9fc;border-radius:9px;padding:8px 6px;text-align:center}
+  .outlook-cell b{display:block;font-size:.8rem}
+  .outlook-cell span{display:block;font-size:.62rem;font-weight:750;color:var(--muted);margin-top:2px}
+  .outlook-note{font-size:.68rem;line-height:1.45;color:var(--muted);font-weight:650;margin:8px 0 0}
+  .answer-faq h3{font-size:.84rem;margin:12px 0 3px;color:var(--ink)}
+  .answer-faq p{margin:0;font-size:.78rem;line-height:1.5}
+  @media(max-width:430px){.outlook-grid{grid-template-columns:1fr 1fr}.search-intro{font-size:.78rem}}
+  .disclosure .tag{display:inline-block;font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--purple);margin-bottom:4px}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 16px;margin-top:16px;box-shadow:0 4px 16px rgba(42,35,64,.04)}
+  .card h2{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:1.15rem;margin:0 0 14px}
+  .lab{font-weight:700;font-size:.92rem;display:block;margin-bottom:7px}
+  .hint{font-weight:600;color:var(--muted);font-size:.8rem;margin-top:6px}
+  .field{margin-bottom:15px}.field:last-child{margin-bottom:0}
+  select,input[type=number]{width:100%;font-family:inherit;font-size:1rem;font-weight:600;color:var(--ink);padding:12px;border:1.5px solid var(--line);border-radius:11px;background:#fff;appearance:none}
+  select:focus,input:focus{outline:3px solid rgba(124,58,237,.28);border-color:var(--purple)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:460px){.two{grid-template-columns:1fr}}
+
+  /* segmented fuel control */
+  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .seg button{font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:5px;transition:.15s}
+  .seg button svg{width:24px;height:24px;display:block}
+  .seg button .ic{display:flex;gap:2px;align-items:center;height:24px;font-size:21px;line-height:1}
+  .seg button:hover{border-color:#cdbff0}
+  .seg button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent;box-shadow:0 6px 16px rgba(124,58,237,.24)}
+  .seg button[aria-pressed="true"] svg{stroke:#fff;fill:none}
+  .seg.usage button{padding:11px 4px 10px}
+  .seg.usage button span{font-weight:700;font-size:.62rem;opacity:.72;margin-top:2px}
+  .seg button svg{stroke:currentColor;fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+
+  /* toggle switch */
+  .switch{display:flex;align-items:center;gap:11px;cursor:pointer;font-weight:700;font-size:.9rem;user-select:none}
+  .switch input{position:absolute;opacity:0;width:0;height:0}
+  .track{width:44px;height:26px;border-radius:20px;background:#d9d2ec;position:relative;transition:.18s;flex:none}
+  .track::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.18s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .switch input:checked + .track{background:var(--purple)}
+  .switch input:checked + .track::after{left:21px}
+  .switch input:focus + .track{outline:3px solid rgba(124,58,237,.28)}
+  .switch .sub{font-weight:600;color:var(--muted);font-size:.78rem;display:block}
+
+  .manual{margin-top:12px;padding-top:14px;border-top:1px dashed var(--line)}
+  .prefill-note{font-weight:600;color:var(--muted);font-size:.84rem;background:#f6f2ff;border-radius:10px;padding:10px 12px;text-align:center}
+  .prefill-note b{color:var(--ink)}
+  .fixed-row{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:stretch}
+  .tariff-current{font-family:inherit;text-align:left;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 12px;line-height:1.15;transition:.15s}
+  .tariff-current b{display:block;font-size:.9rem}
+  .tariff-current span{display:block;margin-top:3px;font-weight:700;font-size:.64rem;text-transform:uppercase;letter-spacing:.02em;color:var(--muted)}
+  button.tariff-current{cursor:pointer}
+  button.tariff-current:hover{border-color:#cdbff0}
+  .tariff-current[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .tariff-current[aria-pressed="true"] span{color:rgba(255,255,255,.82)}
+  .tariff-open{font-family:inherit;font-weight:800;font-size:.86rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 13px;line-height:1.15;transition:.15s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:5px}
+  .tariff-open:hover{border-color:#cdbff0}
+  .tariff-open[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .tariff-open .pencil{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;flex:none}
+  .tariff-pick{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+  .tariff-pick button{font-family:inherit;font-weight:800;font-size:.86rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 9px;line-height:1.15;transition:.15s}
+  .tariff-pick button span{display:block;margin-top:3px;font-weight:700;font-size:.64rem;text-transform:uppercase;letter-spacing:.02em;color:var(--muted)}
+  .tariff-pick button:hover{border-color:#cdbff0}
+  .tariff-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .tariff-pick button[aria-pressed="true"] span{color:rgba(255,255,255,.82)}
+  .tariff-panel{display:none;margin-top:10px;padding-top:10px;border-top:1px dashed var(--line)}
+  #fixedCard.advanced .tariff-panel{display:block}
+  @media(max-width:430px){.fixed-row{grid-template-columns:1fr}.tariff-pick{grid-template-columns:1fr}.tariff-pick button,.tariff-current{text-align:left}}
+
+  /* result */
+  .result{background:linear-gradient(135deg,#f3ecff,#fde8f2);border:1px solid #ecd9f7}
+  .verdict{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.35rem,5.4vw,1.85rem);margin:0 0 4px;line-height:1.18}
+  .verdict .amt{color:var(--purple-deep)}
+  .verdict.neg .amt{color:var(--cap)}
+  .subverdict{font-weight:700;color:#5c5478;font-size:.98rem;margin:0}
+  .pills{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+  .pill{flex:1;min-width:130px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+  .pill .k{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .pill .v{font-size:1.3rem;font-weight:800;margin-top:2px}
+  .pill.cap .v{color:var(--cap)}.pill.fix .v{color:var(--fixed)}
+  .yearline{margin-top:12px;font-weight:700;font-size:.9rem;color:#5c5478;background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px 13px}
+  .yearline b{color:var(--purple-deep)}
+  .rlead{font-weight:700;color:#5c5478;font-size:.9rem;margin:0}
+  .rhead{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .usage-card{padding-top:16px;padding-bottom:16px}
+  .usage-block{flex:1;min-width:0}
+  .usage-block .lab{margin-bottom:6px}
+  .usage-pick{display:flex;gap:5px;flex:1;min-width:0}
+  .usage-pick button{flex:1;min-width:0;font-family:inherit;font-weight:700;font-size:.78rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--muted);border-radius:9px;padding:7px 4px;transition:.15s;white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:3px}
+  .usage-pick button:hover{border-color:#cdbff0}
+  .usage-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .usage-pick .pencil{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;flex:none}
+  .usage-manual{margin-top:12px}
+  .reset-usage{margin-top:10px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--purple);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
+  .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
+  .headline{margin:7px 0 16px}
+  .choice-heroes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:9px 0 12px}
+  .choice-hero{border-radius:14px;padding:13px 14px 12px;border:1px solid transparent;min-width:0}
+  .choice-hero.fix{background:var(--fixed-soft);border-color:#e6cfe9}
+  .choice-hero.tracker{background:var(--tracker-soft);border-color:#f2d0b3}
+  .choice-kicker{display:block;font-size:.65rem;font-weight:900;letter-spacing:.08em;margin-bottom:2px}
+  .choice-hero.fix .choice-kicker,.choice-hero.fix .choice-amount{color:var(--fixed)}
+  .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
+  .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
+  .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
+  .quarter-compare-wrap{margin:8px 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
+  .quarter-compare{display:grid;grid-template-columns:82px repeat(4,1fr);font-size:.66rem}
+  .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
+  .qc-cell:nth-child(5n){border-right:0}
+  .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
+  .qc-label{text-align:left;font-weight:900;padding-left:9px}
+  .qc-value{font-weight:850;white-space:nowrap}
+  .qc-variable{color:var(--cap)}
+  .qc-fix{color:var(--fixed)}
+  .qc-track{color:var(--tracker)}
+  .qc-best{background:var(--save-soft);box-shadow:inset 3px 0 0 var(--save)}
+  .qc-saving{background:#f3fbf6;color:var(--save);font-weight:950;border-top:2px solid #bfe4cc}
+  .qc-saving.qc-label{letter-spacing:.01em}
+  .qc-muted{color:var(--muted)!important}
+  @media(max-width:430px){
+    .choice-heroes{gap:7px}
+    .choice-hero{padding:11px 10px 10px}
+    .choice-amount{font-size:1.55rem}
+    .choice-copy{font-size:.65rem}
+    .quarter-compare{grid-template-columns:60px repeat(4,1fr);font-size:.59rem}
+    .qc-cell{padding:6px 2px}
+    .qc-label{padding-left:6px}
+    .qc-head{font-size:.5rem}
+  }
+  .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--save);line-height:1}
+  .hl-save.neg{color:var(--risk)}
+  .hl-sub{display:block;font-weight:700;color:var(--muted);font-size:.88rem;margin-top:3px}
+  .qstrip{display:flex;padding:0 1.8% 0 5.6%;align-items:flex-end;margin-bottom:7px}
+  .qcol{flex-basis:0;text-align:center;padding:0 2px 3px;min-width:0}
+  .qcol + .qcol{border-left:1px dashed #e3ddf1}
+  .qcol .qv{display:block;font-size:.85rem;font-weight:800;color:var(--purple-deep);line-height:1.15}
+  .qcol .qv.fix-win{color:var(--save)}
+  .qcol .qv.var-win{color:var(--risk)}
+  .qcol .qn{display:block;font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:.01em;color:var(--muted);white-space:nowrap;line-height:1.1}
+  .qcol.fc .qv{color:#a08fce}
+  .qcol.fc .qn{color:#b3a9cc}
+  .switch.mini{gap:8px}
+  .switch.mini .ms{font-size:.74rem;font-weight:700;color:var(--muted);white-space:nowrap}
+  .switch.mini .track{width:38px;height:22px}
+  .switch.mini .track::after{width:16px;height:16px}
+  .switch.mini input:checked + .track::after{left:19px}
+  .chart-controls{margin:14px 0 2px;padding:9px 10px 10px;border-top:1px solid #e7e2f2;background:rgba(255,255,255,.36)}
+  .chart-control-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .chart-forecast-label{font-size:.67rem;font-weight:750;color:var(--muted);letter-spacing:.01em}
+  .chart-scenarios{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+  .chart-scenarios button{min-width:0;font-family:inherit;font-size:.67rem;font-weight:750;line-height:1;border:1px solid #d9dfe8;background:rgba(255,255,255,.86);color:#6f7786;border-radius:7px;padding:7px 3px;cursor:pointer;box-shadow:none;transition:.15s}
+  .chart-scenarios button:hover{border-color:#aab4c2;color:#344052}
+  .chart-scenarios button[aria-pressed="true"]{background:#0f8f83;border-color:#0f8f83;color:#fff;box-shadow:none}
+  .chart-info{width:25px;height:25px;border-radius:50%;border:1px solid #d8dfe8;background:#fff;color:#596579;font-family:Georgia,serif;font-weight:800;font-size:.78rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;flex:0 0 auto}
+  .chart-info:hover{border-color:var(--purple);background:#faf7ff}
+  .chart-shell{position:relative;border-radius:13px;background:rgba(255,255,255,.28);overflow:hidden}
+  @media(max-width:430px){
+    .qstrip{display:grid;grid-template-columns:repeat(4,1fr);padding:0;margin:2px 0 4px;gap:0}
+    .qcol{padding:0 2px 4px}
+    .qcol:first-child{display:none}
+    .qcol + .qcol{border-left:1px dashed #e3ddf1}
+    .qcol .qv{font-size:.78rem;white-space:nowrap}
+    .qcol .qverb{display:none}
+    .qcol .qn{font-size:.52rem}
+    .quarter-key{display:flex!important;justify-content:center;gap:12px;margin:0 0 6px;font-size:.62rem;font-weight:800;color:var(--muted)}
+    .quarter-key .good{color:var(--save)}.quarter-key .bad{color:var(--risk)}
+    .chart-controls{margin:12px 0 0;padding:8px 6px 7px}
+    .chart-control-head{margin-bottom:6px}
+    .chart-forecast-label{font-size:.61rem}
+    .chart-scenarios{gap:4px}
+    .chart-scenarios button{font-size:.59rem;padding:6px 1px;border-radius:6px}
+    .legend{gap:10px 14px;font-size:.72rem;margin-top:8px}
+    .legend .outcome-legend{display:none}
+    .legend .info{margin-left:0!important}
+  }
+  .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
+  .forecast-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 12px}
+  .forecast-choice{font-family:inherit;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:13px;padding:13px;cursor:pointer;color:var(--ink);transition:.15s}
+  .forecast-choice:hover,.forecast-choice[aria-pressed="true"]{border-color:#bba9df;background:#faf7ff}
+  .forecast-choice b{display:block;font-size:.88rem;margin-bottom:3px}
+  .forecast-choice span{display:block;font-size:.69rem;line-height:1.4;color:var(--muted);font-weight:650}
+  .forecast-panel{display:none;margin-top:10px}
+  .forecast-panel.open{display:block}
+  .forecast-model{border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .forecast-model-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:10px 11px;border-bottom:1px solid var(--line);align-items:start}
+  .forecast-model-row:last-child{border-bottom:0}
+  .forecast-model-key{font-size:.65rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em;color:var(--muted)}
+  .forecast-model-val{font-size:.76rem;font-weight:650;line-height:1.45;color:var(--ink)}
+  .forecast-model-badge{display:inline-block;background:#f2eef9;border-radius:999px;padding:2px 7px;margin:0 3px 2px 0;font-size:.63rem;font-weight:850;color:var(--purple-deep)}
+  .seasonality-link{margin-top:10px;width:100%;font-family:inherit;border:1.5px solid var(--line);background:#fff;color:var(--purple-deep);border-radius:11px;padding:10px 12px;font-size:.76rem;font-weight:850;cursor:pointer;text-align:left}
+  .seasonality-link span{display:block;margin-top:2px;color:var(--muted);font-size:.65rem;font-weight:650}
+  .seasonality-grid{display:grid;grid-template-columns:80px 1fr 1fr;border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:10px}
+  .seasonality-cell{padding:8px 9px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);font-size:.74rem}
+  .seasonality-cell:nth-child(3n){border-right:0}
+  .seasonality-head{font-weight:900;background:#faf9fc;color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.03em}
+  .seasonality-month{font-weight:850;color:var(--ink)}
+  .seasonality-gas{color:#b45200;font-weight:800}
+  .seasonality-elec{color:var(--fixed);font-weight:800}
+  .seasonality-note{margin-top:10px;font-size:.68rem;line-height:1.45;color:var(--muted);font-weight:650}
+  @media(max-width:430px){
+    .seasonality-grid{grid-template-columns:64px 1fr 1fr}
+    .seasonality-cell{padding:7px 6px;font-size:.7rem}
+  }
+  .compare-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
+  .compare-head .lab{margin:0}
+  .detail-link{font-family:inherit;border:0;background:none;color:var(--purple-deep);font-weight:800;font-size:.74rem;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:4px 0}
+  .tariff-pick button b{display:block;font-size:.88rem}
+  .tariff-custom-row{margin-top:8px}
+  .tariff-custom-row button{width:100%;font-family:inherit;font-weight:800;font-size:.82rem;cursor:pointer;border:1.5px solid var(--line);background:#fff;color:var(--ink);border-radius:11px;padding:10px 9px;text-align:left}
+  .tariff-custom-row button span{display:block;margin-top:3px;font-size:.64rem;color:var(--muted)}
+  .tariff-details{display:block!important;background:#2a2340;color:#fff;border-radius:12px;padding:12px}
+  .tariff-copy-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+  .tariff-copy-btn{font-family:inherit;border:0;border-radius:10px;padding:10px 9px;font-size:.72rem;font-weight:850;cursor:pointer;line-height:1.2}
+  .tariff-copy-btn.fix{background:#f8eaf4;color:var(--fixed)}
+  .tariff-copy-btn.track{background:#ffead1;color:#8d4300;border:1px solid #f2c692}
+  .tariff-copy-btn.copied{background:#fff;color:#2a2340}
+  @media(max-width:430px){.tariff-copy-actions{grid-template-columns:1fr 1fr;gap:8px}.tariff-copy-btn{padding:11px 8px;font-size:.72rem;white-space:normal;min-height:44px}}
+  @media(max-width:520px){
+    .source-modal{padding:10px;align-items:flex-end}
+    .source-card{width:100%;max-height:88dvh;border-radius:18px 18px 12px 12px;padding:14px}
+    .forecast-choices{grid-template-columns:1fr;gap:8px}
+    .forecast-choice{padding:12px}
+    .forecast-model-row{grid-template-columns:86px 1fr;gap:8px;padding:9px}
+    .detail-link{font-size:.7rem}
+  }
+  .source-modal.open{display:flex}
+  .source-card{width:min(760px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:#fff;border-radius:18px;padding:18px;box-shadow:0 20px 60px rgba(38,22,79,.28)}
+  .source-card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+  .source-card h3{margin:0;color:var(--ink);font-size:1.2rem}
+  .source-card .source-kicker{font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.05em;color:var(--cap);margin-bottom:3px}
+  .source-close{border:0;background:#f6f2fb;border-radius:999px;width:34px;height:34px;cursor:pointer;font-size:18px;color:var(--muted)}
+  .source-big{font-family:"Fraunces",Georgia,serif;font-size:2.35rem;line-height:1;color:var(--cap);font-weight:650;margin:6px 0 3px}
+  .source-sub{font-size:.82rem;color:var(--muted);font-weight:650;line-height:1.45;margin-bottom:12px}
+  .forecast-snapshot{border:1px solid #cfd6e6;border-radius:12px;overflow:hidden;background:#fff;margin-top:12px}
+  .forecast-snapshot-title{background:#2d3b68;color:#fff;padding:10px 12px;font-size:.86rem;font-weight:750}
+  .forecast-snapshot-title strong{color:#ffd829;font-weight:900}
+  .forecast-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .forecast-table{border-collapse:collapse;width:100%;min-width:650px;font-size:.72rem;color:#4a4a4a}
+  .forecast-table th,.forecast-table td{border-right:1px solid #b9c1d2;border-bottom:1px solid #b9c1d2;padding:9px 9px;text-align:left;vertical-align:top}
+  .forecast-table th:last-child,.forecast-table td:last-child{border-right:0}
+  .forecast-table thead th{background:#fff;font-size:.72rem;line-height:1.3}
+  .forecast-table thead th:first-child{width:110px;background:#fff}
+  .forecast-table tbody tr:nth-child(odd){background:#edf1fb}
+  .forecast-table tbody tr.avg{background:#fff8ef;font-weight:800}
+  .forecast-table .supplier{font-weight:800;white-space:nowrap}
+  .forecast-table .move{display:block;font-weight:900;font-size:.73rem;text-transform:uppercase}
+  .forecast-table .amount{display:block;margin-top:2px;font-size:.71rem}
+  .forecast-table .confidence{display:block;margin-top:2px;font-weight:600;font-style:italic}
+  .forecast-table .avg .move{color:var(--cap)}
+  .source-note{margin-top:10px;font-size:.68rem;color:var(--muted);line-height:1.45;font-weight:600}
+  .source-card a.source-link{display:inline-block;margin-top:10px;color:var(--purple-deep);text-decoration:underline;text-underline-offset:2px;font-size:.72rem;font-weight:750}
+  @media(max-width:520px){.source-card{padding:14px}.source-big{font-size:2rem}.forecast-table{font-size:.69rem}}
+  .windows{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:460px){.windows{grid-template-columns:1fr}}
+  .win{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 15px}
+  .wlab{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
+  .wsave{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.4rem,6vw,1.9rem);line-height:1.1;margin:4px 0 2px;color:var(--purple-deep)}
+  .wsave.neg{color:var(--cap)}
+  .wdetail{font-size:.82rem;font-weight:600;color:var(--muted)}
+  .three{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:10px}
+  @media(max-width:430px){.three{grid-template-columns:1fr 1fr}.three .reg{grid-column:1 / -1}}
+  .info{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:var(--line);color:var(--muted);font-size:10px;font-weight:800;font-style:normal;cursor:help;position:relative;vertical-align:middle;margin-left:5px}
+  .info:focus{outline:2px solid rgba(124,58,237,.4);outline-offset:1px}
+  .info .tip{position:absolute;bottom:155%;left:50%;transform:translateX(-50%);width:210px;max-width:72vw;background:#2a2340;color:#fff;font-weight:600;font-size:.76rem;line-height:1.45;text-align:left;padding:9px 11px;border-radius:9px;opacity:0;visibility:hidden;transition:.14s;z-index:30;box-shadow:0 8px 22px rgba(0,0,0,.28)}
+  .forecast-tip{display:block!important;width:360px;max-width:88vw;padding:12px 13px}
+  .forecast-tip .ft-title{font-size:.86rem;font-weight:900;color:#fff;margin-bottom:2px}
+  .forecast-tip .ft-sub{font-size:.64rem;color:#cfc8de;font-weight:650;margin-bottom:9px;line-height:1.35}
+  .forecast-tip .ft-row{display:grid;grid-template-columns:84px 1fr;gap:8px;padding:6px 0;border-top:1px solid rgba(255,255,255,.12);align-items:start}
+  .forecast-tip .ft-key{font-size:.61rem;font-weight:900;text-transform:uppercase;letter-spacing:.03em;color:#bfb7cf}
+  .forecast-tip .ft-val{font-size:.68rem;font-weight:700;color:#fff;line-height:1.4}
+  .forecast-tip .ft-badge{display:inline-block;border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:2px 6px;margin:1px 3px 1px 0;font-size:.58rem;font-weight:850;color:#fff}
+  .forecast-tip .ft-note{margin-top:8px;padding-top:7px;border-top:1px solid rgba(255,255,255,.12);font-size:.59rem;line-height:1.4;color:#c8c1d4;font-weight:650}
+  @media(max-width:520px){.info .tip.forecast-tip{position:fixed;left:12px;right:12px;bottom:74px;top:auto;transform:none;width:auto;max-width:none;max-height:70vh;overflow:auto;padding:13px;z-index:5000}.info .tip.forecast-tip::after{display:none}}
+  .info .tip.compare-tip{display:block!important;width:390px;max-width:88vw;padding:12px 12px 11px}
+  .compare-tip .ct-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+  .compare-tip .ct-title{font-size:.82rem;font-weight:900;line-height:1.25;color:#fff}
+  .compare-tip .ct-sub{font-size:.64rem;font-weight:650;color:#cfc8de;margin-top:2px}
+  .compare-tip .vat-toggle{display:flex;flex:none;border:1px solid rgba(255,255,255,.22);border-radius:7px;overflow:hidden}
+  .compare-tip .vat-toggle button{border:0;background:transparent;color:#dcd6e8;padding:5px 7px;font:700 .61rem "Nunito",sans-serif;cursor:pointer}
+  .compare-tip .vat-toggle button.active{background:#fff;color:#2a2340}
+  .compare-tip table{width:100%;border-collapse:collapse;background:transparent;border:0;border-radius:0;overflow:visible;font-size:.66rem;color:#fff}
+  .compare-tip th,.compare-tip td{padding:5px 4px;border:0;border-bottom:1px solid rgba(255,255,255,.12);text-align:right;background:transparent;color:#fff;text-transform:none;letter-spacing:0}
+  .compare-tip th{font-size:.58rem;color:#bfb7cf;font-weight:800;line-height:1.2}
+  .compare-tip thead tr:first-child th{font-size:.63rem;padding-top:6px;padding-bottom:3px}
+  .compare-tip thead tr:nth-child(2) th{padding-top:2px;padding-bottom:5px}
+  .compare-tip th:first-child,.compare-tip td:first-child{text-align:left}
+  .compare-tip .fix-h{color:#ff9be5}.compare-tip .track-h{color:#ffb45c}
+  .compare-tip .ct-note{margin-top:7px;font-size:.58rem;line-height:1.35;color:#c8c1d4;font-weight:650}
+  @media(max-width:520px){
+    .info .tip.compare-tip{position:fixed;left:12px;right:12px;bottom:74px;top:auto;transform:none;width:auto;max-width:none;max-height:68vh;overflow:auto;padding:12px;z-index:5000}
+    .info .tip.compare-tip::after{display:none}
+  }
+  .info .tip::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:#2a2340}
+  .info:hover .tip,.info:focus .tip{opacity:1;visibility:visible}
+  .callout{margin-top:13px;background:#fff7f4;border:1px solid var(--cap-soft);border-left:4px solid var(--cap);border-radius:12px;padding:12px 14px;font-weight:600;font-size:.92rem}
+  .callout b{color:var(--cap)}
+  .stress-row{margin-top:14px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 13px}
+
+  /* chart */
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
+  .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
+  .swatch{width:30px;height:5px;border-radius:2px;display:inline-block;flex:0 0 auto}
+  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}.swatch.tracker{height:0;border-top:4px dashed var(--tracker);background:none}.swatch.doom{height:0;border-top:3px dashed var(--doom);background:none}
+  .swatch.risk{width:14px;background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
+  .swatch.cheaper{width:14px;background:var(--save-soft);height:12px;border:1px solid var(--save)}
+  svg.chart{width:100%;height:auto;display:block}
+  .cap-note{font-size:.78rem;font-weight:600;color:var(--muted);margin-top:8px}
+
+  /* EV / Economy 7 extension */
+  details.evext{background:linear-gradient(135deg,#fbf8ff,#fff);border-color:#ddd3ef;box-shadow:0 4px 16px rgba(42,35,64,.04)}
+  details.evext>summary{font-family:"Fraunces",Georgia,serif;font-size:1.08rem;color:var(--purple-deep)}
+  details.evext>summary::before{content:"⚡ ";font-family:"Nunito",sans-serif}
+  .ev-intro{font-size:.83rem;line-height:1.5;color:var(--muted);margin:0 0 12px}
+  .ev-live{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 10px;font-size:.74rem;font-weight:700;color:var(--muted);margin-bottom:12px}
+  .ev-live.good{background:#f3fbf6;border-color:#cfe9d8;color:#397651}
+  .ev-live.warn{background:#fff7f4;border-color:#f1d0c6;color:#9b4c39}
+  .ev-pair{font-weight:800;color:var(--ink)}
+  .ev-rates{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:-4px 0 12px}
+  .ev-rate-card{border:1px solid var(--line);border-radius:10px;background:#fff;padding:9px 10px}
+  .ev-rate-card strong{display:block;font-size:.75rem;color:var(--ink);margin-bottom:4px}
+  .ev-rate-values{display:flex;gap:8px;flex-wrap:wrap;font-size:.68rem;font-weight:750;color:var(--muted)}
+  .ev-rate-values b{color:var(--purple-deep)}
+  .ev-rate-note{grid-column:1/-1;font-size:.64rem;line-height:1.4;color:var(--muted);font-weight:650;margin-top:-2px}
+  .ev-anchor{margin-top:8px;padding:9px 10px;border:1px solid #dcd4ec;border-radius:10px;background:#fff}
+  .ev-anchor .ev-anchor-title{font-size:.74rem;font-weight:850;color:var(--ink);margin-bottom:3px}
+  .ev-anchor .ev-anchor-copy{font-size:.67rem;line-height:1.4;color:var(--muted);font-weight:650;margin-bottom:7px}
+  .ev-anchor-total{margin-top:6px;font-size:.68rem;font-weight:800;color:var(--purple-deep)}
+  @media(max-width:520px){.ev-rates{grid-template-columns:1fr}}
+  .ev-section{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+  .ev-section:first-of-type{margin-top:0;padding-top:0;border-top:0}
+  .ev-section-title{font-size:.78rem;font-weight:850;color:var(--ink);margin-bottom:7px}
+  .ev-section-title small{display:block;font-size:.68rem;font-weight:650;color:var(--muted);margin-top:2px}
+  .ev-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .ev-grid.three{grid-template-columns:repeat(3,1fr)}
+  .ev-field label{display:block;font-size:.7rem;font-weight:800;color:var(--muted);margin-bottom:4px}
+  .ev-field input,.ev-field select{padding:9px 10px;font-size:.88rem;border-radius:9px}
+  .ev-mini-btn{font-family:inherit;font-size:.75rem;font-weight:800;border:1.5px solid var(--line);background:#fff;color:var(--purple-deep);border-radius:9px;padding:8px 10px;cursor:pointer}
+  .ev-mini-btn:hover{border-color:#cdbff0;background:#faf8ff}
+  .ev-car-row{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:8px;align-items:end}
+  .ev-eff{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+  .ev-eff button{font-family:inherit;border:1.5px solid var(--line);background:#fff;border-radius:9px;padding:7px 3px;font-size:.68rem;font-weight:800;color:var(--muted);cursor:pointer}
+  .ev-eff button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
+  .ev-range{width:100%;accent-color:var(--purple)}
+  .ev-range-line{display:flex;justify-content:space-between;gap:8px;font-size:.68rem;font-weight:750;color:var(--muted);margin-top:2px}
+  .ev-bill-panel{margin-top:9px;padding:10px;border:1px solid var(--line);border-radius:11px;background:#faf8ff}
+  .ev-bill-panel.hidden{display:none}
+  .ev-check{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:42px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#fff;font-size:.72rem;font-weight:800;color:var(--muted)}
+  .ev-check input{width:18px;height:18px;accent-color:var(--purple)}
+  .ev-profile-note{margin-top:8px;font-size:.7rem;line-height:1.45;color:var(--muted);font-weight:650}
+  .ev-profile-result{margin-top:8px;background:#f3fbf6;border:1px solid #cfe9d8;border-radius:9px;padding:8px 10px;font-size:.72rem;line-height:1.45;color:#397651;font-weight:700}
+  .ev-result{margin-top:14px;padding:13px;border-radius:13px;background:linear-gradient(135deg,#f3ecff,#fff4f8);border:1px solid #eadcf4}
+  .ev-result-head{margin-bottom:7px}
+  .ev-result-head .ev-amount{font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1;color:var(--save)}
+  .ev-result-head .ev-sub{display:block;margin-top:3px;font-size:.76rem;font-weight:750;color:var(--muted)}
+  .ev-scenarios{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin:7px 0 2px}
+  .ev-scenarios button{font-family:inherit;font-size:.7rem;font-weight:800;border:1.5px solid #ddd5eb;background:#fff;color:var(--muted);border-radius:8px;padding:7px 2px;cursor:pointer}
+  .ev-scenarios button[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:#fff}
+  .ev-scenario-label{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:.67rem;font-weight:800;color:var(--muted);margin-top:8px}
+  .ev-scenario-label button{border:0;background:var(--line);color:var(--muted);border-radius:50%;width:18px;height:18px;font:800 10px Georgia,serif;cursor:pointer}
+  .ev-qstrip{display:flex;margin:7px 0 2px}
+  .ev-q{flex:1;text-align:center;border-left:1px dashed #e3ddf1;padding:0 2px}
+  .ev-q:first-child{border-left:0}
+  .ev-q b{display:block;font-size:.72rem;line-height:1.1}
+  .ev-q b.fix-win{color:var(--risk)}.ev-q b.var-win{color:var(--save)}
+  .ev-q span{display:block;font-size:.52rem;text-transform:uppercase;font-weight:800;color:var(--muted);margin-top:2px}
+  .ev-chart svg{width:100%;height:auto;display:block}
+  .ev-legend{display:flex;gap:10px;flex-wrap:wrap;font-size:.7rem;font-weight:750;color:var(--muted);margin-top:4px}
+  .ev-legend span{display:inline-flex;align-items:center;gap:4px}
+  .ev-note{font-size:.68rem;line-height:1.45;color:var(--muted);font-weight:650;margin-top:7px}
+  @media(max-width:520px){.ev-car-row,.ev-grid.three{grid-template-columns:1fr}.ev-grid{grid-template-columns:1fr}.ev-eff{grid-template-columns:repeat(4,1fr)}}
+
+  details{margin-top:16px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 15px}
+  details summary{cursor:pointer;font-weight:700;padding:14px 0;list-style:none;font-size:.95rem}
+  details summary::-webkit-details-marker{display:none}
+  details summary::after{content:"+";float:right;color:var(--purple);font-weight:800}
+  details[open] summary::after{content:"–"}
+  details .body{padding:0 0 14px;font-size:.86rem;color:var(--muted);font-weight:600}
+  details .body ul{margin:6px 0 0;padding-left:18px}
+  details .body li{margin-bottom:7px}
+  footer{margin-top:22px;font-size:.75rem;color:var(--muted);font-weight:600;text-align:center;line-height:1.6}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>Should I fix or track?</h1>
+    <p><b>Compare three routes:</b> stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
+  </header>
+
+  <p class="search-intro"><strong>Should you fix your energy tariff?</strong> This free UK calculator compares a fixed tariff, a Tracker tariff and staying on the Ofgem price cap using your region and annual gas and electricity usage. Unlike a simple annual comparison, it models usage month by month so heavier winter consumption is reflected in the result.</p>
+
+  <section class="card">
+    <h2 class="hidden">Your details</h2>
+
+    <div class="field">
+      <div class="seg" id="fuelSeg" role="group" aria-label="Choose fuels">
+        <button type="button" data-mode="dual" aria-pressed="true">
+          <span class="ic" aria-hidden="true">🔥⚡</span>Both
+        </button>
+        <button type="button" data-mode="gas" aria-pressed="false">
+          <span class="ic" aria-hidden="true">🔥</span>Gas
+        </button>
+        <button type="button" data-mode="elec" aria-pressed="false">
+          <span class="ic" aria-hidden="true">⚡</span>Electricity
+        </button>
+      </div>
+    </div>
+
+    <label class="switch hidden" id="electricHeatRow" style="justify-content:space-between;margin:12px 0 0;">
+      <span>Electric heating<span class="sub">Use a winter-weighted profile for electricity</span></span>
+      <span style="display:flex;align-items:center"><input type="checkbox" id="electricHeat"><span class="track"></span></span>
+    </label>
+
+    <div class="field reg" style="margin-bottom:0">
+      <span class="lab">Choose your region</span>
+      <select id="region"></select>
+    </div>
+  </section>
+
+  <section class="card usage-card" id="usageCard">
+    <div class="rhead">
+      <div class="usage-block">
+        <span class="lab">Set your usage</span>
+        <div class="usage-pick" id="usageSeg" role="group" aria-label="Choose usage">
+          <button type="button" data-band="low" data-e="1600" data-g="6000" data-eh="1900">Low</button>
+          <button type="button" data-band="med" data-e="2500" data-g="9500" data-eh="3400" aria-pressed="true">Med</button>
+          <button type="button" data-band="high" data-e="3800" data-g="14000" data-eh="6100">High</button>
+          <button type="button" id="btnPersonal" aria-label="Enter your own usage" title="Enter your own usage"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
+        </div>
+      </div>
+    </div>
+    <div id="manualUsage" class="hidden usage-manual">
+      <div class="two">
+        <div class="field" id="elecUsageWrap" style="margin-bottom:0"><span class="lab">Elec kWh/yr</span><input id="elec" type="number" min="0" step="50" value="2500"></div>
+        <div class="field" id="gasUsageWrap" style="margin-bottom:0"><span class="lab">Gas kWh/yr</span><input id="gas" type="number" min="0" step="100" value="9500"></div>
+      </div>
+      <button class="reset-usage hidden" id="resetUsageBtn" type="button">Reset to selected band</button>
+    </div>
+  </section>
+
+  <input id="janRise" type="hidden" value="22.9">
+  <section class="card result" id="resultCard">
+    <p class="rlead" id="rlead">&nbsp;</p>
+
+    <div class="choice-heroes">
+      <div class="choice-hero fix">
+        <span class="choice-kicker">FIX</span>
+        <strong class="choice-amount" id="fixHeroAmt">–</strong>
+        <span class="choice-copy" id="fixHeroCopy">vs variable price cap</span>
+      </div>
+      <div class="choice-hero tracker">
+        <span class="choice-kicker">TRACK</span>
+        <strong class="choice-amount" id="trackHeroAmt">–</strong>
+        <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
+      </div>
+    </div>
+
+    <div id="chart"></div>
+    <div class="legend">
+      <span><i class="swatch cap"></i>Variable price cap</span>
+      <span><i class="swatch doom"></i>30% doomsday</span>
+      <span><i class="swatch fix"></i>Fixed</span>
+      <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
+    </div>
+  </section>
+
+  <section class="card" id="fixedCard">
+    <div class="compare-head">
+      <span class="lab">Compare using</span>
+      <button class="detail-link" id="tariffDetailsBtn" type="button">Detailed tariff information</button>
+    </div>
+    <div class="fixed-row">
+      <button type="button" class="tariff-current" id="tariffCurrent" aria-pressed="true" title="Change service level">
+        <b id="bundleChoiceTitle">3 services</b><span id="bundleChoicePair">Fixed Saver + Tracker Saver</span>
+      </button>
+      <button type="button" class="tariff-open" id="openTariffs" aria-pressed="false" aria-label="Change service level" title="Change service level">Change</button>
+    </div>
+    <div class="tariff-panel" id="tariffPanel">
+      <div class="tariff-pick" role="group" aria-label="Choose service level">
+        <button type="button" data-tariff="start"><b>1 service</b><span id="pairStart">Fixed Start + Tracker Start</span></button>
+        <button type="button" data-tariff="fixed"><b>2 services</b><span id="pairFixed">Fixed + Tracker Plus</span></button>
+        <button type="button" data-tariff="saver" aria-pressed="true"><b>3 services</b><span id="pairSaver">Fixed Saver + Tracker Saver</span></button>
+      </div>
+      <div class="tariff-custom-row">
+        <button type="button" data-tariff="custom"><b>Own fixed tariff</b><span>Enter another fixed deal - Tracker comparison stays on the 3-service Tracker tier</span></button>
+      </div>
+    </div>
+    <div id="manualWrap" class="manual hidden">
+      <p class="hint" style="margin-top:0">Rates before VAT, as printed on a tariff's official information sheet, so a touch lower than the figures on your bill.</p>
+      <div id="mElec">
+        <div class="two">
+          <div class="field"><span class="lab">Electricity standing (p/day)</span><input id="mESC" type="number" step="0.01" min="0"></div>
+          <div class="field"><span class="lab">Electricity unit (p/kWh)</span><input id="mEU" type="number" step="0.01" min="0"></div>
+        </div>
+      </div>
+      <div id="mGas">
+        <div class="two">
+          <div class="field"><span class="lab">Gas standing (p/day)</span><input id="mGSC" type="number" step="0.01" min="0"></div>
+          <div class="field"><span class="lab">Gas unit (p/kWh)</span><input id="mGU" type="number" step="0.01" min="0"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <details class="evext" id="evExtension">
+    <summary>EV tariff vs fixed Economy 7</summary>
+    <div class="body">
+      <p class="ev-intro">Already on a UW EV tariff? This compares the matching EV Value, Gold or Double Gold variable tariff with the Economy 7 version of the fixed tariff selected above.</p>
+      <div class="ev-live" id="evLiveStatus">Loading current UW EV and Economy 7 tariff data…</div>
+      <div class="ev-rates" id="evRateSummary" hidden>
+        <div class="ev-rate-card" id="evVariableRates"></div>
+        <div class="ev-rate-card" id="evFixedRates"></div>
+        <div class="ev-rate-note">Rates shown are the live-feed tariff rates before VAT. The chart applies the electricity VAT treatment for each month of the comparison.</div>
+      </div>
+
+      <div class="ev-section">
+        <div class="ev-section-title">Current annual peak / off-peak usage
+          <small>Current EV tariff totals including home EV charging. If you do not know them, use a recent bill below.</small>
+        </div>
+        <div class="ev-grid">
+          <div class="ev-field"><label for="evAnnualPeak">☀️ Peak kWh / year</label><input id="evAnnualPeak" type="number" min="0" step="50" value="2250"></div>
+          <div class="ev-field"><label for="evAnnualOff">🌙 Off-peak kWh / year</label><input id="evAnnualOff" type="number" min="0" step="50" value="3375"></div>
+        </div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:8px">
+          <button class="ev-mini-btn" id="evResetEstimate" type="button">Reset to simple estimate</button>
+          <button class="ev-mini-btn" id="evBillToggle" type="button">Estimate from a recent bill</button>
+        </div>
+      </div>
+
+      <div class="ev-section">
+        <div class="ev-section-title">EV assumptions
+          <small>Reuses the same mileage / efficiency idea as the EV comparison tool.</small>
+        </div>
+        <div class="ev-car-row">
+          <div class="ev-field">
+            <label>Vehicle efficiency</label>
+            <div class="ev-eff" id="evEfficiency">
+              <button type="button" data-eff="3.8">3.8</button>
+              <button type="button" data-eff="3.2" aria-pressed="true">3.2</button>
+              <button type="button" data-eff="2.8">2.8</button>
+              <button type="button" data-eff="2.5">2.5</button>
+            </div>
+          </div>
+          <div class="ev-field"><label for="evMiles">Annual mileage</label><input id="evMiles" type="number" min="0" step="500" value="10000"></div>
+          <div class="ev-field"><label for="evAway">Charged away %</label><input id="evAway" type="number" min="0" max="100" step="5" value="0"></div>
+        </div>
+        <div class="ev-grid" style="margin-top:8px">
+          <div class="ev-field"><label for="evHeating">Home heating</label><select id="evHeating"><option value="none">Not electrically heated</option><option value="heatpump">Heat pump</option><option value="direct">Direct electric</option><option value="storage">Storage heaters</option></select></div>
+          <div class="ev-field"><label>Estimated home EV charging</label><div class="prefill-note" id="evChargeKwh">–</div></div>
+        </div>
+        <div class="ev-anchor">
+          <div class="ev-anchor-title">Know the household's historic annual electricity use?</div>
+          <div class="ev-anchor-copy">Optional - especially useful when the EV was added recently. Enter the pre-EV household annual kWh and the estimated home EV charging above is added separately.</div>
+          <div class="ev-field"><label for="evHistoricAnnual">Historic household kWh / year before EV</label><input id="evHistoricAnnual" type="number" min="0" step="100" placeholder="e.g. 7700"></div>
+          <div class="ev-anchor-total" id="evAnchoredTotal">No historic annual anchor entered.</div>
+        </div>
+      </div>
+
+      <div class="ev-bill-panel hidden" id="evBillPanel">
+        <div class="ev-section-title">Estimate the annual split from one bill
+          <small>The car is stripped out first. If a historic household annual figure is entered above, that figure anchors the total and this bill is used mainly to estimate the peak / off-peak split.</small>
+        </div>
+        <div class="ev-grid">
+          <div class="ev-field"><label for="evBillPeak">☀️ Peak kWh on bill</label><input id="evBillPeak" type="number" min="0" step="1" placeholder="e.g. 320"></div>
+          <div class="ev-field"><label for="evBillOff">🌙 Off-peak kWh on bill</label><input id="evBillOff" type="number" min="0" step="1" placeholder="e.g. 180"></div>
+        </div>
+        <div class="ev-grid" style="margin-top:8px">
+          <div class="ev-field"><label for="evBillMode">Bill period</label><select id="evBillMode"><option value="month">Whole calendar month</option><option value="dates">Exact dates</option></select></div>
+          <div class="ev-field" id="evBillMonthWrap"><label for="evBillMonth">Month</label><select id="evBillMonth"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="11">December</option></select></div>
+        </div>
+        <div class="ev-grid hidden" id="evBillDates" style="margin-top:8px">
+          <div class="ev-field"><label for="evBillStart">From</label><input id="evBillStart" type="date"></div>
+          <div class="ev-field"><label for="evBillEnd">To</label><input id="evBillEnd" type="date"></div>
+        </div>
+        <div class="ev-check" style="margin-top:8px"><span>Does this bill include home EV charging?</span><input id="evBillIncludesCar" type="checkbox" checked></div>
+        <button class="ev-mini-btn" id="evApplyBill" type="button" style="width:100%;margin-top:8px">Build annual estimate</button>
+        <div class="ev-profile-result hidden" id="evProfileResult"></div>
+      </div>
+
+      <div class="ev-result">
+        <div class="ev-result-head"><span class="ev-amount" id="evSaveTxt">–</span><span class="ev-sub" id="evSaveSub">Waiting for tariff data…</span></div>
+        <div class="ev-qstrip" id="evQstrip"></div>
+        <div class="ev-scenario-label"><span>January EV rise - if it follows the price-cap scenario</span><button type="button" onclick="openForecastSource()" aria-label="Forecast source">i</button></div>
+        <div class="ev-scenarios" id="evScenarios"></div>
+        <div class="ev-chart" id="evChart"></div>
+        <div class="ev-legend">
+          <span><i class="swatch cap"></i>EV variable</span>
+          <span><i class="swatch fix"></i>Fixed E7</span>
+          <span><i class="swatch risk"></i>Fixed cheaper</span>
+          <span><i class="swatch cheaper"></i>EV cheaper</span>
+        </div>
+        <div class="ev-note" id="evNote">October defaults to an illustrative +4% EV tariff movement. January uses the scenario above, then April and July follow the same MSE percentage trajectory used by the main tool. This is a scenario, not a UW tariff forecast.</div>
+      </div>
+    </div>
+  </details>
+
+  <section class="card share">
+    <h2 style="margin-bottom:4px">Share this</h2>
+    <div class="share-row">
+      <input id="shareUrl" type="text" readonly aria-label="Shareable link">
+      <button id="copyBtn" type="button">Copy link</button>
+    </div>
+    <div class="cta-row">
+      <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Switch, fix and save?<span>Get a proper quote →</span></a>
+      <a class="uw-cta secondary" href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener">Prefer a helping hand?<span>Book a free bill review →</span></a>
+    </div>
+  </section>
+
+  <section class="outlook-card" aria-labelledby="energyOutlookTitle">
+    <h2 id="energyOutlookTitle">UK energy price outlook - September 2026</h2>
+    <div class="outlook-grid">
+      <div class="outlook-cell"><b>+3.6%</b><span>Oct-Dec 2026 confirmed</span></div>
+      <div class="outlook-cell"><b>+22.9%</b><span>Jan-Mar 2027 consensus forecast</span></div>
+      <div class="outlook-cell"><b>-2.2%</b><span>Apr-Jun 2027 consensus forecast</span></div>
+      <div class="outlook-cell"><b>-9.8%</b><span>Jul-Sep 2027 consensus forecast</span></div>
+    </div>
+    <p class="outlook-note">Updated 24 September 2026. Forecast figures use the MoneySavingExpert consensus of current EDF, British Gas and E.on Next predictions. January and later figures are forecasts and can change before Ofgem confirms each cap.</p>
+  </section>
+
+  <details class="answer-faq">
+    <summary>Energy fixing questions - quick answers</summary>
+    <div class="body">
+      <h3>Should I fix my energy tariff now?</h3>
+      <p>There is no single answer for every household. The useful comparison is your own fixed or Tracker rates against the price-cap path, using your region and expected consumption. This tool does that month by month.</p>
+
+      <h3>Are energy prices expected to rise in January 2027?</h3>
+      <p>As of 24 September 2026, the MoneySavingExpert consensus for January-March 2027 is a 22.9% rise from the October cap. It is still an early forecast rather than a confirmed Ofgem cap.</p>
+
+      <h3>Does the Energy Price Cap limit my total bill?</h3>
+      <p>No. It limits unit rates and standing charges on standard variable tariffs. The amount you actually pay still depends on your energy use.</p>
+
+      <h3>Why does winter usage matter?</h3>
+      <p>Annual usage is not divided evenly by 12. Gas use is heavily weighted into winter using DESNZ seasonal data, while electricity uses a gentler monthly profile. That means a price rise arriving in winter can affect a gas-heated household more than an annual-average figure suggests.</p>
+
+      <h3>What does the calculator compare?</h3>
+      <p>It compares the selected UW fixed tariff, matching UW Tracker tariff and regional price cap. Forecast outputs are personalised estimates rather than an official UW quote or a guarantee of future prices.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Assumptions, sources and small print</summary>
+    <div class="body"><p id="discText" style="margin:0 0 11px"></p><ul id="method"></ul></div>
+  </details>
+
+  <footer id="foot"></footer>
+</div>
+
+<div class="source-modal" id="forecastSourceModal" role="dialog" aria-modal="true" aria-labelledby="forecastSourceTitle">
+  <div class="source-card">
+    <div class="source-card-head">
+      <div>
+        <div class="source-kicker">Forecast details</div>
+        <h3 id="forecastSourceTitle">What would you like to see?</h3>
+      </div>
+      <button class="source-close" id="forecastSourceClose" type="button" aria-label="Close forecast details">×</button>
+    </div>
+
+    <div class="forecast-choices">
+      <button class="forecast-choice" id="forecastChoiceSource" type="button" onclick="showForecastPanel('source')" aria-pressed="false">
+        <b>Price cap forecasts</b>
+        <span>See the MoneySavingExpert consensus and the EDF, British Gas and E.on figures behind the headline forecast.</span>
+      </button>
+      <button class="forecast-choice" id="forecastChoiceModel" type="button" onclick="showForecastPanel('model')" aria-pressed="false">
+        <b>How the forecast is calculated</b>
+        <span>See how seasonality, standing charges, the gas/electricity split and Tracker assumptions are applied.</span>
+      </button>
+    </div>
+
+    <div class="forecast-panel" id="forecastPanelSource">
+      <div class="source-big">+22.9%</div>
+      <div class="source-sub">MoneySavingExpert consensus average of the latest EDF, British Gas and E.on Next predictions for January-March 2027, for the week beginning 21 September 2026.</div>
+<div class="forecast-snapshot" aria-label="MoneySavingExpert annual price cap prediction table">
+      <div class="forecast-snapshot-title"><strong>Annual Price Cap predictions</strong> for week starting 21 Sept</div>
+      <div class="forecast-table-wrap">
+        <table class="forecast-table">
+          <thead>
+            <tr>
+              <th></th>
+              <th>1 Oct to 31 Dec 2026<span class="confidence">Confirmed</span></th>
+              <th>1 Jan to 31 March 2027<span class="confidence">Weak prediction</span></th>
+              <th>1 Apr to 30 June 2027<span class="confidence">Crystal-ball gazing</span></th>
+              <th>1 Jul to 30 Sep 2027<span class="confidence">Crystal-ball gazing</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="supplier">EDF</td>
+              <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
+              <td><span class="move">Up 21.8%</span><span class="amount">£2,098 a year</span></td>
+              <td><span class="move">Down 2.0%</span><span class="amount">£2,056 a year</span></td>
+              <td><span class="move">Down 10.5%</span><span class="amount">£1,841 a year</span></td>
+            </tr>
+            <tr>
+              <td class="supplier">British Gas</td>
+              <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
+              <td><span class="move">Up 23.9%</span><span class="amount">£2,135 a year</span></td>
+              <td><span class="move">Down 4.7%</span><span class="amount">£2,035 a year</span></td>
+              <td><span class="move">No prediction yet</span></td>
+            </tr>
+            <tr>
+              <td class="supplier">E.on Next</td>
+              <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
+              <td><span class="move">Up 22.9%</span><span class="amount">£2,118 a year</span></td>
+              <td><span class="move">Up 1.0%</span><span class="amount">£2,120 a year</span></td>
+              <td><span class="move">Down 10.7%</span><span class="amount">£1,894 a year</span></td>
+            </tr>
+            <tr class="avg">
+              <td class="supplier">Average</td>
+              <td><span class="move">Up 3.6%</span><span class="amount">£1,723 a year</span></td>
+              <td><span class="move">Up 22.9%</span><span class="amount">£2,117 a year</span></td>
+              <td><span class="move">Down 2.2%</span><span class="amount">£2,070 a year</span></td>
+              <td><span class="move">Down 9.8%</span><span class="amount">£1,868 a year</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="source-note">Based on a dual-fuel household paying by Direct Debit using 2,500 kWh of electricity and 9,500 kWh of gas. EDF prediction dated 22 September 2026; British Gas prediction dated 21 September 2026; E.on Next prediction dated 23 September 2026.</div>
+    <a class="source-link" href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener">View the original MoneySavingExpert source ↗</a>
+
+    </div>
+
+    <div class="forecast-panel" id="forecastPanelModel">
+      <div class="forecast-model">
+        <div class="forecast-model-row"><div class="forecast-model-key">Confirmed</div><div class="forecast-model-val">Sep-Dec uses published regional price-cap rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">22.9%</span> Standing charges stay at the Oct-Dec level. The forecast movement is applied to unit rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Gas vs electricity</div><div class="forecast-model-val">The split follows Cornwall Insight's late-August component forecast shape, scaled to the fresher MSE consensus.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr -2.2%</span><span class="forecast-model-badge">Jul -9.8%</span> The same unit-rate-only approach is used.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Annual usage is spread month by month rather than divided evenly by 12. Gas follows the DESNZ seasonal profile; electricity uses the same gentler monthly profile carried forward from the original tool. Electric-heating mode switches electricity to the winter-heavy heating profile.</div></div>
+        <button class="seasonality-link" type="button" onclick="openSeasonalityModal()">View monthly usage split<span>See the exact percentage of annual gas and electricity usage allocated to each month.</span></button>
+        <div class="forecast-model-row"><div class="forecast-model-key">Tracker</div><div class="forecast-model-val">Future Tracker rates preserve today's regional Tracker-to-price-cap relationship. They are estimates, not published future UW rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Chart lines</div><div class="forecast-model-val">Slate = variable price cap · Magenta = Fix · Orange = Track · Charcoal = 30% doomsday.</div></div>
+      </div>
+      <div class="source-note">This is a personalised estimate using the selected region and annual usage. Forecasts can change as wholesale prices and Ofgem inputs change.</div>
+    </div>
+  </div>
+</div>
+
+<div class="source-modal" id="seasonalityModal" role="dialog" aria-modal="true" aria-labelledby="seasonalityTitle">
+  <div class="source-card">
+    <div class="source-card-head">
+      <div>
+        <div class="source-kicker">Monthly usage modelling</div>
+        <h3 id="seasonalityTitle">Seasonal usage split</h3>
+      </div>
+      <button class="source-close" id="seasonalityClose" type="button" aria-label="Close seasonal usage split">×</button>
+    </div>
+    <div class="source-sub">These percentages show how the tool converts annual kWh into monthly usage before applying each month's tariff rates.</div>
+    <div class="seasonality-grid" id="seasonalityGrid"></div>
+    <div class="seasonality-note">Gas uses the DESNZ Energy Trends monthly profile. Standard electricity uses the gentler monthly profile already used in the original Should I Fix tool. If Electric heating is selected, electricity uses the winter-heavy heating profile instead.</div>
+  </div>
+</div>
+
+<div class="source-modal" id="tariffDetailsModal" role="dialog" aria-modal="true" aria-labelledby="tariffDetailsTitle">
+  <div class="source-card">
+    <div class="source-card-head">
+      <div>
+        <div class="source-kicker">Current tariff rates</div>
+        <h3 id="tariffDetailsTitle">Detailed tariff information</h3>
+      </div>
+      <button class="source-close" id="tariffDetailsClose" type="button" aria-label="Close tariff details">×</button>
+    </div>
+    <div class="compare-tip tariff-details" id="tariffDetailsBody">Loading current tariff information…</div>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- DATA (Direct Debit) ----------
+   uw = UW Fixed Saver 96, fixed to 30 Sep 2027, rates EXCLUDING VAT (single-rate electricity).
+   fixed = UW Fixed 96, fixed to 30 Sep 2027, rates EXCLUDING VAT (single-rate electricity).
+   start = UW Fixed Start 96, fixed to 30 Sep 2027, rates EXCLUDING VAT (single-rate electricity).
+   cap.octdec / cap.julsep = Ofgem price cap, INCLUDING VAT as published
+   (electricity 0% VAT Oct 2026-Mar 2027, gas 5%; July-Sep both 5%). */
+const REGIONS = [
+  {n:10,name:"Eastern (10)",           uw:{gSC:17.770,gU:7.875,eSC:50.671,eU:27.227}, fixed:{gSC:24.994,gU:7.875,eSC:52.568,eU:27.227}, start:{gSC:25.836,gU:8.278,eSC:52.788,eU:27.630}, cap:{julsep:{eSC:53.94,eU:26.38,gSC:28.70,gU:7.26}, octdec:{eSC:51.84,eU:26.61,gSC:29.34,gU:7.91}}},
+  {n:11,name:"East Midlands (11)",     uw:{gSC:17.943,gU:7.877,eSC:51.149,eU:26.177}, fixed:{gSC:25.227,gU:7.877,eSC:53.054,eU:26.177}, start:{gSC:26.103,gU:8.280,eSC:53.307,eU:26.568}, cap:{julsep:{eSC:53.60,eU:25.10,gSC:28.78,gU:7.19}, octdec:{eSC:51.45,eU:25.36,gSC:29.41,gU:7.82}}},
+  {n:12,name:"London (12)",            uw:{gSC:17.974,gU:8.165,eSC:40.197,eU:27.626}, fixed:{gSC:25.308,gU:8.165,eSC:42.101,eU:27.626}, start:{gSC:26.092,gU:8.581,eSC:42.357,eU:28.015}, cap:{julsep:{eSC:44.78,eU:26.35,gSC:29.52,gU:7.50}, octdec:{eSC:42.92,eU:26.60,gSC:30.20,gU:8.15}}},
+  {n:13,name:"Manweb / Merseyside & N Wales (13)", uw:{gSC:17.951,gU:7.950,eSC:65.890,eU:28.688}, fixed:{gSC:25.248,gU:7.950,eSC:67.836,eU:28.688}, start:{gSC:26.100,gU:8.357,eSC:67.983,eU:29.132}, cap:{julsep:{eSC:70.76,eU:27.66,gSC:29.42,gU:7.28}, octdec:{eSC:67.66,eU:27.86,gSC:30.08,gU:7.91}}},
+  {n:14,name:"Midlands / West Midlands (14)", uw:{gSC:17.951,gU:7.947,eSC:56.384,eU:26.454}, fixed:{gSC:25.247,gU:7.947,eSC:58.298,eU:26.454}, start:{gSC:26.100,gU:8.353,eSC:58.527,eU:26.857}, cap:{julsep:{eSC:59.71,eU:25.33,gSC:29.06,gU:7.27}, octdec:{eSC:57.23,eU:25.60,gSC:29.71,gU:7.90}}},
+  {n:15,name:"Northern / NE England (15)", uw:{gSC:17.953,gU:7.968,eSC:61.344,eU:26.262}, fixed:{gSC:25.253,gU:7.968,eSC:63.262,eU:26.262}, start:{gSC:26.099,gU:8.375,eSC:63.479,eU:26.672}, cap:{julsep:{eSC:64.29,eU:25.22,gSC:29.15,gU:7.28}, octdec:{eSC:61.58,eU:25.46,gSC:29.79,gU:7.92}}},
+  {n:16,name:"Norweb / NW England (16)", uw:{gSC:17.947,gU:7.912,eSC:46.834,eU:27.519}, fixed:{gSC:25.237,gU:7.912,eSC:48.745,eU:27.519}, start:{gSC:26.101,gU:8.317,eSC:48.982,eU:27.918}, cap:{julsep:{eSC:47.61,eU:26.13,gSC:29.17,gU:7.24}, octdec:{eSC:45.68,eU:26.49,gSC:29.81,gU:7.86}}},
+  {n:17,name:"Scottish Hydro / N Scotland (17)", uw:{gSC:18.129,gU:8.000,eSC:58.085,eU:26.642}, fixed:{gSC:25.495,gU:8.000,eSC:60.019,eU:26.642}, start:{gSC:26.365,gU:8.409,eSC:60.249,eU:27.050}, cap:{julsep:{eSC:57.55,eU:26.42,gSC:29.22,gU:7.23}, octdec:{eSC:55.14,eU:26.35,gSC:29.87,gU:7.87}}},
+  {n:18,name:"Scottish Power / S Scotland (18)", uw:{gSC:17.948,gU:7.920,eSC:60.740,eU:26.875}, fixed:{gSC:25.239,gU:7.920,eSC:62.663,eU:26.875}, start:{gSC:26.101,gU:8.325,eSC:62.868,eU:27.290}, cap:{julsep:{eSC:64.17,eU:25.85,gSC:29.24,gU:7.23}, octdec:{eSC:61.41,eU:26.11,gSC:29.89,gU:7.87}}},
+  {n:19,name:"Seeboard / SE England (19)", uw:{gSC:17.965,gU:8.076,eSC:52.563,eU:27.696}, fixed:{gSC:25.283,gU:8.076,eSC:54.483,eU:27.696}, start:{gSC:26.095,gU:8.488,eSC:54.696,eU:28.107}, cap:{julsep:{eSC:54.45,eU:26.67,gSC:28.63,gU:7.39}, octdec:{eSC:52.32,eU:26.88,gSC:29.26,gU:8.05}}},
+  {n:20,name:"Southern (20)",          uw:{gSC:17.977,gU:8.184,eSC:49.095,eU:27.518}, fixed:{gSC:25.313,gU:8.184,eSC:51.009,eU:27.518}, start:{gSC:26.091,gU:8.601,eSC:51.238,eU:27.921}, cap:{julsep:{eSC:49.70,eU:26.42,gSC:28.53,gU:7.53}, octdec:{eSC:47.81,eU:26.47,gSC:29.16,gU:8.17}}},
+  {n:21,name:"Swalec / S Wales (21)",  uw:{gSC:17.969,gU:8.111,eSC:55.084,eU:27.467}, fixed:{gSC:25.292,gU:8.111,eSC:57.006,eU:27.467}, start:{gSC:26.094,gU:8.524,eSC:57.216,eU:27.880}, cap:{julsep:{eSC:57.84,eU:26.33,gSC:29.30,gU:7.42}, octdec:{eSC:55.41,eU:26.55,gSC:29.96,gU:8.09}}},
+  {n:22,name:"Sweb / SW England (22)", uw:{gSC:17.972,gU:8.138,eSC:56.203,eU:27.490}, fixed:{gSC:25.300,gU:8.138,eSC:58.126,eU:27.490}, start:{gSC:26.093,gU:8.553,eSC:58.332,eU:27.904}, cap:{julsep:{eSC:57.89,eU:26.39,gSC:28.68,gU:7.48}, octdec:{eSC:55.58,eU:26.58,gSC:29.31,gU:8.12}}},
+  {n:23,name:"Yorkshire (23)",         uw:{gSC:17.950,gU:7.941,eSC:60.106,eU:26.500}, fixed:{gSC:25.245,gU:7.941,eSC:62.025,eU:26.500}, start:{gSC:26.100,gU:8.347,eSC:62.241,eU:26.910}, cap:{julsep:{eSC:64.38,eU:25.31,gSC:29.12,gU:7.27}, octdec:{eSC:61.67,eU:25.60,gSC:29.77,gU:7.90}}}
+]
+
+/* Forecast defaults (MSE consensus, week beginning 21 Sep 2026):
+   Jan-Mar +22.9%, Apr-Jun -2.2%, Jul-Sep -9.8%.
+   The Jan rise is user-adjustable via the scenario buttons in the chart. */
+const DEFAULT_JAN_RISE=22.9;
+const DOOMSDAY_JAN_RISE=30;
+const APR_FROM_JAN=0.978, JUL_FROM_APR=0.902;
+/* Forecast split: use the fresher headline forecast, but keep standing charges
+   at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
+   January component forecast gives the electricity-v-gas unit-rate shape. */
+const FORECAST_E_SHAPE=7.6, FORECAST_G_SHAPE=12.2;
+const FORECAST_MED_E=2500, FORECAST_MED_G=9500;
+const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
+
+const MONTHS=[
+  {k:"Sep",cal:8, days:30,src:"julsep",ph:"now"},
+  {k:"Oct",cal:9, days:31,src:"octdec",ph:"conf"},
+  {k:"Nov",cal:10,days:30,src:"octdec",ph:"conf"},
+  {k:"Dec",cal:11,days:31,src:"octdec",ph:"conf"},
+  {k:"Jan",cal:0, days:31,src:"octdec",ph:"jan"},
+  {k:"Feb",cal:1, days:28,src:"octdec",ph:"jan"},
+  {k:"Mar",cal:2, days:31,src:"octdec",ph:"jan"},
+  {k:"Apr",cal:3, days:30,src:"octdec",ph:"apr"},
+  {k:"May",cal:4, days:31,src:"octdec",ph:"apr"},
+  {k:"Jun",cal:5, days:30,src:"octdec",ph:"apr"},
+  {k:"Jul",cal:6, days:31,src:"octdec",ph:"jul"},
+  {k:"Aug",cal:7, days:31,src:"octdec",ph:"jul"}
+];
+const WINTER=["Oct","Nov","Dec","Jan","Feb","Mar"];
+/* Ofgem cap quarters across the horizon; grow = width proportion so the strip lines up with the chart */
+const QUARTERS=[
+  {lab:"Sep",     mk:["Sep"],               grow:0.5, conf:true,  op:1},
+  {lab:"Oct–Dec", mk:["Oct","Nov","Dec"],   grow:3,   conf:true,  op:1},
+  {lab:"Jan–Mar", mk:["Jan","Feb","Mar"],   grow:3,   conf:false, op:0.82},
+  {lab:"Apr–Jun", mk:["Apr","May","Jun"],   grow:3,   conf:false, op:0.6},
+  {lab:"Jul–Aug", mk:["Jul","Aug"],         grow:1.5, conf:false, op:0.44}
+];
+const GAS_W =norm([16.4,12.8,12.7,8.6,4.4,2.7,2.6,2.4,3.2,6.9,12.2,15.1]);  /* DESNZ ET 4.2, 2023-24 avg (Jan-Dec) */
+const ELEC_W=norm([9.5,9.0,8.5,7.5,7.5,7.5,8.0,8.0,7.5,8.5,9.0,9.5]);       /* lighter seasonal approximation */
+function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
+function elecVAT(k){return (k==="Oct"||k==="Nov"||k==="Dec"||k==="Jan"||k==="Feb"||k==="Mar")?0:0.05;}
+const forecastStepCache=new Map();
+function avgRegionalCap(src){
+  const out={eSC:0,eU:0,gSC:0,gU:0};
+  REGIONS.forEach(r=>{out.eSC+=r.cap[src].eSC;out.eU+=r.cap[src].eU;out.gSC+=r.cap[src].gSC;out.gU+=r.cap[src].gU;});
+  const n=REGIONS.length; Object.keys(out).forEach(k=>out[k]/=n); return out;
+}
+function benchmarkCapAnnual(r){ return ((r.eSC+r.gSC)*365 + r.eU*FORECAST_MED_E + r.gU*FORECAST_MED_G)/100; }
+function shapedUnitStep(base,headlinePct){
+  if(Math.abs(headlinePct)<0.000001) return {e:1,g:1};
+  const targetDelta=benchmarkCapAnnual(base)*(headlinePct/100);
+  const eAnnual=base.eU*FORECAST_MED_E/100, gAnnual=base.gU*FORECAST_MED_G/100;
+  const denom=eAnnual*FORECAST_E_SHAPE + gAnnual*FORECAST_G_SHAPE;
+  const k=denom?targetDelta/denom:0;
+  return {e:Math.max(0,1+k*FORECAST_E_SHAPE),g:Math.max(0,1+k*FORECAST_G_SHAPE)};
+}
+function applyUnitStep(base,m){ return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g}; }
+function forecastSteps(janRisePct){
+  const key=Number(janRisePct).toFixed(4); if(forecastStepCache.has(key)) return forecastStepCache.get(key);
+  const oct=avgRegionalCap("octdec"), janStep=shapedUnitStep(oct,janRisePct), jan=applyUnitStep(oct,janStep);
+  const aprStep=shapedUnitStep(jan,(APR_FROM_JAN-1)*100), apr=applyUnitStep(jan,aprStep);
+  const julStep=shapedUnitStep(apr,(JUL_FROM_APR-1)*100);
+  const result={jan:{e:janStep.e,g:janStep.g},apr:{e:janStep.e*aprStep.e,g:janStep.g*aprStep.g},jul:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g}};
+  forecastStepCache.set(key,result); return result;
+}
+function projectedCapRate(region,ph,janRisePct){
+  if(ph==="now") return region.cap.julsep; if(ph==="conf") return region.cap.octdec;
+  const steps=forecastSteps(janRisePct), m=steps[ph]||steps.jul, base=region.cap.octdec;
+  return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g};
+}
+
+
+/* ---------- EV / ECONOMY 7 EXTENSION ---------- */
+const EV_FEED_URL="https://script.google.com/macros/s/AKfycbw-TllTpk_dbFjHhmojgeai9gKNGRzRaA_BtMooVSLeqvg614mONQyrpElC4M8vqP51/exec";
+const EV_OCT_RISE=4;
+let evFeedData=null, evFeedStatus="loading", evProfileTouched=false, evBillOpen=false, evEfficiency=3.2;
+
+function evNum(v){
+  if(v===null||v===undefined||v==="") return null;
+  const n=parseFloat(String(v).replace(/[^0-9.\-]/g,""));
+  return Number.isFinite(n)?n:null;
+}
+function evLower(v){return String(v||"").trim().toLowerCase();}
+function evTierFromName(name,type){
+  const s=evLower(name);
+  if(type==="fixed"){
+    if(s.includes("fixed saver")) return 2;
+    if(s.includes("fixed start")) return 0;
+    if(/^fixed\s+\d+/.test(s)||s==="fixed") return 1;
+  }
+  if(type==="variable_ev"){
+    if(s.includes("double gold")) return 2;
+    if(/(^|\s)gold(\s|$)/.test(s)) return 1;
+    if(/(^|\s)value(\s|$)/.test(s)) return 0;
+  }
+  return null;
+}
+function evTierForTariff(t){return t==="start"?0:t==="fixed"?1:t==="saver"?2:null;}
+function evRowsForRegion(regionNo){
+  const rows=evFeedData&&Array.isArray(evFeedData.tariffLive)?evFeedData.tariffLive:[];
+  return rows.filter(r=>{
+    const rg=parseInt(r.region_no!=null?r.region_no:r.regionNo,10);
+    const pm=evLower(r.payment_method!=null?r.payment_method:r.paymentMethod);
+    return rg===regionNo&&(!pm||pm==="dd"||pm==="direct debit");
+  });
+}
+function evMapped(regionNo){
+  const out={0:{},1:{},2:{}};
+  evRowsForRegion(regionNo).forEach(r=>{
+    const type=evLower(r.tariff_type!=null?r.tariff_type:r.tariffType);
+    const name=r.tariff_name!=null?r.tariff_name:r.tariffName;
+    const tier=evTierFromName(name,type);
+    if(tier===null) return;
+    if(type==="fixed") out[tier].fixed=r;
+    if(type==="variable_ev") out[tier].ev=r;
+  });
+  return out;
+}
+
+function liveFixedSeries(){
+  const rows=evFeedData&&Array.isArray(evFeedData.tariffLive)?evFeedData.tariffLive:[];
+  const counts={};
+  rows.forEach(r=>{
+    if(evLower(r.tariff_type!=null?r.tariff_type:r.tariffType)!=="fixed") return;
+    let series=String(r.fixed_series!=null?r.fixed_series:r.fixedSeries||"").replace(/\D/g,"");
+    if(!series){
+      const name=String(r.tariff_name!=null?r.tariff_name:r.tariffName||"");
+      const m=name.match(/fixed(?:\s+saver|\s+start)?\s*(\d+)/i);
+      if(m) series=m[1];
+    }
+    if(series) counts[series]=(counts[series]||0)+1;
+  });
+  const keys=Object.keys(counts);
+  if(!keys.length) return "96";
+  keys.sort((a,b)=>counts[b]-counts[a]||(+b)-(+a));
+  return keys[0];
+}
+function liveTrackerSeries(){
+  const rows=evFeedData&&Array.isArray(evFeedData.tariffLive)?evFeedData.tariffLive:[];
+  const counts={};
+  rows.forEach(r=>{
+    if(evLower(r.tariff_type!=null?r.tariff_type:r.tariffType)!=="tracker") return;
+    let series=String(r.tracker_series!=null?r.tracker_series:r.trackerSeries||"").replace(/\D/g,"");
+    if(!series){
+      const name=String(r.tariff_name!=null?r.tariff_name:r.tariffName||"");
+      const m=name.match(/tracker(?:\s+saver|\s+plus|\s+start)?\s*(\d+)/i);
+      if(m) series=m[1];
+    }
+    if(series) counts[series]=(counts[series]||0)+1;
+  });
+  const keys=Object.keys(counts);
+  if(!keys.length) return "6";
+  keys.sort((a,b)=>counts[b]-counts[a]||(+b)-(+a));
+  return keys[0];
+}
+function bundleCopy(tariff){
+  const fs=liveFixedSeries(), ts=liveTrackerSeries();
+  if(tariff==="start") return {label:"1 service",pair:"Fixed Start "+fs+" + Tracker Start "+ts};
+  if(tariff==="fixed") return {label:"2 services",pair:"Fixed "+fs+" + Tracker Plus "+ts};
+  if(tariff==="custom") return {label:"Own fixed tariff",pair:"Custom fix + Tracker Saver "+ts};
+  return {label:"3 services",pair:"Fixed Saver "+fs+" + Tracker Saver "+ts};
+}
+function updateBundleChoiceCopy(tariff){
+  const x=bundleCopy(tariff);
+  const title=document.getElementById("bundleChoiceTitle"), pair=document.getElementById("bundleChoicePair");
+  if(title) title.textContent=x.label;
+  if(pair) pair.textContent=x.pair;
+}
+
+function liveFixedRow(regionNo,tariff){
+  const tier=tariff==="start"?0:tariff==="fixed"?1:tariff==="saver"?2:null;
+  if(tier===null) return null;
+  const mapped=evMapped(regionNo);
+  return mapped[tier]&&mapped[tier].fixed?mapped[tier].fixed:null;
+}
+function fixedDisplayName(tariff,regionNo){
+  if(tariff==="custom") return "Custom fixed deal";
+  const row=liveFixedRow(regionNo,tariff);
+  if(row){
+    const name=String(row.tariff_name!=null?row.tariff_name:row.tariffName||"").trim();
+    if(name) return name.replace(/^UW\s+/i,"");
+  }
+  const series=liveFixedSeries();
+  return tariff==="start"?"Fixed Start "+series:tariff==="fixed"?"Fixed "+series:"Fixed Saver "+series;
+}
+function fixedEndLabel(tariff,regionNo){
+  const row=liveFixedRow(regionNo,tariff);
+  return row?String(row.fixed_end_date||row.contract_end_date||"").trim():"30 September 2027";
+}
+function standardFixedRate(row){
+  if(!row) return null;
+  const rate={
+    gSC:evNum(row.GDSC),
+    gU:evNum(row.GUR),
+    eSC:evNum(row.EDSC_Std),
+    eU:evNum(row.EUR_Std)
+  };
+  return Object.values(rate).every(v=>v!==null)?rate:null;
+}
+function trackerTierForTariff(t){ return t==="start"?0:t==="fixed"?1:2; }
+function liveTrackerRow(regionNo,tariff){
+  const tier=trackerTierForTariff(tariff);
+  return evRowsForRegion(regionNo).find(r=>{
+    const type=evLower(r.tariff_type!=null?r.tariff_type:r.tariffType); if(type!=="tracker") return false;
+    const name=evLower(r.tariff_name!=null?r.tariff_name:r.tariffName);
+    const rt=name.includes("tracker saver")?2:name.includes("tracker plus")?1:name.includes("tracker start")?0:null;
+    return rt===tier;
+  })||null;
+}
+function standardTrackerRate(row){
+  if(!row) return null; const rate={gSC:evNum(row.GDSC),gU:evNum(row.GUR),eSC:evNum(row.EDSC_Std),eU:evNum(row.EUR_Std)};
+  return Object.values(rate).every(v=>v!==null)?rate:null;
+}
+function trackerModel(region,tariff){
+  const row=liveTrackerRow(region.n,tariff), ex=standardTrackerRate(row); if(!row||!ex) return null;
+  const actual={eSC:ex.eSC*1.05,eU:ex.eU*1.05,gSC:ex.gSC*1.05,gU:ex.gU*1.05}, cap=region.cap.julsep;
+  return {name:String(row.tariff_name||"Tracker").replace(/^UW\s+/i,""),actual,ratio:{
+    eSC:cap.eSC?actual.eSC/cap.eSC:1,eU:cap.eU?actual.eU/cap.eU:1,gSC:cap.gSC?actual.gSC/cap.gSC:1,gU:cap.gU?actual.gU/cap.gU:1
+  }};
+}
+let compareInfoVat=false;
+function compareInfoDate(v){
+  if(!v) return "";
+  const s=String(v);
+  const d=new Date(s);
+  if(Number.isNaN(d.getTime())) return s;
+  return d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
+}
+function rateForInfo(rate,withVat){
+  if(rate==null||!Number.isFinite(rate)) return "–";
+  return (rate*(withVat?1.05:1)).toFixed(2)+"p";
+}
+function setCompareInfoVat(on,event){
+  if(event){event.preventDefault();event.stopPropagation();}
+  compareInfoVat=!!on;
+  renderCompareInfo(lastCompareInfoState&&lastCompareInfoState.s,lastCompareInfoState&&lastCompareInfoState.tracker);
+}
+let lastCompareInfoState=null;
+const WHATSAPP_EXIT_FEE=75;
+function plainRate(rate,withVat){
+  if(rate==null||!Number.isFinite(rate)) return "–";
+  return (rate*(withVat?1.05:1)).toFixed(3).replace(/0+$/,"").replace(/\.$/,"");
+}
+function whatsappTariffText(kind){
+  const st=lastCompareInfoState;
+  if(!st||!st.s) return "";
+  const s=st.s, vat=compareInfoVat;
+  const isFixed=kind==="fixed";
+  const fixedRow=liveFixedRow(s.region.n,s.tariff);
+  const fixedRate=s.tariff==="custom"?fixedRates(s):standardFixedRate(fixedRow)||fixedRates(s);
+  const trackerRow=liveTrackerRow(s.region.n,s.tariff);
+  const trackerRate=standardTrackerRate(trackerRow);
+  const rate=isFixed?fixedRate:trackerRate;
+  if(!rate) return "";
+  const rawName=isFixed?fixedDisplayName(s.tariff,s.region.n):String((trackerRow&&trackerRow.tariff_name)||"Tracker").replace(/^UW\s+/i,"");
+  const tariffName=/^UW\s+/i.test(rawName)?rawName:"UW "+rawName;
+  const end=isFixed && s.tariff!=="custom"?compareInfoDate(fixedEndLabel(s.tariff,s.region.n)):"";
+  const vatLabel=vat?"including VAT":"excluding VAT";
+  const bits=["Hi, please can you move both my electricity and gas tariffs onto "+tariffName+"."];
+  if(end) bits.push("","📅 Fixed until: "+end);
+  bits.push("",
+    "⚡ Electricity",
+    "Unit rate: "+plainRate(rate.eU,vat)+"p/kWh",
+    "Standing charge: "+plainRate(rate.eSC,vat)+"p/day",
+    "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
+    "",
+    "🔥 Gas",
+    "Unit rate: "+plainRate(rate.gU,vat)+"p/kWh",
+    "Standing charge: "+plainRate(rate.gSC,vat)+"p/day",
+    "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
+    "",
+    "Rates shown "+vatLabel+".",
+    "",
+    "Please confirm once this has been arranged. Thanks 👍",
+    "",
+    "*Name*",
+    "Customer number: *number*",
+    "Email: *email*",
+    "DOB: *DOB*"
+  );
+  return bits.join("\n");
+}
+async function copyTariffWhatsApp(kind,btn){
+  const txt=whatsappTariffText(kind);
+  if(!txt) return;
+  const done=()=>{
+    const old=btn.dataset.oldText||btn.textContent;
+    btn.dataset.oldText=old;
+    btn.textContent="Copied ✓";
+    btn.classList.add("copied");
+    setTimeout(()=>{btn.textContent=old;btn.classList.remove("copied");},1600);
+  };
+  try{await navigator.clipboard.writeText(txt);done();}
+  catch{
+    const ta=document.createElement("textarea");
+    ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");done();}finally{ta.remove();}
+  }
+}
+function renderCompareInfo(s,tracker){
+  if(!s) return;
+  const tip=document.getElementById("tariffDetailsBody"); if(!tip) return;
+  lastCompareInfoState={s,tracker};
+  const fixedName=fixedDisplayName(s.tariff,s.region.n);
+  const fixedRate=s.tariff==="custom"?fixedRates(s):standardFixedRate(liveFixedRow(s.region.n,s.tariff))||fixedRates(s);
+  const trackRow=liveTrackerRow(s.region.n,s.tariff);
+  const trackRate=standardTrackerRate(trackRow);
+  const trackName=trackRow?String(trackRow.tariff_name||"Tracker").replace(/^UW\s+/i,""):"Tracker unavailable";
+  const end=s.tariff==="custom"?"":compareInfoDate(fixedEndLabel(s.tariff,s.region.n));
+  const vat=compareInfoVat;
+  const rows=[];
+  if(s.mode!=="gas") rows.push(`<tr><td>Electricity</td><td class="fix-h">${rateForInfo(fixedRate.eU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.eSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.eU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.eSC,vat)+"/day":"–"}</td></tr>`);
+  if(s.mode!=="elec") rows.push(`<tr><td>Gas</td><td class="fix-h">${rateForInfo(fixedRate.gU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.gSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.gU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.gSC,vat)+"/day":"–"}</td></tr>`);
+  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub">${end?fixedName+" · fixed to "+end:fixedName}<br>${trackName}</div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th rowspan="2">Fuel</th><th class="fix-h" colspan="2">${fixedName}</th><th class="track-h" colspan="2">${trackName}</th></tr><tr><th class="fix-h">Unit</th><th class="fix-h">SC</th><th class="track-h">Unit</th><th class="track-h">SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT adds 5% for tariff-sheet comparison. The chart separately applies the modelled electricity VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div><div class="tariff-copy-actions"><button type="button" class="tariff-copy-btn fix" onclick="copyTariffWhatsApp(\'fixed\',this)">Copy Fixed WhatsApp</button><button type="button" class="tariff-copy-btn track" onclick="copyTariffWhatsApp(\'tracker\',this)">Copy Tracker WhatsApp</button></div>`;
+}
+function applyLiveFixedTariffs(data){
+  if(!data||!Array.isArray(data.tariffLive)) return false;
+  evFeedData=data;
+  let applied=0;
+  REGIONS.forEach(region=>{
+    const mapped=evMapped(region.n);
+    const start=standardFixedRate(mapped[0]&&mapped[0].fixed);
+    const fixed=standardFixedRate(mapped[1]&&mapped[1].fixed);
+    const saver=standardFixedRate(mapped[2]&&mapped[2].fixed);
+    if(start){region.start=start;applied++;}
+    if(fixed){region.fixed=fixed;applied++;}
+    if(saver){region.uw=saver;applied++;}
+  });
+  updateFixedTariffCopy();
+  if(document.getElementById("discText")&&document.getElementById("method")) statics();
+  return applied>0;
+}
+function updateFixedTariffCopy(){
+  const fs=liveFixedSeries(), ts=liveTrackerSeries();
+  const pStart=document.getElementById("pairStart");
+  const pFixed=document.getElementById("pairFixed");
+  const pSaver=document.getElementById("pairSaver");
+  if(pStart) pStart.textContent="Fixed Start "+fs+" + Tracker Start "+ts;
+  if(pFixed) pFixed.textContent="Fixed "+fs+" + Tracker Plus "+ts;
+  if(pSaver) pSaver.textContent="Fixed Saver "+fs+" + Tracker Saver "+ts;
+  const selected=document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff||"saver";
+  updateBundleChoiceCopy(selected);
+}
+function evRate(row,kind){
+  if(!row) return null;
+  let sc,day,night;
+  if(kind==="ev"){
+    sc=evNum(row.EDSC_Std);
+    day=evNum(row.EUR_EV_Peak);
+    night=evNum(row.EUR_EV_OffPeak);
+  } else {
+    sc=evNum(row.EDSC_E7);
+    day=evNum(row.EUR_E7_Day);
+    night=evNum(row.EUR_E7_Night);
+  }
+  if(sc===null||day===null||night===null) return null;
+  return {
+    sc,day,night,
+    name:String(row.tariff_name||""),
+    series:String(row.fixed_series||""),
+    fixedEnd:String(row.fixed_end_date||row.contract_end_date||""),
+    sourceRef:String(row.source_ref||"")
+  };
+}
+function evHomeCharge(){
+  const miles=Math.max(0,+document.getElementById("evMiles").value||0);
+  const away=Math.max(0,Math.min(100,+document.getElementById("evAway").value||0));
+  return evEfficiency>0?(miles/evEfficiency)*(1-away/100):0;
+}
+function evBlend(a,b,r){return norm(a.map((v,i)=>v*(1-r)+b[i]*r));}
+function evSeasonalProfile(kind,night=false){
+  if(kind==="heatpump") return evBlend(ELEC_W,GAS_W,night?0.62:0.55);
+  if(kind==="direct") return evBlend(ELEC_W,GAS_W,night?0.68:0.76);
+  if(kind==="storage") return evBlend(ELEC_W,GAS_W,night?0.94:0.48);
+  return ELEC_W;
+}
+function evExtraE7Shift(kind){
+  if(kind==="heatpump") return 0.10;
+  if(kind==="direct") return 0.07;
+  if(kind==="storage") return 0.18;
+  return 0.0556; // calibrated to the existing EV tool's 10% EV-window vs 15% E7 household defaults
+}
+function evHistoricHome(){
+  return Math.max(0,+document.getElementById("evHistoricAnnual").value||0);
+}
+function evSimpleEstimate(s){
+  const historic=evHistoricHome();
+  const home=historic>0?historic:Math.max(0,s.elecY||2500);
+  const car=evHomeCharge();
+  const homeOff=home*0.10;
+  return {peak:home-homeOff,off:homeOff+car,home,car,historic:historic>0};
+}
+function evSyncSimpleEstimate(s){
+  const car=evHomeCharge(),historic=evHistoricHome();
+  document.getElementById("evChargeKwh").textContent=Math.round(car).toLocaleString("en-GB")+" kWh/year";
+  document.getElementById("evAnchoredTotal").textContent=historic>0
+    ? Math.round(historic+car).toLocaleString("en-GB")+" kWh/year assumed total = "+Math.round(historic).toLocaleString("en-GB")+" household + "+Math.round(car).toLocaleString("en-GB")+" home EV"
+    : "No historic annual anchor entered.";
+  if(evProfileTouched) return;
+  const est=evSimpleEstimate(s);
+  document.getElementById("evAnnualPeak").value=Math.round(est.peak);
+  document.getElementById("evAnnualOff").value=Math.round(est.off);
+}
+function evAnnualComponents(){
+  const peak=Math.max(0,+document.getElementById("evAnnualPeak").value||0);
+  const off=Math.max(0,+document.getElementById("evAnnualOff").value||0);
+  const car=evHomeCharge();
+  const carOff=Math.min(car,off);
+  const carPeak=Math.min(Math.max(0,car-carOff),peak);
+  const homePeak=Math.max(0,peak-carPeak);
+  const homeOff=Math.max(0,off-carOff);
+  const heat=document.getElementById("evHeating").value;
+  const shifted=homePeak*evExtraE7Shift(heat);
+  return {
+    peak,off,car,carOff,carPeak,homePeak,homeOff,
+    e7HomeDay:Math.max(0,homePeak-shifted),
+    e7HomeNight:homeOff+shifted,
+    heat
+  };
+}
+function evPeriodFraction(profile){
+  const mode=document.getElementById("evBillMode").value;
+  if(mode==="month"){
+    const m=+document.getElementById("evBillMonth").value;
+    const days=new Date(2026,m+1,0).getDate();
+    return {fraction:profile[m],days,label:document.getElementById("evBillMonth").options[document.getElementById("evBillMonth").selectedIndex].text};
+  }
+  const a=document.getElementById("evBillStart").value?new Date(document.getElementById("evBillStart").value+"T12:00:00"):null;
+  const b=document.getElementById("evBillEnd").value?new Date(document.getElementById("evBillEnd").value+"T12:00:00"):null;
+  if(!a||!b||Number.isNaN(a.getTime())||Number.isNaN(b.getTime())||b<a) return null;
+  let fraction=0,days=0,d=new Date(a);
+  while(d<=b&&days<370){
+    const m=d.getMonth(),dim=new Date(d.getFullYear(),m+1,0).getDate();
+    fraction+=profile[m]/dim;
+    days++;
+    d.setDate(d.getDate()+1);
+  }
+  return {fraction,days,label:a.toLocaleDateString("en-GB",{day:"numeric",month:"short"})+" - "+b.toLocaleDateString("en-GB",{day:"numeric",month:"short"})};
+}
+function evApplyBillEstimate(){
+  const samplePeak=Math.max(0,+document.getElementById("evBillPeak").value||0);
+  const sampleOff=Math.max(0,+document.getElementById("evBillOff").value||0);
+  const out=document.getElementById("evProfileResult");
+  out.classList.remove("hidden");
+  if(samplePeak+sampleOff<=0){
+    out.textContent="Add the peak and off-peak kWh from the bill first.";
+    return;
+  }
+  const heat=document.getElementById("evHeating").value;
+  const pDay=evPeriodFraction(evSeasonalProfile(heat,false));
+  const pNight=evPeriodFraction(evSeasonalProfile(heat,true));
+  if(!pDay||!pNight||pDay.fraction<=0||pNight.fraction<=0){
+    out.textContent="Choose a valid bill month or date range.";
+    return;
+  }
+  let hp=samplePeak,ho=sampleOff,removed=0;
+  if(document.getElementById("evBillIncludesCar").checked){
+    const sampleCar=evHomeCharge()*(pDay.days/365);
+    const fromOff=Math.min(ho,sampleCar);
+    ho-=fromOff; removed+=fromOff;
+    const fromPeak=Math.min(hp,Math.max(0,sampleCar-fromOff));
+    hp-=fromPeak; removed+=fromPeak;
+  }
+  let annualHomePeak=hp/pDay.fraction;
+  let annualHomeOff=ho/pNight.fraction;
+  const rawHomeTotal=annualHomePeak+annualHomeOff;
+  const historic=evHistoricHome();
+  let anchored=false;
+  if(historic>0&&rawHomeTotal>0){
+    const scale=historic/rawHomeTotal;
+    annualHomePeak*=scale;
+    annualHomeOff*=scale;
+    anchored=true;
+  }
+  const annualCar=evHomeCharge();
+  document.getElementById("evAnnualPeak").value=Math.round(annualHomePeak);
+  document.getElementById("evAnnualOff").value=Math.round(annualHomeOff+annualCar);
+  evProfileTouched=true;
+  const anchorText=anchored
+    ? " The bill-derived peak/off-peak shape was scaled to the trusted "+Math.round(historic).toLocaleString("en-GB")+" kWh historic household total, then "+Math.round(annualCar).toLocaleString("en-GB")+" kWh of estimated annual home EV charging was added back."
+    : " No historic annual anchor was entered, so the household total itself was annualised from this bill period.";
+  out.innerHTML="<b>Annual estimate:</b> "+Math.round(annualHomePeak).toLocaleString("en-GB")+" kWh peak + "+Math.round(annualHomeOff+annualCar).toLocaleString("en-GB")+" kWh off-peak = <b>"+Math.round(annualHomePeak+annualHomeOff+annualCar).toLocaleString("en-GB")+" kWh/year</b>."+anchorText+(removed?" About "+Math.round(removed).toLocaleString("en-GB")+" kWh of estimated EV charging was removed from this "+pDay.label+" sample first.":"");
+  render();
+}
+function evVariableMult(ph,janRise){
+  const OCT=1+EV_OCT_RISE/100;
+  const JAN=OCT*(1+janRise/100);
+  const APR=JAN*APR_FROM_JAN;
+  const JUL=APR*JUL_FROM_APR;
+  if(ph==="now") return 1;
+  if(ph==="conf") return OCT;
+  if(ph==="jan") return JAN;
+  if(ph==="apr") return APR;
+  return JUL;
+}
+function evCompute(s,evR,fixedR){
+  const p=evAnnualComponents();
+  const dayW=evSeasonalProfile(p.heat,false),nightW=evSeasonalProfile(p.heat,true);
+  const rows=MONTHS.map(m=>{
+    const vat=1+elecVAT(m.k),daysFrac=m.days/365;
+    const mult=evVariableMult(m.ph,s.janRise);
+    const evPeakK=(p.homePeak*dayW[m.cal])+(p.carPeak*daysFrac);
+    const evOffK=(p.homeOff*nightW[m.cal])+(p.carOff*daysFrac);
+    const e7DayK=p.e7HomeDay*dayW[m.cal];
+    const e7NightK=(p.e7HomeNight*nightW[m.cal])+(p.car*daysFrac);
+    const variable=(evR.sc*mult*vat*m.days + evR.day*mult*vat*evPeakK + evR.night*mult*vat*evOffK)/100;
+    const fixed=(fixedR.sc*vat*m.days + fixedR.day*vat*e7DayK + fixedR.night*vat*e7NightK)/100;
+    return {k:m.k,ph:m.ph,cap:variable,fixed,save:variable-fixed};
+  });
+  return {rows,ySave:rows.reduce((a,r)=>a+r.save,0)};
+}
+function evDraw(res,janRise){
+  const W=680,H=276,padL=38,padR=12,padT=26,padB=32;
+  const rows=res.rows,n=rows.length;
+  const maxV=Math.max(1,...rows.map(r=>r.cap),...rows.map(r=>r.fixed))*1.12;
+  const x=i=>padL+(W-padL-padR)*(i/(n-1));
+  const y=v=>padT+(H-padT-padB)*(1-v/maxV);
+  const variable=rows.map((r,i)=>[x(i),y(r.cap)]),fixed=rows.map((r,i)=>[x(i),y(r.fixed)]);
+  const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+  const fill=(pts,kind,op)=>'<path d="'+L(pts)+' Z" fill="'+(kind==="fix"?"var(--risk-soft)":"var(--save-soft)")+'" opacity="'+op+'"/>';
+  let fills="";
+  for(let i=0;i<n-1;i++){
+    const s0=rows[i].save,s1=rows[i+1].save,op=i<3?.82:i<6?.76:i<9?.68:.60;
+    if(Math.abs(s0)<.0001&&Math.abs(s1)<.0001) continue;
+    if(s0===0||s1===0||s0*s1>0){
+      fills+=fill([variable[i],variable[i+1],fixed[i+1],fixed[i]],(Math.abs(s0)>.0001?s0:s1)>=0?"fix":"var",op);
+    } else {
+      const t=s0/(s0-s1);
+      const cross=[variable[i][0]+(variable[i+1][0]-variable[i][0])*t,variable[i][1]+(variable[i+1][1]-variable[i][1])*t];
+      fills+=fill([variable[i],cross,fixed[i]],s0>0?"fix":"var",op);
+      fills+=fill([cross,variable[i+1],fixed[i+1]],s1>0?"fix":"var",op);
+    }
+  }
+  let grid="",step=niceStep(maxV);
+  for(let v=0;v<=maxV;v+=step){
+    const yy=y(v).toFixed(1);
+    grid+='<line x1="'+padL+'" y1="'+yy+'" x2="'+(W-padR)+'" y2="'+yy+'" stroke="#eee7f7"/>';
+    grid+='<text x="'+(padL-6)+'" y="'+(+yy+4)+'" font-size="10" fill="#9a92b3" text-anchor="end" font-weight="700">£'+Math.round(v)+'</text>';
+  }
+  const labels=rows.map((r,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-padB+16)+'" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">'+r.k+'</text>').join("");
+  const janX=((x(3)+x(4))/2).toFixed(1);
+  const scenarios=[0,10,20,22.9,30];
+  document.getElementById("evScenarios").innerHTML=scenarios.map(v=>{
+    const active=Math.abs(v-janRise)<.001;
+    return '<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(active?"true":"false")+'">'+(Number.isInteger(v)?v:v.toFixed(1))+'%</button>';
+  }).join("");
+  document.getElementById("evChart").innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Monthly EV variable versus fixed Economy 7 cost">'+grid+fills+
+    '<line x1="'+janX+'" y1="'+padT+'" x2="'+janX+'" y2="'+(H-padB)+'" stroke="#d7cfe8" stroke-dasharray="3 3"/>'+
+    '<path d="'+L(variable)+'" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round"/>'+
+    '<path d="'+L(fixed)+'" fill="none" stroke="var(--fixed)" stroke-width="2.5" stroke-linejoin="round"/>'+labels+
+    '<text x="'+(x(1)+4)+'" y="'+(padT+10)+'" font-size="10" fill="var(--cap)" font-weight="800">Oct +'+EV_OCT_RISE+'%</text>'+
+    '<text x="'+(+janX+4)+'" y="'+(padT+10)+'" font-size="10" fill="var(--cap)" font-weight="800">Jan +'+janRise+'%</text></svg>';
+}
+function renderEvExtension(s){
+  evSyncSimpleEstimate(s);
+  const status=document.getElementById("evLiveStatus");
+  const tier=evTierForTariff(s.tariff);
+  if(tier===null){
+    status.className="ev-live warn";
+    const series=liveFixedSeries();
+    status.textContent="Choose Fixed Saver "+series+", Fixed "+series+" or Fixed Start "+series+" above so the matching UW EV tariff can be selected.";
+    document.getElementById("evSaveTxt").textContent="–";
+    document.getElementById("evSaveSub").textContent="Custom fixed rates are not mapped to an EV tariff.";
+    document.getElementById("evChart").innerHTML="";
+    document.getElementById("evQstrip").innerHTML="";
+    document.getElementById("evRateSummary").hidden=true;
+    return;
+  }
+  if(evFeedStatus==="loading"){
+    status.className="ev-live";
+    status.textContent="Loading current UW EV and Economy 7 tariff data…";
+    document.getElementById("evRateSummary").hidden=true;
+    return;
+  }
+  if(evFeedStatus==="error"||!evFeedData){
+    status.className="ev-live warn";
+    status.textContent="Current EV tariff data could not be loaded. No rates are being guessed.";
+    document.getElementById("evRateSummary").hidden=true;
+    return;
+  }
+  const map=evMapped(s.region.n),evRow=map[tier].ev,fixedRow=map[tier].fixed;
+  const evR=evRate(evRow,"ev"),fixedR=evRate(fixedRow,"e7");
+  if(!evR||!fixedR){
+    status.className="ev-live warn";
+    status.textContent="The live feed does not currently contain both EV and Economy 7 rates for this region and service level.";
+    document.getElementById("evRateSummary").hidden=true;
+    return;
+  }
+  const fixedName=(fixedR.name||[fixedDisplayName("start",s.region.n),fixedDisplayName("fixed",s.region.n),fixedDisplayName("saver",s.region.n)][tier])+" Economy 7";
+  const evName=evR.name||["EV Value","EV Gold","EV Double Gold"][tier];
+  status.className="ev-live good";
+  status.innerHTML='<span class="ev-pair">'+evName+' vs '+fixedName+'</span> · '+s.region.name.replace(/\s*\(\d+\)/,"")+' · live tariff feed';
+  const rateSummary=document.getElementById("evRateSummary");
+  rateSummary.hidden=false;
+  document.getElementById("evVariableRates").innerHTML='<strong>'+evName+' - variable</strong><div class="ev-rate-values"><span>Peak <b>'+evR.day.toFixed(3)+'p</b>/kWh</span><span>Off-peak <b>'+evR.night.toFixed(3)+'p</b>/kWh</span><span>Standing <b>'+evR.sc.toFixed(3)+'p</b>/day</span></div>';
+  document.getElementById("evFixedRates").innerHTML='<strong>'+fixedName+'</strong><div class="ev-rate-values"><span>Day <b>'+fixedR.day.toFixed(3)+'p</b>/kWh</span><span>Night <b>'+fixedR.night.toFixed(3)+'p</b>/kWh</span><span>Standing <b>'+fixedR.sc.toFixed(3)+'p</b>/day</span></div>'+(fixedR.fixedEnd?'<div class="ev-rate-values" style="margin-top:4px"><span>Fixed to <b>'+fixedR.fixedEnd+'</b></span></div>':'');
+  const res=evCompute(s,evR,fixedR);
+  const saving=res.ySave;
+  document.getElementById("evSaveTxt").textContent=gbp(Math.abs(saving));
+  document.getElementById("evSaveSub").textContent=saving>=0?"cheaper by fixing to Economy 7, Sep 2026 to Aug 2027":"cheaper by staying on the EV tariff, Sep 2026 to Aug 2027";
+  document.getElementById("evQstrip").innerHTML=QUARTERS.map(q=>{
+    const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
+    return '<div class="ev-q"><b class="'+(sv>=0?"fix-win":"var-win")+'">'+gbp(Math.abs(sv))+'</b><span>'+q.lab+'</span></div>';
+  }).join("");
+  const p=evAnnualComponents();
+  document.getElementById("evNote").textContent="October assumes the EV tariff rises "+EV_OCT_RISE+"%. January applies the selected price-cap scenario to the EV tariff, followed by the same -1.6% April and -10.7% July trajectory used by the main tool. Fixed E7 stays fixed. The current split implies about "+Math.round(p.e7HomeNight+p.car).toLocaleString("en-GB")+" kWh/year on the Economy 7 night rate after allowing for the longer cheap window. These are modelling assumptions, not a UW forecast.";
+  evDraw(res,s.janRise);
+}
+function loadEvFeed(){
+  fetch(EV_FEED_URL,{cache:"no-store"})
+    .then(r=>{if(!r.ok) throw new Error("HTTP "+r.status);return r.json();})
+    .then(d=>{evFeedStatus="live";applyLiveFixedTariffs(d);render();})
+    .catch(()=>{evFeedStatus="error";render();});
+}
+
+function compute(o){
+  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker}=o;
+  const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
+  const rows=MONTHS.map(m=>{
+    const eK=incE?elecY*eProfile[m.cal]:0, gK=incG?gasY*GAS_W[m.cal]:0, ev=1+elecVAT(m.k);
+    const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
+    const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
+    const r=projectedCapRate(region,m.ph,janRise);
+    const capElec=incE?(r.eSC*m.days+r.eU*eK)/100:0, capGas=incG?(r.gSC*m.days+r.gU*gK)/100:0, cap=capElec+capGas;
+    const dr=projectedCapRate(region,m.ph,DOOMSDAY_JAN_RISE);
+    const doomElec=incE?(dr.eSC*m.days+dr.eU*eK)/100:0, doomGas=incG?(dr.gSC*m.days+dr.gU*gK)/100:0, doom=doomElec+doomGas;
+    let trackerCost=null;
+    if(tracker){
+      const tr=m.ph==="now"?tracker.actual:{eSC:r.eSC*tracker.ratio.eSC,eU:r.eU*tracker.ratio.eU,gSC:r.gSC*tracker.ratio.gSC,gU:r.gU*tracker.ratio.gU};
+      trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
+    }
+    return {k:m.k,ph:m.ph,fixed,cap,doom,tracker:trackerCost,save:cap-fixed};
+  });
+  const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0), win=r=>WINTER.includes(r.k);
+  return {rows,yCap:sum(r=>r.cap),yFix:sum(r=>r.fixed),ySave:sum(r=>r.save),wCap:sum(r=>r.cap,win),wFix:sum(r=>r.fixed,win),wSave:sum(r=>r.save,win)};
+}
+
+const gbp=n=>"£"+Math.round(n).toLocaleString("en-GB");
+function fillWindow(saveId,detailId,save,cap,fix){
+  const el=document.getElementById(saveId);
+  if(save>=0){ el.classList.remove("neg"); el.textContent="Save "+gbp(save); }
+  else{ el.classList.add("neg"); el.textContent="Cap wins by "+gbp(-save); }
+  document.getElementById(detailId).textContent=`cap ${gbp(cap)} vs fixed ${gbp(fix)}`;
+}
+
+/* ---- chart ---- */
+function niceStep(max){const raw=max/4,pow=Math.pow(10,Math.floor(Math.log10(raw||1))),c=raw/pow;return (c<1.5?1:c<3?2:c<7?5:10)*pow;}
+function setJanRise(value){
+  document.getElementById("janRise").value=String(value);
+  render();
+}
+function openForecastSource(){
+  const m=document.getElementById("forecastSourceModal");
+  document.getElementById("forecastPanelSource").classList.remove("open");
+  document.getElementById("forecastPanelModel").classList.remove("open");
+  document.getElementById("forecastChoiceSource").setAttribute("aria-pressed","false");
+  document.getElementById("forecastChoiceModel").setAttribute("aria-pressed","false");
+  const j=document.getElementById("forecastJanChosen");
+  if(j) j.textContent=(+document.getElementById("janRise").value||0)+"%";
+  m.classList.add("open");
+}
+function showForecastPanel(which){
+  const source=which==="source";
+  document.getElementById("forecastPanelSource").classList.toggle("open",source);
+  document.getElementById("forecastPanelModel").classList.toggle("open",!source);
+  document.getElementById("forecastChoiceSource").setAttribute("aria-pressed",source?"true":"false");
+  document.getElementById("forecastChoiceModel").setAttribute("aria-pressed",source?"false":"true");
+}
+function openSeasonalityModal(){
+  const months=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const grid=document.getElementById("seasonalityGrid");
+  let html='<div class="seasonality-cell seasonality-head">Month</div><div class="seasonality-cell seasonality-head">Gas</div><div class="seasonality-cell seasonality-head">Electricity</div>';
+  months.forEach((m,i)=>{
+    html+='<div class="seasonality-cell seasonality-month">'+m+'</div>'+
+      '<div class="seasonality-cell seasonality-gas">'+(GAS_W[i]*100).toFixed(1)+'%</div>'+
+      '<div class="seasonality-cell seasonality-elec">'+(ELEC_W[i]*100).toFixed(1)+'%</div>';
+  });
+  grid.innerHTML=html;
+  document.getElementById("seasonalityModal").classList.add("open");
+}
+function openTariffDetails(){
+  render();
+  document.getElementById("tariffDetailsModal").classList.add("open");
+}
+function draw(res,janRise){
+  const W=620,H=382,padL=42,padR=14,padT=32,padB=76;
+  const rows=res.rows,n=rows.length;
+  const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.doom),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
+  const rawMin=Math.min(...values), rawMax=Math.max(...values);
+  const span=Math.max(20,rawMax-rawMin);
+  const yMin=Math.max(0,Math.floor((rawMin-span*0.22)/10)*10);
+  const yMax=Math.ceil((rawMax+span*0.18)/10)*10;
+  const x=i=>padL+(W-padL-padR)*(i/(n-1));
+  const y=v=>padT+(H-padT-padB)*(1-(v-yMin)/(yMax-yMin));
+  const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
+  const doom=rows.map((r,i)=>[x(i),y(r.doom)]);
+  const track=rows.every(r=>Number.isFinite(r.tracker))?rows.map((r,i)=>[x(i),y(r.tracker)]):[];
+  const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
+  const optionFill=(pts,colour,op)=>`<path d="${L(pts)} Z" fill="${colour}" opacity="${op}"/>`;
+  let bandFills="";
+  for(let i=0;i<n-1;i++){
+    const fade=i<3?0.28:i<6?0.23:i<9?0.18:0.14;
+    bandFills+=optionFill([cap[i],cap[i+1],fix[i+1],fix[i]],"var(--fixed-soft)",fade);
+    if(track.length) bandFills+=optionFill([cap[i],cap[i+1],track[i+1],track[i]],"var(--tracker-soft)",fade*0.95);
+  }
+  let grid="",step=niceStep(yMax-yMin);
+  const gridStart=Math.ceil(yMin/step)*step;
+  for(let v=gridStart;v<=yMax+0.001;v+=step){const yy=y(v).toFixed(1);
+    grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
+    grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="11" fill="#8b849f" text-anchor="end" font-weight="750">£${Math.round(v)}</text>`;}
+  let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="11" fill="#8b849f" text-anchor="middle" font-weight="750">${r.k}</text>`;});
+  const qbounds=[0,3,6,9];
+  let qlines="";
+  qbounds.forEach(b=>{const bx=((x(b)+x(b+1))/2).toFixed(1);
+    qlines+=`<line x1="${bx}" y1="${padT}" x2="${bx}" y2="${H-padB}" stroke="#d7cfe8" stroke-width="1" stroke-dasharray="2 3"/>`;});
+  const mid2=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
+  const b1=mid2(cap[3],cap[4]), b2=mid2(cap[6],cap[7]), b3=mid2(cap[9],cap[10]);
+  const solidCap=[...cap.slice(0,4),b1];
+  const segs=[[[b1,cap[4],cap[5],cap[6],b2],0.90],[[b2,cap[7],cap[8],cap[9],b3],0.60],[[b3,cap[10],cap[11]],0.42]];
+  const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
+  const capOp=i=> i<4?1 : i<7?0.9 : i<10?0.6 : 0.42;
+  const JAN=1+(janRise/100), APR=JAN*APR_FROM_JAN, JUL=APR*JUL_FROM_APR;
+  const fmtPct=n=>{
+    if(Math.abs(n)<0.0001) return "0%";
+    const a=Math.abs(n), clean=Math.abs(a-Math.round(a))<0.0001?String(Math.round(a)):a.toFixed(1);
+    return (n>0?"+":"−")+clean+"%";
+  };
+  const items=[
+    [(b1[0]+b2[0])/2,"Cap "+fmtPct(janRise),0.92],
+    [(b2[0]+b3[0])/2,"Cap "+fmtPct((APR/JAN-1)*100),0.72],
+    [(b3[0]+x(11))/2,"Cap "+fmtPct((JUL/APR-1)*100),0.56]
+  ];
+  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB+43}" font-size="9.5" fill="#6f7786" font-weight="650" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
+  const scenarios=[0,10,20,22.9,30];
+  const scenarioButtons=scenarios.map(v=>{
+    const active=Math.abs(v-janRise)<0.001;
+    const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
+    return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
+  }).join("");
+  const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="4.2" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
+  const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
+  document.getElementById("chart").innerHTML=`<div class="chart-shell">
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, doomsday scenario, fixed tariff and Tracker">
+      <text x="${padL}" y="13" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
+      ${grid}${qlines}
+      ${bandFills}
+      <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
+      ${dashCap}
+      <path d="${L(doom.slice(3))}" fill="none" stroke="var(--doom)" stroke-width="2.2" stroke-dasharray="3 4" stroke-linejoin="round" opacity=".88"/>
+      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="4.4" stroke-linejoin="round"/>
+      ${trackerPath}
+      ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
+      ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
+      ${trackerDots}
+      ${pcts}${xl}
+    </svg>
+  </div>
+  <div class="quarter-compare-wrap">
+    <div class="quarter-compare-title">Estimated cost by period - highlighted row is the lowest-cost option overall</div>
+    <div class="quarter-compare" id="quarterCompare"></div>
+  </div>
+  <div class="chart-controls">
+    <div class="chart-control-head">
+      <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
+      <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast details" title="Forecast details">i</button>
+    </div>
+    <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
+  </div>`;
+}
+
+/* ---- state + render ---- */
+let lastBand={e:2500,g:9500};
+let lastCustom={e:2500,g:9500};
+let customTouched=false;
+let tariffPanelOpen=false;
+function usageMatches(mode, electricHeat, e, g, vals){
+  if(mode==="gas") return vals.g===g;
+  if(mode==="elec") return vals.e===e;
+  return vals.e===e && vals.g===g;
+}
+function usageBandValues(button, mode=state().mode, electricHeat=state().electricHeat){
+  if(mode==="elec" && electricHeat) return {e:+button.dataset.eh, g:0};
+  return {e:+button.dataset.e, g:+button.dataset.g};
+}
+function selectedUsageBand(){
+  return document.querySelector('#usageSeg button[data-band][aria-pressed="true"]') || document.querySelector('#usageSeg button[data-band="med"]');
+}
+function applyUsageBand(button){
+  const vals=usageBandValues(button);
+  document.getElementById("btnPersonal").setAttribute("aria-pressed","false");
+  document.getElementById("elec").value=vals.e;
+  document.getElementById("gas").value=vals.g;
+  lastBand={...vals};
+  if(!customTouched) lastCustom={...lastBand};
+  render();
+}
+function refreshSelectedUsageBand(){
+  if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){ render(); return; }
+  const band=selectedUsageBand();
+  if(band) applyUsageBand(band);
+}
+function state(){
+  return {
+    mode:document.querySelector('#fuelSeg button[aria-pressed="true"]').dataset.mode,
+    region:REGIONS.find(r=>r.n==+document.getElementById("region").value),
+    elecY:Math.max(0,+document.getElementById("elec").value||0),
+    gasY:Math.max(0,+document.getElementById("gas").value||0),
+    tariff:document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff || "saver",
+    personalise:document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true",
+    electricHeat:document.getElementById("electricHeat").checked,
+    janRise:Math.max(-30,Math.min(60,+document.getElementById("janRise").value||0))
+  };
+}
+function fixedRates(s){
+  if(s.tariff==="saver") return s.region.uw;
+  if(s.tariff==="fixed") return s.region.fixed;
+  if(s.tariff==="start") return s.region.start;
+  return {gSC:+document.getElementById("mGSC").value||0, gU:+document.getElementById("mGU").value||0,
+          eSC:+document.getElementById("mESC").value||0, eU:+document.getElementById("mEU").value||0};
+}
+function syncVisibility(s){
+  const incE=s.mode!=="gas", incG=s.mode!=="elec";
+  document.getElementById("manualUsage").classList.toggle("hidden",!s.personalise);
+  document.getElementById("electricHeatRow").classList.toggle("hidden",s.mode!=="elec");
+  document.getElementById("elecUsageWrap").classList.toggle("hidden",!incE);
+  document.getElementById("gasUsageWrap").classList.toggle("hidden",!incG);
+  document.getElementById("fixedCard").classList.toggle("advanced",tariffPanelOpen);
+  document.getElementById("manualWrap").classList.toggle("hidden",s.tariff!=="custom");
+  document.getElementById("mElec").classList.toggle("hidden",!incE);
+  document.getElementById("mGas").classList.toggle("hidden",!incG);
+  document.getElementById("resetUsageBtn").classList.toggle("hidden",!s.personalise || !customTouched);
+  // usage picker highlight: matching band, the pencil if personalising, or none
+  const bands=[...document.querySelectorAll('#usageSeg button[data-band]')];
+  const match=bands.find(b=>{
+    const vals=usageBandValues(b,s.mode,s.electricHeat);
+    return usageMatches(s.mode,s.electricHeat,s.elecY,s.gasY,vals);
+  });
+  bands.forEach(b=>b.setAttribute("aria-pressed", (!s.personalise && b===match)?"true":"false"));
+  document.getElementById("btnPersonal").setAttribute("aria-pressed", s.personalise?"true":"false");
+}
+function prefillManual(region, tariff=document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff || "saver"){
+  const rates=tariff==="fixed"?region.fixed:tariff==="start"?region.start:region.uw;
+  document.getElementById("mESC").value=rates.eSC;
+  document.getElementById("mEU").value=rates.eU;
+  document.getElementById("mGSC").value=rates.gSC;
+  document.getElementById("mGU").value=rates.gU;
+}
+function setTariffChoice(tariff){
+  document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.setAttribute("aria-pressed",b.dataset.tariff===tariff?"true":"false"));
+  tariffPanelOpen=!(tariff==="saver" || tariff==="custom");
+  document.getElementById("openTariffs").setAttribute("aria-pressed",tariffPanelOpen?"true":"false");
+}
+function buildShareUrl(s){
+  const p=new URLSearchParams();
+  p.set("r", s.region.n); p.set("f", s.mode);
+  if(s.mode!=="gas") p.set("e", s.elecY);
+  if(s.mode!=="elec") p.set("g", s.gasY);
+  if(s.janRise!==DEFAULT_JAN_RISE) p.set("j",s.janRise);
+  if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
+  if(s.tariff!=="saver") p.set("t",s.tariff);
+  if(s.tariff==="custom"){
+    p.set("o","1");
+    p.set("es",+document.getElementById("mESC").value||0);
+    p.set("eu",+document.getElementById("mEU").value||0);
+    p.set("gs",+document.getElementById("mGSC").value||0);
+    p.set("gu",+document.getElementById("mGU").value||0);
+  }
+  if(document.getElementById("evExtension").open){
+    p.set("xev","1");
+    p.set("epk",+document.getElementById("evAnnualPeak").value||0);
+    p.set("eop",+document.getElementById("evAnnualOff").value||0);
+    p.set("emi",+document.getElementById("evMiles").value||0);
+    p.set("eef",evEfficiency);
+    p.set("eaw",+document.getElementById("evAway").value||0);
+    p.set("eht",document.getElementById("evHeating").value);
+    if(+document.getElementById("evHistoricAnnual").value>0) p.set("ehis",+document.getElementById("evHistoricAnnual").value);
+  }
+  return location.origin+location.pathname+"?"+p.toString();
+}
+function readParams(){
+  const P=new URLSearchParams(location.search);
+  if(!P.has("r")&&!P.has("e")) return;              // no shared state
+  if(P.has("r")) document.getElementById("region").value=P.get("r");
+  if(P.has("f")){const m=P.get("f");document.querySelectorAll('#fuelSeg button').forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m?"true":"false"));}
+  if(P.has("e")) document.getElementById("elec").value=P.get("e");
+  if(P.has("g")) document.getElementById("gas").value=P.get("g");
+  if(P.has("j")) document.getElementById("janRise").value=P.get("j");
+  document.getElementById("electricHeat").checked = P.get("eh")==="1";
+  const region=REGIONS.find(r=>r.n==+document.getElementById("region").value)||REGIONS[1];
+  if(P.get("o")==="1"){
+    setTariffChoice("custom");
+    if(P.has("es")) document.getElementById("mESC").value=P.get("es");
+    if(P.has("eu")) document.getElementById("mEU").value=P.get("eu");
+    if(P.has("gs")) document.getElementById("mGSC").value=P.get("gs");
+    if(P.has("gu")) document.getElementById("mGU").value=P.get("gu");
+  } else {
+    setTariffChoice(["fixed","start"].includes(P.get("t"))?P.get("t"):"saver");
+    prefillManual(region);
+  }
+  // if the shared usage isn't one of the bands, show it as personalised figures
+  const e=+document.getElementById("elec").value, g=+document.getElementById("gas").value;
+  const sharedMode=state().mode;
+  const sharedHeat=document.getElementById("electricHeat").checked;
+  const isBand=[...document.querySelectorAll('#usageSeg button[data-band]')].some(b=>{
+    const vals=usageBandValues(b,sharedMode,sharedHeat);
+    return usageMatches(sharedMode,sharedHeat,e,g,vals);
+  });
+  document.getElementById("btnPersonal").setAttribute("aria-pressed", isBand?"false":"true");
+  if(isBand) lastBand={e,g};
+  else { lastCustom={e,g}; customTouched=true; }
+
+  if(P.get("xev")==="1"){
+    document.getElementById("evExtension").open=true;
+    if(P.has("epk")) document.getElementById("evAnnualPeak").value=P.get("epk");
+    if(P.has("eop")) document.getElementById("evAnnualOff").value=P.get("eop");
+    if(P.has("emi")) document.getElementById("evMiles").value=P.get("emi");
+    if(P.has("eaw")) document.getElementById("evAway").value=P.get("eaw");
+    if(P.has("eht")) document.getElementById("evHeating").value=P.get("eht");
+    if(P.has("ehis")) document.getElementById("evHistoricAnnual").value=P.get("ehis");
+    if(P.has("eef")){
+      evEfficiency=Math.max(1,Math.min(8,+P.get("eef")||3.2));
+      document.querySelectorAll("#evEfficiency button").forEach(b=>b.setAttribute("aria-pressed",Math.abs(+b.dataset.eff-evEfficiency)<.001?"true":"false"));
+    }
+    evProfileTouched=P.has("epk")||P.has("eop");
+  }
+}
+
+function render(){
+  const s=state();
+  syncVisibility(s);
+  document.getElementById("shareUrl").value=buildShareUrl(s);
+  const disc=(s.tariff!=="custom" && s.mode==="dual")?DISCOUNT:0;
+  const fix=fixedRates(s);
+  const tracker=trackerModel(s.region,s.tariff);
+  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat,tracker});
+  const trackerLegend=document.getElementById("trackerLegend");
+  if(trackerLegend) trackerLegend.innerHTML='<i class="swatch tracker"></i>'+(tracker?tracker.name:"Tracker unavailable");
+  updateBundleChoiceCopy(s.tariff);
+
+  // Fixed + Tracker tariff details
+  renderCompareInfo(s,tracker);
+
+  const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
+  document.getElementById("rlead").textContent="Should I fix or track?";
+
+  const trackerTotal=tracker
+    ? res.rows.reduce((a,r)=>a+(Number.isFinite(r.tracker)?r.tracker:0),0)
+    : null;
+  const trackerSave=trackerTotal===null?null:res.yCap-trackerTotal;
+
+  const setChoiceHero=(amountId,copyId,diff,label)=>{
+    const amt=document.getElementById(amountId), copy=document.getElementById(copyId);
+    if(diff===null){
+      amt.textContent="–";
+      copy.textContent=label+" unavailable";
+      return;
+    }
+    amt.textContent=gbp(Math.abs(diff));
+    copy.textContent=diff>=0 ? "saved vs variable price cap" : "more than variable price cap";
+  };
+  setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
+  setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
+
+  draw(res,s.janRise);
+
+  const chartQuarters=[
+    {lab:"Oct-Dec",mk:["Oct","Nov","Dec"]},
+    {lab:"Jan-Mar",mk:["Jan","Feb","Mar"]},
+    {lab:"Apr-Jun",mk:["Apr","May","Jun"]},
+    {lab:"Jul-Aug",mk:["Jul","Aug"]}
+  ];
+  const quarterCost=(q,key)=>{
+    const rr=res.rows.filter(r=>q.mk.includes(r.k));
+    if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
+    return rr.reduce((a,r)=>a+(key==="variable"?r.cap:key==="fixed"?r.fixed:r.tracker),0);
+  };
+  const winnerCosts=[
+    {key:"variable",total:res.yCap},
+    {key:"fixed",total:res.yFix},
+    ...(trackerTotal===null?[]:[{key:"tracker",total:trackerTotal}])
+  ];
+  const winner=winnerCosts.reduce((best,x)=>x.total<best.total?x:best).key;
+  const rowHtml=(key,label,cls)=>{
+    const best=winner===key?" qc-best":"";
+    return '<div class="qc-cell qc-label '+cls+best+'">'+label+'</div>'+
+      chartQuarters.map(q=>{
+        const v=quarterCost(q,key);
+        return '<div class="qc-cell qc-value '+cls+best+(v===null?' qc-muted':'')+'">'+(v===null?'–':gbp(v))+'</div>';
+      }).join("");
+  };
+  const savingHtml=
+    '<div class="qc-cell qc-label qc-saving">Saving</div>'+
+    chartQuarters.map(q=>{
+      const variable=quarterCost(q,"variable");
+      const bestCost=quarterCost(q,winner);
+      const saving=(variable===null||bestCost===null)?null:variable-bestCost;
+      return '<div class="qc-cell qc-value qc-saving'+(saving===null?' qc-muted':'')+'">'+(saving===null?'–':gbp(Math.max(0,saving)))+'</div>';
+    }).join("");
+
+  document.getElementById("quarterCompare").innerHTML =
+    '<div class="qc-cell qc-head"></div>'+
+    chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
+    rowHtml("variable","STAY VARIABLE","qc-variable")+
+    rowHtml("tracker","TRACK","qc-track")+
+    rowHtml("fixed","FIX","qc-fix")+
+    savingHtml;
+
+  const note = s.janRise===0
+    ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
+    : s.mode==="elec" && s.electricHeat
+    ? `Electric heating is on, so electricity use is weighted more heavily into winter.`
+    : s.mode!=="elec"
+    ? `Gas use is weighted heavily into winter, so January changes have a much bigger effect for gas-heated homes.`
+    : `Electricity is less seasonal than gas, so the monthly shape is steadier.`;
+  renderEvExtension(s);
+}
+
+/* ---- statics ---- */
+function statics(){
+  const series=liveFixedSeries();
+  document.getElementById("discText").innerHTML =
+    `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver ${series} because that is the conversation this page was built to support, but you can choose UW Fixed ${series}, UW Fixed Start ${series}, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
+
+  document.getElementById("method").innerHTML=[
+    "Compares a fixed tariff against the price cap over the year to August 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
+    "The fixed side defaults to the latest live UW Fixed Saver series for your region and Direct Debit. You can switch to the matching UW Fixed or UW Fixed Start tariff, or test any fixed deal.",
+    "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
+    "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
+    "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
+    "Confirmed price-cap rates are used through December. From January, standing charges stay at the confirmed Oct-Dec level and the forecast movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of 22.9%. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle.",
+    "The chart also shows a 30% January doomsday line and the matching live UW Tracker tariff. Future Tracker rates are estimated by keeping the current regional Tracker-to-cap relationship as the cap moves; they are not a UW forecast.",
+    "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
+    "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
+    "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
+  ].map(t=>`<li>${t}</li>`).join("");
+
+  document.getElementById("foot").innerHTML=`
+    <div>Built by Authorised Utility Warehouse Partner Adrian Croft <a href="https://aqcroft.com" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">aqcroft.com</a>: helping people say "Yes!" each month</div>
+    <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
+    <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
+    <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
+    <div>Last updated: 23 September 2026. Not an official Utility Warehouse tool or quote.</div>
+    <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
+}
+
+/* ---- init ---- */
+(function init(){
+  const rSel=document.getElementById("region");
+  REGIONS.forEach(r=>{const o=document.createElement("option");o.value=r.n;o.textContent=r.name;rSel.appendChild(o);});
+  rSel.value=11;
+  prefillManual(REGIONS.find(r=>r.n==11));
+
+  document.querySelectorAll('#fuelSeg button').forEach(b=>b.addEventListener("click",()=>{
+    document.querySelectorAll('#fuelSeg button').forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    refreshSelectedUsageBand();
+  }));
+  document.querySelectorAll('#usageSeg button[data-band]').forEach(b=>b.addEventListener("click",()=>applyUsageBand(b)));
+  document.getElementById("btnPersonal").addEventListener("click",()=>{
+    document.getElementById("btnPersonal").setAttribute("aria-pressed","true");
+    const values=customTouched?lastCustom:lastBand;
+    document.getElementById("elec").value=values.e;
+    document.getElementById("gas").value=values.g;
+    render();
+    document.getElementById("elec").focus();
+  });
+  rSel.addEventListener("change",render);
+  document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.addEventListener("click",()=>{
+    const was=state().tariff;
+    setTariffChoice(b.dataset.tariff);
+    if(b.dataset.tariff==="custom" && was!=="custom") prefillManual(REGIONS.find(r=>r.n==+rSel.value), was);
+    render();
+  }));
+  document.getElementById("openTariffs").addEventListener("click",()=>{
+    tariffPanelOpen=!tariffPanelOpen;
+    document.getElementById("openTariffs").setAttribute("aria-pressed",tariffPanelOpen?"true":"false");
+    render();
+  });
+  document.getElementById("tariffCurrent").addEventListener("click",()=>{
+    tariffPanelOpen=!tariffPanelOpen;
+    document.getElementById("openTariffs").setAttribute("aria-pressed",tariffPanelOpen?"true":"false");
+    render();
+  });
+  document.getElementById("tariffDetailsBtn").addEventListener("click",openTariffDetails);
+  document.getElementById("electricHeat").addEventListener("change",refreshSelectedUsageBand);
+  ["mESC","mEU","mGSC","mGU"].forEach(id=>{
+    const el=document.getElementById(id);
+    el.addEventListener("input",render); el.addEventListener("change",render);
+  });
+  // remember personalised figures so the pencil can bring them back
+  ["elec","gas"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{
+    if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){
+      customTouched=true;
+      lastCustom={e:+document.getElementById("elec").value||0, g:+document.getElementById("gas").value||0};
+    }
+    render();
+  }));
+  document.getElementById("resetUsageBtn").addEventListener("click",()=>{
+    document.getElementById("elec").value=lastBand.e;
+    document.getElementById("gas").value=lastBand.g;
+    lastCustom={...lastBand};
+    customTouched=false;
+    render();
+  });
+  const copyBtn=document.getElementById("copyBtn");
+  copyBtn.addEventListener("click", async ()=>{
+    const inp=document.getElementById("shareUrl");
+    const done=()=>{copyBtn.textContent="Copied";setTimeout(()=>copyBtn.textContent="Copy link",1600);};
+    try{ await navigator.clipboard.writeText(inp.value); done(); }
+    catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy link",1600);} }
+  });
+
+  // EV / Economy 7 extension
+  document.getElementById("evBillMonth").value=String(new Date().getMonth());
+  document.getElementById("evExtension").addEventListener("toggle",render);
+  ["evAnnualPeak","evAnnualOff"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{
+    evProfileTouched=true;
+    render();
+  }));
+  document.getElementById("evResetEstimate").addEventListener("click",()=>{
+    evProfileTouched=false;
+    document.getElementById("evProfileResult").classList.add("hidden");
+    render();
+  });
+  document.getElementById("evBillToggle").addEventListener("click",()=>{
+    evBillOpen=!evBillOpen;
+    document.getElementById("evBillPanel").classList.toggle("hidden",!evBillOpen);
+    document.getElementById("evBillToggle").textContent=evBillOpen?"Close bill estimator":"Estimate from a recent bill";
+  });
+  document.getElementById("evBillMode").addEventListener("change",()=>{
+    const dates=document.getElementById("evBillMode").value==="dates";
+    document.getElementById("evBillMonthWrap").classList.toggle("hidden",dates);
+    document.getElementById("evBillDates").classList.toggle("hidden",!dates);
+  });
+  document.getElementById("evApplyBill").addEventListener("click",evApplyBillEstimate);
+  document.querySelectorAll("#evEfficiency button").forEach(b=>b.addEventListener("click",()=>{
+    evEfficiency=+b.dataset.eff||3.2;
+    document.querySelectorAll("#evEfficiency button").forEach(x=>x.setAttribute("aria-pressed",x===b?"true":"false"));
+    render();
+  }));
+  ["evMiles","evAway","evHistoricAnnual"].forEach(id=>document.getElementById(id).addEventListener("input",render));
+  document.getElementById("evHeating").addEventListener("change",render);
+
+  document.getElementById("forecastSourceClose").addEventListener("click",()=>document.getElementById("forecastSourceModal").classList.remove("open"));
+  document.getElementById("forecastSourceModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+  document.getElementById("seasonalityClose").addEventListener("click",()=>document.getElementById("seasonalityModal").classList.remove("open"));
+  document.getElementById("seasonalityModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+  document.getElementById("tariffDetailsClose").addEventListener("click",()=>document.getElementById("tariffDetailsModal").classList.remove("open"));
+  document.getElementById("tariffDetailsModal").addEventListener("click",e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove("open");});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"){document.getElementById("forecastSourceModal").classList.remove("open");document.getElementById("seasonalityModal").classList.remove("open");document.getElementById("tariffDetailsModal").classList.remove("open");}});
+
+  readParams();
+  statics();
+  render();
+  loadEvFeed();
+})();
+</script>
+</body>
+</html>
