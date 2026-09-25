@@ -214,18 +214,20 @@
   .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
   .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
   .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
-  .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .quarter-compare-wrap{margin:8px 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
   .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
-  .quarter-compare{display:grid;grid-template-columns:72px repeat(4,1fr);font-size:.66rem}
+  .quarter-compare{display:grid;grid-template-columns:82px repeat(4,1fr);font-size:.66rem}
   .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
   .qc-cell:nth-child(5n){border-right:0}
   .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
   .qc-label{text-align:left;font-weight:900;padding-left:9px}
-  .qc-fix{background:var(--fixed-soft)}
-  .qc-track{background:var(--tracker-soft)}
-  .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
-  .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
   .qc-value{font-weight:850;white-space:nowrap}
+  .qc-variable{color:var(--cap)}
+  .qc-fix{color:var(--fixed)}
+  .qc-track{color:var(--tracker)}
+  .qc-best{background:var(--save-soft);box-shadow:inset 3px 0 0 var(--save)}
+  .qc-saving{background:#f3fbf6;color:var(--save);font-weight:950;border-top:2px solid #bfe4cc}
+  .qc-saving.qc-label{letter-spacing:.01em}
   .qc-muted{color:var(--muted)!important}
   @media(max-width:430px){
     .choice-heroes{gap:7px}
@@ -565,11 +567,6 @@
         <strong class="choice-amount" id="trackHeroAmt">–</strong>
         <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
       </div>
-    </div>
-
-    <div class="quarter-compare-wrap">
-      <div class="quarter-compare-title">Saving vs variable price cap</div>
-      <div class="quarter-compare" id="quarterCompare"></div>
     </div>
 
     <div id="chart"></div>
@@ -1665,6 +1662,10 @@ function draw(res,janRise){
       ${pcts}${xl}
     </svg>
   </div>
+  <div class="quarter-compare-wrap">
+    <div class="quarter-compare-title">Estimated cost by period - highlighted row is the lowest-cost option overall</div>
+    <div class="quarter-compare" id="quarterCompare"></div>
+  </div>
   <div class="chart-controls">
     <div class="chart-control-head">
       <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
@@ -1867,31 +1868,49 @@ function render(){
   setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
   setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
 
+  draw(res,s.janRise);
+
   const chartQuarters=[
     {lab:"Oct-Dec",mk:["Oct","Nov","Dec"]},
     {lab:"Jan-Mar",mk:["Jan","Feb","Mar"]},
     {lab:"Apr-Jun",mk:["Apr","May","Jun"]},
     {lab:"Jul-Aug",mk:["Jul","Aug"]}
   ];
-  const quarterDiff=(q,key)=>{
+  const quarterCost=(q,key)=>{
     const rr=res.rows.filter(r=>q.mk.includes(r.k));
     if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
-    const baseline=rr.reduce((a,r)=>a+r.cap,0);
-    const option=rr.reduce((a,r)=>a+(key==="fixed"?r.fixed:r.tracker),0);
-    return baseline-option;
+    return rr.reduce((a,r)=>a+(key==="variable"?r.cap:key==="fixed"?r.fixed:r.tracker),0);
   };
-  const qValue=(d,cls)=>{
-    if(d===null) return '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>';
-    const word=d>=0?"Save ":"More ";
-    return '<div class="qc-cell qc-value '+cls+'">'+word+gbp(Math.abs(d))+'</div>';
+  const winnerCosts=[
+    {key:"variable",total:res.yCap},
+    {key:"fixed",total:res.yFix},
+    ...(trackerTotal===null?[]:[{key:"tracker",total:trackerTotal}])
+  ];
+  const winner=winnerCosts.reduce((best,x)=>x.total<best.total?x:best).key;
+  const rowHtml=(key,label,cls)=>{
+    const best=winner===key?" qc-best":"";
+    return '<div class="qc-cell qc-label '+cls+best+'">'+label+'</div>'+
+      chartQuarters.map(q=>{
+        const v=quarterCost(q,key);
+        return '<div class="qc-cell qc-value '+cls+best+(v===null?' qc-muted':'')+'">'+(v===null?'–':gbp(v))+'</div>';
+      }).join("");
   };
+  const savingHtml=
+    '<div class="qc-cell qc-label qc-saving">Saving</div>'+
+    chartQuarters.map(q=>{
+      const variable=quarterCost(q,"variable");
+      const bestCost=quarterCost(q,winner);
+      const saving=(variable===null||bestCost===null)?null:variable-bestCost;
+      return '<div class="qc-cell qc-value qc-saving'+(saving===null?' qc-muted':'')+'">'+(saving===null?'–':gbp(Math.max(0,saving)))+'</div>';
+    }).join("");
+
   document.getElementById("quarterCompare").innerHTML =
     '<div class="qc-cell qc-head"></div>'+
     chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
-    '<div class="qc-cell qc-label qc-fix">FIX</div>'+
-    chartQuarters.map(q=>qValue(quarterDiff(q,"fixed"),"qc-fix")).join("")+
-    '<div class="qc-cell qc-label qc-track">TRACK</div>'+
-    chartQuarters.map(q=>qValue(quarterDiff(q,"tracker"),"qc-track")).join("");
+    rowHtml("variable","STAY VARIABLE","qc-variable")+
+    rowHtml("tracker","TRACK","qc-track")+
+    rowHtml("fixed","FIX","qc-fix")+
+    savingHtml;
 
   const note = s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
@@ -1900,7 +1919,6 @@ function render(){
     : s.mode!=="elec"
     ? `Gas use is weighted heavily into winter, so January changes have a much bigger effect for gas-heated homes.`
     : `Electricity is less seasonal than gas, so the monthly shape is steadier.`;
-  draw(res,s.janRise);
   renderEvExtension(s);
 }
 
