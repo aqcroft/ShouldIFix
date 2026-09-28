@@ -252,6 +252,8 @@
   .annual-variable{color:var(--cap);background:var(--cap-soft)}
   .annual-fixed{color:var(--fixed);background:var(--fixed-soft)}
   .annual-tracker{color:var(--tracker);background:var(--tracker-soft)}
+  .annual-best{color:var(--save);background:var(--save-soft)}
+  .annual-best-name{display:block;font-size:.5rem;line-height:1.1;margin-top:1px;letter-spacing:.01em}
   @media(max-width:430px){
     .choice-heroes{gap:7px}
     .choice-hero{padding:11px 10px 10px}
@@ -1970,7 +1972,10 @@ function render(){
       const annual=total===null?"–":gbp(total);
       const monthly=total===null?"–":gbp(total/12)+"/m";
       return '<div class="annual-cell label '+r.cls+'">'+r.label+'</div><div class="annual-cell '+r.cls+'">'+annual+'</div><div class="annual-cell '+r.cls+'">'+monthly+'</div>';
-    }).join("");
+    }).join("")+
+    '<div class="annual-cell label annual-best">BEST SAVING<span class="annual-best-name">'+cheapest.label+'</span></div>'+
+    '<div class="annual-cell annual-best">'+gbp(annualSaving)+'</div>'+
+    '<div class="annual-cell annual-best">'+gbp(annualSaving/12)+'/m</div>';
 
   const note = s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
