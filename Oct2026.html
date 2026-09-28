@@ -221,6 +221,7 @@
   .qc-cell:nth-child(5n){border-right:0}
   .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
   .qc-label{text-align:left;font-weight:900;padding-left:9px}
+  .qc-capmove{background:#f5f8ff;color:var(--cap)}
   .qc-cap{background:var(--cap-soft)}
   .qc-fix{background:var(--fixed-soft)}
   .qc-track{background:var(--tracker-soft)}
@@ -229,8 +230,14 @@
   .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
   .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
   .qc-label.qc-best,.qc-value.qc-best{color:var(--save)}
-  .qc-best-name{display:block;font-size:.5rem;line-height:1.1;margin-top:2px;letter-spacing:.02em}
-  .qc-value{font-weight:850;white-space:nowrap}
+  .qc-best-name,.qc-row-note{display:block;font-size:.5rem;line-height:1.15;margin-top:2px;letter-spacing:.01em;text-transform:none}
+  .qc-row-note{color:var(--muted);font-weight:750;white-space:normal}
+  .qc-info{width:16px;height:16px;border-radius:50%;border:1px solid currentColor;background:#fff;color:var(--cap);font:900 10px/1 Georgia,serif;padding:0;display:inline-flex;align-items:center;justify-content:center;vertical-align:-2px;cursor:pointer;margin-left:2px}
+  .qc-value{font-weight:850;white-space:nowrap;position:relative}
+  .qc-line-solid-cap{border-top:3px solid var(--cap)}
+  .qc-line-dashed-cap{border-top:3px dashed var(--cap)}
+  .qc-line-solid-fix{border-top:3px solid var(--fixed)}
+  .qc-line-dashed-track{border-top:3px dashed var(--tracker)}
   .qc-muted{color:var(--muted)!important}
   @media(max-width:430px){
     .choice-heroes{gap:7px}
@@ -259,9 +266,9 @@
   .switch.mini .track{width:38px;height:22px}
   .switch.mini .track::after{width:16px;height:16px}
   .switch.mini input:checked + .track::after{left:19px}
-  .chart-controls{margin:14px 0 2px;padding:9px 10px 10px;border-top:1px solid #e7e2f2;background:rgba(255,255,255,.36)}
+  .chart-controls{margin:0;padding:10px 10px 9px;border-bottom:1px solid #e7e2f2;background:rgba(255,255,255,.62)}
   .chart-control-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:7px}
-  .chart-forecast-label{font-size:.67rem;font-weight:750;color:var(--muted);letter-spacing:.01em}
+  .chart-forecast-label{font-size:.67rem;font-weight:800;color:var(--muted);letter-spacing:.01em;margin-bottom:7px}
   .chart-scenarios{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
   .chart-scenarios button{min-width:0;font-family:inherit;font-size:.67rem;font-weight:750;line-height:1;border:1px solid #d9dfe8;background:rgba(255,255,255,.86);color:#6f7786;border-radius:7px;padding:7px 3px;cursor:pointer;box-shadow:none;transition:.15s}
   .chart-scenarios button:hover{border-color:#aab4c2;color:#344052}
@@ -279,9 +286,9 @@
     .qcol .qn{font-size:.52rem}
     .quarter-key{display:flex!important;justify-content:center;gap:12px;margin:0 0 6px;font-size:.62rem;font-weight:800;color:var(--muted)}
     .quarter-key .good{color:var(--save)}.quarter-key .bad{color:var(--risk)}
-    .chart-controls{margin:12px 0 0;padding:8px 6px 7px}
+    .chart-controls{margin:0;padding:8px 6px 7px}
     .chart-control-head{margin-bottom:6px}
-    .chart-forecast-label{font-size:.61rem}
+    .chart-forecast-label{font-size:.61rem;margin-bottom:6px}
     .chart-scenarios{gap:4px}
     .chart-scenarios button{font-size:.59rem;padding:6px 1px;border-radius:6px}
     .legend{gap:10px 14px;font-size:.72rem;margin-top:8px}
@@ -572,12 +579,13 @@
       </div>
     </div>
 
+    <div id="chart"></div>
+
     <div class="quarter-compare-wrap">
-      <div class="quarter-compare-title">Quarterly cost - then saving from the cheapest option</div>
+      <div class="quarter-compare-title">Quarterly comparison</div>
       <div class="quarter-compare" id="quarterCompare"></div>
     </div>
 
-    <div id="chart"></div>
     <div class="legend">
       <span><i class="swatch cap"></i>Variable price cap</span>
       <span><i class="swatch fix"></i>Fixed</span>
@@ -1594,7 +1602,7 @@ function openTariffDetails(){
   document.getElementById("tariffDetailsModal").classList.add("open");
 }
 function draw(res,janRise){
-  const W=620,H=382,padL=42,padR=14,padT=32,padB=76;
+  const W=620,H=350,padL=42,padR=14,padT=32,padB=42;
   const rows=res.rows,n=rows.length;
   const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
@@ -1629,18 +1637,6 @@ function draw(res,janRise){
   const segs=[[[b1,cap[4],cap[5],cap[6],b2],0.90],[[b2,cap[7],cap[8],cap[9],b3],0.60],[[b3,cap[10],cap[11]],0.42]];
   const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-dasharray="6 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
   const capOp=i=> i<4?1 : i<7?0.9 : i<10?0.6 : 0.42;
-  const JAN=1+(janRise/100), APR=JAN*APR_FROM_JAN, JUL=APR*JUL_FROM_APR;
-  const fmtPct=n=>{
-    if(Math.abs(n)<0.0001) return "0%";
-    const a=Math.abs(n), clean=Math.abs(a-Math.round(a))<0.0001?String(Math.round(a)):a.toFixed(1);
-    return (n>0?"+":"−")+clean+"%";
-  };
-  const items=[
-    [(b1[0]+b2[0])/2,"Cap "+fmtPct(janRise),0.92],
-    [(b2[0]+b3[0])/2,"Cap "+fmtPct((APR/JAN-1)*100),0.72],
-    [(b3[0]+x(11))/2,"Cap "+fmtPct((JUL/APR-1)*100),0.56]
-  ];
-  const pcts=items.map(([cx,t,op])=>`<text x="${cx.toFixed(1)}" y="${H-padB+43}" font-size="9.5" fill="#6f7786" font-weight="650" text-anchor="middle" opacity="${op}">${t}</text>`).join("");
   const scenarios=[0,10,20,22.9,30];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
@@ -1650,6 +1646,10 @@ function draw(res,janRise){
   const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="4.2" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
   const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
+    <div class="chart-controls">
+      <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
+      <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
+    </div>
     <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, fixed tariff and Tracker">
       <text x="${padL}" y="13" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
       ${grid}${qlines}
@@ -1661,15 +1661,8 @@ function draw(res,janRise){
       ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.0" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
       ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
       ${trackerDots}
-      ${pcts}${xl}
+      ${xl}
     </svg>
-  </div>
-  <div class="chart-controls">
-    <div class="chart-control-head">
-      <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
-      <button class="chart-info" type="button" onclick="openForecastSource()" aria-label="Forecast details" title="Forecast details">i</button>
-    </div>
-    <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
   </div>`;
 }
 
@@ -1885,6 +1878,12 @@ function render(){
   if(trackerTotal!==null)candidates.push({key:"tracker",label:"TRACK",total:trackerTotal});
   candidates.sort((a,b)=>a.total-b.total);
   const cheapest=candidates[0];
+  const pctLabel=n=>{
+    if(Math.abs(n)<0.0001)return "0%";
+    const a=Math.abs(n),clean=Math.abs(a-Math.round(a))<0.0001?String(Math.round(a)):a.toFixed(1);
+    return (n>0?"+":"−")+clean+"%";
+  };
+  const capMoves=["Current",pctLabel(s.janRise),pctLabel((APR_FROM_JAN-1)*100),pctLabel((JUL_FROM_APR-1)*100)];
   const qCost=(v,cls)=>v===null
     ? '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>'
     : '<div class="qc-cell qc-value '+cls+'">'+gbp(v)+'</div>';
@@ -1893,19 +1892,21 @@ function render(){
     const chosen=quarterCost(q,cheapest.key);
     if(chosen===null)return '<div class="qc-cell qc-value qc-best qc-muted">–</div>';
     const diff=variable-chosen;
-    const wording=Math.abs(diff)<0.5?"Baseline":diff>0?"Save "+gbp(diff):"More "+gbp(Math.abs(diff));
+    const wording=Math.abs(diff)<0.5?"£0":diff>0?"Save "+gbp(diff):"More "+gbp(Math.abs(diff));
     return '<div class="qc-cell qc-value qc-best">'+wording+'</div>';
   };
   document.getElementById("quarterCompare").innerHTML =
     '<div class="qc-cell qc-head"></div>'+
     chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
-    '<div class="qc-cell qc-label qc-cap">VARIABLE</div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"variable"),"qc-cap")).join("")+
+    '<div class="qc-cell qc-label qc-capmove">CAP CHANGE</div>'+
+    capMoves.map(v=>'<div class="qc-cell qc-value qc-capmove">'+v+'</div>').join("")+
+    '<div class="qc-cell qc-label qc-cap">VARIABLE<span class="qc-row-note">(forecast from Jan <button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Forecast information" title="Forecast information">i</button>)</span></div>'+
+    chartQuarters.map((q,i)=>qCost(quarterCost(q,"variable"),"qc-cap "+(i===0?"qc-line-solid-cap":"qc-line-dashed-cap"))).join("")+
     '<div class="qc-cell qc-label qc-fix">FIX</div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"fixed"),"qc-fix")).join("")+
-    '<div class="qc-cell qc-label qc-track">TRACK</div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"tracker"),"qc-track")).join("")+
-    '<div class="qc-cell qc-label qc-best">CHEAPEST<span class="qc-best-name">'+cheapest.label+'</span></div>'+
+    chartQuarters.map(q=>qCost(quarterCost(q,"fixed"),"qc-fix qc-line-solid-fix")).join("")+
+    '<div class="qc-cell qc-label qc-track">TRACK<span class="qc-row-note">(forecast)</span></div>'+
+    chartQuarters.map(q=>qCost(quarterCost(q,"tracker"),"qc-track qc-line-dashed-track")).join("")+
+    '<div class="qc-cell qc-label qc-best">BEST SAVING<span class="qc-best-name">'+cheapest.label+'</span></div>'+
     chartQuarters.map(q=>qSaving(q)).join("");
 
   const note = s.janRise===0
