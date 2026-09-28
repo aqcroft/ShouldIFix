@@ -438,7 +438,7 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
   .swatch{width:30px;height:5px;border-radius:2px;display:inline-block;flex:0 0 auto}
-  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}.swatch.tracker{height:0;border-top:4px dashed var(--tracker);background:none}
+  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}.swatch.tracker{background:var(--tracker)}
   .swatch.risk{width:14px;background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
   .swatch.cheaper{width:14px;background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
@@ -597,6 +597,12 @@
 
     <div id="chart"></div>
 
+    <div class="legend">
+      <span><i class="swatch cap"></i>Variable price cap</span>
+      <span><i class="swatch fix"></i>Fixed</span>
+      <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
+    </div>
+
     <div class="quarter-compare-wrap">
       <div class="quarter-compare-title">Quarterly comparison</div>
       <div class="quarter-compare" id="quarterCompare"></div>
@@ -607,11 +613,6 @@
       <div class="annual-grid" id="annualCostsGrid"></div>
     </details>
 
-    <div class="legend">
-      <span><i class="swatch cap"></i>Variable price cap</span>
-      <span><i class="swatch fix"></i>Fixed</span>
-      <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
-    </div>
   </section>
 
   <section class="card" id="fixedCard">
