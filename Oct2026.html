@@ -31,7 +31,7 @@
       "browserRequirements":"Requires a modern web browser with JavaScript enabled",
       "inLanguage":"en-GB",
       "isAccessibleForFree":true,
-      "dateModified":"2026-09-24",
+      "dateModified":"2026-09-28",
       "author":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
       "provider":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
       "audience":{"@type":"PeopleAudience","geographicArea":{"@type":"Country","name":"United Kingdom"}},
@@ -78,7 +78,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#667085;--cap-soft:#eef1f4;--fixed:#701a8c;--fixed-soft:#f5eafa;--tracker:#ff7800;--tracker-soft:#fff0e0;--doom:#2f3136;
+    --cap:#2563eb;--cap-soft:#e8f0ff;--fixed:#701a8c;--fixed-soft:#f5eafa;--tracker:#ff7800;--tracker-soft:#fff0e0;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -221,10 +221,15 @@
   .qc-cell:nth-child(5n){border-right:0}
   .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
   .qc-label{text-align:left;font-weight:900;padding-left:9px}
+  .qc-cap{background:var(--cap-soft)}
   .qc-fix{background:var(--fixed-soft)}
   .qc-track{background:var(--tracker-soft)}
+  .qc-best{background:var(--save-soft)}
+  .qc-label.qc-cap,.qc-value.qc-cap{color:var(--cap)}
   .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
   .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
+  .qc-label.qc-best,.qc-value.qc-best{color:var(--save)}
+  .qc-best-name{display:block;font-size:.5rem;line-height:1.1;margin-top:2px;letter-spacing:.02em}
   .qc-value{font-weight:850;white-space:nowrap}
   .qc-muted{color:var(--muted)!important}
   @media(max-width:430px){
@@ -410,7 +415,7 @@
   .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.8rem;font-weight:700;margin:2px 0 12px}
   .legend span{display:inline-flex;align-items:center;gap:6px;color:var(--muted)}
   .swatch{width:30px;height:5px;border-radius:2px;display:inline-block;flex:0 0 auto}
-  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}.swatch.tracker{height:0;border-top:4px dashed var(--tracker);background:none}.swatch.doom{height:0;border-top:3px dashed var(--doom);background:none}
+  .swatch.cap{background:var(--cap)}.swatch.cap-forecast{height:0;border-top:3px dashed var(--cap);background:none}.swatch.fix{background:var(--fixed)}.swatch.tracker{height:0;border-top:4px dashed var(--tracker);background:none}
   .swatch.risk{width:14px;background:var(--risk-soft);height:12px;border:1px solid var(--risk)}
   .swatch.cheaper{width:14px;background:var(--save-soft);height:12px;border:1px solid var(--save)}
   svg.chart{width:100%;height:auto;display:block}
@@ -568,14 +573,13 @@
     </div>
 
     <div class="quarter-compare-wrap">
-      <div class="quarter-compare-title">Saving vs variable price cap</div>
+      <div class="quarter-compare-title">Quarterly cost - then saving from the cheapest option</div>
       <div class="quarter-compare" id="quarterCompare"></div>
     </div>
 
     <div id="chart"></div>
     <div class="legend">
       <span><i class="swatch cap"></i>Variable price cap</span>
-      <span><i class="swatch doom"></i>30% doomsday</span>
       <span><i class="swatch fix"></i>Fixed</span>
       <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
     </div>
@@ -847,7 +851,7 @@
         <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Annual usage is spread month by month rather than divided evenly by 12. Gas follows the DESNZ seasonal profile; electricity uses the same gentler monthly profile carried forward from the original tool. Electric-heating mode switches electricity to the winter-heavy heating profile.</div></div>
         <button class="seasonality-link" type="button" onclick="openSeasonalityModal()">View monthly usage split<span>See the exact percentage of annual gas and electricity usage allocated to each month.</span></button>
         <div class="forecast-model-row"><div class="forecast-model-key">Tracker</div><div class="forecast-model-val">Future Tracker rates preserve today's regional Tracker-to-price-cap relationship. They are estimates, not published future UW rates.</div></div>
-        <div class="forecast-model-row"><div class="forecast-model-key">Chart lines</div><div class="forecast-model-val">Slate = variable price cap · Magenta = Fix · Orange = Track · Charcoal = 30% doomsday.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Chart lines</div><div class="forecast-model-val">Blue = variable price cap · Purple = Fix · Orange = Track.</div></div>
       </div>
       <div class="source-note">This is a personalised estimate using the selected region and annual usage. Forecasts can change as wholesale prices and Ofgem inputs change.</div>
     </div>
@@ -912,7 +916,6 @@ const REGIONS = [
    Jan-Mar +22.9%, Apr-Jun -2.2%, Jul-Sep -9.8%.
    The Jan rise is user-adjustable via the scenario buttons in the chart. */
 const DEFAULT_JAN_RISE=22.9;
-const DOOMSDAY_JAN_RISE=30;
 const APR_FROM_JAN=0.978, JUL_FROM_APR=0.902;
 /* Forecast split: use the fresher headline forecast, but keep standing charges
    at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
@@ -1532,14 +1535,12 @@ function compute(o){
     const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
     const r=projectedCapRate(region,m.ph,janRise);
     const capElec=incE?(r.eSC*m.days+r.eU*eK)/100:0, capGas=incG?(r.gSC*m.days+r.gU*gK)/100:0, cap=capElec+capGas;
-    const dr=projectedCapRate(region,m.ph,DOOMSDAY_JAN_RISE);
-    const doomElec=incE?(dr.eSC*m.days+dr.eU*eK)/100:0, doomGas=incG?(dr.gSC*m.days+dr.gU*gK)/100:0, doom=doomElec+doomGas;
     let trackerCost=null;
     if(tracker){
       const tr=m.ph==="now"?tracker.actual:{eSC:r.eSC*tracker.ratio.eSC,eU:r.eU*tracker.ratio.eU,gSC:r.gSC*tracker.ratio.gSC,gU:r.gU*tracker.ratio.gU};
       trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
     }
-    return {k:m.k,ph:m.ph,fixed,cap,doom,tracker:trackerCost,save:cap-fixed};
+    return {k:m.k,ph:m.ph,fixed,cap,tracker:trackerCost,save:cap-fixed};
   });
   const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0), win=r=>WINTER.includes(r.k);
   return {rows,yCap:sum(r=>r.cap),yFix:sum(r=>r.fixed),ySave:sum(r=>r.save),wCap:sum(r=>r.cap,win),wFix:sum(r=>r.fixed,win),wSave:sum(r=>r.save,win)};
@@ -1595,7 +1596,7 @@ function openTariffDetails(){
 function draw(res,janRise){
   const W=620,H=382,padL=42,padR=14,padT=32,padB=76;
   const rows=res.rows,n=rows.length;
-  const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.doom),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
+  const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
   const span=Math.max(20,rawMax-rawMin);
   const yMin=Math.max(0,Math.floor((rawMin-span*0.22)/10)*10);
@@ -1603,7 +1604,6 @@ function draw(res,janRise){
   const x=i=>padL+(W-padL-padR)*(i/(n-1));
   const y=v=>padT+(H-padT-padB)*(1-(v-yMin)/(yMax-yMin));
   const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
-  const doom=rows.map((r,i)=>[x(i),y(r.doom)]);
   const track=rows.every(r=>Number.isFinite(r.tracker))?rows.map((r,i)=>[x(i),y(r.tracker)]):[];
   const L=p=>p.map((q,i)=>(i?"L":"M")+q[0].toFixed(1)+" "+q[1].toFixed(1)).join(" ");
   const optionFill=(pts,colour,op)=>`<path d="${L(pts)} Z" fill="${colour}" opacity="${op}"/>`;
@@ -1627,7 +1627,7 @@ function draw(res,janRise){
   const b1=mid2(cap[3],cap[4]), b2=mid2(cap[6],cap[7]), b3=mid2(cap[9],cap[10]);
   const solidCap=[...cap.slice(0,4),b1];
   const segs=[[[b1,cap[4],cap[5],cap[6],b2],0.90],[[b2,cap[7],cap[8],cap[9],b3],0.60],[[b3,cap[10],cap[11]],0.42]];
-  const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
+  const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-dasharray="6 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
   const capOp=i=> i<4?1 : i<7?0.9 : i<10?0.6 : 0.42;
   const JAN=1+(janRise/100), APR=JAN*APR_FROM_JAN, JUL=APR*JUL_FROM_APR;
   const fmtPct=n=>{
@@ -1650,16 +1650,15 @@ function draw(res,janRise){
   const trackerPath=track.length?`<path d="${L(track)}" fill="none" stroke="var(--tracker)" stroke-width="4.2" stroke-dasharray="7 3" stroke-linejoin="round"/>`:``;
   const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
-    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, doomsday scenario, fixed tariff and Tracker">
+    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, fixed tariff and Tracker">
       <text x="${padL}" y="13" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
       ${grid}${qlines}
       ${bandFills}
-      <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-linejoin="round"/>
+      <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-linejoin="round"/>
       ${dashCap}
-      <path d="${L(doom.slice(3))}" fill="none" stroke="var(--doom)" stroke-width="2.2" stroke-dasharray="3 4" stroke-linejoin="round" opacity=".88"/>
       <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="4.4" stroke-linejoin="round"/>
       ${trackerPath}
-      ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.3" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
+      ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.0" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
       ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
       ${trackerDots}
       ${pcts}${xl}
@@ -1873,25 +1872,41 @@ function render(){
     {lab:"Apr-Jun",mk:["Apr","May","Jun"]},
     {lab:"Jul-Aug",mk:["Jul","Aug"]}
   ];
-  const quarterDiff=(q,key)=>{
+  const quarterCost=(q,key)=>{
     const rr=res.rows.filter(r=>q.mk.includes(r.k));
     if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
-    const baseline=rr.reduce((a,r)=>a+r.cap,0);
-    const option=rr.reduce((a,r)=>a+(key==="fixed"?r.fixed:r.tracker),0);
-    return baseline-option;
+    return rr.reduce((a,r)=>a+(key==="variable"?r.cap:key==="fixed"?r.fixed:r.tracker),0);
   };
-  const qValue=(d,cls)=>{
-    if(d===null) return '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>';
-    const word=d>=0?"Save ":"More ";
-    return '<div class="qc-cell qc-value '+cls+'">'+word+gbp(Math.abs(d))+'</div>';
+  const fixedTotal=res.rows.reduce((a,r)=>a+r.fixed,0);
+  const candidates=[
+    {key:"variable",label:"VARIABLE",total:res.yCap},
+    {key:"fixed",label:"FIX",total:fixedTotal}
+  ];
+  if(trackerTotal!==null)candidates.push({key:"tracker",label:"TRACK",total:trackerTotal});
+  candidates.sort((a,b)=>a.total-b.total);
+  const cheapest=candidates[0];
+  const qCost=(v,cls)=>v===null
+    ? '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>'
+    : '<div class="qc-cell qc-value '+cls+'">'+gbp(v)+'</div>';
+  const qSaving=q=>{
+    const variable=quarterCost(q,"variable");
+    const chosen=quarterCost(q,cheapest.key);
+    if(chosen===null)return '<div class="qc-cell qc-value qc-best qc-muted">–</div>';
+    const diff=variable-chosen;
+    const wording=Math.abs(diff)<0.5?"Baseline":diff>0?"Save "+gbp(diff):"More "+gbp(Math.abs(diff));
+    return '<div class="qc-cell qc-value qc-best">'+wording+'</div>';
   };
   document.getElementById("quarterCompare").innerHTML =
     '<div class="qc-cell qc-head"></div>'+
     chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
+    '<div class="qc-cell qc-label qc-cap">VARIABLE</div>'+
+    chartQuarters.map(q=>qCost(quarterCost(q,"variable"),"qc-cap")).join("")+
     '<div class="qc-cell qc-label qc-fix">FIX</div>'+
-    chartQuarters.map(q=>qValue(quarterDiff(q,"fixed"),"qc-fix")).join("")+
+    chartQuarters.map(q=>qCost(quarterCost(q,"fixed"),"qc-fix")).join("")+
     '<div class="qc-cell qc-label qc-track">TRACK</div>'+
-    chartQuarters.map(q=>qValue(quarterDiff(q,"tracker"),"qc-track")).join("");
+    chartQuarters.map(q=>qCost(quarterCost(q,"tracker"),"qc-track")).join("")+
+    '<div class="qc-cell qc-label qc-best">CHEAPEST<span class="qc-best-name">'+cheapest.label+'</span></div>'+
+    chartQuarters.map(q=>qSaving(q)).join("");
 
   const note = s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
@@ -1917,7 +1932,7 @@ function statics(){
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
     "Confirmed price-cap rates are used through December. From January, standing charges stay at the confirmed Oct-Dec level and the forecast movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of 22.9%. April (-2.2%) and July (-9.8%) use the same unit-rate-only principle.",
-    "The chart also shows a 30% January doomsday line and the matching live UW Tracker tariff. Future Tracker rates are estimated by keeping the current regional Tracker-to-cap relationship as the cap moves; they are not a UW forecast.",
+    "The chart also shows the matching live UW Tracker tariff. Use the January scenario buttons, including 30%, to stress-test the variable price-cap line without adding a separate extra scenario line. Future Tracker rates are estimated by keeping the current regional Tracker-to-cap relationship as the cap moves; they are not a UW forecast.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
@@ -1928,7 +1943,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 23 September 2026. Not an official Utility Warehouse tool or quote.</div>
+    <div>Last updated: 28 September 2026. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
