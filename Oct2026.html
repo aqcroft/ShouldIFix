@@ -222,21 +222,24 @@
   .qc-cell:nth-child(5n){border-right:0}
   .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
   .qc-label{text-align:left;font-weight:900;padding-left:9px}
-  .qc-capmove{background:#f5f8ff;color:var(--cap)}
+  .qc-forecast-label{grid-row:span 2;background:#fff;color:var(--muted);align-items:center}
+  .qc-forecast-label.qc-label-info{align-items:center}
+  .qc-capmove{background:#fff;color:var(--muted);font-size:.55rem;padding-top:4px;padding-bottom:4px;font-weight:800}
   .qc-cap{background:var(--cap-soft)}
   .qc-fix{background:var(--fixed-soft)}
   .qc-track{background:var(--tracker-soft)}
-  .qc-best{background:var(--save-soft)}
   .qc-label.qc-cap,.qc-value.qc-cap{color:var(--cap)}
   .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
   .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
-  .qc-label.qc-best,.qc-value.qc-best{color:var(--save)}
-  .qc-best-name{display:block;font-size:.5rem;line-height:1.15;margin-top:2px;letter-spacing:.01em;text-transform:none}
   .qc-label-info{display:flex;align-items:flex-start;justify-content:space-between;gap:4px}
   .qc-label-info span{min-width:0}
   .qc-info{width:16px;height:16px;min-width:16px;border-radius:50%;border:1px solid currentColor;background:#fff;color:var(--cap);font:900 10px/1 Georgia,serif;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin:0}
   .qc-value{font-weight:850;white-space:nowrap;position:relative}
   .qc-muted{color:var(--muted)!important}
+  .best-badge{display:inline-block;margin-left:4px;padding:1px 4px;border-radius:999px;background:var(--save);color:#fff;font-size:.43rem;font-weight:900;line-height:1.35;vertical-align:1px;letter-spacing:.02em}
+  .saving-sub{display:block;margin-top:1px;color:var(--save);font-size:.5rem;font-weight:900;line-height:1.05}
+  .saving-sub.more{color:var(--risk)}
+  .saving-sub.zero{color:var(--muted)}
   .annual-costs{margin:-1px 0 10px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
   .annual-costs summary{list-style:none;cursor:pointer;padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#faf9fc;color:var(--ink);font-size:.69rem;font-weight:850}
   .annual-costs summary::-webkit-details-marker{display:none}
@@ -252,8 +255,7 @@
   .annual-variable{color:var(--cap);background:var(--cap-soft)}
   .annual-fixed{color:var(--fixed);background:var(--fixed-soft)}
   .annual-tracker{color:var(--tracker);background:var(--tracker-soft)}
-  .annual-best{color:var(--save);background:var(--save-soft)}
-  .annual-best-name{display:block;font-size:.5rem;line-height:1.1;margin-top:1px;letter-spacing:.01em}
+  .annual-save-sub{display:block;margin-top:1px;color:var(--save);font-size:.5rem;font-weight:900;line-height:1.05}
   @media(max-width:430px){
     .choice-heroes{gap:7px}
     .choice-hero{padding:11px 10px 10px}
@@ -264,6 +266,10 @@
     .qc-cell{padding:6px 2px}
     .qc-label{padding-left:6px}
     .qc-head{font-size:.5rem}
+    .qc-capmove{font-size:.49rem;padding-top:3px;padding-bottom:3px}
+    .saving-sub{font-size:.46rem}
+    .best-badge{font-size:.4rem;padding:1px 3px;margin-left:2px}
+    .annual-save-sub{font-size:.46rem}
     .annual-costs summary{font-size:.64rem;padding:8px}
     .annual-grid{font-size:.61rem;margin:6px 7px 7px}
     .annual-cell{padding:6px 5px}
@@ -1930,30 +1936,32 @@ function render(){
     return (n>0?"+":"−")+clean+"%";
   };
   const capMoves=["Confirmed",pctLabel(s.janRise),pctLabel((APR_FROM_JAN-1)*100),pctLabel((JUL_FROM_APR-1)*100)];
-  const qCost=(v,cls)=>v===null
-    ? '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>'
-    : '<div class="qc-cell qc-value '+cls+'">'+gbp(v)+'</div>';
-  const qSaving=q=>{
-    const variable=quarterCost(q,"variable");
-    const chosen=quarterCost(q,cheapest.key);
-    if(chosen===null)return '<div class="qc-cell qc-value qc-best qc-muted">–</div>';
-    const diff=variable-chosen;
-    const wording=Math.abs(diff)<0.5?"£0":diff>0?"Save "+gbp(diff):"More "+gbp(Math.abs(diff));
-    return '<div class="qc-cell qc-value qc-best">'+wording+'</div>';
+  const qCost=(q,key,cls)=>{
+    const v=quarterCost(q,key);
+    if(v===null)return '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>';
+    let sub="";
+    if(key===cheapest.key && cheapest.key!=="variable"){
+      const diff=quarterCost(q,"variable")-v;
+      if(Math.abs(diff)<0.5) sub='<span class="saving-sub zero">£0 saving</span>';
+      else if(diff>0) sub='<span class="saving-sub">save '+gbp(diff)+'</span>';
+      else sub='<span class="saving-sub more">'+gbp(Math.abs(diff))+' more</span>';
+    }
+    return '<div class="qc-cell qc-value '+cls+'">'+gbp(v)+sub+'</div>';
+  };
+  const qLabel=(key,label,cls)=>{
+    const badge=key===cheapest.key?'<span class="best-badge">BEST</span>':"";
+    return '<div class="qc-cell qc-label '+cls+'">'+label+badge+'</div>';
   };
   document.getElementById("quarterCompare").innerHTML =
-    '<div class="qc-cell qc-head"></div>'+
+    '<div class="qc-cell qc-label qc-forecast-label qc-label-info"><span>PRICE CAP<br>FORECAST</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
     chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
-    '<div class="qc-cell qc-label qc-capmove qc-label-info"><span>PRICE CAP<br>FORECAST</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
     capMoves.map(v=>'<div class="qc-cell qc-value qc-capmove">'+v+'</div>').join("")+
-    '<div class="qc-cell qc-label qc-cap">VARIABLE TARIFF</div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"variable"),"qc-cap")).join("")+
-    '<div class="qc-cell qc-label qc-fix">FIXED TARIFF</div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"fixed"),"qc-fix")).join("")+
-    '<div class="qc-cell qc-label qc-track">TRACKER TARIFF</div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"tracker"),"qc-track")).join("")+
-    '<div class="qc-cell qc-label qc-best">BEST SAVING<span class="qc-best-name">'+cheapest.label+'</span></div>'+
-    chartQuarters.map(q=>qSaving(q)).join("");
+    qLabel("variable","VARIABLE TARIFF","qc-cap")+
+    chartQuarters.map(q=>qCost(q,"variable","qc-cap")).join("")+
+    qLabel("fixed","FIXED TARIFF","qc-fix")+
+    chartQuarters.map(q=>qCost(q,"fixed","qc-fix")).join("")+
+    qLabel("tracker","TRACKER TARIFF","qc-track")+
+    chartQuarters.map(q=>qCost(q,"tracker","qc-track")).join("");
 
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
@@ -1961,21 +1969,22 @@ function render(){
     ? "12-month costs - Variable cheapest"
     : "12-month costs - "+annualNames[cheapest.key]+" saves "+gbp(annualSaving)+" vs variable";
   const annualRows=[
-    {label:"VARIABLE TARIFF",cls:"annual-variable",total:res.yCap},
-    {label:"FIXED TARIFF",cls:"annual-fixed",total:fixedTotal},
-    {label:"TRACKER TARIFF",cls:"annual-tracker",total:trackerTotal}
+    {key:"variable",label:"VARIABLE TARIFF",cls:"annual-variable",total:res.yCap},
+    {key:"fixed",label:"FIXED TARIFF",cls:"annual-fixed",total:fixedTotal},
+    {key:"tracker",label:"TRACKER TARIFF",cls:"annual-tracker",total:trackerTotal}
   ];
   document.getElementById("annualCostsGrid").innerHTML=
     '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">12-month</div><div class="annual-cell annual-head">Monthly equiv.</div>'+
     annualRows.map(r=>{
       const total=r.total;
+      const isBest=r.key===cheapest.key;
+      const badge=isBest?'<span class="best-badge">BEST</span>':"";
       const annual=total===null?"–":gbp(total);
       const monthly=total===null?"–":gbp(total/12)+"/m";
-      return '<div class="annual-cell label '+r.cls+'">'+r.label+'</div><div class="annual-cell '+r.cls+'">'+annual+'</div><div class="annual-cell '+r.cls+'">'+monthly+'</div>';
-    }).join("")+
-    '<div class="annual-cell label annual-best">BEST SAVING<span class="annual-best-name">'+cheapest.label+'</span></div>'+
-    '<div class="annual-cell annual-best">'+gbp(annualSaving)+'</div>'+
-    '<div class="annual-cell annual-best">'+gbp(annualSaving/12)+'/m</div>';
+      const annualSub=isBest && cheapest.key!=="variable"?'<span class="annual-save-sub">save '+gbp(annualSaving)+'</span>':"";
+      const monthlySub=isBest && cheapest.key!=="variable"?'<span class="annual-save-sub">save '+gbp(annualSaving/12)+'/m</span>':"";
+      return '<div class="annual-cell label '+r.cls+'">'+r.label+badge+'</div><div class="annual-cell '+r.cls+'">'+annual+annualSub+'</div><div class="annual-cell '+r.cls+'">'+monthly+monthlySub+'</div>';
+    }).join("");
 
   const note = s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
