@@ -230,14 +230,11 @@
   .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
   .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
   .qc-label.qc-best,.qc-value.qc-best{color:var(--save)}
-  .qc-best-name,.qc-row-note{display:block;font-size:.5rem;line-height:1.15;margin-top:2px;letter-spacing:.01em;text-transform:none}
-  .qc-row-note{color:var(--muted);font-weight:750;white-space:normal}
-  .qc-info{width:16px;height:16px;border-radius:50%;border:1px solid currentColor;background:#fff;color:var(--cap);font:900 10px/1 Georgia,serif;padding:0;display:inline-flex;align-items:center;justify-content:center;vertical-align:-2px;cursor:pointer;margin-left:2px}
+  .qc-best-name{display:block;font-size:.5rem;line-height:1.15;margin-top:2px;letter-spacing:.01em;text-transform:none}
+  .qc-label-info{display:flex;align-items:flex-start;justify-content:space-between;gap:4px}
+  .qc-label-info span{min-width:0}
+  .qc-info{width:16px;height:16px;min-width:16px;border-radius:50%;border:1px solid currentColor;background:#fff;color:var(--cap);font:900 10px/1 Georgia,serif;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin:0}
   .qc-value{font-weight:850;white-space:nowrap;position:relative}
-  .qc-line-solid-cap{border-top:3px solid var(--cap)}
-  .qc-line-dashed-cap{border-top:3px dashed var(--cap)}
-  .qc-line-solid-fix{border-top:3px solid var(--fixed)}
-  .qc-line-dashed-track{border-top:3px dashed var(--tracker)}
   .qc-muted{color:var(--muted)!important}
   @media(max-width:430px){
     .choice-heroes{gap:7px}
@@ -1898,14 +1895,14 @@ function render(){
   document.getElementById("quarterCompare").innerHTML =
     '<div class="qc-cell qc-head"></div>'+
     chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
-    '<div class="qc-cell qc-label qc-capmove">CAP CHANGE</div>'+
+    '<div class="qc-cell qc-label qc-capmove qc-label-info"><span>PRICE CAP<br>FORECAST</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
     capMoves.map(v=>'<div class="qc-cell qc-value qc-capmove">'+v+'</div>').join("")+
-    '<div class="qc-cell qc-label qc-cap">VARIABLE<span class="qc-row-note">(forecast from Jan <button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Forecast information" title="Forecast information">i</button>)</span></div>'+
-    chartQuarters.map((q,i)=>qCost(quarterCost(q,"variable"),"qc-cap "+(i===0?"qc-line-solid-cap":"qc-line-dashed-cap"))).join("")+
-    '<div class="qc-cell qc-label qc-fix">FIX</div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"fixed"),"qc-fix qc-line-solid-fix")).join("")+
-    '<div class="qc-cell qc-label qc-track">TRACK<span class="qc-row-note">(forecast)</span></div>'+
-    chartQuarters.map(q=>qCost(quarterCost(q,"tracker"),"qc-track qc-line-dashed-track")).join("")+
+    '<div class="qc-cell qc-label qc-cap">VARIABLE TARIFF</div>'+
+    chartQuarters.map(q=>qCost(quarterCost(q,"variable"),"qc-cap")).join("")+
+    '<div class="qc-cell qc-label qc-fix">FIXED TARIFF</div>'+
+    chartQuarters.map(q=>qCost(quarterCost(q,"fixed"),"qc-fix")).join("")+
+    '<div class="qc-cell qc-label qc-track">TRACKER TARIFF</div>'+
+    chartQuarters.map(q=>qCost(quarterCost(q,"tracker"),"qc-track")).join("")+
     '<div class="qc-cell qc-label qc-best">BEST SAVING<span class="qc-best-name">'+cheapest.label+'</span></div>'+
     chartQuarters.map(q=>qSaving(q)).join("");
 
