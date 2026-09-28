@@ -78,7 +78,7 @@
   :root{
     --purple:#7c3aed;--purple-deep:#5b21b6;--pink:#db2777;
     --grad:linear-gradient(135deg,#7c3aed 0%,#db2777 100%);
-    --cap:#2563eb;--cap-soft:#e8f0ff;--fixed:#701a8c;--fixed-soft:#f5eafa;--tracker:#ff7800;--tracker-soft:#fff0e0;
+    --cap:#2563eb;--cap-soft:#e8f0ff;--fixed:#7c3aed;--fixed-soft:#f1eaff;--tracker:#ff7800;--tracker-soft:#fff0e0;
     --save:#3f9e6a;--save-soft:#d8efe1;--risk:#c95b46;--risk-soft:#f7ddd7;
     --ink:#2a2340;--muted:#6c6484;--line:#e7e2f2;--bg:#faf7ff;--card:#fff;
   }
@@ -236,6 +236,21 @@
   .qc-info{width:16px;height:16px;min-width:16px;border-radius:50%;border:1px solid currentColor;background:#fff;color:var(--cap);font:900 10px/1 Georgia,serif;padding:0;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;margin:0}
   .qc-value{font-weight:850;white-space:nowrap;position:relative}
   .qc-muted{color:var(--muted)!important}
+  .annual-costs{margin:-1px 0 10px;border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden}
+  .annual-costs summary{list-style:none;cursor:pointer;padding:9px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;background:#faf9fc;color:var(--ink);font-size:.69rem;font-weight:850}
+  .annual-costs summary::-webkit-details-marker{display:none}
+  .annual-costs summary::after{content:"›";font-size:1rem;line-height:1;color:var(--muted);transform:rotate(90deg);transition:transform .15s}
+  .annual-costs[open] summary::after{transform:rotate(-90deg)}
+  .annual-summary-copy{min-width:0}
+  .annual-period{display:block;margin-top:1px;font-size:.55rem;font-weight:750;color:var(--muted)}
+  .annual-grid{display:grid;grid-template-columns:1.15fr .9fr .95fr;font-size:.67rem}
+  .annual-cell{padding:7px 8px;border-top:1px solid rgba(0,0,0,.05);border-right:1px solid rgba(0,0,0,.045);text-align:right;font-weight:800;white-space:nowrap}
+  .annual-cell:nth-child(3n){border-right:0}
+  .annual-cell.label{text-align:left;font-weight:900}
+  .annual-head{font-size:.55rem;text-transform:uppercase;color:var(--muted);background:#fff;font-weight:850}
+  .annual-variable{color:var(--cap);background:var(--cap-soft)}
+  .annual-fixed{color:var(--fixed);background:var(--fixed-soft)}
+  .annual-tracker{color:var(--tracker);background:var(--tracker-soft)}
   @media(max-width:430px){
     .choice-heroes{gap:7px}
     .choice-hero{padding:11px 10px 10px}
@@ -245,6 +260,10 @@
     .qc-cell{padding:6px 2px}
     .qc-label{padding-left:6px}
     .qc-head{font-size:.5rem}
+    .annual-costs summary{font-size:.64rem;padding:8px}
+    .annual-grid{font-size:.61rem}
+    .annual-cell{padding:6px 5px}
+    .annual-head{font-size:.49rem}
   }
   .hl-save{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.9rem,8vw,2.6rem);color:var(--save);line-height:1}
   .hl-save.neg{color:var(--risk)}
@@ -582,6 +601,11 @@
       <div class="quarter-compare-title">Quarterly comparison</div>
       <div class="quarter-compare" id="quarterCompare"></div>
     </div>
+
+    <details class="annual-costs" id="annualCosts">
+      <summary><span class="annual-summary-copy"><span id="annualSummaryText">12-month costs</span><span class="annual-period">Oct 2026-Sep 2027</span></span></summary>
+      <div class="annual-grid" id="annualCostsGrid"></div>
+    </details>
 
     <div class="legend">
       <span><i class="swatch cap"></i>Variable price cap</span>
@@ -930,7 +954,6 @@ const FORECAST_MED_E=2500, FORECAST_MED_G=9500;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
 const MONTHS=[
-  {k:"Sep",cal:8, days:30,src:"julsep",ph:"now"},
   {k:"Oct",cal:9, days:31,src:"octdec",ph:"conf"},
   {k:"Nov",cal:10,days:30,src:"octdec",ph:"conf"},
   {k:"Dec",cal:11,days:31,src:"octdec",ph:"conf"},
@@ -941,16 +964,16 @@ const MONTHS=[
   {k:"May",cal:4, days:31,src:"octdec",ph:"apr"},
   {k:"Jun",cal:5, days:30,src:"octdec",ph:"apr"},
   {k:"Jul",cal:6, days:31,src:"octdec",ph:"jul"},
-  {k:"Aug",cal:7, days:31,src:"octdec",ph:"jul"}
+  {k:"Aug",cal:7, days:31,src:"octdec",ph:"jul"},
+  {k:"Sep",cal:8, days:30,src:"octdec",ph:"jul"}
 ];
 const WINTER=["Oct","Nov","Dec","Jan","Feb","Mar"];
 /* Ofgem cap quarters across the horizon; grow = width proportion so the strip lines up with the chart */
 const QUARTERS=[
-  {lab:"Sep",     mk:["Sep"],               grow:0.5, conf:true,  op:1},
-  {lab:"Oct–Dec", mk:["Oct","Nov","Dec"],   grow:3,   conf:true,  op:1},
-  {lab:"Jan–Mar", mk:["Jan","Feb","Mar"],   grow:3,   conf:false, op:0.82},
-  {lab:"Apr–Jun", mk:["Apr","May","Jun"],   grow:3,   conf:false, op:0.6},
-  {lab:"Jul–Aug", mk:["Jul","Aug"],         grow:1.5, conf:false, op:0.44}
+  {lab:"Oct–Dec", mk:["Oct","Nov","Dec"],   grow:3, conf:true,  op:1},
+  {lab:"Jan–Mar", mk:["Jan","Feb","Mar"],   grow:3, conf:false, op:0.82},
+  {lab:"Apr–Jun", mk:["Apr","May","Jun"],   grow:3, conf:false, op:0.6},
+  {lab:"Jul–Sep", mk:["Jul","Aug","Sep"],   grow:3, conf:false, op:0.44}
 ];
 const GAS_W =norm([16.4,12.8,12.7,8.6,4.4,2.7,2.6,2.4,3.2,6.9,12.2,15.1]);  /* DESNZ ET 4.2, 2023-24 avg (Jan-Dec) */
 const ELEC_W=norm([9.5,9.0,8.5,7.5,7.5,7.5,8.0,8.0,7.5,8.5,9.0,9.5]);       /* lighter seasonal approximation */
@@ -1515,7 +1538,7 @@ function renderEvExtension(s){
   const res=evCompute(s,evR,fixedR);
   const saving=res.ySave;
   document.getElementById("evSaveTxt").textContent=gbp(Math.abs(saving));
-  document.getElementById("evSaveSub").textContent=saving>=0?"cheaper by fixing to Economy 7, Sep 2026 to Aug 2027":"cheaper by staying on the EV tariff, Sep 2026 to Aug 2027";
+  document.getElementById("evSaveSub").textContent=saving>=0?"cheaper by fixing to Economy 7, Oct 2026 to Sep 2027":"cheaper by staying on the EV tariff, Oct 2026 to Sep 2027";
   document.getElementById("evQstrip").innerHTML=QUARTERS.map(q=>{
     const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
     return '<div class="ev-q"><b class="'+(sv>=0?"fix-win":"var-win")+'">'+gbp(Math.abs(sv))+'</b><span>'+q.lab+'</span></div>';
@@ -1624,16 +1647,16 @@ function draw(res,janRise){
     grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
     grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="11" fill="#8b849f" text-anchor="end" font-weight="750">£${Math.round(v)}</text>`;}
   let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="11" fill="#8b849f" text-anchor="middle" font-weight="750">${r.k}</text>`;});
-  const qbounds=[0,3,6,9];
+  const qbounds=[2,5,8];
   let qlines="";
   qbounds.forEach(b=>{const bx=((x(b)+x(b+1))/2).toFixed(1);
     qlines+=`<line x1="${bx}" y1="${padT}" x2="${bx}" y2="${H-padB}" stroke="#d7cfe8" stroke-width="1" stroke-dasharray="2 3"/>`;});
   const mid2=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
-  const b1=mid2(cap[3],cap[4]), b2=mid2(cap[6],cap[7]), b3=mid2(cap[9],cap[10]);
-  const solidCap=[...cap.slice(0,4),b1];
-  const segs=[[[b1,cap[4],cap[5],cap[6],b2],0.90],[[b2,cap[7],cap[8],cap[9],b3],0.60],[[b3,cap[10],cap[11]],0.42]];
+  const b1=mid2(cap[2],cap[3]), b2=mid2(cap[5],cap[6]), b3=mid2(cap[8],cap[9]);
+  const solidCap=[...cap.slice(0,3),b1];
+  const segs=[[[b1,cap[3],cap[4],cap[5],b2],0.90],[[b2,cap[6],cap[7],cap[8],b3],0.60],[[b3,cap[9],cap[10],cap[11]],0.42]];
   const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-dasharray="6 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
-  const capOp=i=> i<4?1 : i<7?0.9 : i<10?0.6 : 0.42;
+  const capOp=i=> i<3?1 : i<6?0.9 : i<9?0.6 : 0.42;
   const scenarios=[0,10,20,22.9,30];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
@@ -1860,7 +1883,7 @@ function render(){
     {lab:"Oct-Dec",mk:["Oct","Nov","Dec"]},
     {lab:"Jan-Mar",mk:["Jan","Feb","Mar"]},
     {lab:"Apr-Jun",mk:["Apr","May","Jun"]},
-    {lab:"Jul-Aug",mk:["Jul","Aug"]}
+    {lab:"Jul-Sep",mk:["Jul","Aug","Sep"]}
   ];
   const quarterCost=(q,key)=>{
     const rr=res.rows.filter(r=>q.mk.includes(r.k));
@@ -1906,6 +1929,25 @@ function render(){
     '<div class="qc-cell qc-label qc-best">BEST SAVING<span class="qc-best-name">'+cheapest.label+'</span></div>'+
     chartQuarters.map(q=>qSaving(q)).join("");
 
+  const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
+  const annualSaving=res.yCap-cheapest.total;
+  document.getElementById("annualSummaryText").textContent=cheapest.key==="variable"
+    ? "12-month costs - Variable cheapest"
+    : "12-month costs - "+annualNames[cheapest.key]+" saves "+gbp(annualSaving)+" vs variable";
+  const annualRows=[
+    {label:"VARIABLE TARIFF",cls:"annual-variable",total:res.yCap},
+    {label:"FIXED TARIFF",cls:"annual-fixed",total:fixedTotal},
+    {label:"TRACKER TARIFF",cls:"annual-tracker",total:trackerTotal}
+  ];
+  document.getElementById("annualCostsGrid").innerHTML=
+    '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">12-month</div><div class="annual-cell annual-head">Monthly equiv.</div>'+
+    annualRows.map(r=>{
+      const total=r.total;
+      const annual=total===null?"–":gbp(total);
+      const monthly=total===null?"–":gbp(total/12)+"/m";
+      return '<div class="annual-cell label '+r.cls+'">'+r.label+'</div><div class="annual-cell '+r.cls+'">'+annual+'</div><div class="annual-cell '+r.cls+'">'+monthly+'</div>';
+    }).join("");
+
   const note = s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
@@ -1924,7 +1966,7 @@ function statics(){
     `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver ${series} because that is the conversation this page was built to support, but you can choose UW Fixed ${series}, UW Fixed Start ${series}, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
 
   document.getElementById("method").innerHTML=[
-    "Compares a fixed tariff against the price cap over the year to August 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
+    "Compares a fixed tariff against the price cap from October 2026 to September 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
     "The fixed side defaults to the latest live UW Fixed Saver series for your region and Direct Debit. You can switch to the matching UW Fixed or UW Fixed Start tariff, or test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
