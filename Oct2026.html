@@ -628,7 +628,7 @@
     </div>
 
     <details class="annual-costs" id="annualCosts">
-      <summary><span class="annual-summary-copy"><span id="annualSummaryText">12-month costs</span><span class="annual-period">Oct 2026-Sep 2027</span></span></summary>
+      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Monthly and annual costs</span><span class="annual-period">Oct 2026-Sep 2027</span></span></summary>
       <div class="annual-grid" id="annualCostsGrid"></div>
     </details>
 
@@ -1966,16 +1966,14 @@ function render(){
 
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
-  document.getElementById("annualSummaryText").textContent=cheapest.key==="variable"
-    ? "12-month costs - Variable cheapest"
-    : "12-month costs - "+annualNames[cheapest.key]+" saves "+gbp(annualSaving)+" vs variable";
+  document.getElementById("annualSummaryText").textContent="Monthly and annual costs";
   const annualRows=[
     {key:"variable",label:"VARIABLE TARIFF",cls:"annual-variable",total:res.yCap},
     {key:"fixed",label:"FIXED TARIFF",cls:"annual-fixed",total:fixedTotal},
     {key:"tracker",label:"TRACKER TARIFF",cls:"annual-tracker",total:trackerTotal}
   ];
   document.getElementById("annualCostsGrid").innerHTML=
-    '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">12-month</div><div class="annual-cell annual-head">Monthly equiv.</div>'+
+    '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">Monthly avg.</div><div class="annual-cell annual-head">Annual</div>'+
     annualRows.map(r=>{
       const total=r.total;
       const isBest=r.key===cheapest.key;
@@ -1984,7 +1982,7 @@ function render(){
       const monthly=total===null?"–":gbp(total/12)+"/m";
       const annualSub=isBest && cheapest.key!=="variable"?'<span class="annual-save-sub">save '+gbp(annualSaving)+'</span>':"";
       const monthlySub=isBest && cheapest.key!=="variable"?'<span class="annual-save-sub">save '+gbp(annualSaving/12)+'/m</span>':"";
-      return '<div class="annual-cell label '+r.cls+'">'+r.label+badge+'</div><div class="annual-cell '+r.cls+'">'+annual+annualSub+'</div><div class="annual-cell '+r.cls+'">'+monthly+monthlySub+'</div>';
+      return '<div class="annual-cell label '+r.cls+'">'+r.label+badge+'</div><div class="annual-cell '+r.cls+'">'+monthly+monthlySub+'</div><div class="annual-cell '+r.cls+'">'+annual+annualSub+'</div>';
     }).join("");
 
   const note = s.janRise===0
