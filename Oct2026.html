@@ -219,7 +219,7 @@
   .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
   .quarter-compare{display:grid;grid-template-columns:var(--compare-label) repeat(4,1fr);font-size:.66rem}
   .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
-  .qc-cell:nth-child(5n){border-right:0}
+  .qc-last{border-right:0}
   .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
   .qc-label{text-align:left;font-weight:900;padding-left:9px}
   .qc-forecast-label{grid-row:span 2;background:#fff;color:var(--muted);align-items:center}
@@ -1936,9 +1936,10 @@ function render(){
     return (n>0?"+":"−")+clean+"%";
   };
   const capMoves=["Confirmed",pctLabel(s.janRise),pctLabel((APR_FROM_JAN-1)*100),pctLabel((JUL_FROM_APR-1)*100)];
-  const qCost=(q,key,cls)=>{
+  const qCost=(q,key,cls,isLast=false)=>{
+    const edge=isLast?" qc-last":"";
     const v=quarterCost(q,key);
-    if(v===null)return '<div class="qc-cell qc-value '+cls+' qc-muted">–</div>';
+    if(v===null)return '<div class="qc-cell qc-value '+cls+edge+' qc-muted">–</div>';
     let sub="";
     if(key===cheapest.key && cheapest.key!=="variable"){
       const diff=quarterCost(q,"variable")-v;
@@ -1946,7 +1947,7 @@ function render(){
       else if(diff>0) sub='<span class="saving-sub">save '+gbp(diff)+'</span>';
       else sub='<span class="saving-sub more">'+gbp(Math.abs(diff))+' more</span>';
     }
-    return '<div class="qc-cell qc-value '+cls+'">'+gbp(v)+sub+'</div>';
+    return '<div class="qc-cell qc-value '+cls+edge+'">'+gbp(v)+sub+'</div>';
   };
   const qLabel=(key,label,cls)=>{
     const badge=key===cheapest.key?'<span class="best-badge">BEST</span>':"";
@@ -1954,14 +1955,14 @@ function render(){
   };
   document.getElementById("quarterCompare").innerHTML =
     '<div class="qc-cell qc-label qc-forecast-label qc-label-info"><span>PRICE CAP<br>FORECAST</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
-    chartQuarters.map(q=>'<div class="qc-cell qc-head">'+q.lab+'</div>').join("")+
-    capMoves.map(v=>'<div class="qc-cell qc-value qc-capmove">'+v+'</div>').join("")+
+    chartQuarters.map((q,i)=>'<div class="qc-cell qc-head'+(i===chartQuarters.length-1?' qc-last':'')+'">'+q.lab+'</div>').join("")+
+    capMoves.map((v,i)=>'<div class="qc-cell qc-value qc-capmove'+(i===capMoves.length-1?' qc-last':'')+'">'+v+'</div>').join("")+
     qLabel("variable","VARIABLE TARIFF","qc-cap")+
-    chartQuarters.map(q=>qCost(q,"variable","qc-cap")).join("")+
+    chartQuarters.map((q,i)=>qCost(q,"variable","qc-cap",i===chartQuarters.length-1)).join("")+
     qLabel("fixed","FIXED TARIFF","qc-fix")+
-    chartQuarters.map(q=>qCost(q,"fixed","qc-fix")).join("")+
+    chartQuarters.map((q,i)=>qCost(q,"fixed","qc-fix",i===chartQuarters.length-1)).join("")+
     qLabel("tracker","TRACKER TARIFF","qc-track")+
-    chartQuarters.map(q=>qCost(q,"tracker","qc-track")).join("");
+    chartQuarters.map((q,i)=>qCost(q,"tracker","qc-track",i===chartQuarters.length-1)).join("");
 
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
