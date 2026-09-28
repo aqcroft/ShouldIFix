@@ -214,9 +214,10 @@
   .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
   .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
   .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
+  .result{--compare-label:72px}
   .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
   .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
-  .quarter-compare{display:grid;grid-template-columns:72px repeat(4,1fr);font-size:.66rem}
+  .quarter-compare{display:grid;grid-template-columns:var(--compare-label) repeat(4,1fr);font-size:.66rem}
   .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
   .qc-cell:nth-child(5n){border-right:0}
   .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
@@ -256,7 +257,8 @@
     .choice-hero{padding:11px 10px 10px}
     .choice-amount{font-size:1.55rem}
     .choice-copy{font-size:.65rem}
-    .quarter-compare{grid-template-columns:60px repeat(4,1fr);font-size:.59rem}
+    .result{--compare-label:60px}
+    .quarter-compare{font-size:.59rem}
     .qc-cell{padding:6px 2px}
     .qc-label{padding-left:6px}
     .qc-head{font-size:.5rem}
@@ -291,7 +293,18 @@
   .chart-scenarios button[aria-pressed="true"]{background:#0f8f83;border-color:#0f8f83;color:#fff;box-shadow:none}
   .chart-info{width:25px;height:25px;border-radius:50%;border:1px solid #d8dfe8;background:#fff;color:#596579;font-family:Georgia,serif;font-weight:800;font-size:.78rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;flex:0 0 auto}
   .chart-info:hover{border-color:var(--purple);background:#faf7ff}
-  .chart-shell{position:relative;border-radius:13px;background:rgba(255,255,255,.28);overflow:hidden}
+  .chart-shell{position:relative;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.28);overflow:hidden}
+  .chart-grid{display:grid;grid-template-columns:var(--compare-label) minmax(0,1fr);align-items:stretch}
+  .chart-side{position:relative;min-width:0;border-right:1px solid rgba(0,0,0,.05);background:rgba(255,255,255,.24)}
+  .chart-key{position:absolute;top:6px;left:5px;right:3px;display:grid;gap:2px}
+  .chart-key-item{display:flex;align-items:center;gap:3px;min-width:0;font-size:.52rem;font-weight:850;color:var(--muted);line-height:1.05;white-space:nowrap}
+  .chart-key-swatch{width:13px;height:3px;border-radius:2px;flex:0 0 auto}
+  .chart-key-swatch.cap{background:var(--cap)}
+  .chart-key-swatch.fix{background:var(--fixed)}
+  .chart-key-swatch.tracker{background:var(--tracker)}
+  .chart-ylabel{position:absolute;right:5px;transform:translateY(-50%);font-size:.52rem;font-weight:750;color:#8b849f;line-height:1;white-space:nowrap}
+  .chart-plot{min-width:0}
+  .chart-plot svg.chart{width:100%;height:auto;display:block}
   @media(max-width:430px){
     .qstrip{display:grid;grid-template-columns:repeat(4,1fr);padding:0;margin:2px 0 4px;gap:0}
     .qcol{padding:0 2px 4px}
@@ -307,6 +320,10 @@
     .chart-forecast-label{font-size:.61rem;margin-bottom:6px}
     .chart-scenarios{gap:4px}
     .chart-scenarios button{font-size:.59rem;padding:6px 1px;border-radius:6px}
+    .chart-key{left:4px;right:2px;gap:2px}
+    .chart-key-item{font-size:.47rem;gap:2px}
+    .chart-key-swatch{width:11px}
+    .chart-ylabel{right:4px;font-size:.48rem}
     .legend{gap:10px 14px;font-size:.72rem;margin-top:8px}
     .legend .outcome-legend{display:none}
     .legend .info{margin-left:0!important}
@@ -596,12 +613,6 @@
     </div>
 
     <div id="chart"></div>
-
-    <div class="legend">
-      <span><i class="swatch cap"></i>Variable price cap</span>
-      <span><i class="swatch fix"></i>Fixed</span>
-      <span id="trackerLegend"><i class="swatch tracker"></i>Tracker</span>
-    </div>
 
     <div class="quarter-compare-wrap">
       <div class="quarter-compare-title">Quarterly comparison</div>
@@ -1623,14 +1634,14 @@ function openTariffDetails(){
   document.getElementById("tariffDetailsModal").classList.add("open");
 }
 function draw(res,janRise){
-  const W=620,H=350,padL=42,padR=14,padT=32,padB=42;
+  const W=548,H=360,padT=48,padB=38;
   const rows=res.rows,n=rows.length;
   const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
   const span=Math.max(20,rawMax-rawMin);
   const yMin=Math.max(0,Math.floor((rawMin-span*0.22)/10)*10);
   const yMax=Math.ceil((rawMax+span*0.18)/10)*10;
-  const x=i=>padL+(W-padL-padR)*(i/(n-1));
+  const x=i=>W*((i+0.5)/n);
   const y=v=>padT+(H-padT-padB)*(1-(v-yMin)/(yMax-yMin));
   const cap=rows.map((r,i)=>[x(i),y(r.cap)]), fix=rows.map((r,i)=>[x(i),y(r.fixed)]);
   const track=rows.every(r=>Number.isFinite(r.tracker))?rows.map((r,i)=>[x(i),y(r.tracker)]):[];
@@ -1642,15 +1653,17 @@ function draw(res,janRise){
     bandFills+=optionFill([cap[i],cap[i+1],fix[i+1],fix[i]],"var(--fixed-soft)",fade);
     if(track.length) bandFills+=optionFill([cap[i],cap[i+1],track[i+1],track[i]],"var(--tracker-soft)",fade*0.95);
   }
-  let grid="",step=niceStep(yMax-yMin);
+  let grid="",yScale="",step=niceStep(yMax-yMin);
   const gridStart=Math.ceil(yMin/step)*step;
-  for(let v=gridStart;v<=yMax+0.001;v+=step){const yy=y(v).toFixed(1);
-    grid+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#eee7f7"/>`;
-    grid+=`<text x="${padL-6}" y="${(+yy+4).toFixed(1)}" font-size="11" fill="#8b849f" text-anchor="end" font-weight="750">£${Math.round(v)}</text>`;}
+  for(let v=gridStart;v<=yMax+0.001;v+=step){
+    const yy=y(v);
+    grid+=`<line x1="0" y1="${yy.toFixed(1)}" x2="${W}" y2="${yy.toFixed(1)}" stroke="#eee7f7"/>`;
+    yScale+=`<span class="chart-ylabel" style="top:${((yy/H)*100).toFixed(2)}%">£${Math.round(v)}</span>`;
+  }
   let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="11" fill="#8b849f" text-anchor="middle" font-weight="750">${r.k}</text>`;});
-  const qbounds=[2,5,8];
+  const qbounds=[3,6,9];
   let qlines="";
-  qbounds.forEach(b=>{const bx=((x(b)+x(b+1))/2).toFixed(1);
+  qbounds.forEach(b=>{const bx=(W*b/n).toFixed(1);
     qlines+=`<line x1="${bx}" y1="${padT}" x2="${bx}" y2="${H-padB}" stroke="#d7cfe8" stroke-width="1" stroke-dasharray="2 3"/>`;});
   const mid2=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
   const b1=mid2(cap[2],cap[3]), b2=mid2(cap[5],cap[6]), b3=mid2(cap[8],cap[9]);
@@ -1671,19 +1684,31 @@ function draw(res,janRise){
       <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
       <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
     </div>
-    <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, fixed tariff and Tracker">
-      <text x="${padL}" y="13" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
-      ${grid}${qlines}
-      ${bandFills}
-      <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-linejoin="round"/>
-      ${dashCap}
-      <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="4.4" stroke-linejoin="round"/>
-      ${trackerPath}
-      ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.0" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
-      ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
-      ${trackerDots}
-      ${xl}
-    </svg>
+    <div class="chart-grid">
+      <div class="chart-side" aria-label="Chart key and monthly cost scale">
+        <div class="chart-key">
+          <div class="chart-key-item"><i class="chart-key-swatch cap"></i><span>Variable</span></div>
+          <div class="chart-key-item"><i class="chart-key-swatch fix"></i><span>Fixed</span></div>
+          <div class="chart-key-item"><i class="chart-key-swatch tracker"></i><span>Tracker</span></div>
+        </div>
+        ${yScale}
+      </div>
+      <div class="chart-plot">
+        <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Monthly energy cost in pounds: variable price-cap forecast, fixed tariff and Tracker">
+          <text x="6" y="16" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
+          ${grid}${qlines}
+          ${bandFills}
+          <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-linejoin="round"/>
+          ${dashCap}
+          <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="4.4" stroke-linejoin="round"/>
+          ${trackerPath}
+          ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.0" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
+          ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
+          ${trackerDots}
+          ${xl}
+        </svg>
+      </div>
+    </div>
   </div>`;
 }
 
@@ -1852,8 +1877,6 @@ function render(){
   const fix=fixedRates(s);
   const tracker=trackerModel(s.region,s.tariff);
   const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat,tracker});
-  const trackerLegend=document.getElementById("trackerLegend");
-  if(trackerLegend) trackerLegend.innerHTML='<i class="swatch tracker"></i>'+(tracker?tracker.name:"Tracker unavailable");
   updateBundleChoiceCopy(s.tariff);
 
   // Fixed + Tracker tariff details
