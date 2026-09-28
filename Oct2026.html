@@ -1689,7 +1689,7 @@ function draw(res,janRise){
   const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-controls">
-      <div class="chart-forecast-label">Test the January 2027 price-cap rise</div>
+      <div class="chart-forecast-label">Current January forecast: +22.9%. What if it’s higher or lower?</div>
       <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
     </div>
     <div class="chart-grid">
