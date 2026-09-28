@@ -1941,7 +1941,7 @@ function render(){
     const v=quarterCost(q,key);
     if(v===null)return '<div class="qc-cell qc-value '+cls+edge+' qc-muted">–</div>';
     let sub="";
-    if(key===cheapest.key && cheapest.key!=="variable"){
+    if(key!=="variable"){
       const diff=quarterCost(q,"variable")-v;
       if(Math.abs(diff)<0.5) sub='<span class="saving-sub zero">£0 saving</span>';
       else if(diff>0) sub='<span class="saving-sub">save '+gbp(diff)+'</span>';
