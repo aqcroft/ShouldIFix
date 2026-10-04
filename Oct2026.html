@@ -31,7 +31,7 @@
       "browserRequirements":"Requires a modern web browser with JavaScript enabled",
       "inLanguage":"en-GB",
       "isAccessibleForFree":true,
-      "dateModified":"2026-09-28",
+      "dateModified":"2026-10-04",
       "author":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
       "provider":{"@type":"Person","name":"Adrian Croft","url":"https://aqcroft.com/"},
       "audience":{"@type":"PeopleAudience","geographicArea":{"@type":"Country","name":"United Kingdom"}},
@@ -1171,12 +1171,51 @@ function standardTrackerRate(row){
   if(!row) return null; const rate={gSC:evNum(row.GDSC),gU:evNum(row.GUR),eSC:evNum(row.EDSC_Std),eU:evNum(row.EUR_Std)};
   return Object.values(rate).every(v=>v!==null)?rate:null;
 }
+/* Tracker v6 Direct Debit discounts are contractual pence discounts from the
+   Government price cap, all EX VAT. If a later Tracker series appears in the
+   live feed, derive its pence discount from the current published rates rather
+   than reusing v6 values. */
+const TRACKER_DD_DISCOUNTS={
+  "6":{
+    start:{gSC:0.209,gU:0.233,eSC:0.054,eU:0.232},
+    fixed:{gSC:4.174,gU:0.441,eSC:1.095,eU:0.439},
+    saver:{gSC:10.437,gU:0.401,eSC:2.739,eU:0.399}
+  }
+};
+function trackerSeriesFromRow(row){
+  if(!row) return "";
+  let series=String(row.tracker_series!=null?row.tracker_series:row.trackerSeries||"").replace(/\D/g,"");
+  if(!series){
+    const name=String(row.tariff_name!=null?row.tariff_name:row.tariffName||"");
+    const m=name.match(/tracker(?:\s+saver|\s+plus|\s+start)?\s*(\d+)/i);
+    if(m) series=m[1];
+  }
+  return series;
+}
+function derivedTrackerDiscount(region,ex){
+  const cap=region.cap.octdec; /* Oct-Mar electricity VAT is 0%; gas remains 5%. */
+  return {
+    eSC:Math.max(0,cap.eSC-ex.eSC),
+    eU:Math.max(0,cap.eU-ex.eU),
+    gSC:Math.max(0,cap.gSC/1.05-ex.gSC),
+    gU:Math.max(0,cap.gU/1.05-ex.gU)
+  };
+}
+function trackerDiscountForTariff(region,tariff,row,ex){
+  const series=trackerSeriesFromRow(row);
+  const tier=tariff==="start"?"start":tariff==="fixed"?"fixed":"saver";
+  const known=TRACKER_DD_DISCOUNTS[series]&&TRACKER_DD_DISCOUNTS[series][tier];
+  return {series,values:known||derivedTrackerDiscount(region,ex)};
+}
 function trackerModel(region,tariff){
   const row=liveTrackerRow(region.n,tariff), ex=standardTrackerRate(row); if(!row||!ex) return null;
-  const actual={eSC:ex.eSC*1.05,eU:ex.eU*1.05,gSC:ex.gSC*1.05,gU:ex.gU*1.05}, cap=region.cap.julsep;
-  return {name:String(row.tariff_name||"Tracker").replace(/^UW\s+/i,""),actual,ratio:{
-    eSC:cap.eSC?actual.eSC/cap.eSC:1,eU:cap.eU?actual.eU/cap.eU:1,gSC:cap.gSC?actual.gSC/cap.gSC:1,gU:cap.gU?actual.gU/cap.gU:1
-  }};
+  const discount=trackerDiscountForTariff(region,tariff,row,ex);
+  return {
+    name:String(row.tariff_name||"Tracker").replace(/^UW\s+/i,""),
+    exActual:ex,
+    discount:discount.values,
+    series:discount.series
+  };
 }
 let compareInfoVat=false;
 function compareInfoDate(v){
@@ -1186,9 +1225,17 @@ function compareInfoDate(v){
   if(Number.isNaN(d.getTime())) return s;
   return d.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"});
 }
-function rateForInfo(rate,withVat){
+function currentElectricityVatFactor(){
+  const now=new Date(), zeroStart=new Date(2026,9,1), zeroEnd=new Date(2027,3,1);
+  return now>=zeroStart&&now<zeroEnd?1:1.05;
+}
+function currentVatFactor(fuel,withVat){
+  if(!withVat) return 1;
+  return fuel==="electricity"?currentElectricityVatFactor():1.05;
+}
+function rateForInfo(rate,withVat,fuel){
   if(rate==null||!Number.isFinite(rate)) return "–";
-  return (rate*(withVat?1.05:1)).toFixed(2)+"p";
+  return (rate*currentVatFactor(fuel,withVat)).toFixed(2)+"p";
 }
 function setCompareInfoVat(on,event){
   if(event){event.preventDefault();event.stopPropagation();}
@@ -1197,9 +1244,9 @@ function setCompareInfoVat(on,event){
 }
 let lastCompareInfoState=null;
 const WHATSAPP_EXIT_FEE=75;
-function plainRate(rate,withVat){
+function plainRate(rate,withVat,fuel){
   if(rate==null||!Number.isFinite(rate)) return "–";
-  return (rate*(withVat?1.05:1)).toFixed(3).replace(/0+$/,"").replace(/\.$/,"");
+  return (rate*currentVatFactor(fuel,withVat)).toFixed(3).replace(/0+$/,"").replace(/\.$/,"");
 }
 function whatsappTariffText(kind){
   const st=lastCompareInfoState;
@@ -1220,13 +1267,13 @@ function whatsappTariffText(kind){
   if(end) bits.push("","📅 Fixed until: "+end);
   bits.push("",
     "⚡ Electricity",
-    "Unit rate: "+plainRate(rate.eU,vat)+"p/kWh",
-    "Standing charge: "+plainRate(rate.eSC,vat)+"p/day",
+    "Unit rate: "+plainRate(rate.eU,vat,"electricity")+"p/kWh",
+    "Standing charge: "+plainRate(rate.eSC,vat,"electricity")+"p/day",
     "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
     "",
     "🔥 Gas",
-    "Unit rate: "+plainRate(rate.gU,vat)+"p/kWh",
-    "Standing charge: "+plainRate(rate.gSC,vat)+"p/day",
+    "Unit rate: "+plainRate(rate.gU,vat,"gas")+"p/kWh",
+    "Standing charge: "+plainRate(rate.gSC,vat,"gas")+"p/day",
     "💷 Exit fee: £"+WHATSAPP_EXIT_FEE,
     "",
     "Rates shown "+vatLabel+".",
@@ -1270,9 +1317,9 @@ function renderCompareInfo(s,tracker){
   const end=s.tariff==="custom"?"":compareInfoDate(fixedEndLabel(s.tariff,s.region.n));
   const vat=compareInfoVat;
   const rows=[];
-  if(s.mode!=="gas") rows.push(`<tr><td>Electricity</td><td class="fix-h">${rateForInfo(fixedRate.eU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.eSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.eU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.eSC,vat)+"/day":"–"}</td></tr>`);
-  if(s.mode!=="elec") rows.push(`<tr><td>Gas</td><td class="fix-h">${rateForInfo(fixedRate.gU,vat)}</td><td class="fix-h">${rateForInfo(fixedRate.gSC,vat)}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.gU,vat):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.gSC,vat)+"/day":"–"}</td></tr>`);
-  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub">${end?fixedName+" · fixed to "+end:fixedName}<br>${trackName}</div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th rowspan="2">Fuel</th><th class="fix-h" colspan="2">${fixedName}</th><th class="track-h" colspan="2">${trackName}</th></tr><tr><th class="fix-h">Unit</th><th class="fix-h">SC</th><th class="track-h">Unit</th><th class="track-h">SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT adds 5% for tariff-sheet comparison. The chart separately applies the modelled electricity VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div><div class="tariff-copy-actions"><button type="button" class="tariff-copy-btn fix" onclick="copyTariffWhatsApp(\'fixed\',this)">Copy Fixed WhatsApp</button><button type="button" class="tariff-copy-btn track" onclick="copyTariffWhatsApp(\'tracker\',this)">Copy Tracker WhatsApp</button></div>`;
+  if(s.mode!=="gas") rows.push(`<tr><td>Electricity</td><td class="fix-h">${rateForInfo(fixedRate.eU,vat,"electricity")}</td><td class="fix-h">${rateForInfo(fixedRate.eSC,vat,"electricity")}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.eU,vat,"electricity"):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.eSC,vat,"electricity")+"/day":"–"}</td></tr>`);
+  if(s.mode!=="elec") rows.push(`<tr><td>Gas</td><td class="fix-h">${rateForInfo(fixedRate.gU,vat,"gas")}</td><td class="fix-h">${rateForInfo(fixedRate.gSC,vat,"gas")}/day</td><td class="track-h">${trackRate?rateForInfo(trackRate.gU,vat,"gas"):"–"}</td><td class="track-h">${trackRate?rateForInfo(trackRate.gSC,vat,"gas")+"/day":"–"}</td></tr>`);
+  tip.innerHTML=`<div class="ct-head"><div><div class="ct-title">${s.region.name.replace(/\s*\(\d+\)/,"")}</div><div class="ct-sub">${end?fixedName+" · fixed to "+end:fixedName}<br>${trackName}</div></div><div class="vat-toggle" role="group" aria-label="VAT display"><button type="button" class="${vat?"":"active"}" onclick="setCompareInfoVat(false,event)">Ex VAT</button><button type="button" class="${vat?"active":""}" onclick="setCompareInfoVat(true,event)">Inc VAT</button></div></div><table><thead><tr><th rowspan="2">Fuel</th><th class="fix-h" colspan="2">${fixedName}</th><th class="track-h" colspan="2">${trackName}</th></tr><tr><th class="fix-h">Unit</th><th class="fix-h">SC</th><th class="track-h">Unit</th><th class="track-h">SC</th></tr></thead><tbody>${rows.join("")}</tbody></table><div class="ct-note">Inc VAT uses the current statutory treatment: gas 5%; electricity 0% from 1 Oct 2026 to 31 Mar 2027, then 5% from 1 Apr 2027. The chart applies the same VAT treatment by month. Tracker future rates shown on the chart are estimates, not published future UW rates.</div><div class="tariff-copy-actions"><button type="button" class="tariff-copy-btn fix" onclick="copyTariffWhatsApp(\'fixed\',this)">Copy Fixed WhatsApp</button><button type="button" class="tariff-copy-btn track" onclick="copyTariffWhatsApp(\'tracker\',this)">Copy Tracker WhatsApp</button></div>`;
 }
 function applyLiveFixedTariffs(data){
   if(!data||!Array.isArray(data.tariffLive)) return false;
@@ -1574,6 +1621,26 @@ function loadEvFeed(){
     .catch(()=>{evFeedStatus="error";render();});
 }
 
+function trackerRateForMonth(tracker,capRate,m){
+  const eVat=1+elecVAT(m.k), gVat=1.05;
+  /* Oct-Dec uses UW's published live Tracker rates. Future quarters start from
+     the modelled customer-facing cap rate, remove that month's VAT, subtract
+     the Tracker contract's ex-VAT pence discount, then put VAT back on. */
+  if(m.ph==="conf"){
+    return {
+      eSC:tracker.exActual.eSC*eVat,eU:tracker.exActual.eU*eVat,
+      gSC:tracker.exActual.gSC*gVat,gU:tracker.exActual.gU*gVat
+    };
+  }
+  const d=tracker.discount;
+  const discounted=(capInc,vatFactor,discount)=>Math.max(0,capInc/vatFactor-discount)*vatFactor;
+  return {
+    eSC:discounted(capRate.eSC,eVat,d.eSC),
+    eU:discounted(capRate.eU,eVat,d.eU),
+    gSC:discounted(capRate.gSC,gVat,d.gSC),
+    gU:discounted(capRate.gU,gVat,d.gU)
+  };
+}
 function compute(o){
   const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker}=o;
   const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
@@ -1585,7 +1652,7 @@ function compute(o){
     const capElec=incE?(r.eSC*m.days+r.eU*eK)/100:0, capGas=incG?(r.gSC*m.days+r.gU*gK)/100:0, cap=capElec+capGas;
     let trackerCost=null;
     if(tracker){
-      const tr=m.ph==="now"?tracker.actual:{eSC:r.eSC*tracker.ratio.eSC,eU:r.eU*tracker.ratio.eU,gSC:r.gSC*tracker.ratio.gSC,gU:r.gU*tracker.ratio.gU};
+      const tr=trackerRateForMonth(tracker,r,m);
       trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
     }
     return {k:m.k,ph:m.ph,fixed,cap,tracker:trackerCost,save:cap-fixed};
@@ -2009,7 +2076,7 @@ function statics(){
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
     "Confirmed price-cap rates are used through December. From January, standing charges stay at the confirmed Oct-Dec level and the forecast movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the fresher MSE consensus of 21%. April (-1.2%) and July (-9%) use the same unit-rate-only principle.",
-    "The chart also shows the matching live UW Tracker tariff. Use the January scenario buttons, including 25%, to stress-test the variable price-cap line without adding a separate extra scenario line. Future Tracker rates are estimated by keeping the current regional Tracker-to-cap relationship as the cap moves; they are not a UW forecast.",
+    "The chart also shows the matching live UW Tracker tariff. Oct-Dec uses UW's published live Tracker rates. Future Tracker rates are estimated by subtracting the tariff's contractual Direct Debit pence discounts from the modelled price-cap rates on an ex-VAT basis, then applying the VAT treatment for that month. They are not published future UW rates.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
@@ -2020,7 +2087,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 28 September 2026. Not an official Utility Warehouse tool or quote.</div>
+    <div>Last updated: 4 October 2026. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
