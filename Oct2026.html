@@ -623,12 +623,12 @@
     <div id="chart"></div>
 
     <div class="quarter-compare-wrap">
-      <div class="quarter-compare-title">Forecast Energy Cost per Quarter</div>
+      <div class="quarter-compare-title">Forecast Energy Cost by Price Cap Quarter <span id="comparisonPeriodTitle"></span></div>
       <div class="quarter-compare" id="quarterCompare"></div>
     </div>
 
     <details class="annual-costs" id="annualCosts">
-      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Monthly and annual costs</span><span class="annual-period">Oct 2026-Sep 2027</span></span></summary>
+      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Monthly and annual costs</span><span class="annual-period">Nov 2026-Oct 2027</span></span></summary>
       <div class="annual-grid" id="annualCostsGrid"></div>
     </details>
 
@@ -1179,7 +1179,7 @@ function fixedDisplayName(tariff,regionNo){
 }
 function fixedEndLabel(tariff,regionNo){
   const row=liveFixedRow(regionNo,tariff);
-  return row?String(row.fixed_end_date||row.contract_end_date||"").trim():"30 September 2027";
+  return row&&String(row.fixed_end_date||row.contract_end_date||"").trim()?String(row.fixed_end_date||row.contract_end_date).trim():"31 October 2027 (indicative)";
 }
 function standardFixedRate(row){
   if(!row) return null;
@@ -1547,7 +1547,7 @@ function evCompute(s,evR,fixedR){
     const e7NightK=(p.e7HomeNight*nightW[m.cal])+(p.car*daysFrac);
     const variable=(evR.sc*mult*vat*m.days + evR.day*mult*vat*evPeakK + evR.night*mult*vat*evOffK)/100;
     const fixed=(fixedR.sc*vat*m.days + fixedR.day*vat*e7DayK + fixedR.night*vat*e7NightK)/100;
-    return {k:m.k,ph:m.ph,cap:variable,fixed,save:variable-fixed};
+    return {k:m.k,id:m.id,ph:m.ph,cap:variable,fixed,save:variable-fixed};
   });
   return {rows,ySave:rows.reduce((a,r)=>a+r.save,0)};
 }
@@ -1639,9 +1639,9 @@ function renderEvExtension(s){
   const res=evCompute(s,evR,fixedR);
   const saving=res.ySave;
   document.getElementById("evSaveTxt").textContent=gbp(Math.abs(saving));
-  document.getElementById("evSaveSub").textContent=saving>=0?"cheaper by fixing to Economy 7, Oct 2026 to Sep 2027":"cheaper by staying on the EV tariff, Oct 2026 to Sep 2027";
+  document.getElementById("evSaveSub").textContent=saving>=0?"cheaper by fixing to Economy 7, "+comparisonRange():"cheaper by staying on the EV tariff, "+comparisonRange();
   document.getElementById("evQstrip").innerHTML=QUARTERS.map(q=>{
-    const sv=res.rows.filter(r=>q.mk.includes(r.k)).reduce((a,r)=>a+r.save,0);
+    const sv=res.rows.filter(r=>q.mk.includes(r.id)).reduce((a,r)=>a+r.save,0);
     return '<div class="ev-q"><b class="'+(sv>=0?"fix-win":"var-win")+'">'+gbp(Math.abs(sv))+'</b><span>'+q.lab+'</span></div>';
   }).join("");
   const p=evAnnualComponents();
@@ -1689,7 +1689,7 @@ function compute(o){
       const tr=trackerRateForMonth(tracker,r,m);
       trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
     }
-    return {k:m.k,ph:m.ph,fixed,cap,tracker:trackerCost,save:cap-fixed};
+    return {k:m.k,id:m.id,ph:m.ph,fixed,cap,tracker:trackerCost,save:cap-fixed};
   });
   const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0), win=r=>WINTER.includes(r.k);
   return {rows,yCap:sum(r=>r.cap),yFix:sum(r=>r.fixed),ySave:sum(r=>r.save),wCap:sum(r=>r.cap,win),wFix:sum(r=>r.fixed,win),wSave:sum(r=>r.save,win)};
@@ -1770,16 +1770,18 @@ function draw(res,janRise){
     yScale+=`<span class="chart-ylabel" style="top:${((yy/H)*100).toFixed(2)}%">£${Math.round(v)}</span>`;
   }
   let xl="";rows.forEach((r,i)=>{xl+=`<text x="${x(i).toFixed(1)}" y="${H-padB+15}" font-size="11" fill="#8b849f" text-anchor="middle" font-weight="750">${r.k}</text>`;});
-  const qbounds=[3,6,9];
+  const qbounds=rows.flatMap((r,i)=>i>0&&MONTHS[i].quarter!==MONTHS[i-1].quarter?[i]:[]);
   let qlines="";
   qbounds.forEach(b=>{const bx=(W*b/n).toFixed(1);
     qlines+=`<line x1="${bx}" y1="${padT}" x2="${bx}" y2="${H-padB}" stroke="#d7cfe8" stroke-width="1" stroke-dasharray="2 3"/>`;});
+  // The solid price-cap line ends at the first projected month.
   const mid2=(a,b)=>[(a[0]+b[0])/2,(a[1]+b[1])/2];
-  const b1=mid2(cap[2],cap[3]), b2=mid2(cap[5],cap[6]), b3=mid2(cap[8],cap[9]);
-  const solidCap=[...cap.slice(0,3),b1];
-  const segs=[[[b1,cap[3],cap[4],cap[5],b2],0.90],[[b2,cap[6],cap[7],cap[8],b3],0.60],[[b3,cap[9],cap[10],cap[11]],0.42]];
-  const dashCap=segs.map(([pts,op])=>`<path d="${L(pts)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-dasharray="6 4" stroke-linejoin="round" opacity="${op}"/>`).join("");
-  const capOp=i=> i<3?1 : i<6?0.9 : i<9?0.6 : 0.42;
+  const firstForecast=rows.findIndex(r=>r.ph!=="conf");
+  const joinPoint=firstForecast>0?mid2(cap[firstForecast-1],cap[firstForecast]):null;
+  const solidCap=firstForecast<0?cap:firstForecast===0?[]:[...cap.slice(0,firstForecast),joinPoint];
+  const forecastCap=firstForecast<0?[]:firstForecast===0?cap:[joinPoint,...cap.slice(firstForecast)];
+  const dashCap=forecastCap.length>1?`<path d="${L(forecastCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-dasharray="6 4" stroke-linejoin="round" opacity=".78"/>`:"";
+  const capOp=i=>firstForecast<0||i<firstForecast?1:.72;
   const scenarios=[0,10,20,21,25];
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
@@ -1807,7 +1809,7 @@ function draw(res,janRise){
           <text x="6" y="16" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
           ${grid}${qlines}
           ${bandFills}
-          <path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-linejoin="round"/>
+          ${solidCap.length>1?`<path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-linejoin="round"/>`:""}
           ${dashCap}
           <path d="${L(fix)}" fill="none" stroke="var(--fixed)" stroke-width="4.4" stroke-linejoin="round"/>
           ${trackerPath}
@@ -1980,6 +1982,7 @@ function readParams(){
 
 function render(){
   const s=state();
+  setComparisonPeriod(s);
   syncVisibility(s);
   document.getElementById("shareUrl").value=buildShareUrl(s);
   const disc=(s.tariff!=="custom" && s.mode==="dual")?DISCOUNT:0;
@@ -2012,14 +2015,10 @@ function render(){
   setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
   setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
 
-  const chartQuarters=[
-    {lab:"Oct-Dec",mk:["Oct","Nov","Dec"]},
-    {lab:"Jan-Mar",mk:["Jan","Feb","Mar"]},
-    {lab:"Apr-Jun",mk:["Apr","May","Jun"]},
-    {lab:"Jul-Sep",mk:["Jul","Aug","Sep"]}
-  ];
+  const chartQuarters=QUARTERS;
+  document.getElementById("quarterCompare").style.gridTemplateColumns="var(--compare-label) repeat("+chartQuarters.length+",minmax(0,1fr))";
   const quarterCost=(q,key)=>{
-    const rr=res.rows.filter(r=>q.mk.includes(r.k));
+    const rr=res.rows.filter(r=>q.mk.includes(r.id));
     if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
     return rr.reduce((a,r)=>a+(key==="variable"?r.cap:key==="fixed"?r.fixed:r.tracker),0);
   };
@@ -2036,7 +2035,7 @@ function render(){
     const a=Math.abs(n),clean=Math.abs(a-Math.round(a))<0.0001?String(Math.round(a)):a.toFixed(1);
     return (n>0?"+":"−")+clean+"%";
   };
-  const capMoves=["Confirmed",pctLabel(s.janRise),pctLabel((APR_FROM_JAN-1)*100),pctLabel((JUL_FROM_APR-1)*100)];
+  const capMoves=chartQuarters.map(q=>phaseForecastLabel(q.ph,s.janRise));
   const qCost=(q,key,cls,isLast=false)=>{
     const edge=isLast?" qc-last":"";
     const v=quarterCost(q,key);
@@ -2068,6 +2067,8 @@ function render(){
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
   document.getElementById("annualSummaryText").textContent="Monthly and annual costs";
+  document.querySelector(".annual-period").textContent=comparisonRange()+(periodIsFallback?" · indicative expiry":" · UW live expiry");
+  document.getElementById("comparisonPeriodTitle").textContent=" · "+comparisonRange();
   const annualRows=[
     {key:"variable",label:"VARIABLE TARIFF",cls:"annual-variable",total:res.yCap},
     {key:"fixed",label:"FIXED TARIFF",cls:"annual-fixed",total:fixedTotal},
