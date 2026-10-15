@@ -4,6 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="app-version" content="2.62.0">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -229,6 +230,15 @@
   .qc-cap{background:var(--cap-soft)}
   .qc-fix{background:var(--fixed-soft)}
   .qc-track{background:var(--tracker-soft)}
+  /* Usage rows share the price-cap grid, including its narrow final column. */
+  .qc-usage-toggle{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:27px;padding:5px 9px;border:0;border-bottom:1px solid rgba(0,0,0,.06);background:#faf9fd;color:var(--muted);font:800 .6rem/1.2 "Nunito",system-ui,sans-serif;text-align:left;cursor:pointer}
+  .qc-usage-toggle:hover,.qc-usage-toggle:focus-visible{background:#f0ebfa;color:var(--purple)}
+  .qc-usage-chevron{display:inline-block;transition:transform .15s;font-size:.75rem;line-height:1}
+  .quarter-compare.show-usage .qc-usage-chevron{transform:rotate(180deg)}
+  .qc-usage{background:#f7f5fb;color:var(--ink);font-size:.61rem;font-variant-numeric:tabular-nums}
+  .qc-usage.qc-label{color:var(--muted);font-weight:800}
+  .qc-usage.qc-value{font-weight:800}
+  .quarter-compare:not(.show-usage) .qc-usage{display:none}
   .qc-label.qc-cap,.qc-value.qc-cap{color:var(--cap)}
   .qc-label.qc-fix,.qc-value.qc-fix{color:var(--fixed)}
   .qc-label.qc-track,.qc-value.qc-track{color:var(--tracker)}
@@ -267,6 +277,8 @@
     .qc-cell{padding:6px 2px}
     .qc-label{padding-left:6px}
     .qc-head{font-size:.5rem}
+    .qc-usage{font-size:.54rem}
+    .qc-usage-toggle{font-size:.53rem;padding:5px 6px}
     .qc-capmove{font-size:.49rem;padding-top:3px;padding-bottom:3px}
     .saving-sub{font-size:.46rem}
     .best-badge{font-size:.4rem;padding:1px 3px;margin-left:2px}
@@ -1730,7 +1742,7 @@ function compute(o){
       const tr=trackerRateForMonth(tracker,r,m);
       trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
     }
-    return {k:m.k,id:m.id,ph:m.ph,fixed,cap,tracker:trackerCost,save:cap-fixed};
+    return {k:m.k,id:m.id,ph:m.ph,eK,gK,fixed,cap,tracker:trackerCost,save:cap-fixed};
   });
   const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0), win=r=>WINTER.includes(r.k);
   return {rows,yCap:sum(r=>r.cap),yFix:sum(r=>r.fixed),ySave:sum(r=>r.save),wCap:sum(r=>r.cap,win),wFix:sum(r=>r.fixed,win),wSave:sum(r=>r.save,win)};
@@ -1869,6 +1881,15 @@ let lastBand={e:2500,g:9500};
 let lastCustom={e:2500,g:9500};
 let customTouched=false;
 let tariffPanelOpen=false;
+let quarterUsageExpanded=false;
+function toggleQuarterUsageRows(){
+  quarterUsageExpanded=!quarterUsageExpanded;
+  const grid=document.getElementById("quarterCompare");
+  if(!grid)return;
+  grid.classList.toggle("show-usage",quarterUsageExpanded);
+  const toggle=grid.querySelector(".qc-usage-toggle");
+  if(toggle)toggle.setAttribute("aria-expanded",String(quarterUsageExpanded));
+}
 function usageMatches(mode, electricHeat, e, g, vals){
   if(mode==="gas") return vals.g===g;
   if(mode==="elec") return vals.e===e;
@@ -2098,7 +2119,18 @@ function render(){
     const badge=key===cheapest.key?'<span class="best-badge">BEST</span>':"";
     return '<div class="qc-cell qc-label '+cls+'">'+label+badge+'</div>';
   };
-  document.getElementById("quarterCompare").innerHTML =
+  const qUsage=(q,key,isLast=false)=>{
+    const total=res.rows.filter(r=>q.mk.includes(r.id)).reduce((a,r)=>a+r[key],0);
+    return '<div class="qc-cell qc-value qc-usage'+(isLast?' qc-last':'')+'">'+Math.round(total).toLocaleString("en-GB")+'</div>';
+  };
+  const usageLabel=(icon,label)=>'<div class="qc-cell qc-label qc-usage">'+icon+' '+label+' kWh</div>';
+  const usageCols=key=>chartQuarters.map((q,i)=>qUsage(q,key,i===chartQuarters.length-1)).join("");
+  const usageToggle='<button type="button" class="qc-usage-toggle" aria-expanded="'+quarterUsageExpanded+'" onclick="toggleQuarterUsageRows()"><span>⚡🔥 Usage (kWh) - show quarterly assumptions</span><span class="qc-usage-chevron" aria-hidden="true">⌄</span></button>';
+  const usageRows=(s.mode!=="gas"?usageLabel("⚡","Elec")+usageCols("eK"):"")+
+    (s.mode!=="elec"?usageLabel("🔥","Gas")+usageCols("gK"):"");
+  const quarterGrid=document.getElementById("quarterCompare");
+  quarterGrid.classList.toggle("show-usage",quarterUsageExpanded);
+  quarterGrid.innerHTML =
     '<div class="qc-cell qc-label qc-forecast-label qc-label-info"><span>PRICE CAP<br>FORECAST</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
     chartQuarters.map((q,i)=>'<div class="qc-cell qc-head'+(i===chartQuarters.length-1?' qc-last':'')+'">'+q.lab+'</div>').join("")+
     capMoves.map((v,i)=>'<div class="qc-cell qc-value qc-capmove'+(i===capMoves.length-1?' qc-last':'')+'"'+(chartQuarters[i].ph==="flat"?' title="October price cap assumed unchanged, not an official forecast"':'')+'>'+v+'</div>').join("")+
@@ -2107,7 +2139,8 @@ function render(){
     qLabel("fixed","FIXED TARIFF","qc-fix")+
     chartQuarters.map((q,i)=>qCost(q,"fixed","qc-fix",i===chartQuarters.length-1)).join("")+
     qLabel("tracker","TRACKER TARIFF","qc-track")+
-    chartQuarters.map((q,i)=>qCost(q,"tracker","qc-track",i===chartQuarters.length-1)).join("");
+    chartQuarters.map((q,i)=>qCost(q,"tracker","qc-track",i===chartQuarters.length-1)).join("")+
+     usageToggle+usageRows;
 
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
@@ -2167,7 +2200,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 15 October 2026 (forecast source: week beginning 5 October). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>Last updated: 15 October 2026 (v2.62.0; expandable quarterly electricity and gas kWh, forecast source: week beginning 5 October). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
