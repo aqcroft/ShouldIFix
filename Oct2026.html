@@ -976,6 +976,13 @@ const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, o
 /* The modelled year follows the selected live UW fixed-tariff expiry.
    Until a current live end date is available, use 31 Oct 2027 indicatively. */
 const FALLBACK_END_UTC=Date.UTC(2027,9,31);
+function provisionalFixedEnd(){
+  // If the tariff feed is unavailable, show an honest rolling estimate of
+  // a roughly twelve-month fix, never an expired September 2027 period.
+  const today=new Date();
+  const rolling=new Date(Date.UTC(today.getFullYear()+1,today.getMonth()+1,0));
+  return new Date(Math.max(rolling.getTime(),FALLBACK_END_UTC));
+}
 let MONTHS=[],QUARTERS=[],periodEndDate=new Date(FALLBACK_END_UTC),periodIsFallback=true;
 const WINTER=["Oct","Nov","Dec","Jan","Feb","Mar"];
 const MONTH_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
@@ -1001,7 +1008,7 @@ function setComparisonPeriod(state){
   const liveEnd=parseContractEnd(row&&(row.fixed_end_date||row.contract_end_date));
   // An old cached September tariff must not shorten the current October offer.
   periodIsFallback=!liveEnd||liveEnd.getTime()<FALLBACK_END_UTC;
-  periodEndDate=periodIsFallback?new Date(FALLBACK_END_UTC):liveEnd;
+  periodEndDate=periodIsFallback?provisionalFixedEnd():liveEnd;
   const yy=periodEndDate.getUTCFullYear(),mm=periodEndDate.getUTCMonth();
   MONTHS=Array.from({length:12},(_,i)=>{
     const dt=new Date(Date.UTC(yy,mm-11+i,1)),year=dt.getUTCFullYear(),cal=dt.getUTCMonth();
@@ -1185,7 +1192,7 @@ function fixedDisplayName(tariff,regionNo){
 function fixedEndLabel(tariff,regionNo){
   const row=liveFixedRow(regionNo,tariff);
   const raw=row&&(row.fixed_end_date||row.contract_end_date),end=parseContractEnd(raw);
-  return end&&end.getTime()>=FALLBACK_END_UTC?String(raw).trim():"31 October 2027 (indicative)";
+  return end&&end.getTime()>=FALLBACK_END_UTC?String(raw).trim():compareInfoDate(provisionalFixedEnd().toISOString().slice(0,10))+" (indicative)";
 }
 function standardFixedRate(row){
   if(!row) return null;
@@ -2112,7 +2119,7 @@ function statics(){
     `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver ${series} because that is the conversation this page was built to support, but you can choose UW Fixed ${series}, UW Fixed Start ${series}, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
 
   document.getElementById("method").innerHTML=[
-    "Compares the twelve calendar months ending at the selected UW fixed tariff expiry. The expiry is loaded from the current UW tariff feed, with an indicative 31 October 2027 fallback if the feed is unavailable or still contains an older series. The comparison window moves when the fixed tariff changes.",
+    "Compares the twelve calendar months ending at the selected UW fixed tariff expiry. The expiry is loaded from the current UW tariff feed, with an indicative rolling twelve-month end date if the feed is unavailable or still contains an older series. The comparison window moves when the fixed tariff changes.",
     "The fixed side defaults to the latest live UW Fixed Saver series for your region and Direct Debit. You can switch to the matching UW Fixed or UW Fixed Start tariff, or test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
