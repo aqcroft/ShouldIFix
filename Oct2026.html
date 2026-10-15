@@ -973,28 +973,62 @@ const FORECAST_E_SHAPE=7.6, FORECAST_G_SHAPE=12.2;
 const FORECAST_MED_E=2500, FORECAST_MED_G=9500;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
-const MONTHS=[
-  {k:"Oct",cal:9, days:31,src:"octdec",ph:"conf"},
-  {k:"Nov",cal:10,days:30,src:"octdec",ph:"conf"},
-  {k:"Dec",cal:11,days:31,src:"octdec",ph:"conf"},
-  {k:"Jan",cal:0, days:31,src:"octdec",ph:"jan"},
-  {k:"Feb",cal:1, days:28,src:"octdec",ph:"jan"},
-  {k:"Mar",cal:2, days:31,src:"octdec",ph:"jan"},
-  {k:"Apr",cal:3, days:30,src:"octdec",ph:"apr"},
-  {k:"May",cal:4, days:31,src:"octdec",ph:"apr"},
-  {k:"Jun",cal:5, days:30,src:"octdec",ph:"apr"},
-  {k:"Jul",cal:6, days:31,src:"octdec",ph:"jul"},
-  {k:"Aug",cal:7, days:31,src:"octdec",ph:"jul"},
-  {k:"Sep",cal:8, days:30,src:"octdec",ph:"jul"}
-];
+/* The modelled year follows the selected live UW fixed-tariff expiry.
+   Until a current live end date is available, use 31 Oct 2027 indicatively. */
+const FALLBACK_END_UTC=Date.UTC(2027,9,31);
+let MONTHS=[],QUARTERS=[],periodEndDate=new Date(FALLBACK_END_UTC),periodIsFallback=true;
 const WINTER=["Oct","Nov","Dec","Jan","Feb","Mar"];
-/* Ofgem cap quarters across the horizon; grow = width proportion so the strip lines up with the chart */
-const QUARTERS=[
-  {lab:"Oct–Dec", mk:["Oct","Nov","Dec"],   grow:3, conf:true,  op:1},
-  {lab:"Jan–Mar", mk:["Jan","Feb","Mar"],   grow:3, conf:false, op:0.82},
-  {lab:"Apr–Jun", mk:["Apr","May","Jun"],   grow:3, conf:false, op:0.6},
-  {lab:"Jul–Sep", mk:["Jul","Aug","Sep"],   grow:3, conf:false, op:0.44}
-];
+const MONTH_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function parseContractEnd(raw){
+  const s=String(raw||"").trim(); if(!s)return null;
+  const iso=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/),uk=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+  let d=null;
+  if(iso)d=new Date(Date.UTC(+iso[1],+iso[2]-1,+iso[3]));
+  else if(uk)d=new Date(Date.UTC(+uk[3],+uk[2]-1,+uk[1]));
+  else {const v=new Date(s);if(!Number.isNaN(v.getTime()))d=new Date(Date.UTC(v.getFullYear(),v.getMonth(),v.getDate()));}
+  return d&&!Number.isNaN(d.getTime())&&d.getUTCFullYear()>=2026&&d.getUTCFullYear()<=2032?d:null;
+}
+function forecastPhase(year,cal){
+  const ym=year*12+cal;
+  if(ym<=2026*12+11)return "conf";
+  if(ym<=2027*12+2)return "jan";
+  if(ym<=2027*12+5)return "apr";
+  if(ym<=2027*12+8)return "jul";
+  return "flat";
+}
+function setComparisonPeriod(state){
+  const row=liveFixedRow(state.region.n,state.tariff==="custom"?"saver":state.tariff);
+  const liveEnd=parseContractEnd(row&&(row.fixed_end_date||row.contract_end_date));
+  // An old cached September tariff must not shorten the current October offer.
+  periodIsFallback=!liveEnd||liveEnd.getTime()<FALLBACK_END_UTC;
+  periodEndDate=periodIsFallback?new Date(FALLBACK_END_UTC):liveEnd;
+  const yy=periodEndDate.getUTCFullYear(),mm=periodEndDate.getUTCMonth();
+  MONTHS=Array.from({length:12},(_,i)=>{
+    const dt=new Date(Date.UTC(yy,mm-11+i,1)),year=dt.getUTCFullYear(),cal=dt.getUTCMonth();
+    const lastDay=new Date(Date.UTC(year,cal+1,0)).getUTCDate();
+    return {k:MONTH_NAMES[cal],id:year+"-"+String(cal+1).padStart(2,"0"),year,cal,
+      days:i===11?Math.min(lastDay,periodEndDate.getUTCDate()):lastDay,
+      ph:forecastPhase(year,cal),quarter:year+"-Q"+(Math.floor(cal/3)+1)};
+  });
+  QUARTERS=[];
+  MONTHS.forEach(m=>{
+    let q=QUARTERS[QUARTERS.length-1];
+    if(!q||q.id!==m.quarter){q={id:m.quarter,mk:[],ph:m.ph,first:m.k,last:m.k};QUARTERS.push(q);}
+    q.mk.push(m.id);q.last=m.k;q.lab=q.first===q.last?q.first:q.first+"-"+q.last;
+  });
+}
+function comparisonRange(){
+  if(!MONTHS.length)return "";
+  const m=MONTHS[0];
+  return m.k+" "+m.year+" - "+MONTH_NAMES[periodEndDate.getUTCMonth()]+" "+periodEndDate.getUTCFullYear();
+}
+function phaseForecastLabel(ph,janRise){
+  if(ph==="conf")return "Confirmed";
+  if(ph==="flat")return "0% assumed";
+  const n=ph==="jan"?janRise:ph==="apr"?(APR_FROM_JAN-1)*100:(JUL_FROM_APR-1)*100;
+  const a=Math.abs(n),dp=Math.abs(a-Math.round(a))<.0001?0:1;
+  return (n>=0?"+":"−")+a.toFixed(dp)+"%";
+}
 const GAS_W =norm([16.4,12.8,12.7,8.6,4.4,2.7,2.6,2.4,3.2,6.9,12.2,15.1]);  /* DESNZ ET 4.2, 2023-24 avg (Jan-Dec) */
 const ELEC_W=norm([9.5,9.0,8.5,7.5,7.5,7.5,8.0,8.0,7.5,8.5,9.0,9.5]);       /* lighter seasonal approximation */
 function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
@@ -1020,7 +1054,7 @@ function forecastSteps(janRisePct){
   const oct=avgRegionalCap("octdec"), janStep=shapedUnitStep(oct,janRisePct), jan=applyUnitStep(oct,janStep);
   const aprStep=shapedUnitStep(jan,(APR_FROM_JAN-1)*100), apr=applyUnitStep(jan,aprStep);
   const julStep=shapedUnitStep(apr,(JUL_FROM_APR-1)*100);
-  const result={jan:{e:janStep.e,g:janStep.g},apr:{e:janStep.e*aprStep.e,g:janStep.g*aprStep.g},jul:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g}};
+  const result={jan:{e:janStep.e,g:janStep.g},apr:{e:janStep.e*aprStep.e,g:janStep.g*aprStep.g},jul:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g},flat:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g}};
   forecastStepCache.set(key,result); return result;
 }
 function projectedCapRate(region,ph,janRisePct){
