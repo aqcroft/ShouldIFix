@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.62.0">
+<meta name="app-version" content="2.62.3">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -573,13 +573,13 @@
     <div class="field">
       <div class="seg" id="fuelSeg" role="group" aria-label="Choose fuels">
         <button type="button" data-mode="dual" aria-pressed="true">
-          <span class="ic" aria-hidden="true">🔥⚡</span>Both
-        </button>
-        <button type="button" data-mode="gas" aria-pressed="false">
-          <span class="ic" aria-hidden="true">🔥</span>Gas
+          <span class="ic" aria-hidden="true">⚡🔥</span>Both
         </button>
         <button type="button" data-mode="elec" aria-pressed="false">
           <span class="ic" aria-hidden="true">⚡</span>Electricity
+        </button>
+        <button type="button" data-mode="gas" aria-pressed="false">
+          <span class="ic" aria-hidden="true">🔥</span>Gas
         </button>
       </div>
     </div>
@@ -1795,7 +1795,15 @@ function openTariffDetails(){
   render();
   document.getElementById("tariffDetailsModal").classList.add("open");
 }
-function draw(res,janRise){
+function draw(res,janRise,s,tracker){
+  // Keep chart labels in sync with the exact live tariffs used for this region and tier.
+  // If live series data is unavailable, do not display a potentially stale number.
+  const fixedRow=s.tariff==="custom"?null:liveFixedRow(s.region.n,s.tariff);
+  const fixedSource=fixedRow&&(fixedRow.fixed_series||fixedRow.fixedSeries||fixedRow.tariff_name||fixedRow.tariffName||"");
+  const fixedMatch=fixedSource&&String(fixedSource).match(/(\d+)\s*$/);
+  const fixedLegend=s.tariff==="custom"?"Custom fixed":"Fixed"+(fixedMatch?" "+fixedMatch[1]:"");
+  const trackerSeries=tracker&&tracker.series?String(tracker.series).replace(/\D/g,""):"";
+  const trackerLegend="Tracker"+(trackerSeries?" "+trackerSeries:"");
   const W=548,H=360,padT=48,padB=38;
   const rows=res.rows,n=rows.length;
   const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
@@ -1851,8 +1859,8 @@ function draw(res,janRise){
     <div class="chart-grid">
       <div class="chart-side" aria-label="Chart key and monthly cost scale">
         <div class="chart-key">
-          <div class="chart-key-item"><i class="chart-key-swatch fix"></i><span>Fixed</span></div>
-          <div class="chart-key-item"><i class="chart-key-swatch tracker"></i><span>Tracker</span></div>
+          <div class="chart-key-item"><i class="chart-key-swatch fix"></i><span>${fixedLegend}</span></div>
+          <div class="chart-key-item"><i class="chart-key-swatch tracker"></i><span>${trackerLegend}</span></div>
           <div class="chart-key-item"><i class="chart-key-swatch cap"></i><span>Variable</span></div>
         </div>
         ${yScale}
@@ -2172,7 +2180,7 @@ function render(){
     : s.mode!=="elec"
     ? `Gas use is weighted heavily into winter, so January changes have a much bigger effect for gas-heated homes.`
     : `Electricity is less seasonal than gas, so the monthly shape is steadier.`;
-  draw(res,s.janRise);
+  draw(res,s.janRise,s,tracker);
   renderEvExtension(s);
 }
 
@@ -2200,7 +2208,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 15 October 2026 (v2.62.0; expandable quarterly electricity and gas kWh, forecast source: week beginning 5 October). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>Last updated: 15 October 2026 (v2.62.3; live fixed and Tracker series in chart key, electricity-first fuel selector, expandable quarterly electricity and gas kWh, forecast source: week beginning 5 October). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
