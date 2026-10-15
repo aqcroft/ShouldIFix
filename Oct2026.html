@@ -1032,7 +1032,12 @@ function phaseForecastLabel(ph,janRise){
 const GAS_W =norm([16.4,12.8,12.7,8.6,4.4,2.7,2.6,2.4,3.2,6.9,12.2,15.1]);  /* DESNZ ET 4.2, 2023-24 avg (Jan-Dec) */
 const ELEC_W=norm([9.5,9.0,8.5,7.5,7.5,7.5,8.0,8.0,7.5,8.5,9.0,9.5]);       /* lighter seasonal approximation */
 function norm(a){const s=a.reduce((x,y)=>x+y,0);return a.map(v=>v/s);}
-function elecVAT(k){return (k==="Oct"||k==="Nov"||k==="Dec"||k==="Jan"||k==="Feb"||k==="Mar")?0:0.05;}
+function elecVAT(month){
+  // 0% VAT was temporary: 1 Oct 2026 to 31 Mar 2027 only.
+  // The same month name in another year must not inherit the tax holiday.
+  const year=month.year,cal=month.cal;
+  return (year===2026&&cal>=9)||(year===2027&&cal<=2)?0:0.05;
+}
 const forecastStepCache=new Map();
 function avgRegionalCap(src){
   const out={eSC:0,eU:0,gSC:0,gU:0};
@@ -1540,7 +1545,7 @@ function evCompute(s,evR,fixedR){
   const p=evAnnualComponents();
   const dayW=evSeasonalProfile(p.heat,false),nightW=evSeasonalProfile(p.heat,true);
   const rows=MONTHS.map(m=>{
-    const vat=1+elecVAT(m.k),daysFrac=m.days/365;
+    const vat=1+elecVAT(m),daysFrac=m.days/365;
     const mult=evVariableMult(m.ph,s.janRise);
     const evPeakK=(p.homePeak*dayW[m.cal])+(p.carPeak*daysFrac);
     const evOffK=(p.homeOff*nightW[m.cal])+(p.carOff*daysFrac);
@@ -1658,7 +1663,7 @@ function loadEvFeed(){
 }
 
 function trackerRateForMonth(tracker,capRate,m){
-  const eVat=1+elecVAT(m.k), gVat=1.05;
+  const eVat=1+elecVAT(m), gVat=1.05;
   /* Oct-Dec uses UW's published live Tracker rates. Future quarters start from
      the modelled customer-facing cap rate, remove that month's VAT, subtract
      the Tracker contract's ex-VAT pence discount, then put VAT back on. */
@@ -1681,7 +1686,7 @@ function compute(o){
   const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker}=o;
   const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
-    const eK=incE?elecY*eProfile[m.cal]:0, gK=incG?gasY*GAS_W[m.cal]:0, ev=1+elecVAT(m.k);
+    const eK=incE?elecY*eProfile[m.cal]:0, gK=incG?gasY*GAS_W[m.cal]:0, ev=1+elecVAT(m);
     const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
     const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
     const r=projectedCapRate(region,m.ph,janRise);
