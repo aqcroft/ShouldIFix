@@ -973,19 +973,30 @@ const FORECAST_E_SHAPE=7.6, FORECAST_G_SHAPE=12.2;
 const FORECAST_MED_E=2500, FORECAST_MED_G=9500;
 const DISCOUNT=1238/365;   /* dual-fuel discount: £12.38/yr per fuel, ex VAT, off standing (p/day) */
 
-/* The modelled year follows the selected live UW fixed-tariff expiry.
-   Until a current live end date is available, use 31 Oct 2027 indicatively. */
-const FALLBACK_END_UTC=Date.UTC(2027,9,31);
-function provisionalFixedEnd(){
-  // If the tariff feed is unavailable, show an honest rolling estimate of
-  // a roughly twelve-month fix, never an expired September 2027 period.
-  const today=new Date();
-  const rolling=new Date(Date.UTC(today.getFullYear()+1,today.getMonth()+1,0));
-  return new Date(Math.max(rolling.getTime(),FALLBACK_END_UTC));
-}
-let MONTHS=[],QUARTERS=[],periodEndDate=new Date(FALLBACK_END_UTC),periodIsFallback=true;
+/* The comparison begins about three days after the tool is opened and
+   continues until the selected current UW fixed tariff expires (inclusive).
+   The live UW end date wins; 30 Oct 2027 is an indicative fallback only. */
+const SWITCH_LEAD_DAYS=3;
+const FALLBACK_END_UTC=Date.UTC(2027,9,30);
+let MONTHS=[],QUARTERS=[];
+let periodStartDate=null,periodEndDate=new Date(FALLBACK_END_UTC),periodIsFallback=true;
 const WINTER=["Oct","Nov","Dec","Jan","Feb","Mar"];
 const MONTH_NAMES=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const DAY_MS=24*60*60*1000;
+function todayUTC(){
+  const n=new Date();
+  return new Date(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate()));
+}
+function addUTCDays(date,days){
+  return new Date(date.getTime()+days*DAY_MS);
+}
+function provisionalFixedEnd(){
+  const start=addUTCDays(todayUTC(),SWITCH_LEAD_DAYS);
+  if(start.getTime()<=FALLBACK_END_UTC)return new Date(FALLBACK_END_UTC);
+  // When live data is absent in a later tariff series, display a labelled
+  // indicative end rather than using an already-expired contract.
+  return new Date(Date.UTC(start.getUTCFullYear()+1,start.getUTCMonth()+1,0));
+}
 function parseContractEnd(raw){
   const s=String(raw||"").trim(); if(!s)return null;
   const iso=s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/),uk=s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
@@ -994,6 +1005,9 @@ function parseContractEnd(raw){
   else if(uk)d=new Date(Date.UTC(+uk[3],+uk[2]-1,+uk[1]));
   else {const v=new Date(s);if(!Number.isNaN(v.getTime()))d=new Date(Date.UTC(v.getFullYear(),v.getMonth(),v.getDate()));}
   return d&&!Number.isNaN(d.getTime())&&d.getUTCFullYear()>=2026&&d.getUTCFullYear()<=2032?d:null;
+}
+function formatComparisonDate(date,short=false){
+  return new Intl.DateTimeFormat("en-GB",{timeZone:"UTC",day:"numeric",month:short?"short":"long",year:"numeric"}).format(date);
 }
 function forecastPhase(year,cal){
   const ym=year*12+cal;
@@ -1004,31 +1018,41 @@ function forecastPhase(year,cal){
   return "flat";
 }
 function setComparisonPeriod(state){
-  const row=liveFixedRow(state.region.n,state.tariff==="custom"?"saver":state.tariff);
-  const liveEnd=parseContractEnd(row&&(row.fixed_end_date||row.contract_end_date));
-  // An old cached September tariff must not shorten the current October offer.
-  periodIsFallback=!liveEnd||liveEnd.getTime()<FALLBACK_END_UTC;
+  const live=liveFixedRow(state.region.n,state.tariff==="custom"?"saver":state.tariff);
+  const liveEnd=parseContractEnd(live&&(live.fixed_end_date||live.contract_end_date));
+  periodStartDate=addUTCDays(todayUTC(),SWITCH_LEAD_DAYS);
+  // Do not use a stale September 2027 series whilst the October offer is live.
+  periodIsFallback=!liveEnd||liveEnd.getTime()<FALLBACK_END_UTC||liveEnd.getTime()<periodStartDate.getTime();
   periodEndDate=periodIsFallback?provisionalFixedEnd():liveEnd;
-  const yy=periodEndDate.getUTCFullYear(),mm=periodEndDate.getUTCMonth();
-  MONTHS=Array.from({length:12},(_,i)=>{
-    const dt=new Date(Date.UTC(yy,mm-11+i,1)),year=dt.getUTCFullYear(),cal=dt.getUTCMonth();
-    const lastDay=new Date(Date.UTC(year,cal+1,0)).getUTCDate();
-    return {k:MONTH_NAMES[cal],id:year+"-"+String(cal+1).padStart(2,"0"),year,cal,
-      days:i===11?Math.min(lastDay,periodEndDate.getUTCDate()):lastDay,
-      ph:forecastPhase(year,cal),quarter:year+"-Q"+(Math.floor(cal/3)+1)};
-  });
+  MONTHS=[];
+  let cursor=new Date(Date.UTC(periodStartDate.getUTCFullYear(),periodStartDate.getUTCMonth(),1));
+  let safe=0;
+  while(cursor.getTime()<=periodEndDate.getTime()&&safe++<36){
+    const year=cursor.getUTCFullYear(),cal=cursor.getUTCMonth();
+    const fullDays=new Date(Date.UTC(year,cal+1,0)).getUTCDate();
+    const first=year===periodStartDate.getUTCFullYear()&&cal===periodStartDate.getUTCMonth()?periodStartDate.getUTCDate():1;
+    const last=year===periodEndDate.getUTCFullYear()&&cal===periodEndDate.getUTCMonth()?periodEndDate.getUTCDate():fullDays;
+    MONTHS.push({k:MONTH_NAMES[cal],id:year+"-"+String(cal+1).padStart(2,"0"),year,cal,
+      days:last-first+1,fullDays,first,last,
+      ph:forecastPhase(year,cal),quarter:year+"-Q"+(Math.floor(cal/3)+1)});
+    cursor=new Date(Date.UTC(year,cal+1,1));
+  }
   QUARTERS=[];
   MONTHS.forEach(m=>{
     let q=QUARTERS[QUARTERS.length-1];
-    if(!q||q.id!==m.quarter){q={id:m.quarter,mk:[],ph:m.ph,first:m.k,last:m.k};QUARTERS.push(q);}
-    q.mk.push(m.id);q.last=m.k;q.lab=q.first===q.last?q.first:q.first+"-"+q.last;
+    if(!q||q.id!==m.quarter){q={id:m.quarter,mk:[],ph:m.ph,first:m.k,last:m.k,days:0};QUARTERS.push(q);}
+    q.mk.push(m.id);q.last=m.k;q.days+=m.days;
+    q.lab=q.first===q.last?q.first.toUpperCase():q.first+"-"+q.last;
   });
 }
-function comparisonRange(){
-  if(!MONTHS.length)return "";
-  const m=MONTHS[0];
-  return m.k+" "+m.year+" - "+MONTH_NAMES[periodEndDate.getUTCMonth()]+" "+periodEndDate.getUTCFullYear();
+function comparisonDays(){
+  return periodStartDate?Math.max(0,Math.round((periodEndDate.getTime()-periodStartDate.getTime())/DAY_MS)+1):0;
 }
+function comparisonMonthsEquivalent(){return comparisonDays()/(365.2425/12);}
+function comparisonRange(){
+  return periodStartDate?formatComparisonDate(periodStartDate,true)+" - "+formatComparisonDate(periodEndDate,true):"";
+}
+function comparisonEndLabel(){return formatComparisonDate(periodEndDate);}
 function phaseForecastLabel(ph,janRise){
   if(ph==="conf")return "Confirmed";
   if(ph==="flat")return "0% assumed";
@@ -1192,7 +1216,7 @@ function fixedDisplayName(tariff,regionNo){
 function fixedEndLabel(tariff,regionNo){
   const row=liveFixedRow(regionNo,tariff);
   const raw=row&&(row.fixed_end_date||row.contract_end_date),end=parseContractEnd(raw);
-  return end&&end.getTime()>=FALLBACK_END_UTC?String(raw).trim():compareInfoDate(provisionalFixedEnd().toISOString().slice(0,10))+" (indicative)";
+  return end&&end.getTime()>=FALLBACK_END_UTC?String(raw).trim():formatComparisonDate(provisionalFixedEnd())+" (indicative)";
 }
 function standardFixedRate(row){
   if(!row) return null;
