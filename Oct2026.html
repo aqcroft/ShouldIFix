@@ -896,7 +896,7 @@
         <div class="forecast-model-row"><div class="forecast-model-key">Confirmed</div><div class="forecast-model-val">Oct-Dec uses published regional price-cap rates.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">21%</span> Standing charges stay at the Oct-Dec level. The forecast movement is applied to unit rates.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Gas vs electricity</div><div class="forecast-model-val">The split follows Cornwall Insight's late-August component forecast shape, scaled to the fresher MSE consensus.</div></div>
-        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr -0.5%</span><span class="forecast-model-badge">Jul -7.8%</span> The same unit-rate-only approach is used.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr -0.5%</span><span class="forecast-model-badge">Jul -7.8%</span><span class="forecast-model-badge">Oct 2027: 0% assumed</span> From October 2027 the July-September price-cap rates are held flat. This is an assumption, not a published forecast.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Annual usage is spread month by month rather than divided evenly by 12. Gas follows the DESNZ seasonal profile; electricity uses the same gentler monthly profile carried forward from the original tool. Electric-heating mode switches electricity to the winter-heavy heating profile.</div></div>
         <button class="seasonality-link" type="button" onclick="openSeasonalityModal()">View monthly usage split<span>See the exact percentage of annual gas and electricity usage allocated to each month.</span></button>
         <div class="forecast-model-row"><div class="forecast-model-key">Tracker</div><div class="forecast-model-val">Future Tracker rates preserve today's regional Tracker-to-price-cap relationship. They are estimates, not published future UW rates.</div></div>
@@ -939,9 +939,9 @@
 "use strict";
 
 /* ---------- DATA (Direct Debit) ----------
-   uw = UW Fixed Saver 96, fixed to 30 Sep 2027, rates EXCLUDING VAT (single-rate electricity).
-   fixed = UW Fixed 96, fixed to 30 Sep 2027, rates EXCLUDING VAT (single-rate electricity).
-   start = UW Fixed Start 96, fixed to 30 Sep 2027, rates EXCLUDING VAT (single-rate electricity).
+   uw = UW Fixed Saver 96, fallback ex-VAT rates replaced by the live feed.
+   fixed = UW Fixed 96, fallback ex-VAT rates replaced by the live feed.
+   start = UW Fixed Start 96, fallback ex-VAT rates replaced by the live feed.
    cap.octdec / cap.julsep = Ofgem price cap, INCLUDING VAT as published
    (electricity 0% VAT Oct 2026-Mar 2027, gas 5%; July-Sep both 5%). */
 const REGIONS = [
@@ -1179,7 +1179,8 @@ function fixedDisplayName(tariff,regionNo){
 }
 function fixedEndLabel(tariff,regionNo){
   const row=liveFixedRow(regionNo,tariff);
-  return row&&String(row.fixed_end_date||row.contract_end_date||"").trim()?String(row.fixed_end_date||row.contract_end_date).trim():"31 October 2027 (indicative)";
+  const raw=row&&(row.fixed_end_date||row.contract_end_date),end=parseContractEnd(raw);
+  return end&&end.getTime()>=FALLBACK_END_UTC?String(raw).trim():"31 October 2027 (indicative)";
 }
 function standardFixedRate(row){
   if(!row) return null;
@@ -1580,18 +1581,19 @@ function evDraw(res,janRise){
     grid+='<text x="'+(padL-6)+'" y="'+(+yy+4)+'" font-size="10" fill="#9a92b3" text-anchor="end" font-weight="700">£'+Math.round(v)+'</text>';
   }
   const labels=rows.map((r,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-padB+16)+'" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">'+r.k+'</text>').join("");
-  const janX=((x(3)+x(4))/2).toFixed(1);
+  const janIndex=rows.findIndex(r=>r.k==="Jan"&&r.ph==="jan");
+  const janX=janIndex>=0?x(janIndex).toFixed(1):null;
   const scenarios=[0,10,20,21,25];
   document.getElementById("evScenarios").innerHTML=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<.001;
     return '<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(active?"true":"false")+'">'+(Number.isInteger(v)?v:v.toFixed(1))+'%</button>';
   }).join("");
   document.getElementById("evChart").innerHTML='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Monthly EV variable versus fixed Economy 7 cost">'+grid+fills+
-    '<line x1="'+janX+'" y1="'+padT+'" x2="'+janX+'" y2="'+(H-padB)+'" stroke="#d7cfe8" stroke-dasharray="3 3"/>'+
+    (janX!==null?'<line x1="'+janX+'" y1="'+padT+'" x2="'+janX+'" y2="'+(H-padB)+'" stroke="#d7cfe8" stroke-dasharray="3 3"/>':'')+
     '<path d="'+L(variable)+'" fill="none" stroke="var(--cap)" stroke-width="2.5" stroke-dasharray="5 4" stroke-linejoin="round"/>'+
     '<path d="'+L(fixed)+'" fill="none" stroke="var(--fixed)" stroke-width="2.5" stroke-linejoin="round"/>'+labels+
-    '<text x="'+(x(1)+4)+'" y="'+(padT+10)+'" font-size="10" fill="var(--cap)" font-weight="800">Oct +'+EV_OCT_RISE+'%</text>'+
-    '<text x="'+(+janX+4)+'" y="'+(padT+10)+'" font-size="10" fill="var(--cap)" font-weight="800">Jan +'+janRise+'%</text></svg>';
+    ''+
+    (janX!==null?'<text x="'+(+janX+4)+'" y="'+(padT+10)+'" font-size="10" fill="var(--cap)" font-weight="800">Jan +'+janRise+'%</text>':'')+'</svg>';
 }
 function renderEvExtension(s){
   evSyncSimpleEstimate(s);
@@ -2105,12 +2107,12 @@ function statics(){
     `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver ${series} because that is the conversation this page was built to support, but you can choose UW Fixed ${series}, UW Fixed Start ${series}, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
 
   document.getElementById("method").innerHTML=[
-    "Compares a fixed tariff against the price cap from October 2026 to September 2027, so you can see the shape of the saving rather than just one monthly snapshot.",
+    "Compares the twelve calendar months ending at the selected UW fixed tariff expiry. The expiry is loaded from the current UW tariff feed, with an indicative 31 October 2027 fallback if the feed is unavailable or still contains an older series. The comparison window moves when the fixed tariff changes.",
     "The fixed side defaults to the latest live UW Fixed Saver series for your region and Direct Debit. You can switch to the matching UW Fixed or UW Fixed Start tariff, or test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
     "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
-    "Confirmed price-cap rates are used through December. From January, standing charges stay at the confirmed Oct-Dec level and the forecast movement is put into unit rates. The electricity/gas split follows the shape of Cornwall Insight's late-August component forecast, scaled to the MSE consensus January forecast rounded to 21%. April (-0.5%) and July (-7.8%) use the same unit-rate-only principle.",
+    "Confirmed price-cap rates are used through December 2026. January (+21% scenario), April (-0.5%) and July (-7.8%) use unit-rate forecasts. From 1 October 2027, both unit rates and standing charges are held flat at July-September levels (0% movement). This October assumption is not a published Ofgem or MSE forecast.",
     "The chart also shows the matching live UW Tracker tariff. Oct-Dec uses UW's published live Tracker rates. Future Tracker rates are estimated by subtracting the tariff's contractual Direct Debit pence discounts from the modelled price-cap rates on an ex-VAT basis, then applying the VAT treatment for that month. They are not published future UW rates.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
@@ -2122,7 +2124,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>Last updated: 15 October 2026 (forecast source: week beginning 5 October). Not an official Utility Warehouse tool or quote.</div>
+    <div>Last updated: 15 October 2026 (forecast source: week beginning 5 October). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
