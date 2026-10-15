@@ -215,9 +215,8 @@
   .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
   .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
   .result{--compare-label:72px;--end-col-width:clamp(48px,10vw,65px)}
-  .quarter-compare-wrap{overflow-x:auto}
   .compare-start-note{font-size:.65rem;color:var(--muted);font-weight:750;margin:-4px 0 10px;line-height:1.4}
-  .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+  .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow-x:auto;background:#fff}
   .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
   .quarter-compare{display:grid;grid-template-columns:var(--compare-label) repeat(4,1fr);font-size:.66rem}
   .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
@@ -2121,7 +2120,7 @@ function render(){
     {key:"tracker",label:"TRACKER TARIFF",cls:"annual-tracker",total:trackerTotal}
   ];
   document.getElementById("annualCostsGrid").innerHTML=
-    '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">Monthly avg.</div><div class="annual-cell annual-head">Until '+comparisonEndLabel()+'</div>'+
+    '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">Monthly avg.</div><div class="annual-cell annual-head">Total</div>'+
     annualRows.map(r=>{
       const total=r.total;
       const isBest=r.key===cheapest.key;
