@@ -1055,7 +1055,7 @@ function comparisonRange(){
 function comparisonEndLabel(){return formatComparisonDate(periodEndDate);}
 function phaseForecastLabel(ph,janRise){
   if(ph==="conf")return "Confirmed";
-  if(ph==="flat")return "0% assumed";
+  if(ph==="flat")return "0%"; // Tooltip and source modal identify this as an assumption.
   const n=ph==="jan"?janRise:ph==="apr"?(APR_FROM_JAN-1)*100:(JUL_FROM_APR-1)*100;
   const a=Math.abs(n),dp=Math.abs(a-Math.round(a))<.0001?0:1;
   return (n>=0?"+":"−")+a.toFixed(dp)+"%";
@@ -1576,12 +1576,12 @@ function evCompute(s,evR,fixedR){
   const p=evAnnualComponents();
   const dayW=evSeasonalProfile(p.heat,false),nightW=evSeasonalProfile(p.heat,true);
   const rows=MONTHS.map(m=>{
-    const vat=1+elecVAT(m),daysFrac=m.days/365;
+    const vat=1+elecVAT(m),daysFrac=m.days/365,seasonalPart=m.days/m.fullDays;
     const mult=evVariableMult(m.ph,s.janRise);
-    const evPeakK=(p.homePeak*dayW[m.cal])+(p.carPeak*daysFrac);
-    const evOffK=(p.homeOff*nightW[m.cal])+(p.carOff*daysFrac);
-    const e7DayK=p.e7HomeDay*dayW[m.cal];
-    const e7NightK=(p.e7HomeNight*nightW[m.cal])+(p.car*daysFrac);
+    const evPeakK=(p.homePeak*dayW[m.cal]*seasonalPart)+(p.carPeak*daysFrac);
+    const evOffK=(p.homeOff*nightW[m.cal]*seasonalPart)+(p.carOff*daysFrac);
+    const e7DayK=p.e7HomeDay*dayW[m.cal]*seasonalPart;
+    const e7NightK=(p.e7HomeNight*nightW[m.cal]*seasonalPart)+(p.car*daysFrac);
     const variable=(evR.sc*mult*vat*m.days + evR.day*mult*vat*evPeakK + evR.night*mult*vat*evOffK)/100;
     const fixed=(fixedR.sc*vat*m.days + fixedR.day*vat*e7DayK + fixedR.night*vat*e7NightK)/100;
     return {k:m.k,id:m.id,ph:m.ph,cap:variable,fixed,save:variable-fixed};
@@ -1717,7 +1717,8 @@ function compute(o){
   const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker}=o;
   const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
-    const eK=incE?elecY*eProfile[m.cal]:0, gK=incG?gasY*GAS_W[m.cal]:0, ev=1+elecVAT(m);
+    const part=m.days/m.fullDays;
+    const eK=incE?elecY*eProfile[m.cal]*part:0, gK=incG?gasY*GAS_W[m.cal]*part:0, ev=1+elecVAT(m);
     const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
     const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
     const r=projectedCapRate(region,m.ph,janRise);
