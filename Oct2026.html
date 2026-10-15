@@ -214,7 +214,9 @@
   .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
   .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
   .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
-  .result{--compare-label:72px}
+  .result{--compare-label:72px;--end-col-width:clamp(48px,10vw,65px)}
+  .quarter-compare-wrap{overflow-x:auto}
+  .compare-start-note{font-size:.65rem;color:var(--muted);font-weight:750;margin:-4px 0 10px;line-height:1.4}
   .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
   .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
   .quarter-compare{display:grid;grid-template-columns:var(--compare-label) repeat(4,1fr);font-size:.66rem}
@@ -606,6 +608,7 @@
   <input id="janRise" type="hidden" value="21">
   <section class="card result" id="resultCard">
     <p class="rlead" id="rlead">&nbsp;</p>
+    <p class="compare-start-note" id="compareStartNote"></p>
 
     <div class="choice-heroes">
       <div class="choice-hero fix">
@@ -628,7 +631,7 @@
     </div>
 
     <details class="annual-costs" id="annualCosts">
-      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Monthly and annual costs</span><span class="annual-period">Nov 2026-Oct 2027</span></span></summary>
+      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Total and average monthly costs</span><span class="annual-period"></span></span></summary>
       <div class="annual-grid" id="annualCostsGrid"></div>
     </details>
 
@@ -2034,7 +2037,8 @@ function render(){
   renderCompareInfo(s,tracker);
 
   const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
-  document.getElementById("rlead").textContent="Should I fix or track?";
+  document.getElementById("rlead").innerHTML="What could fixing save you until <strong>"+comparisonEndLabel()+"</strong>?";
+  document.getElementById("compareStartNote").textContent="Based on energy going live in about 3 days ("+formatComparisonDate(periodStartDate)+"). "+(periodIsFallback?"Fixed end date is indicative.":"Fixed end date from UW tariff data.");
 
   const trackerTotal=tracker
     ? res.rows.reduce((a,r)=>a+(Number.isFinite(r.tracker)?r.tracker:0),0)
@@ -2055,7 +2059,10 @@ function render(){
   setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
 
   const chartQuarters=QUARTERS;
-  document.getElementById("quarterCompare").style.gridTemplateColumns="var(--compare-label) repeat("+chartQuarters.length+",minmax(0,1fr))";
+  const narrowLast=chartQuarters.length>1&&chartQuarters[chartQuarters.length-1].mk.length===1;
+  document.getElementById("quarterCompare").style.gridTemplateColumns=narrowLast
+    ?"var(--compare-label) repeat("+(chartQuarters.length-1)+",minmax(0,1fr)) var(--end-col-width)"
+    :"var(--compare-label) repeat("+chartQuarters.length+",minmax(0,1fr))";
   const quarterCost=(q,key)=>{
     const rr=res.rows.filter(r=>q.mk.includes(r.id));
     if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
@@ -2095,7 +2102,7 @@ function render(){
   document.getElementById("quarterCompare").innerHTML =
     '<div class="qc-cell qc-label qc-forecast-label qc-label-info"><span>PRICE CAP<br>FORECAST</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
     chartQuarters.map((q,i)=>'<div class="qc-cell qc-head'+(i===chartQuarters.length-1?' qc-last':'')+'">'+q.lab+'</div>').join("")+
-    capMoves.map((v,i)=>'<div class="qc-cell qc-value qc-capmove'+(i===capMoves.length-1?' qc-last':'')+'">'+v+'</div>').join("")+
+    capMoves.map((v,i)=>'<div class="qc-cell qc-value qc-capmove'+(i===capMoves.length-1?' qc-last':'')+'"'+(chartQuarters[i].ph==="flat"?' title="October price cap assumed unchanged, not an official forecast"':'')+'>'+v+'</div>').join("")+
     qLabel("variable","VARIABLE TARIFF","qc-cap")+
     chartQuarters.map((q,i)=>qCost(q,"variable","qc-cap",i===chartQuarters.length-1)).join("")+
     qLabel("fixed","FIXED TARIFF","qc-fix")+
@@ -2105,7 +2112,7 @@ function render(){
 
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
-  document.getElementById("annualSummaryText").textContent="Monthly and annual costs";
+  document.getElementById("annualSummaryText").textContent="Total costs until "+comparisonEndLabel();
   document.querySelector(".annual-period").textContent=comparisonRange()+(periodIsFallback?" · indicative expiry":" · UW live expiry");
   document.getElementById("comparisonPeriodTitle").textContent=" · "+comparisonRange();
   const annualRows=[
@@ -2114,15 +2121,15 @@ function render(){
     {key:"tracker",label:"TRACKER TARIFF",cls:"annual-tracker",total:trackerTotal}
   ];
   document.getElementById("annualCostsGrid").innerHTML=
-    '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">Monthly avg.</div><div class="annual-cell annual-head">Annual</div>'+
+    '<div class="annual-cell annual-head label">Tariff</div><div class="annual-cell annual-head">Monthly avg.</div><div class="annual-cell annual-head">Until '+comparisonEndLabel()+'</div>'+
     annualRows.map(r=>{
       const total=r.total;
       const isBest=r.key===cheapest.key;
       const badge=isBest?'<span class="best-badge">BEST</span>':"";
       const annual=total===null?"–":gbp(total);
-      const monthly=total===null?"–":gbp(total/12)+"/m";
+      const monthly=total===null?"–":gbp(total/Math.max(0.1,comparisonMonthsEquivalent()))+"/m";
       const annualSub=isBest && cheapest.key!=="variable"?'<span class="annual-save-sub">save '+gbp(annualSaving)+'</span>':"";
-      const monthlySub=isBest && cheapest.key!=="variable"?'<span class="annual-save-sub">save '+gbp(annualSaving/12)+'/m</span>':"";
+      const monthlySub=isBest && cheapest.key!=="variable"?'<span class="annual-save-sub">save '+gbp(annualSaving/Math.max(0.1,comparisonMonthsEquivalent()))+'/m</span>':"";
       return '<div class="annual-cell label '+r.cls+'">'+r.label+badge+'</div><div class="annual-cell '+r.cls+'">'+monthly+monthlySub+'</div><div class="annual-cell '+r.cls+'">'+annual+annualSub+'</div>';
     }).join("");
 
@@ -2144,11 +2151,11 @@ function statics(){
     `<b>Full disclosure:</b> I'm an authorised Utility Warehouse Partner. The tool defaults to UW Fixed Saver ${series} because that is the conversation this page was built to support, but you can choose UW Fixed ${series}, UW Fixed Start ${series}, or type in any fixed tariff. The maths still runs the same way, including when the answer is that staying on the cap looks better.`;
 
   document.getElementById("method").innerHTML=[
-    "Compares the twelve calendar months ending at the selected UW fixed tariff expiry. The expiry is loaded from the current UW tariff feed, with an indicative rolling twelve-month end date if the feed is unavailable or still contains an older series. The comparison window moves when the fixed tariff changes.",
+    "Compares costs from an estimated supply start three days after this tool is opened until the selected UW fixed tariff expires. First and last months are pro-rated by the number of active days, and the monthly average reflects the actual comparison length, which may exceed twelve months. Live UW fixed expiry is preferred; fallback expiry is indicative.",
     "The fixed side defaults to the latest live UW Fixed Saver series for your region and Direct Debit. You can switch to the matching UW Fixed or UW Fixed Start tariff, or test any fixed deal.",
     "Dual-fuel discount of £12.38 a year per fuel is applied to the UW fixed tariff presets, and only when both fuels are selected.",
     "VAT: gas 5% throughout; electricity 0% from 1 October 2026 to 31 March 2027, then back to 5%. Own rates are entered before VAT so the maths stays consistent.",
-    "Usage is spread across the months, with gas weighted more heavily into winter and electricity treated as a lighter seasonal approximation. For an electricity-only home with Electric heating switched on, electricity is winter-weighted like heating and Low/Med/High use Ofgem's multi-rate electricity profile.",
+    "Gas uses a winter-heavy seasonal profile, while electricity has a gentler seasonal approximation (except electric-heating mode). Annual monthly weighting is applied proportionately to the days in any partial month, as are standing charges. The monthly average reflects the actual days through fixed expiry.",
     "Confirmed price-cap rates are used through December 2026. January (+21% scenario), April (-0.5%) and July (-7.8%) use unit-rate forecasts. From 1 October 2027, both unit rates and standing charges are held flat at July-September levels (0% movement). This October assumption is not a published Ofgem or MSE forecast.",
     "The chart also shows the matching live UW Tracker tariff. Oct-Dec uses UW's published live Tracker rates. Future Tracker rates are estimated by subtracting the tariff's contractual Direct Debit pence discounts from the modelled price-cap rates on an ex-VAT basis, then applying the VAT treatment for that month. They are not published future UW rates.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
