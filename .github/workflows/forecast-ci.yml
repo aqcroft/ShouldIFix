@@ -1,0 +1,38 @@
+name: Forecast parser and feed checks
+on:
+  push:
+    branches: [main]
+    paths:
+      - forecast-data.json
+      - forecast-feed.js
+      - scripts/check_mse_forecast.py
+      - tests/test_forecast_scraper.py
+      - Oct2026.html
+  pull_request:
+    paths:
+      - forecast-data.json
+      - forecast-feed.js
+      - scripts/check_mse_forecast.py
+      - tests/test_forecast_scraper.py
+      - Oct2026.html
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install parser dependencies
+        run: python -m pip install requests beautifulsoup4
+      - name: Check forecast script and approved JSON
+        run: |
+          python -m py_compile scripts/check_mse_forecast.py
+          python -m json.tool forecast-data.json > /dev/null
+          python -m unittest discover -s tests -p 'test_forecast_*.py'
+      - name: Check forecast loader JavaScript syntax
+        run: node --check forecast-feed.js
