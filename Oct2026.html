@@ -980,6 +980,11 @@ const REGIONS = [
    The Jan rise is user-adjustable via the scenario buttons in the chart. */
 let DEFAULT_JAN_RISE=25;
 let APR_FROM_JAN=1.022, JUL_FROM_APR=0.902;
+function forecastScenarioValues(){
+  const base=[0,15,30];
+  base.push(base.includes(DEFAULT_JAN_RISE)?25:DEFAULT_JAN_RISE);
+  return [...new Set(base)].sort((a,b)=>a-b);
+}
 /* Forecast split: use the fresher headline forecast, but keep standing charges
    at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
    January component forecast gives the electricity-v-gas unit-rate shape. */
@@ -1633,7 +1638,7 @@ function evDraw(res,janRise){
   const labels=rows.map((r,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-padB+16)+'" font-size="10" fill="#9a92b3" text-anchor="middle" font-weight="700">'+r.k+'</text>').join("");
   const janIndex=rows.findIndex(r=>r.k==="Jan"&&r.ph==="jan");
   const janX=janIndex>=0?x(janIndex).toFixed(1):null;
-  const scenarios=[0,15,25,30];
+  const scenarios=forecastScenarioValues();
   document.getElementById("evScenarios").innerHTML=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<.001;
     return '<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(active?"true":"false")+'">'+(Number.isInteger(v)?v:v.toFixed(1))+'%</button>';
@@ -1843,7 +1848,7 @@ function draw(res,janRise,s,tracker){
   const forecastCap=firstForecast<0?[]:firstForecast===0?cap:[joinPoint,...cap.slice(firstForecast)];
   const dashCap=forecastCap.length>1?`<path d="${L(forecastCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-dasharray="6 4" stroke-linejoin="round" opacity=".78"/>`:"";
   const capOp=i=>firstForecast<0||i<firstForecast?1:.72;
-  const scenarios=[0,15,25,30];
+  const scenarios=forecastScenarioValues();
   const scenarioButtons=scenarios.map(v=>{
     const active=Math.abs(v-janRise)<0.001;
     const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
