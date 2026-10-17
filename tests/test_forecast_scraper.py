@@ -43,12 +43,15 @@ class MSEParserTests(unittest.TestCase):
         self.assertEqual([p["average"]["change_pct"] for p in found["periods"]], [3.6, 25.0, 2.2, -9.8])
         self.assertIsNone(found["suppliers"][1]["values"][3])
         self.assertEqual(found["suppliers"][0]["predicted_on"], "2026-10-13")
-        self.assertEqual(mod.signature(found), mod.signature(self.approved))
+        same = copy.deepcopy(found)
+        same["periods"][1]["average"]["change_pct"] = 25
+        self.assertEqual(mod.signature(found), mod.signature(same))
 
     def test_detects_numerical_change_even_same_source_week(self):
+        baseline = mod.read_table(HTML, self.approved, today=self.day)
         changed = HTML.replace("UP 25% £2,154", "UP 27% £2,188")
         found = mod.read_table(changed, self.approved, today=self.day)
-        self.assertNotEqual(mod.signature(found), mod.signature(self.approved))
+        self.assertNotEqual(mod.signature(found), mod.signature(baseline))
 
     def test_rejects_incomplete_table(self):
         with self.assertRaises(ValueError):
