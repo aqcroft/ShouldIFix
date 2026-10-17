@@ -1,0 +1,46 @@
+name: Test forecast approval email (no data changes)
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  test-notification:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create safe approval request as GitHub Actions bot
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH=automation/mse-approval-email-test
+          git fetch origin main
+          git fetch origin "$BRANCH" || true
+          git checkout -B "$BRANCH" origin/main
+          cat > approval-email-demo.md <<'EOF'
+          # FORECAST APPROVAL EMAIL TEST
+
+          This file is for notification testing only. All live forecast
+          figures, supplier tables and customer calculations remain unchanged.
+          Please close the test pull request without merging.
+          EOF
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add approval-email-demo.md
+          git commit -m "test: forecast notification review (no live data changes)"
+          git push --force-with-lease origin "$BRANCH"
+          PR=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')
+          if [[ -z "$PR" ]]; then
+            gh pr create --head "$BRANCH" --base main \
+              --title "TEST ONLY: review request for MSE forecast approval emails" \
+              --body "This is a safe **notification test**. No forecast figures have changed. Please **close without merging** after checking your GitHub email and opening this link."
+            PR=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number')
+          fi
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR/requested_reviewers" -f 'reviewers[]=aqcroft'
+          echo "Notification test review URL: https://github.com/$GITHUB_REPOSITORY/pull/$PR"
