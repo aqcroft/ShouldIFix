@@ -1,0 +1,84 @@
+name: Confirm approved forecast publication
+on:
+  push:
+    branches: [main]
+    paths: [forecast-data.json]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Verify public data is updated
+        id: verify
+        shell: bash
+        run: |
+          python - <<'PY'
+          import datetime as dt
+          import json
+          import os
+          import time
+          import urllib.request
+          from pathlib import Path
+
+          approved=json.loads(Path('forecast-data.json').read_text(encoding='utf-8'))
+          url='https://aqcroft.github.io/ShouldIFix/forecast-data.json'
+          verified=False
+          for attempt in range(30):
+              try:
+                  bust='?check='+str(int(time.time()))
+                  req=urllib.request.Request(url+bust,headers={'Cache-Control':'no-cache'})
+                  with urllib.request.urlopen(req,timeout=12) as response:
+                      live=json.load(response)
+                  if live==approved:
+                      verified=True
+                      break
+              except Exception as exc:
+                  print('GitHub Pages not ready:',str(exc))
+              print('Waiting for GitHub Pages to serve the approved revision...', attempt+1)
+              time.sleep(15)
+          if not verified:
+              raise SystemExit('Public forecast revision could not be verified; do not send success notification')
+          now=dt.datetime.now(dt.timezone.utc).strftime('%d %B %Y, %H:%M UTC')
+          rows=[
+              '## Approved MSE forecast is now live',
+              '',
+              'Successfully checked the live GitHub Pages JSON against the approved forecast file.',
+              '',
+              '**Published and verified:** '+now,
+              '',
+              '**Source week:** '+approved['source']['week_start'],
+              '',
+              '**Revision:** '+approved['revision'],
+              '',
+              '| Quarter | Live published movement |',
+              '|---|---:|',
+          ]
+          rows += ['| '+p['label']+' | '+format(p['average']['change_pct'],'+g')+'% |' for p in approved['periods']]
+          rows += ['',
+                   'This dataset drives the calculator, default forecast button and tappable MSE supplier table.',
+                   '',
+                   'Calculator: https://aqcroft.github.io/ShouldIFix/Oct2026.html',
+                   '',
+                   'Source: '+approved['source']['url'],
+                   '',
+                   'Published Git revision: '+os.environ['GITHUB_SHA']]
+          Path('publication-confirmation.md').write_text('\n'.join(rows)+'\n',encoding='utf-8')
+          print('Verified live forecast:',approved['revision'],now)
+          PY
+      - name: Notify repository owner with timestamped audit record
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          REV=$(python -c "import json; print(json.load(open('forecast-data.json'))['revision'])")
+          gh issue create --title "Forecast published and verified: $REV" --body-file publication-confirmation.md --assignee aqcroft
