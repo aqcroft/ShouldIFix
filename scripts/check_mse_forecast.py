@@ -67,8 +67,12 @@ def read_table(html,approved,today=None):
         new["suppliers"][i]["predicted_on"]=iso(match.group(1)) if match else published
     return new
 def signature(data):
-    return json.dumps({"periods":[p["average"] for p in data["periods"]],
-                       "suppliers":[s["values"] for s in data["suppliers"]]},sort_keys=True)
+    # Normalise e.g. 25 and 25.0, otherwise a no-change week requests approval.
+    def normal(value):
+        if value is None: return None
+        return (round(float(value["change_pct"]),3),int(value["annual_gbp"]))
+    return (tuple(normal(p["average"]) for p in data["periods"]),
+            tuple(tuple(normal(v) for v in s["values"]) for s in data["suppliers"]))
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--data",default="forecast-data.json")
