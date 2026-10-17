@@ -50,8 +50,16 @@ settings that can be confirmed from repository source files alone.
 3. Leave Actions enabled for the ShouldIFix repository. You may manually run
    the Friday workflow from its Actions tab to test the scraper. If the MSE
    numbers have not changed, it will correctly create **no** pull request.
-4. A sample notification pull request can be opened manually to test email
-   delivery without changing live forecast data.
+4. **Test the approval email:** open the repository **Actions** tab, select
+   **Test forecast approval email (no data changes)**, choose **Run workflow**,
+   and wait for the run to complete. GitHub's automation bot creates a harmless
+   pull request and requests an `aqcroft` review, which should generate an
+   email if notifications are enabled. Once reviewed, **close it without
+   merging**. This test changes no live forecast data.
+5. If no email arrives, inspect https://github.com/notifications and the
+   workflow run first. Self-authored pull requests cannot request a review
+   from the same person; the test must be run by GitHub Actions, not created
+   manually under the owner's login.
 
 ## Sharing and safety
 
