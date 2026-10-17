@@ -12,7 +12,7 @@ from bs4 import BeautifulSoup
 
 URL="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/"
 LABELS=("1 Oct to 31 Dec 2026","1 Jan to 31 March 2027","1 Apr to 30 June 2027","1 Jul to 30 Sep 2027")
-ROW=re.compile(r"EDF\s*\(1\)|British\s+Gas\s*\(2\)|E\.on\s+Next\s*\(3\)|Average\s*\(4\)",re.I)
+ROW=re.compile(r"EDF\s*\(\s*1\s*\)|British\s+Gas\s*\(\s*2\s*\)|E\.on\s+Next\s*\(\s*3\s*\)|Average\s*\(\s*4\s*\)",re.I)
 CELL=re.compile(r"(?:\b(UP|DOWN)\s+(\d+(?:\.\d+)?)\s*%\s*£\s*([\d,]+)(?:\s+a year)?)|No prediction yet",re.I)
 def iso(text):
     for fmt in ("%d %B %Y","%d %b %Y"):
@@ -37,7 +37,7 @@ def read_table(html,approved,today=None):
         if q.lower() not in table.lower(): raise ValueError("MSE quarter definitions changed: "+q)
     matches=list(ROW.finditer(table))
     if len(matches)!=4: raise ValueError("MSE supplier rows missing or changed")
-    names=[re.sub(r"\s*\(\d\)$","",m.group()).strip().lower() for m in matches]
+    names=[re.sub(r"\s*\(\s*\d\s*\)$","",m.group()).strip().lower() for m in matches]
     if names!=["edf","british gas","e.on next","average"]: raise ValueError("Supplier order changed")
     rows=[]
     for i,m in enumerate(matches):
