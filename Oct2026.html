@@ -555,9 +555,14 @@
   details .body li{margin-bottom:7px}
   footer{margin-top:22px;font-size:.75rem;color:var(--muted);font-weight:600;text-align:center;line-height:1.6}
   .hidden{display:none!important}
+  .tariff-check{border:1.5px solid #e2c480;background:#fff9e9;border-radius:16px;padding:17px 18px;margin:14px 0;color:#543c18;line-height:1.45}
+  .tariff-check strong{display:block;font-size:1rem;margin-bottom:5px}
+  .tariff-check p{margin:0;font-size:.84rem;font-weight:650}
+  .tariff-check button{margin-top:11px;border:1px solid #b48c3e;background:white;color:#543c18;border-radius:10px;padding:9px 13px;font:800 .84rem Nunito,system-ui;cursor:pointer}
+  body.tariff-unverified #resultCard{display:none!important}
 </style>
 </head>
-<body>
+<body class="tariff-unverified">
 <div class="wrap">
 
   <header class="hero">
@@ -617,6 +622,7 @@
   </section>
 
   <input id="janRise" type="hidden" value="25"><input id="forecastDefault" type="hidden" value="25">
+  <div id="tariffCheck" class="tariff-check" role="status" aria-live="polite"><strong>Checking current UW tariff rates…</strong><p id="tariffCheckMessage">Savings will appear after the current tariff has been verified.</p><button id="retryTariffs" type="button" hidden>Retry tariff check</button></div>
   <section class="card result" id="resultCard">
     <p class="rlead" id="rlead">&nbsp;</p>
     <p class="compare-start-note" id="compareStartNote"></p>
@@ -1122,7 +1128,7 @@ function projectedCapRate(region,ph,janRisePct){
 /* ---------- EV / ECONOMY 7 EXTENSION ---------- */
 const EV_FEED_URL="https://script.google.com/macros/s/AKfycbw-TllTpk_dbFjHhmojgeai9gKNGRzRaA_BtMooVSLeqvg614mONQyrpElC4M8vqP51/exec";
 const EV_OCT_RISE=4;
-let evFeedData=null, evFeedStatus="loading", evProfileTouched=false, evBillOpen=false, evEfficiency=3.2;
+let evFeedData=null, evFeedStatus="loading", evFeedError="", evFeedRequestId=0, evProfileTouched=false, evBillOpen=false, evEfficiency=3.2;
 
 function evNum(v){
   if(v===null||v===undefined||v==="") return null;
@@ -1705,11 +1711,28 @@ function renderEvExtension(s){
   document.getElementById("evNote").textContent="October assumes the EV tariff rises "+EV_OCT_RISE+"%. January applies the selected price-cap scenario to the EV tariff, followed by the same +2.2% April and -9.8% July trajectory used by the main tool. Fixed E7 stays fixed. The current split implies about "+Math.round(p.e7HomeNight+p.car).toLocaleString("en-GB")+" kWh/year on the Economy 7 night rate after allowing for the longer cheap window. These are modelling assumptions, not a UW forecast.";
   evDraw(res,s.janRise);
 }
-function loadEvFeed(){
-  fetch(EV_FEED_URL,{cache:"no-store"})
-    .then(r=>{if(!r.ok) throw new Error("HTTP "+r.status);return r.json();})
-    .then(d=>{evFeedStatus="live";applyLiveFixedTariffs(d);render();})
-    .catch(()=>{evFeedStatus="error";render();});
+function loadEvFeed(attempt=0, requestId){
+  // Each new check supersedes earlier responses, so a slow request cannot overwrite a retry.
+  if(attempt===0){requestId=++evFeedRequestId;evFeedStatus="loading";evFeedError="";render();}
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),15000);
+  fetch(EV_FEED_URL,{cache:"no-store",signal:controller.signal})
+    .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.json();})
+    .then(d=>{
+      if(requestId!==evFeedRequestId)return;
+      if(!applyLiveFixedTariffs(d))throw new Error("No usable live UW fixed tariffs returned");
+      evFeedStatus="live";evFeedError="";render();
+    })
+    .catch(err=>{
+      if(requestId!==evFeedRequestId)return;
+      if(attempt<1){
+        setTimeout(()=>{if(requestId===evFeedRequestId)loadEvFeed(attempt+1,requestId);},1000);
+      }else{
+        evFeedError=String(err&&err.message||err);
+        evFeedStatus="error";render();
+      }
+    })
+    .finally(()=>clearTimeout(timeout));
 }
 
 function trackerRateForMonth(tracker,capRate,m){
@@ -2063,6 +2086,24 @@ function readParams(){
 
 function render(){
   const s=state();
+  // Fail closed: the embedded rates are historic examples, NEVER verified customer savings.
+  // The same guard applies to the Companion and the customer-facing share iframe.
+  const selectedLiveRow=liveFixedRow(s.region.n,s.tariff==="custom"?"saver":s.tariff);
+  const verified=evFeedStatus==="live"&&!!standardFixedRate(selectedLiveRow);
+  const availability=verified?"verified":evFeedStatus==="loading"?"loading":"unavailable";
+  document.body.classList.toggle("tariff-unverified",!verified);
+  document.body.dataset.tariffDataStatus=availability;
+  const notice=document.getElementById("tariffCheck");
+  notice.hidden=verified;
+  if(!verified){
+    notice.querySelector("strong").textContent=availability==="loading"?"Checking current UW tariff rates…":"Current UW tariff rates could not be verified";
+    document.getElementById("tariffCheckMessage").textContent=availability==="loading"
+      ?"Savings will appear once the current tariff rates have been checked. Please wait."
+      :evFeedStatus==="error"
+        ?"The live tariff service could not be reached. To avoid misleading savings, no comparison is shown. Check your connection and retry."
+        :"No verified fixed tariff was returned for this region or tariff. Select another option or retry.";
+    document.getElementById("retryTariffs").hidden=availability==="loading";
+  }
   setComparisonPeriod(s);
   syncVisibility(s);
   document.getElementById("shareUrl").value=buildShareUrl(s);
@@ -2219,7 +2260,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.63.1 (17 October 2026; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.63.2 (17 October 2026; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -2262,6 +2303,7 @@ function statics(){
     render();
   });
   document.getElementById("tariffDetailsBtn").addEventListener("click",openTariffDetails);
+  document.getElementById("retryTariffs").addEventListener("click",()=>loadEvFeed());
   document.getElementById("electricHeat").addEventListener("change",refreshSelectedUsageBand);
   ["mESC","mEU","mGSC","mGU"].forEach(id=>{
     const el=document.getElementById(id);
@@ -2335,6 +2377,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.63.1"></script>
+<script src="./forecast-feed.js?v=2.63.2"></script>
 </body>
 </html>
