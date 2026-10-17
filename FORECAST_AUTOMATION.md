@@ -7,17 +7,26 @@ July forecasts used by Should I Fix, the January default and its tappable source
 table (including the EDF, British Gas and E.on Next rows). The built-in October
 2026 snapshot remains available when the JSON feed cannot be loaded.
 
-## Friday workflow
+## Friday check and conditional Saturday follow-up (monitor v1.1)
 
 - GitHub Actions workflow: `.github/workflows/mse-forecast-review.yml`.
-- Runs each Friday at approximately 5pm UK time, with UTC/BST checks.
+- Runs **Friday at approximately 5pm UK time**, in GMT or BST.
 - Fetches MSE's public energy price cap prediction page and verifies that the
   current four-quarter table and all supplier and average figures are readable.
-- Any changed numerical figures generate or refresh a pull request named
-  **Approval requested: updated MSE energy forecasts**.
-- No change means **no approval request**.
+- If any numerical forecast changes, generates or refreshes a pull request named
+  **Approval requested: updated MSE energy forecasts**, for manual approval.
+- If no numbers change, creates a Friday GitHub issue assigned to `aqcroft`
+  titled **MSE forecast check: [date] - no updates found**. With issue-assignment
+  email enabled, this provides the requested **no updates found** email.
+- The **Saturday 5pm UK** run checks again **only if that Friday no-change issue
+  is open**. It records the follow-up result on the same issue, then closes it.
+  If fresh numbers appear on Saturday, it also creates an approval pull request.
+- If Friday already discovered a change, Saturday skips the redundant recheck.
 - Missing, inaccessible, old or restructured MSE data **fails closed**. The
-  currently approved published forecast is untouched.
+  currently approved published forecast is untouched. A failed check does not
+  claim that there were "no updates found" and should surface as an Actions failure.
+- A separate ChatGPT backup watch also checks Fridays and Saturdays for *changed
+  figures only*. GitHub handles Friday's "no updates" notification to avoid duplicates.
 
 ## Approve an update
 
@@ -47,9 +56,10 @@ settings that can be confirmed from repository source files alone.
    policies prevent this, a different bot credential would be required.
 2. Under your GitHub **Settings → Notifications**, enable email for requested
    pull-request reviews and issue assignments. Check the verified account email.
-3. Leave Actions enabled for the ShouldIFix repository. You may manually run
-   the Friday workflow from its Actions tab to test the scraper. If the MSE
-   numbers have not changed, it will correctly create **no** pull request.
+3. Leave Actions enabled for the ShouldIFix repository. You can manually run
+   the forecast workflow from its Actions tab to test the scraper. Manual runs
+   can propose a changed forecast, but do **not** generate scheduled Friday
+   no-change emails or trigger the Saturday follow-up.
 4. **Test the approval email:** open the repository **Actions** tab, select
    **Test forecast approval email (no data changes)**, choose **Run workflow**,
    and wait for the run to complete. GitHub's automation bot creates a harmless
