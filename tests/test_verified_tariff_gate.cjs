@@ -77,7 +77,7 @@ test('failed network request retries, then reports an error rather than using fa
 });
 
 test('main calculator script remains valid JavaScript', () => {
-  const script = html.match(/<script>\\s*("use strict";[\\s\\S]*?)<\\/script>/);
+  const script = html.match(/<script>\s*("use strict";[\s\S]*?)<\/script>/);
   assert.ok(script, 'calculator script must be present');
   assert.doesNotThrow(() => new vm.Script(script[1]));
 });
