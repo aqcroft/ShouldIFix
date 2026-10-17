@@ -1,13 +1,14 @@
-name: Friday MSE forecast approval request
+name: Friday and Saturday MSE forecast watch
 on:
   schedule:
     # UTC triggers are gated to 5pm UK local time across GMT/BST.
-    - cron: '0 16,17 * * 5'
+    - cron: '0 16,17 * * 5,6'
   workflow_dispatch:
 
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 concurrency:
   group: mse-forecast-review
@@ -17,14 +18,24 @@ jobs:
   propose:
     runs-on: ubuntu-latest
     steps:
-      - name: UK-local schedule guard
+      - name: UK-local 5pm schedule and day guard
         id: clock
         shell: bash
         run: |
-          if [[ "$GITHUB_EVENT_NAME" == "schedule" && "$(TZ=Europe/London date +%H)" != "17" ]]; then
-            echo "proceed=false" >> "$GITHUB_OUTPUT"
-          else
+          set -euo pipefail
+          DAY=$(TZ=Europe/London date +%u)
+          HOUR=$(TZ=Europe/London date +%H)
+          echo "proceed=false" >> "$GITHUB_OUTPUT"
+          echo "day=skip" >> "$GITHUB_OUTPUT"
+          if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "day=manual" >> "$GITHUB_OUTPUT"
+          elif [[ "$HOUR" == "17" && "$DAY" == "5" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "day=friday" >> "$GITHUB_OUTPUT"
+          elif [[ "$HOUR" == "17" && "$DAY" == "6" ]]; then
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+            echo "day=saturday" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@v4
         if: steps.clock.outputs.proceed == 'true'
@@ -40,8 +51,31 @@ jobs:
       - name: Test parser with offline fixtures
         if: steps.clock.outputs.proceed == 'true'
         run: python -m unittest discover -s tests -p 'test_forecast_*.py'
-      - name: Prepare proposed forecast JSON
+      - name: Check Saturday follows a Friday with no updates
         if: steps.clock.outputs.proceed == 'true'
+        id: eligibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "should_check=true" >> "$GITHUB_OUTPUT"
+          if [[ "${{ steps.clock.outputs.day }}" != "saturday" ]]; then
+            exit 0
+          fi
+          FRIDAY=$(TZ=Europe/London date -d 'yesterday' +%F)
+          TITLE="MSE forecast check: $FRIDAY - no updates found"
+          ISSUE=$(gh issue list --state open --limit 100 --json number,title |
+            jq -r --arg title "$TITLE" '[.[] | select(.title == $title) | .number][0] // empty')
+          if [[ -z "$ISSUE" ]]; then
+            echo "should_check=false" >> "$GITHUB_OUTPUT"
+            echo "No Friday no-change marker, so Saturday follow-up is not needed."
+          else
+            echo "friday_issue=$ISSUE" >> "$GITHUB_OUTPUT"
+            echo "Saturday follow-up to Friday report issue #$ISSUE."
+          fi
+      - name: Prepare proposed forecast JSON
+        if: steps.eligibility.outputs.should_check == 'true'
         id: prepare
         shell: bash
         run: |
@@ -62,6 +96,7 @@ jobs:
             git push --force-with-lease origin "$BRANCH"
           fi
       - name: Create or refresh approval request
+        id: proposal
         if: steps.prepare.outputs.changed == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,6 +111,61 @@ jobs:
           else
             gh pr edit "$PR" --body-file forecast-update.md
           fi
+          echo "pr_number=$PR" >> "$GITHUB_OUTPUT"
           echo "Review URL: https://github.com/$GITHUB_REPOSITORY/pull/$PR"
           gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR/requested_reviewers" -f 'reviewers[]=aqcroft' ||
             echo "::warning::Could not request owner review. Check GitHub notifications."
+
+      - name: Friday 5pm - email no numerical changes
+        if: steps.clock.outputs.day == 'friday' && steps.prepare.outputs.changed == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          TODAY=$(TZ=Europe/London date +%F)
+          TITLE="MSE forecast check: $TODAY - no updates found"
+          EXISTING=$(gh issue list --state all --limit 100 --json number,title |
+            jq -r --arg title "$TITLE" '[.[] | select(.title == $title) | .number][0] // empty')
+          if [[ -n "$EXISTING" ]]; then
+            echo "The Friday status has already been sent (issue #$EXISTING)."
+            exit 0
+          fi
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('forecast-data.json').read_text(encoding='utf-8'))
+          rows=[
+              '## Friday MSE check: no numerical updates found',
+              '',
+              'The MoneySavingExpert energy price-cap forecast table was checked successfully.',
+              '**No new published percentages or annual-cost figures were detected.**',
+              '',
+              'Currently approved figures, source week '+data['source']['week_start']+':',
+          ]
+          rows += ['- '+p['label']+': '+format(p['average']['change_pct'],'+g')+'%'
+                   for p in data['periods'][1:]]
+          rows += ['', '**Next check:** Saturday at 5pm UK time.',
+                   'Any newly detected figures will create a separate approval request.',
+                   'No live calculator forecasts were changed.',
+                   '',
+                   'MSE source: '+data['source']['url']]
+          Path('forecast-friday-status.md').write_text('\n'.join(rows)+'\n',encoding='utf-8')
+          PY
+          gh issue create --title "$TITLE" --body-file forecast-friday-status.md --assignee aqcroft
+
+      - name: Saturday 5pm - record outcome of follow-up check
+        if: steps.clock.outputs.day == 'saturday' && steps.eligibility.outputs.friday_issue != '' && steps.prepare.outcome == 'success' && steps.proposal.outcome != 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          ISSUE="${{ steps.eligibility.outputs.friday_issue }}"
+          if [[ "${{ steps.prepare.outputs.changed }}" == "true" ]]; then
+            BODY="Saturday recheck: **updated forecasts detected**. Approval request PR #${{ steps.proposal.outputs.pr_number }} created. Live figures remain unchanged pending approval."
+          else
+            BODY="Saturday recheck: **still no numerical changes**. Approved figures remain in use; next scheduled check is Friday."
+          fi
+          gh issue comment "$ISSUE" --body "$BODY"
+          gh issue close "$ISSUE" --reason completed
