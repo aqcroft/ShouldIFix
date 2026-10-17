@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.63.1">
+<meta name="app-version" content="2.63.3">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -2260,7 +2260,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.63.2 (17 October 2026; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.63.3 (17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -2378,6 +2378,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.63.2"></script>
+<script src="./forecast-feed.js?v=2.63.3"></script>
 </body>
 </html>
