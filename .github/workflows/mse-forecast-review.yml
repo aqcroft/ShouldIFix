@@ -1,0 +1,81 @@
+name: Friday MSE forecast approval request
+on:
+  schedule:
+    # UTC triggers are gated to 5pm UK local time across GMT/BST.
+    - cron: '0 16,17 * * 5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: mse-forecast-review
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: UK-local schedule guard
+        id: clock
+        shell: bash
+        run: |
+          if [[ "$GITHUB_EVENT_NAME" == "schedule" && "$(TZ=Europe/London date +%H)" != "17" ]]; then
+            echo "proceed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "proceed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.clock.outputs.proceed == 'true'
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        if: steps.clock.outputs.proceed == 'true'
+        with:
+          python-version: '3.11'
+      - name: Install MSE parser dependencies
+        if: steps.clock.outputs.proceed == 'true'
+        run: python -m pip install requests beautifulsoup4
+      - name: Test parser with offline fixtures
+        if: steps.clock.outputs.proceed == 'true'
+        run: python -m unittest discover -s tests -p 'test_forecast_*.py'
+      - name: Prepare proposed forecast JSON
+        if: steps.clock.outputs.proceed == 'true'
+        id: prepare
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH=automation/mse-forecast-review
+          git fetch origin main
+          git fetch origin "$BRANCH" || true
+          git checkout -B "$BRANCH" origin/main
+          python scripts/check_mse_forecast.py
+          if git diff --quiet -- forecast-data.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add forecast-data.json
+            git commit -m "data: propose MSE forecast review"
+            git push --force-with-lease origin "$BRANCH"
+          fi
+      - name: Create or refresh approval request
+        if: steps.prepare.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH=automation/mse-forecast-review
+          PR=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number // empty')
+          if [[ -z "$PR" ]]; then
+            gh pr create --base main --head "$BRANCH" --title "Approval requested: updated MSE energy forecasts" --body-file forecast-update.md
+            PR=$(gh pr list --head "$BRANCH" --base main --state open --json number --jq '.[0].number')
+          else
+            gh pr edit "$PR" --body-file forecast-update.md
+          fi
+          echo "Review URL: https://github.com/$GITHUB_REPOSITORY/pull/$PR"
+          gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR/requested_reviewers" -f 'reviewers[]=aqcroft' ||
+            echo "::warning::Could not request owner review. Check GitHub notifications."
