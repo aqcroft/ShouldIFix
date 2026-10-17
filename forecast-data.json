@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "revision": "mse-2026-10-12",
+  "source": {
+    "publisher": "MoneySavingExpert",
+    "url": "https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/",
+    "week_start": "2026-10-12",
+    "article_updated": "2026-10-15"
+  },
+  "benchmark": {
+    "electricity_kwh": 2500,
+    "gas_kwh": 9500,
+    "payment": "Direct Debit"
+  },
+  "periods": [
+    {
+      "key": "oct2026",
+      "label": "1 Oct to 31 Dec 2026",
+      "status": "confirmed",
+      "average": {
+        "change_pct": 3.6,
+        "annual_gbp": 1723
+      }
+    },
+    {
+      "key": "jan2027",
+      "label": "1 Jan to 31 March 2027",
+      "status": "forecast",
+      "average": {
+        "change_pct": 25,
+        "annual_gbp": 2154
+      }
+    },
+    {
+      "key": "apr2027",
+      "label": "1 Apr to 30 June 2027",
+      "status": "forecast",
+      "average": {
+        "change_pct": 2.2,
+        "annual_gbp": 2202
+      }
+    },
+    {
+      "key": "jul2027",
+      "label": "1 Jul to 30 Sep 2027",
+      "status": "forecast",
+      "average": {
+        "change_pct": -9.8,
+        "annual_gbp": 1985
+      }
+    }
+  ],
+  "suppliers": [
+    {
+      "name": "EDF",
+      "predicted_on": "2026-10-13",
+      "values": [
+        {
+          "change_pct": 3.6,
+          "annual_gbp": 1723
+        },
+        {
+          "change_pct": 24.7,
+          "annual_gbp": 2148
+        },
+        {
+          "change_pct": 2.6,
+          "annual_gbp": 2204
+        },
+        {
+          "change_pct": -10.1,
+          "annual_gbp": 1981
+        }
+      ]
+    },
+    {
+      "name": "British Gas",
+      "predicted_on": "2026-10-15",
+      "values": [
+        {
+          "change_pct": 3.6,
+          "annual_gbp": 1723
+        },
+        {
+          "change_pct": 26.8,
+          "annual_gbp": 2185
+        },
+        {
+          "change_pct": 0.2,
+          "annual_gbp": 2190
+        },
+        null
+      ]
+    },
+    {
+      "name": "E.on Next",
+      "predicted_on": "2026-10-12",
+      "values": [
+        {
+          "change_pct": 3.6,
+          "annual_gbp": 2088
+        },
+        {
+          "change_pct": 23.6,
+          "annual_gbp": 2130
+        },
+        {
+          "change_pct": 3.8,
+          "annual_gbp": 2211
+        },
+        {
+          "change_pct": -9.5,
+          "annual_gbp": 2000
+        }
+      ]
+    }
+  ],
+  "notes": "Annual benchmark figures are MSE's published examples, not a household quote. Future movements are forecasts, not Ofgem confirmations."
+}
