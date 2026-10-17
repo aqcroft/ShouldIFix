@@ -9,6 +9,7 @@ on:
       - tests/test_forecast_scraper.py
       - Oct2026.html
       - tests/test_verified_tariff_gate.cjs
+      - .github/workflows/forecast-ci.yml
   pull_request:
     paths:
       - forecast-data.json
@@ -17,6 +18,7 @@ on:
       - tests/test_forecast_scraper.py
       - Oct2026.html
       - tests/test_verified_tariff_gate.cjs
+      - .github/workflows/forecast-ci.yml
 
 permissions:
   contents: read
