@@ -2106,7 +2106,7 @@ function render(){
   }
   setComparisonPeriod(s);
   syncVisibility(s);
-  document.getElementById("shareUrl").value=buildShareUrl(s);
+  document.getElementById("shareUrl").value=verified?buildShareUrl(s):"";
   const disc=(s.tariff!=="custom" && s.mode==="dual")?DISCOUNT:0;
   const fix=fixedRates(s);
   const tracker=trackerModel(s.region,s.tariff);
@@ -2326,6 +2326,7 @@ function statics(){
   });
   const copyBtn=document.getElementById("copyBtn");
   copyBtn.addEventListener("click", async ()=>{
+    if(document.body.dataset.tariffDataStatus!=="verified"){copyBtn.textContent="Verify tariffs first";setTimeout(()=>copyBtn.textContent="Copy link",2000);return;}
     const inp=document.getElementById("shareUrl");
     const done=()=>{copyBtn.textContent="Copied";setTimeout(()=>copyBtn.textContent="Copy link",1600);};
     try{ await navigator.clipboard.writeText(inp.value); done(); }
