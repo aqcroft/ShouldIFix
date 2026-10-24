@@ -1200,9 +1200,21 @@ function renewalSetOptions(id){
     option.textContent=allowed?renewalRawName(archivedRow)+" (selected historical version)":"Shared historical tariff unavailable";
     el.appendChild(option);el.value=preferred;
   }else{
-    const defaultName=id==="renewalEnding"?"Fixed Saver 65":id==="renewalOffered"?"Fixed Saver 99":id==="renewalVariable"?renewalDefaultVariable(renewalTier()):"";
-    const match=options.find(item=>item.label.toLowerCase()===defaultName.toLowerCase());
-    el.value=match?match.value:options[0].value;
+    // Require deliberate selection of expiring and offered tariffs.
+    // Do not silently substitute a different historical series.
+    if(id==="renewalEnding"||id==="renewalOffered"){
+      const placeholder=document.createElement("option");
+      placeholder.value="";placeholder.textContent="Select "+(id==="renewalEnding"?"expiring":"offered")+" fixed tariff";
+      el.insertBefore(placeholder,el.firstChild);el.value="";
+    }else{
+      const defaultName=id==="renewalVariable"?renewalDefaultVariable(renewalTier()):"";
+      const match=options.find(item=>item.label.toLowerCase()===defaultName.toLowerCase());
+      el.value=match?match.value:id==="renewalPublic"?options[0].value:"";
+      if(!el.value){
+        const blank=document.createElement("option");blank.value="";blank.textContent="Choose variable tariff";
+        el.insertBefore(blank,el.firstChild);el.value="";
+      }
+    }
   }
 }
 function renewalRefreshChoices(){
