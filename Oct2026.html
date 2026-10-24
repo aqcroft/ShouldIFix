@@ -1103,37 +1103,160 @@ function forecastPhase(year,cal){
   return "flat";
 }
 
-/* ---------- EXISTING-CUSTOMER RENEWAL MODE ---------- */
-/* The rates below are supplied by the customer, not copied from the live
-   tariff feed. Keep the main forecastStepCache, seasonality and VAT logic. */
-function renewalMode(){
-  return document.querySelector('#comparisonSwitch button[aria-pressed="true"]')?.dataset.compareMode==="renewal";
+/* ---------- HISTORICAL RENEWAL TARIFF CATALOGUE ---------- */
+const RENEWAL_FIELDS=["renewalEnding","renewalVariable","renewalOffered","renewalPublic"];
+let renewalCatalogue=null,renewalFeedStatus="idle",renewalFeedError="",renewalFeedRegion=null,renewalRequestId=0;
+let renewalPinnedStart="",renewalPendingSelections=null,renewalUserChoices={};
+function renewalMode(){return document.querySelector('#comparisonSwitch button[aria-pressed="true"]')?.dataset.compareMode==="renewal";}
+function safeHtml(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+function renewalRawName(row){return String((row&&(row.tariff_name!=null?row.tariff_name:row.tariffName))||"").trim().replace(/^UW\s+/i,"").replace(/\s+Direct Debit$/i,"");}
+function renewalNameKey(row){return renewalRawName(row).toLowerCase().replace(/\s+/g," ");}
+function renewalRowKey(row){
+  const ref=String(row&&(row.source_ref!=null?row.source_ref:row.sourceRef)||"").trim();
+  return ref?renewalNameKey(row)+"|"+ref:"";
 }
-function renewalName(id,fallback){
-  return (document.getElementById(id).value||"").trim()||fallback;
+function renewalRowType(row){return String((row&&(row.tariff_type!=null?row.tariff_type:row.tariffType))||"").toLowerCase();}
+function renewalTier(){return document.getElementById("renewalServices").value;}
+function renewalFixedFamily(tier){
+  return tier==="1"?/^fixed start\s+\d+$/i:tier==="2"?/^fixed\s+\d+$/i:/^fixed saver\s+\d+$/i;
 }
-function safeHtml(value){
-  return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function renewalDefaultVariable(tier){return tier==="1"?"Value":tier==="2"?"Gold":"Double Gold";}
+function renewalSourceDate(row){
+  // TIL source references end with ETLddmmyy: use the document's own revision date.
+  const ref=String(row.source_ref||row.sourceRef||"");
+  const match=ref.match(/ETL(\d{2})(\d{2})(\d{2})/i);
+  if(match){
+    const yr=2000+Number(match[3]),mo=Number(match[2]),day=Number(match[1]);
+    const d=new Date(Date.UTC(yr,mo-1,day));
+    if(d.getUTCFullYear()===yr&&d.getUTCMonth()===mo-1&&d.getUTCDate()===day)return d.getTime();
+  }
+  for(const field of ["written_at","archived_at","updated_at"]){
+    const t=Date.parse(String(row[field]||""));
+    if(Number.isFinite(t))return t;
+  }
+  return 0;
+}
+function firstOfNextMonth(){
+  const d=todayUTC();return new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+1,1));
+}
+function renewalISO(d){return d.toISOString().slice(0,10);}
+function renewalStartDate(){return renewalPinnedStart||renewalISO(firstOfNextMonth());}
+function renewalRows(){
+  if(!renewalCatalogue)return [];
+  return [...(renewalCatalogue.tariffLive||[]),...(renewalCatalogue.tariffHistory||[])].filter(row=>!!renewalRowKey(row));
+}
+function renewalFindRow(key){return renewalRows().find(row=>renewalRowKey(row)===key)||null;}
+function renewalSelectedRows(){
+  return {
+    ending:renewalFindRow(document.getElementById("renewalEnding").value),
+    variable:renewalFindRow(document.getElementById("renewalVariable").value),
+    offered:renewalFindRow(document.getElementById("renewalOffered").value),
+    public:renewalFindRow(document.getElementById("renewalPublic").value)
+  };
+}
+function renewalOptionsFor(id){
+  if(!renewalCatalogue)return [];
+  const tier=renewalTier(),fixedPattern=renewalFixedFamily(tier);
+  const live=renewalCatalogue.tariffLive||[];
+  const historical=renewalCatalogue.tariffHistory||[];
+  const rows=id==="renewalPublic"?live:[...live,...historical];
+  const candidates=rows.filter(row=>{
+    const name=renewalRawName(row),type=renewalRowType(row);
+    if(id==="renewalVariable")return type==="variable"&&["Value","Gold","Double Gold"].some(x=>x.toLowerCase()===name.toLowerCase());
+    return type==="fixed"&&fixedPattern.test(name);
+  }).filter(row=>!!renewalRowKey(row)&&!!standardFixedRate(row));
+  // One option per tariff number. Where UW republished a tariff, automatically
+  // use its newest sourced revision, preserving the selected source in share URLs.
+  const byName=new Map();
+  candidates.forEach(row=>{
+    const key=renewalNameKey(row),prev=byName.get(key);
+    if(!prev||renewalSourceDate(row)>renewalSourceDate(prev))byName.set(key,row);
+  });
+  return [...byName.values()].sort((a,b)=>{
+    const na=Number(renewalRawName(a).match(/\d+$/)?.[0]||0),nb=Number(renewalRawName(b).match(/\d+$/)?.[0]||0);
+    return id==="renewalVariable"?renewalRawName(a).localeCompare(renewalRawName(b)):nb-na;
+  });
+}
+function renewalSetOptions(id){
+  const el=document.getElementById(id),before=renewalUserChoices[id]||el.value;
+  const candidates=renewalOptionsFor(id);
+  const preferred=renewalPendingSelections&&renewalPendingSelections[id];
+  const options=candidates.map(row=>({value:renewalRowKey(row),label:renewalRawName(row)}));
+  el.replaceChildren();
+  if(!options.length){
+    const o=document.createElement("option");o.value="";o.textContent="Tariff not in catalogue";el.appendChild(o);return;
+  }
+  for(const item of options){
+    const o=document.createElement("option");o.value=item.value;o.textContent=item.label;el.appendChild(o);
+  }
+  const desired=preferred||before;
+  if(desired&&options.some(item=>item.value===desired)){el.value=desired;}
+  else if(preferred){
+    const o=document.createElement("option");o.value=preferred;o.textContent="Shared historical tariff unavailable";el.appendChild(o);el.value=preferred;
+  }else{
+    const defaultName=id==="renewalEnding"?"Fixed Saver 65":id==="renewalOffered"?"Fixed Saver 99":id==="renewalVariable"?renewalDefaultVariable(renewalTier()):"";
+    const match=options.find(item=>item.label.toLowerCase()===defaultName.toLowerCase());
+    el.value=match?match.value:options[0].value;
+  }
+}
+function renewalRefreshChoices(){
+  RENEWAL_FIELDS.forEach(renewalSetOptions);
+  if(renewalPendingSelections)renewalPendingSelections=null;
+  const selected=renewalSelectedRows();
+  const audit=document.getElementById("renewalAudit"),end=selected.ending;
+  const versions=end?renewalRows().filter(row=>renewalNameKey(row)===renewalNameKey(end))
+    .sort((a,b)=>renewalSourceDate(a)-renewalSourceDate(b)):[];
+  audit.textContent=versions.length>1
+    ?versions.map(row=>renewalRawName(row)+" - "+(row.source_ref||row.sourceRef)+" ("+
+      new Date(renewalSourceDate(row)).toLocaleDateString("en-GB")+")").join(" | ")
+    :"Only one historical version is currently available in the catalogue.";
 }
 function renewalInputsValid(mode){
-  const fields=mode==="elec"?["EU","ESC"]:mode==="gas"?["GU","GSC"]:["EU","ESC","GU","GSC"];
-  for(const side of ["Var","Offer"]){
-    for(const field of fields){
-      const val=document.getElementById("renewal"+side+field).value.trim();
-      if(val===""||!Number.isFinite(+val)||+val<0||(field.endsWith("U")&&+val===0))return false;
-    }
-  }
-  const start=document.getElementById("renewalStart").value;
-  const end=document.getElementById("renewalEnd").value;
-  const effectiveStart=start?parseContractEnd(start):addUTCDays(todayUTC(),SWITCH_LEAD_DAYS);
-  const effectiveEnd=end?parseContractEnd(end):null;
-  return !!effectiveStart&&(!end||(!!effectiveEnd&&effectiveEnd>=effectiveStart));
+  if(renewalFeedStatus!=="ready"||!renewalCatalogue||renewalFeedRegion!==+document.getElementById("region").value)return false;
+  const rows=renewalSelectedRows();
+  const needed=["ending","variable","offered"];
+  if(needed.some(key=>!rows[key]||!standardFixedRate(rows[key])))return false;
+  if(renewalRawName(rows.variable).toLowerCase()!==renewalRawName(rows.variable).trim().toLowerCase())return false;
+  if(renewalRowType(rows.variable)!=="variable"||renewalRowType(rows.ending)!=="fixed"||renewalRowType(rows.offered)!=="fixed")return false;
+  if(!renewalFixedFamily(renewalTier()).test(renewalRawName(rows.ending))||!renewalFixedFamily(renewalTier()).test(renewalRawName(rows.offered)))return false;
+  const start=parseContractEnd(renewalStartDate()),end=parseContractEnd(rows.offered.fixed_end_date||rows.offered.contract_end_date);
+  return !!start&&(!end||end>=start);
 }
 function renewalRates(side){
-  const p="renewal"+side,v=suffix=>+document.getElementById(p+suffix).value||0;
-  const ex=document.getElementById("renewalVat").value==="ex";
-  const eFactor=ex?1:currentElectricityVatFactor(),gFactor=ex?1:1.05;
-  return {eSC:v("ESC")/eFactor,eU:v("EU")/eFactor,gSC:v("GSC")/gFactor,gU:v("GU")/gFactor};
+  const selected=renewalSelectedRows();
+  return standardFixedRate(side==="Offer"?selected.offered:side==="Ending"?selected.ending:side==="Public"?selected.public:selected.variable);
+}
+function renewalUpdateStatus(){
+  const status=document.getElementById("renewalStatus");
+  document.getElementById("renewalEffective").textContent=formatComparisonDate(parseContractEnd(renewalStartDate()));
+  if(renewalFeedStatus==="loading")status.textContent="Checking historical UW tariff data…";
+  else if(renewalFeedStatus==="error")status.textContent="Historical tariff catalogue unavailable: "+renewalFeedError+". No figures are shown until rates are verified.";
+  else if(renewalFeedStatus==="ready")status.textContent=renewalInputsValid()?
+    "Historical tariff rates verified. The comparison and customer share link use these exact selected versions.":
+    "A selected historical tariff or revision is missing. A comparison cannot be produced using guessed rates.";
+  else status.textContent="Choose a comparison to load the historical tariff catalogue.";
+}
+function loadRenewalCatalogue(){
+  const region=+document.getElementById("region").value;
+  if(!renewalMode())return;
+  if(renewalFeedStatus==="ready"&&renewalFeedRegion===region)return;
+  renewalFeedStatus="loading";renewalFeedError="";renewalFeedRegion=region;
+  const request=++renewalRequestId;
+  renewalUpdateStatus();
+  fetch(EV_FEED_URL+"?mode=renewal&region="+encodeURIComponent(region),{cache:"no-store"})
+    .then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json();})
+    .then(d=>{
+      if(request!==renewalRequestId)return;
+      if(d.schemaVersion!==1||d.region!==region||d.historyAvailable!==true||
+         !Array.isArray(d.tariffLive)||!Array.isArray(d.tariffHistory))
+        throw Error("The published feed does not yet expose the historical catalogue");
+      renewalCatalogue=d;renewalFeedStatus="ready";
+      renewalRefreshChoices();render();
+    }).catch(err=>{
+      if(request!==renewalRequestId)return;
+      renewalCatalogue=null;renewalFeedStatus="error";renewalFeedError=String(err.message||err);
+      render();
+    });
 }
 function renewalVariableRate(base,phase,janRise){
   if(phase==="conf")return base;
