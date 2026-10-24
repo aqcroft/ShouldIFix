@@ -1076,13 +1076,79 @@ function forecastPhase(year,cal){
   if(ym<=2027*12+8)return "jul";
   return "flat";
 }
+
+/* ---------- EXISTING-CUSTOMER RENEWAL MODE ---------- */
+/* The rates below are supplied by the customer, not copied from the live
+   tariff feed. Keep the main forecastStepCache, seasonality and VAT logic. */
+function renewalMode(){
+  return document.querySelector('#comparisonSwitch button[aria-pressed="true"]')?.dataset.compareMode==="renewal";
+}
+function renewalName(id,fallback){
+  return (document.getElementById(id).value||"").trim()||fallback;
+}
+function safeHtml(value){
+  return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function renewalInputsValid(mode){
+  const fields=mode==="elec"?["EU","ESC"]:mode==="gas"?["GU","GSC"]:["EU","ESC","GU","GSC"];
+  for(const side of ["Var","Offer"]){
+    for(const field of fields){
+      const val=document.getElementById("renewal"+side+field).value.trim();
+      if(val===""||!Number.isFinite(+val)||+val<0||(field.endsWith("U")&&+val===0))return false;
+    }
+  }
+  const start=document.getElementById("renewalStart").value;
+  const end=document.getElementById("renewalEnd").value;
+  return !start||!end||end>=start;
+}
+function renewalRates(side){
+  const p="renewal"+side,v=suffix=>+document.getElementById(p+suffix).value||0;
+  const ex=document.getElementById("renewalVat").value==="ex";
+  const eFactor=ex?1:currentElectricityVatFactor(),gFactor=ex?1:1.05;
+  return {eSC:v("ESC")/eFactor,eU:v("EU")/eFactor,gSC:v("GSC")/gFactor,gU:v("GU")/gFactor};
+}
+function renewalVariableRate(base,phase,janRise){
+  if(phase==="conf")return base;
+  const steps=forecastSteps(janRise);
+  const f=steps[phase]||steps.jul;
+  return {eSC:base.eSC,eU:base.eU*f.e,gSC:base.gSC,gU:base.gU*f.g};
+}
+function showRenewalBenchmark(s,res){
+  const panel=document.getElementById("renewalBenchmark");
+  panel.classList.remove("hidden");
+  const row=evFeedStatus==="live"?liveFixedRow(s.region.n,"saver"):null;
+  const publicRate=standardFixedRate(row);
+  if(!publicRate){
+    panel.innerHTML="<strong>Offered tariff vs latest public Fixed Saver</strong><p>Live public Fixed Saver rates have not been verified. The chart above uses only the entered customer rates, but no comparison against the public tariff can be made yet.</p>";
+    return;
+  }
+  const publicName=fixedDisplayName("saver",s.region.n);
+  const publicRes=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,
+    fix:publicRate,disc:s.mode==="dual"?DISCOUNT:0,janRise:s.janRise,
+    electricHeat:s.electricHeat,tracker:null,variable:s.variable});
+  const difference=publicRes.yFix-res.yFix;
+  const description=Math.abs(difference)<.5?"about the same cost as":
+    difference>0?"cheaper than":"more expensive than";
+  const amount=Math.abs(difference)<.5?"":gbp(Math.abs(difference))+" ";
+  panel.innerHTML="<strong>"+safeHtml(s.offerName)+" vs public "+safeHtml(publicName)+"</strong>"+
+    "<p>For the same "+comparisonRange()+" period, the individually offered tariff is <b>"+
+    amount+description+"</b> the current public offer. Offered: <b>"+gbp(res.yFix)+
+    "</b> · Public: <b>"+gbp(publicRes.yFix)+
+    "</b>. Public Fixed Saver rates are verified by the live feed, and are deliberately not charted.</p>";
+}
+
 function setComparisonPeriod(state){
   const live=liveFixedRow(state.region.n,state.tariff==="custom"?"saver":state.tariff);
   const liveEnd=parseContractEnd(live&&(live.fixed_end_date||live.contract_end_date));
-  periodStartDate=addUTCDays(todayUTC(),SWITCH_LEAD_DAYS);
+  const offeredStart=state.renewal?parseContractEnd(state.renewalStart):null;
+  const offeredEnd=state.renewal?parseContractEnd(state.renewalEnd):null;
+  periodStartDate=offeredStart||addUTCDays(todayUTC(),SWITCH_LEAD_DAYS);
   // Do not use a stale September 2027 series whilst the October offer is live.
   periodIsFallback=!liveEnd||liveEnd.getTime()<FALLBACK_END_UTC||liveEnd.getTime()<periodStartDate.getTime();
-  periodEndDate=periodIsFallback?provisionalFixedEnd():liveEnd;
+  periodEndDate=state.renewal
+    ? (offeredEnd&&offeredEnd>=periodStartDate?offeredEnd:addUTCDays(periodStartDate,364))
+    : (periodIsFallback?provisionalFixedEnd():liveEnd);
+  if(state.renewal)periodIsFallback=!offeredEnd;
   MONTHS=[];
   let cursor=new Date(Date.UTC(periodStartDate.getUTCFullYear(),periodStartDate.getUTCMonth(),1));
   let safe=0;
@@ -1790,15 +1856,21 @@ function trackerRateForMonth(tracker,capRate,m){
   };
 }
 function compute(o){
-  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker}=o;
+  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker,variable}=o;
   const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
     const part=m.days/m.fullDays;
     const eK=incE?elecY*eProfile[m.cal]*part:0, gK=incG?gasY*GAS_W[m.cal]*part:0, ev=1+elecVAT(m);
     const fixElec=incE?((fix.eSC-disc)*ev*m.days + fix.eU*ev*eK)/100:0;
     const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
-    const r=projectedCapRate(region,m.ph,janRise);
-    const capElec=incE?(r.eSC*m.days+r.eU*eK)/100:0, capGas=incG?(r.gSC*m.days+r.gU*gK)/100:0, cap=capElec+capGas;
+    const r=variable?renewalVariableRate(variable,m.ph,janRise):projectedCapRate(region,m.ph,janRise);
+    const capElec=variable
+      ? (incE?((r.eSC*m.days+r.eU*eK)*ev)/100:0)
+      : (incE?(r.eSC*m.days+r.eU*eK)/100:0);
+    const capGas=variable
+      ? (incG?((r.gSC*m.days+r.gU*gK)*1.05)/100:0)
+      : (incG?(r.gSC*m.days+r.gU*gK)/100:0);
+    const cap=capElec+capGas;
     let trackerCost=null;
     if(tracker){
       const tr=trackerRateForMonth(tracker,r,m);
