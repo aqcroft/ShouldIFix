@@ -671,7 +671,7 @@
         <select id="renewalPublic"><option value="">Loading current tariffs…</option></select>
       </div>
     </div>
-    <p class="renewal-help">The new tariff starts <b id="renewalEffective">on the first day of next month</b>. Fixed-end dates and regional Direct Debit rates are taken from the source catalogue. Both the comparison and the share link use the selected historical tariff versions.</p>
+    <p class="renewal-help">The new tariff starts <b id="renewalEffective">on the first day of next month</b>. Fixed-end dates and regional Direct Debit rates come from the catalogue. The share link keeps the chosen tariff versions, usage, region, forecast scenario and exact start date.</p>
     <p class="renewal-help" id="renewalStatus" role="status" aria-live="polite">Historical rates are being checked.</p>
     <details class="renewal-audit"><summary>What about earlier rates for the expiring tariff?</summary>
       <div class="body" id="renewalAudit">Earlier versions will be shown when the archive contains them.</div>
@@ -1106,7 +1106,7 @@ function forecastPhase(year,cal){
 /* ---------- HISTORICAL RENEWAL TARIFF CATALOGUE ---------- */
 const RENEWAL_FIELDS=["renewalEnding","renewalVariable","renewalOffered","renewalPublic"];
 let renewalCatalogue=null,renewalFeedStatus="idle",renewalFeedError="",renewalFeedRegion=null,renewalRequestId=0;
-let renewalPinnedStart="",renewalPendingSelections=null,renewalUserChoices={};
+let renewalPinnedStart="",renewalPendingSelections=null,renewalUserChoices={},renewalLegacyLink=false;
 function renewalMode(){return document.querySelector('#comparisonSwitch button[aria-pressed="true"]')?.dataset.compareMode==="renewal";}
 function safeHtml(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 function renewalRawName(row){return String((row&&(row.tariff_name!=null?row.tariff_name:row.tariffName))||"").trim().replace(/^UW\s+/i,"").replace(/\s+Direct Debit$/i,"");}
@@ -1218,7 +1218,7 @@ function renewalRefreshChoices(){
     :"Only one historical version is currently available in the catalogue.";
 }
 function renewalInputsValid(mode){
-  if(renewalFeedStatus!=="ready"||!renewalCatalogue||renewalFeedRegion!==+document.getElementById("region").value)return false;
+  if(renewalLegacyLink||renewalFeedStatus!=="ready"||!renewalCatalogue||renewalFeedRegion!==+document.getElementById("region").value)return false;
   const rows=renewalSelectedRows();
   const needed=["ending","variable","offered"];
   if(needed.some(key=>!rows[key]||!standardFixedRate(rows[key])))return false;
@@ -1234,7 +1234,8 @@ function renewalRates(side){
 function renewalUpdateStatus(){
   const status=document.getElementById("renewalStatus");
   document.getElementById("renewalEffective").textContent=formatComparisonDate(parseContractEnd(renewalStartDate()));
-  if(renewalFeedStatus==="loading")status.textContent="Checking historical UW tariff data…";
+  if(renewalLegacyLink)status.textContent="This is an older manual-rate link. It cannot be verified against the new tariff catalogue. Please use a newly shared link.";
+  else if(renewalFeedStatus==="loading")status.textContent="Checking historical UW tariff data…";
   else if(renewalFeedStatus==="error")status.textContent="Historical tariff catalogue unavailable: "+renewalFeedError+". No figures are shown until rates are verified.";
   else if(renewalFeedStatus==="ready")status.textContent=renewalInputsValid()?
     "Historical tariff rates verified. The comparison and customer share link use these exact selected versions.":
@@ -1309,12 +1310,12 @@ function showRenewalBenchmark(s,res){
     difference>0?"cheaper than":"dearer than";
   const amount=Math.abs(difference)<.5?"":gbp(Math.abs(difference))+" ";
   const months=Math.max(.1,comparisonMonthsEquivalent());
-  panel.innerHTML="<strong>The individual offer vs today's public "+safeHtml(renewalRawName(row))+"</strong>"+
+  panel.innerHTML="<strong>The individual offer vs selected public "+safeHtml(renewalRawName(row))+"</strong>"+
     "<p><b>"+safeHtml(s.offerName)+"</b> ("+gbp(res.yFix/months)+"/month, "+gbp(res.yFix)+
     " total) is <b>"+amount+cheaper+"</b> "+safeHtml(renewalRawName(row))+
     " ("+gbp(publicRes.yFix/months)+"/month, "+gbp(publicRes.yFix)+
     " total) over the same "+comparisonRange()+" period. The public option is not charted. "+
-    "This excludes any exit fees and assumes the selected service eligibility remains in place.</p>";
+    "This excludes any exit fees and assumes the selected service eligibility remains in place. A shared link preserves the public tariff version chosen at the time.</p>";
 }
 
 function setComparisonPeriod(state){
@@ -2345,6 +2346,7 @@ function readParams(){
   if(!P.has("r")&&!P.has("e")) return;              // no shared state
   if(P.has("r")) document.getElementById("region").value=P.get("r");
   if(P.get("renew")==="1"){
+    renewalLegacyLink=!P.has("svc")||!P.has("ending")||!P.has("offered")||!P.has("variable");
     document.querySelectorAll("#comparisonSwitch button").forEach(b=>
       b.setAttribute("aria-pressed",b.dataset.compareMode==="renewal"?"true":"false"));
     document.getElementById("renewalServices").value=["1","2","3"].includes(P.get("svc"))?P.get("svc"):"3";
@@ -2588,7 +2590,7 @@ function statics(){
     "Confirmed price-cap rates are used through December 2026. January, April and July use the latest approved forecast percentages (or the built-in snapshot if offline) in the price-cap unit-rate model. From 1 October 2027, both unit rates and standing charges are held flat at July-September levels (0% movement). This October assumption is not a published Ofgem or MSE forecast.",
     "The chart also shows the matching live UW Tracker tariff. Oct-Dec uses UW's published live Tracker rates. Future Tracker rates are estimated by subtracting the tariff's contractual Direct Debit pence discounts from the modelled price-cap rates on an ex-VAT basis, then applying the VAT treatment for that month. They are not published future UW rates.",
     "Supplier variable tariffs can sit below the cap, and your own usage pattern may be very different from the benchmark buttons. Use the custom fields if you know your annual kWh.",
-    "Existing-customer renewal mode uses two manually entered rate sets and the same winter-weighting. Customer email rates that include VAT are converted to base rates before monthly VAT is applied. There is no extra dual-fuel discount, since email figures already include it. Ofgem forecast factors are applied to the entered variable tariff unit rates, NOT asserted as future UW Double Gold prices. The public Fixed Saver is a separately labelled, verified benchmark and is not charted. Enter the customer's actual tariff expiry where available.",
+    "Existing-customer renewal mode reads versioned historical fixed rates and the chosen variable tariff from the Tariff Hunter catalogue, never manual rate inputs. It uses the same monthly winter weighting and applies the existing dual-fuel discount rules to catalogue standing charges. It begins on the first day of the following month (pinned in shared links), and uses the offered fixed expiry from the selected tariff record when available. Ofgem forecast factors apply to the chosen variable tariff unit rates; these are scenarios, not confirmed future UW variable prices. The separately selected public fixed rate is compared as an uncharted benchmark. Missing source tariffs fail closed.",
     "The EV / Economy 7 extension uses the live UW tariff feed to pair EV Value, Gold or Double Gold with the Economy 7 version of the current Fixed Start, Fixed or Fixed Saver series. If a credible historic household annual-use figure is available from before an EV was added, it can anchor the household total while a recent bill is used to estimate the peak/off-peak shape and estimated home EV charging is added separately. Its October and later EV movements are illustrative scenarios, not published UW tariff changes.",
     "This is designed to start or support a conversation about whether fixing is worth exploring. It is not an official quote, a bill prediction, or financial advice."
   ].map(t=>`<li>${t}</li>`).join("");
@@ -2598,7 +2600,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.64.0 (24 October 2026; new existing-customer renewal mode, individually offered fixed rate versus default variable forecast, live public Fixed Saver cost benchmark; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.65.0 (24 October 2026; automatic tariff-hunter history selectors, first-of-month renewal dates, historical rate comparison, version-pinned customer share links, individual offer versus selected public tariff cost comparison; previous 2.64.0 manual renewal input was replaced; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -2737,6 +2739,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.64.0"></script>
+<script src="./forecast-feed.js?v=2.65.0"></script>
 </body>
 </html>
