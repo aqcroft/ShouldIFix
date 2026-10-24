@@ -2445,6 +2445,7 @@ function render(){
   syncVisibility(s);
   document.getElementById("shareUrl").value=canShow?buildShareUrl(s):"";
   document.getElementById("renewalBenchmark").classList.toggle("hidden",!s.renewal||!renewalReady);
+  document.getElementById("renewalOldCost").classList.toggle("hidden",!s.renewal||!renewalReady);
   if(s.renewal&&!renewalReady)return;
   const disc=(s.tariff==="custom"||s.mode!=="dual")?0:DISCOUNT;
   const fix=s.renewal?renewalRates("Offer"):fixedRates(s);
