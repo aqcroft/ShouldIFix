@@ -1265,7 +1265,8 @@ function loadRenewalCatalogue(){
   // The actual production renewal mode remains gated on verified Tariff_History.
   const sample=(name,type,ref,a,end)=>({
     tariff_name:name,tariff_type:type,source_ref:ref,region_no:region,payment_method:"DD",
-    EDSC_Std:a[0],EUR_Std:a[1],GDSC:a[2],GUR:a[3],fixed_end_date:end||""
+    EDSC_Std:a[0],EUR_Std:a[1],GDSC:a[2],GUR:a[3],fixed_end_date:end||"",
+    written_at:ref.includes("APR")?"2026-04-01":ref.includes("OLD")?"2025-10-24":"2026-10-21"
   });
   const families=["Fixed Start","Fixed","Fixed Saver"];
   const historic=[],live=[];
