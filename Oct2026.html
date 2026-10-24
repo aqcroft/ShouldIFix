@@ -1099,7 +1099,9 @@ function renewalInputsValid(mode){
   }
   const start=document.getElementById("renewalStart").value;
   const end=document.getElementById("renewalEnd").value;
-  return !start||!end||end>=start;
+  const effectiveStart=start?parseContractEnd(start):addUTCDays(todayUTC(),SWITCH_LEAD_DAYS);
+  const effectiveEnd=end?parseContractEnd(end):null;
+  return !!effectiveStart&&(!end||(!!effectiveEnd&&effectiveEnd>=effectiveStart));
 }
 function renewalRates(side){
   const p="renewal"+side,v=suffix=>+document.getElementById(p+suffix).value||0;
@@ -1134,7 +1136,7 @@ function showRenewalBenchmark(s,res){
     "<p>For the same "+comparisonRange()+" period, the individually offered tariff is <b>"+
     amount+description+"</b> the current public offer. Offered: <b>"+gbp(res.yFix)+
     "</b> · Public: <b>"+gbp(publicRes.yFix)+
-    "</b>. Public Fixed Saver rates are verified by the live feed, and are deliberately not charted.</p>";
+    "</b>. Public Fixed Saver rates are verified by the live feed, and are deliberately not charted. Excludes potential exit fees and assumes the customer qualifies for the three-service Saver tariffs.</p>";
 }
 
 function setComparisonPeriod(state){
