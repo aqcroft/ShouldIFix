@@ -559,6 +559,21 @@
   .tariff-check strong{display:block;font-size:1rem;margin-bottom:5px}
   .tariff-check p{margin:0;font-size:.84rem;font-weight:650}
   .tariff-check button{margin-top:11px;border:1px solid #b48c3e;background:white;color:#543c18;border-radius:10px;padding:9px 13px;font:800 .84rem Nunito,system-ui;cursor:pointer}
+
+  .comparison-switch{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:13px 0;padding:5px;background:#f5f1fb;border:1px solid var(--line);border-radius:13px}
+  .comparison-switch button{background:transparent;border:0;border-radius:9px;padding:10px 8px;color:var(--muted);font:800 .78rem "Nunito",sans-serif;cursor:pointer}
+  .comparison-switch button[aria-pressed="true"]{background:#fff;color:var(--purple-deep);box-shadow:0 2px 8px #39266516}
+  .renewal-card .renewal-intro,.renewal-help{font-size:.76rem;line-height:1.5;font-weight:650;color:var(--muted)}
+  .renewal-rate-block{border-top:1px solid var(--line);margin-top:14px;padding-top:12px}
+  .renewal-rate-block h3{font-family:"Nunito",sans-serif;font-size:.87rem;margin:0 0 9px}
+  .renewal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .renewal-grid .field{margin:0}.renewal-grid label{display:block;font-size:.71rem;font-weight:800;margin-bottom:3px;color:var(--muted)}
+  .renewal-grid input,.renewal-grid select{min-width:0;width:100%;padding:8px;font-size:.82rem}
+  .renewal-benchmark{margin:10px 0;border:1px solid var(--line);border-radius:11px;background:#faf8ff;padding:11px;font-size:.8rem;line-height:1.5}
+  .renewal-benchmark strong{display:block;margin-bottom:4px}.renewal-benchmark p{margin:0}
+  body.renewal-mode #fixedCard,body.renewal-mode #evExtension,body.renewal-mode #tariffDetailsBtn,body.renewal-mode .choice-hero.tracker{display:none!important}
+  body.renewal-mode .choice-heroes{grid-template-columns:1fr}
+  @media(max-width:520px){.comparison-switch button{font-size:.7rem}.renewal-grid label{font-size:.65rem}}
   body.tariff-unverified #resultCard{display:none!important}
 </style>
 </head>
@@ -572,6 +587,11 @@
 
   <p class="search-intro"><strong>Should you fix your energy tariff?</strong> This free UK calculator compares a fixed tariff, a Tracker tariff and staying on the Ofgem price cap using your region and annual gas and electricity usage. Unlike a simple annual comparison, it models usage month by month so heavier winter consumption is reflected in the result.</p>
 
+
+  <div class="comparison-switch" id="comparisonSwitch" role="group" aria-label="Comparison type">
+    <button type="button" data-compare-mode="standard" aria-pressed="true">Current tariffs</button>
+    <button type="button" data-compare-mode="renewal" aria-pressed="false">Existing customer - fixed ending</button>
+  </div>
   <section class="card">
     <h2 class="hidden">Your details</h2>
 
@@ -621,6 +641,19 @@
     </div>
   </section>
 
+  <section class="card renewal-card hidden" id="renewalCard">
+    <h2>Existing customer's renewal offer</h2>
+    <p class="renewal-intro">Enter the rates for the default variable tariff and the older fixed tariff offered personally in the renewal email. The latest public Fixed Saver will be compared separately, not charted. Exact unit rates and standing charges are needed - annual quotes alone cannot produce a reliable winter comparison.</p>
+    <div class="renewal-grid">
+      <div class="field"><label for="renewalVat">Rates entered</label><select id="renewalVat"><option value="inc">Including VAT (customer email)</option><option value="ex">Excluding VAT (tariff sheet)</option></select></div>
+      <div class="field"><label for="renewalStart">Comparison starts (optional)</label><input id="renewalStart" type="date"></div>
+      <div class="field"><label for="renewalEnd">Offered fixed end date (optional)</label><input id="renewalEnd" type="date"></div>
+    </div>
+    <p class="renewal-help">No dates? Use the usual three-day switching lead time and an illustrative 12-month period. Quoted renewal-email rates already incorporate any applicable dual-fuel discount, so no discount is deducted twice.</p>
+    <div class="renewal-rate-block"><h3>1. Tariff applied automatically</h3><div class="field"><label for="renewalVarName">Tariff name</label><input id="renewalVarName" type="text" maxlength="55" value="Double Gold"></div><div class="renewal-grid"><div class="field" data-renewal-elec><label for="renewalVarEU">⚡ Electricity unit (p/kWh)</label><input id="renewalVarEU" type="number" min="0" step="any" placeholder="From tariff offer"></div><div class="field" data-renewal-elec><label for="renewalVarESC">⚡ Electricity standing (p/day)</label><input id="renewalVarESC" type="number" min="0" step="any" placeholder="From tariff offer"></div><div class="field" data-renewal-gas><label for="renewalVarGU">🔥 Gas unit (p/kWh)</label><input id="renewalVarGU" type="number" min="0" step="any" placeholder="From tariff offer"></div><div class="field" data-renewal-gas><label for="renewalVarGSC">🔥 Gas standing (p/day)</label><input id="renewalVarGSC" type="number" min="0" step="any" placeholder="From tariff offer"></div></div></div>
+    <div class="renewal-rate-block"><h3>2. Individually offered fixed tariff</h3><div class="field"><label for="renewalOfferName">Tariff name</label><input id="renewalOfferName" type="text" maxlength="55" value="Fixed Saver 99"></div><div class="renewal-grid"><div class="field" data-renewal-elec><label for="renewalOfferEU">⚡ Electricity unit (p/kWh)</label><input id="renewalOfferEU" type="number" min="0" step="any" placeholder="From tariff offer"></div><div class="field" data-renewal-elec><label for="renewalOfferESC">⚡ Electricity standing (p/day)</label><input id="renewalOfferESC" type="number" min="0" step="any" placeholder="From tariff offer"></div><div class="field" data-renewal-gas><label for="renewalOfferGU">🔥 Gas unit (p/kWh)</label><input id="renewalOfferGU" type="number" min="0" step="any" placeholder="From tariff offer"></div><div class="field" data-renewal-gas><label for="renewalOfferGSC">🔥 Gas standing (p/day)</label><input id="renewalOfferGSC" type="number" min="0" step="any" placeholder="From tariff offer"></div></div></div>
+    <p class="renewal-help"><b>January forecast:</b> Uses the existing Ofgem-derived forecast factors on the entered variable tariff's unit rates, with standing charges held flat. Actual UW Double Gold changes may differ. Electricity and gas VAT are applied by month using the existing model.</p>
+  </section>
   <input id="janRise" type="hidden" value="25"><input id="forecastDefault" type="hidden" value="25">
   <div id="tariffCheck" class="tariff-check" role="status" aria-live="polite"><strong>Checking current UW tariff rates…</strong><p id="tariffCheckMessage">Savings will appear after the current tariff has been verified.</p><button id="retryTariffs" type="button" hidden>Retry tariff check</button></div>
   <section class="card result" id="resultCard">
@@ -647,6 +680,7 @@
       <div class="quarter-compare" id="quarterCompare"></div>
     </div>
 
+    <div class="renewal-benchmark hidden" id="renewalBenchmark" role="status" aria-live="polite"></div>
     <details class="annual-costs" id="annualCosts">
       <summary><span class="annual-summary-copy"><span id="annualSummaryText">Total and average monthly costs</span><span class="annual-period"></span></span></summary>
       <div class="annual-grid" id="annualCostsGrid"></div>
@@ -2378,6 +2412,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.63.3"></script>
+<script src="./forecast-feed.js?v=2.64.0"></script>
 </body>
 </html>
