@@ -607,7 +607,9 @@
   .story-conclusion b{color:var(--purple-deep)}
   .story-check{background:#fff9ef;border-radius:11px;padding:11px 13px;font-size:.77rem;line-height:1.5;font-weight:700;color:#71521f}
   .story-disclaimer{color:var(--muted);font-weight:650;font-size:.69rem;line-height:1.45;margin:13px 0 0}
-  body.renewal-mode #renewalCard,body.renewal-mode #resultCard{display:none!important}
+  body.renewal-mode #renewalCard,body.renewal-mode #resultCard,
+  body.renewal-mode .outlook-card,body.renewal-mode .answer-faq,
+  body.renewal-mode .share .cta-row{display:none!important}
   body.renewal-mode #fixedCard{display:block!important}
   body.renewal-mode #fixedCard .tariff-custom-row,body.renewal-mode #fixedCard #manualWrap,body.renewal-mode #fixedCard #tariffDetailsBtn,body.renewal-mode #fixedCard .tariff-pick span,body.renewal-mode #fixedCard #bundleChoicePair{display:none!important}
   body.renewal-mode #fixedCard .compare-head .lab{font-size:0}
@@ -1441,16 +1443,22 @@ function renderRenewalStory(s){
   const change=fix.total-now.total;
   const protection=jan.total-fix.total;
   const validBetter=protection>0;
+  const offered99=renewalOptionsFor("renewalOffered").find(r=>renewalRawName(r).endsWith(" 99"));
+  const cost99=offered99?storyCostForRate(standardFixedRate(offered99),s):null;
+  const hasBetter99=!is99&&cost99&&cost99.total<fix.total-1;
   body.innerHTML='<div class="story-steps">'+
     storyStep('💷 Do nothing - '+variableName,now,s,'Current estimated cost from '+month)+
     storyStep('📈 Possible January variable cost',jan,s,'If the Ofgem price cap changes by '+projectedJan+s.janRise+'%')+
-    storyStep('🔒 '+name,fix,s,'Fixed rates for the offered contract period',true)+
+    storyStep('🔒 '+name,fix,s,is99?'Fixed rates on your personalised renewal offer':'Currently available public fixed tariff',is99)+
     '</div>'+
-    '<p class="story-conclusion">'+(validBetter
-       ?'👍 <b>'+name+' looks the safer option.</b> It is '+storyGBP(Math.abs(change)/12)+
-        '/month '+(change>=0?'more':'less')+' than staying variable initially, but could avoid a further '+
-        storyGBP(protection/12)+'/month if the January scenario materialises.'
-       :'💡 <b>Compare carefully.</b> On this scenario, the selected fixed tariff is not cheaper than the forecast variable cost. Consider price certainty and any exit fees before choosing.')+
+    '<p class="story-conclusion">'+(hasBetter99
+       ?'👍 <b>Fixed Saver 99 is the better offer, if it is still available to you.</b> It costs around '+
+         storyGBP((fix.total-cost99.total)/12)+'/month less than 100 at this usage.'
+       :validBetter
+         ?'👍 <b>'+name+' looks the safer option.</b> It is '+storyGBP(Math.abs(change)/12)+
+           '/month '+(change>=0?'more':'less')+' than staying variable initially, but could avoid a further '+
+           storyGBP(protection/12)+'/month if the January scenario materialises.'
+         :'💡 <b>Compare carefully.</b> On this scenario, the selected fixed tariff is not cheaper than the forecast variable cost. Consider price certainty and any exit fees before choosing.')+
     '</p>'+
     '<p class="story-check">📌 <b>Please double-check your current UW Budget Plan payments.</b> '+
     'Sandie originally budgeted £75/month for electricity and £75/month for gas, but her payments may have changed. '+
