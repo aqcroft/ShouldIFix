@@ -1192,7 +1192,13 @@ function renewalSetOptions(id){
   const desired=preferred||before;
   if(desired&&options.some(item=>item.value===desired)){el.value=desired;}
   else if(preferred){
-    const o=document.createElement("option");o.value=preferred;o.textContent="Shared historical tariff unavailable";el.appendChild(o);el.value=preferred;
+    const archivedRow=renewalFindRow(preferred);
+    const allowed=archivedRow&&(id==="renewalVariable"
+      ?renewalRowType(archivedRow)==="variable"
+      :renewalRowType(archivedRow)==="fixed"&&renewalFixedFamily(renewalTier()).test(renewalRawName(archivedRow)));
+    const option=document.createElement("option");option.value=preferred;
+    option.textContent=allowed?renewalRawName(archivedRow)+" (selected historical version)":"Shared historical tariff unavailable";
+    el.appendChild(option);el.value=preferred;
   }else{
     const defaultName=id==="renewalEnding"?"Fixed Saver 65":id==="renewalOffered"?"Fixed Saver 99":id==="renewalVariable"?renewalDefaultVariable(renewalTier()):"";
     const match=options.find(item=>item.label.toLowerCase()===defaultName.toLowerCase());
@@ -1216,7 +1222,6 @@ function renewalInputsValid(mode){
   const rows=renewalSelectedRows();
   const needed=["ending","variable","offered"];
   if(needed.some(key=>!rows[key]||!standardFixedRate(rows[key])))return false;
-  if(renewalRawName(rows.variable).toLowerCase()!==renewalRawName(rows.variable).trim().toLowerCase())return false;
   if(renewalRowType(rows.variable)!=="variable"||renewalRowType(rows.ending)!=="fixed"||renewalRowType(rows.offered)!=="fixed")return false;
   if(!renewalFixedFamily(renewalTier()).test(renewalRawName(rows.ending))||!renewalFixedFamily(renewalTier()).test(renewalRawName(rows.offered)))return false;
   const start=parseContractEnd(renewalStartDate()),end=parseContractEnd(rows.offered.fixed_end_date||rows.offered.contract_end_date);
@@ -1264,28 +1269,52 @@ function renewalVariableRate(base,phase,janRise){
   const f=steps[phase]||steps.jul;
   return {eSC:base.eSC,eU:base.eU*f.e,gSC:base.gSC,gU:base.gU*f.g};
 }
+function renewalAnnualEquivalent(row,s){
+  const rate=standardFixedRate(row);
+  if(!rate)return null;
+  // Historic baseline: same current annual usage and VAT at the comparison start.
+  // It is a rate-only reference, not a projection of a year that has passed.
+  const start=parseContractEnd(renewalStartDate()),vatE=1+elecVAT({year:start.getUTCFullYear(),cal:start.getUTCMonth()});
+  const discount=s.mode==="dual"?DISCOUNT:0;
+  const e=s.mode==="gas"?0:((rate.eSC-discount)*365+rate.eU*s.elecY)*vatE/100;
+  const g=s.mode==="elec"?0:((rate.gSC-discount)*365+rate.gU*s.gasY)*1.05/100;
+  return e+g;
+}
+function showRenewalHistorical(s){
+  const box=document.getElementById("renewalOldCost"),row=renewalSelectedRows().ending;
+  const annual=renewalAnnualEquivalent(row,s);
+  box.classList.remove("hidden");
+  if(annual===null){box.innerHTML="<strong>Expiring fixed tariff</strong><p>Verified historical rates are unavailable.</p>";return;}
+  box.innerHTML="<strong>What the customer had - "+safeHtml(renewalRawName(row))+
+    "</strong><p>At the customer's <b>current estimated usage</b>, old fixed rates equate to roughly <b>"+
+    gbp(annual/12)+"/month</b> ("+gbp(annual)+"/year). This is a like-for-like rate reference at the current VAT treatment, not a Direct Debit figure or forward forecast. Historical reference: "+
+    safeHtml(String(row.source_ref||row.sourceRef||""))+".</p>";
+}
 function showRenewalBenchmark(s,res){
   const panel=document.getElementById("renewalBenchmark");
   panel.classList.remove("hidden");
-  const row=evFeedStatus==="live"?liveFixedRow(s.region.n,"saver"):null;
-  const publicRate=standardFixedRate(row);
-  if(!publicRate){
-    panel.innerHTML="<strong>Offered tariff vs latest public Fixed Saver</strong><p>Live public Fixed Saver rates have not been verified. The chart above uses only the entered customer rates, but no comparison against the public tariff can be made yet.</p>";
+  const row=renewalSelectedRows().public;
+  const rate=row&&renewalRowType(row)==="fixed"&&renewalFixedFamily(renewalTier()).test(renewalRawName(row))?
+    standardFixedRate(row):null;
+  if(!rate){
+    panel.innerHTML="<strong>Offered fix vs current public fixed</strong><p>The live public fixed rate could not be verified for this region and service tier. No public tariff saving is claimed.</p>";
     return;
   }
-  const publicName=fixedDisplayName("saver",s.region.n);
   const publicRes=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,
-    fix:publicRate,disc:s.mode==="dual"?DISCOUNT:0,janRise:s.janRise,
-    electricHeat:s.electricHeat,tracker:null,variable:s.variable});
+    fix:rate,disc:s.mode==="dual"?DISCOUNT:0,janRise:s.janRise,
+    electricHeat:s.electricHeat,tracker:null,variable:s.variable,
+    variableDisc:s.mode==="dual"?DISCOUNT:0});
   const difference=publicRes.yFix-res.yFix;
-  const description=Math.abs(difference)<.5?"about the same cost as":
-    difference>0?"cheaper than":"more expensive than";
+  const cheaper=Math.abs(difference)<.5?"roughly the same cost as":
+    difference>0?"cheaper than":"dearer than";
   const amount=Math.abs(difference)<.5?"":gbp(Math.abs(difference))+" ";
-  panel.innerHTML="<strong>"+safeHtml(s.offerName)+" vs public "+safeHtml(publicName)+"</strong>"+
-    "<p>For the same "+comparisonRange()+" period, the individually offered tariff is <b>"+
-    amount+description+"</b> the current public offer. Offered: <b>"+gbp(res.yFix)+
-    "</b> · Public: <b>"+gbp(publicRes.yFix)+
-    "</b>. Public Fixed Saver rates are verified by the live feed, and are deliberately not charted. Excludes potential exit fees and assumes the customer qualifies for the three-service Saver tariffs.</p>";
+  const months=Math.max(.1,comparisonMonthsEquivalent());
+  panel.innerHTML="<strong>The individual offer vs today's public "+safeHtml(renewalRawName(row))+"</strong>"+
+    "<p><b>"+safeHtml(s.offerName)+"</b> ("+gbp(res.yFix/months)+"/month, "+gbp(res.yFix)+
+    " total) is <b>"+amount+cheaper+"</b> "+safeHtml(renewalRawName(row))+
+    " ("+gbp(publicRes.yFix/months)+"/month, "+gbp(publicRes.yFix)+
+    " total) over the same "+comparisonRange()+" period. The public option is not charted. "+
+    "This excludes any exit fees and assumes the selected service eligibility remains in place.</p>";
 }
 
 function setComparisonPeriod(state){
@@ -2281,7 +2310,7 @@ function buildShareUrl(s){
   if(s.mode!=="elec") p.set("g", s.gasY);
   if(s.janRise!==DEFAULT_JAN_RISE) p.set("j",s.janRise);
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
-  if(s.tariff!=="saver") p.set("t",s.tariff);
+  if(!s.renewal&&s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
     p.set("renew","1");
     p.set("svc",renewalTier());
@@ -2292,14 +2321,14 @@ function buildShareUrl(s){
     p.set("rs",s.renewalStart);
     p.set("j",s.janRise);
   }
-  if(s.tariff==="custom"){
+  if(!s.renewal&&s.tariff==="custom"){
     p.set("o","1");
     p.set("es",+document.getElementById("mESC").value||0);
     p.set("eu",+document.getElementById("mEU").value||0);
     p.set("gs",+document.getElementById("mGSC").value||0);
     p.set("gu",+document.getElementById("mGU").value||0);
   }
-  if(document.getElementById("evExtension").open){
+  if(!s.renewal&&document.getElementById("evExtension").open){
     p.set("xev","1");
     p.set("epk",+document.getElementById("evAnnualPeak").value||0);
     p.set("eop",+document.getElementById("evAnnualOff").value||0);
