@@ -2007,7 +2007,7 @@ function trackerRateForMonth(tracker,capRate,m){
   };
 }
 function compute(o){
-  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker,variable}=o;
+  const {region,elecY,gasY,mode,fix,disc,janRise,electricHeat,tracker,variable,variableDisc=0}=o;
   const incE=mode!=="gas", incG=mode!=="elec"; const eProfile=(mode==="elec" && electricHeat)?GAS_W:ELEC_W;
   const rows=MONTHS.map(m=>{
     const part=m.days/m.fullDays;
@@ -2016,10 +2016,10 @@ function compute(o){
     const fixGas=incG?((fix.gSC-disc)*1.05*m.days + fix.gU*1.05*gK)/100:0; const fixed=fixElec+fixGas;
     const r=variable?renewalVariableRate(variable,m.ph,janRise):projectedCapRate(region,m.ph,janRise);
     const capElec=variable
-      ? (incE?((r.eSC*m.days+r.eU*eK)*ev)/100:0)
+      ? (incE?(((r.eSC-variableDisc)*m.days+r.eU*eK)*ev)/100:0)
       : (incE?(r.eSC*m.days+r.eU*eK)/100:0);
     const capGas=variable
-      ? (incG?((r.gSC*m.days+r.gU*gK)*1.05)/100:0)
+      ? (incG?(((r.gSC-variableDisc)*m.days+r.gU*gK)*1.05)/100:0)
       : (incG?(r.gSC*m.days+r.gU*gK)/100:0);
     const cap=capElec+capGas;
     let trackerCost=null;
@@ -2220,10 +2220,10 @@ function state(){
     mode:document.querySelector('#fuelSeg button[aria-pressed="true"]').dataset.mode,
     region:REGIONS.find(r=>r.n==+document.getElementById("region").value),
     renewal:renewalMode(),
-    renewalStart:document.getElementById("renewalStart").value,
-    renewalEnd:document.getElementById("renewalEnd").value,
-    variableName:renewalName("renewalVarName","Variable tariff"),
-    offerName:renewalName("renewalOfferName","Offered fixed tariff"),
+    renewalStart:renewalStartDate(),
+    renewalEnd:(()=>{const row=renewalSelectedRows().offered;return row&&(row.fixed_end_date||row.contract_end_date)||"";})(),
+    variableName:renewalRawName(renewalSelectedRows().variable)||"Variable tariff",
+    offerName:renewalRawName(renewalSelectedRows().offered)||"Offered fixed tariff",
     elecY:Math.max(0,+document.getElementById("elec").value||0),
     gasY:Math.max(0,+document.getElementById("gas").value||0),
     tariff:document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff || "saver",
@@ -2249,8 +2249,7 @@ function syncVisibility(s){
   document.getElementById("manualWrap").classList.toggle("hidden",s.tariff!=="custom");
   document.body.classList.toggle("renewal-mode",s.renewal);
   document.getElementById("renewalCard").classList.toggle("hidden",!s.renewal);
-  document.querySelectorAll("[data-renewal-elec]").forEach(el=>el.classList.toggle("hidden",s.mode==="gas"));
-  document.querySelectorAll("[data-renewal-gas]").forEach(el=>el.classList.toggle("hidden",s.mode==="elec"));
+  // Renewal mode has no manual rate entry. Existing usage controls remain shared.
   document.getElementById("mElec").classList.toggle("hidden",!incE);
   document.getElementById("mGas").classList.toggle("hidden",!incG);
   document.getElementById("resetUsageBtn").classList.toggle("hidden",!s.personalise || !customTouched);
@@ -2284,13 +2283,14 @@ function buildShareUrl(s){
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
   if(s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
-    p.set("renew","1");p.set("rv",document.getElementById("renewalVat").value);
-    p.set("vn",s.variableName);p.set("on",s.offerName);
-    if(s.renewalStart)p.set("rs",s.renewalStart);
-    if(s.renewalEnd)p.set("re",s.renewalEnd);
-    for(const key of ["VarEU","VarESC","VarGU","VarGSC","OfferEU","OfferESC","OfferGU","OfferGSC"]){
-      p.set("r"+key,document.getElementById("renewal"+key).value);
-    }
+    p.set("renew","1");
+    p.set("svc",renewalTier());
+    p.set("ending",document.getElementById("renewalEnding").value);
+    p.set("variable",document.getElementById("renewalVariable").value);
+    p.set("offered",document.getElementById("renewalOffered").value);
+    p.set("public",document.getElementById("renewalPublic").value);
+    p.set("rs",s.renewalStart);
+    p.set("j",s.janRise);
   }
   if(s.tariff==="custom"){
     p.set("o","1");
@@ -2316,17 +2316,18 @@ function readParams(){
   if(!P.has("r")&&!P.has("e")) return;              // no shared state
   if(P.has("r")) document.getElementById("region").value=P.get("r");
   if(P.get("renew")==="1"){
-    document.querySelectorAll("#comparisonSwitch button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.compareMode==="renewal"?"true":"false"));
-    document.getElementById("renewalVat").value=P.get("rv")==="ex"?"ex":"inc";
-    document.getElementById("renewalVarName").value=(P.get("vn")||"Double Gold").slice(0,55);
-    document.getElementById("renewalOfferName").value=(P.get("on")||"Fixed Saver 99").slice(0,55);
-    for(const [id,param] of [["renewalStart","rs"],["renewalEnd","re"]]){
-      if(/^20\d{2}-\d{2}-\d{2}$/.test(P.get(param)||""))document.getElementById(id).value=P.get(param);
-    }
-    for(const key of ["VarEU","VarESC","VarGU","VarGSC","OfferEU","OfferESC","OfferGU","OfferGSC"]){
-      const value=P.get("r"+key);
-      if(value!==null&&value!==""&&Number.isFinite(+value)&&+value>=0)document.getElementById("renewal"+key).value=value;
-    }
+    document.querySelectorAll("#comparisonSwitch button").forEach(b=>
+      b.setAttribute("aria-pressed",b.dataset.compareMode==="renewal"?"true":"false"));
+    document.getElementById("renewalServices").value=["1","2","3"].includes(P.get("svc"))?P.get("svc"):"3";
+    renewalPendingSelections={
+      renewalEnding:P.get("ending")||"",
+      renewalVariable:P.get("variable")||"",
+      renewalOffered:P.get("offered")||"",
+      renewalPublic:P.get("public")||""
+    };
+    // Customer links keep the same start date when opened in another month.
+    const pinned=P.get("rs")||"";
+    if(/^20\d{2}-\d{2}-01$/.test(pinned)&&parseContractEnd(pinned))renewalPinnedStart=pinned;
   }
   if(P.has("f")){const m=P.get("f");document.querySelectorAll('#fuelSeg button').forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m?"true":"false"));}
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
@@ -2379,6 +2380,7 @@ function render(){
   const selectedLiveRow=liveFixedRow(s.region.n,s.tariff==="custom"?"saver":s.tariff);
   const verified=evFeedStatus==="live"&&!!standardFixedRate(selectedLiveRow);
   const renewalReady=s.renewal&&renewalInputsValid(s.mode);
+  if(s.renewal)renewalUpdateStatus();
   const canShow=s.renewal?renewalReady:verified;
   const availability=canShow?"verified":s.renewal?"incomplete":evFeedStatus==="loading"?"loading":"unavailable";
   document.body.classList.toggle("tariff-unverified",!canShow);
@@ -2386,9 +2388,9 @@ function render(){
   const notice=document.getElementById("tariffCheck");
   notice.hidden=canShow;
   if(!canShow){
-    notice.querySelector("strong").textContent=s.renewal?"Enter both tariff offers":availability==="loading"?"Checking current UW tariff rates…":"Current UW tariff rates could not be verified";
+    notice.querySelector("strong").textContent=s.renewal?"Historical tariff data not yet verified":availability==="loading"?"Checking current UW tariff rates…":"Current UW tariff rates could not be verified";
     document.getElementById("tariffCheckMessage").textContent=s.renewal
-      ?"Enter the electricity and/or gas rates for the default variable and offered fixed tariffs. Check that the dates are in the right order. No comparison will be shown with incomplete inputs."
+      ?"The selected historical tariff versions are not available from the verified UW rate catalogue yet. There is no manual rate entry and no estimated savings are displayed."
       :availability==="loading"
         ?"Savings will appear once the current tariff rates have been checked. Please wait."
         :evFeedStatus==="error"
@@ -2401,12 +2403,17 @@ function render(){
   document.getElementById("shareUrl").value=canShow?buildShareUrl(s):"";
   document.getElementById("renewalBenchmark").classList.toggle("hidden",!s.renewal||!renewalReady);
   if(s.renewal&&!renewalReady)return;
-  const disc=(s.renewal||s.tariff==="custom"||s.mode!=="dual")?0:DISCOUNT;
+  const disc=(s.tariff==="custom"||s.mode!=="dual")?0:DISCOUNT;
   const fix=s.renewal?renewalRates("Offer"):fixedRates(s);
   const tracker=s.renewal?null:trackerModel(s.region,s.tariff);
   s.variable=s.renewal?renewalRates("Var"):null;
-  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,janRise:s.janRise,electricHeat:s.electricHeat,tracker,variable:s.variable});
-  if(s.renewal)showRenewalBenchmark(s,res);
+  const res=compute({region:s.region,elecY:s.elecY,gasY:s.gasY,mode:s.mode,fix,disc,
+    variableDisc:s.renewal&&s.mode==="dual"?DISCOUNT:0,
+    janRise:s.janRise,electricHeat:s.electricHeat,tracker,variable:s.variable});
+  if(s.renewal){
+    showRenewalHistorical(s);
+    showRenewalBenchmark(s,res);
+  }
   updateBundleChoiceCopy(s.tariff);
 
   // Fixed + Tracker tariff details
@@ -2574,14 +2581,18 @@ function statics(){
   prefillManual(REGIONS.find(r=>r.n==11));
   document.querySelectorAll("#comparisonSwitch button").forEach(button=>button.addEventListener("click",()=>{
     document.querySelectorAll("#comparisonSwitch button").forEach(b=>b.setAttribute("aria-pressed",b===button?"true":"false"));
+    if(renewalMode())loadRenewalCatalogue();
     render();
   }));
-  ["renewalVarName","renewalOfferName","renewalVat","renewalStart","renewalEnd",
-   "renewalVarEU","renewalVarESC","renewalVarGU","renewalVarGSC",
-   "renewalOfferEU","renewalOfferESC","renewalOfferGU","renewalOfferGSC"].forEach(id=>{
-     document.getElementById(id).addEventListener("input",render);
-     document.getElementById(id).addEventListener("change",render);
-   });
+  document.getElementById("renewalServices").addEventListener("change",()=>{
+    renewalUserChoices={};
+    if(renewalFeedStatus==="ready")renewalRefreshChoices();
+    render();
+  });
+  RENEWAL_FIELDS.forEach(id=>document.getElementById(id).addEventListener("change",()=>{
+    renewalUserChoices[id]=document.getElementById(id).value;
+    render();
+  }));
 
   document.querySelectorAll('#fuelSeg button').forEach(b=>b.addEventListener("click",()=>{
     document.querySelectorAll('#fuelSeg button').forEach(x=>x.setAttribute("aria-pressed","false"));
@@ -2597,7 +2608,13 @@ function statics(){
     render();
     document.getElementById("elec").focus();
   });
-  rSel.addEventListener("change",render);
+  rSel.addEventListener("change",()=>{
+    if(renewalMode()){
+      renewalCatalogue=null;renewalFeedStatus="idle";renewalUserChoices={};
+      loadRenewalCatalogue();
+    }
+    render();
+  });
   document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.addEventListener("click",()=>{
     const was=state().tariff;
     setTariffChoice(b.dataset.tariff);
@@ -2688,6 +2705,7 @@ function statics(){
   statics();
   render();
   loadEvFeed();
+  if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
 <script src="./forecast-feed.js?v=2.64.0"></script>
