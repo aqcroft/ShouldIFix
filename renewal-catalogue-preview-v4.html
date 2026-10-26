@@ -1427,7 +1427,8 @@ function renewalRates(side){
 function renewalUpdateStatus(){
   const status=document.getElementById("renewalStatus");
   document.getElementById("renewalEffective").textContent=formatComparisonDate(parseContractEnd(renewalStartDate()));
-  if(renewalLegacyLink)status.textContent="This is an older manual-rate link. It cannot be verified against the new tariff catalogue. Please use a newly shared link.";
+  if(renewalCatalogueSource==="demo")status.textContent="DEMONSTRATION RATES - not a live UW quote. Sharing disabled.";
+  else if(renewalLegacyLink)status.textContent="This is an older manual-rate link. It cannot be verified against the new tariff catalogue. Please use a newly shared link.";
   else if(renewalFeedStatus==="loading")status.textContent="Checking historical UW tariff data…";
   else if(renewalFeedStatus==="error")status.textContent="Historical tariff catalogue unavailable: "+renewalFeedError+". No figures are shown until rates are verified.";
   else if(renewalFeedStatus==="ready")status.textContent=renewalInputsValid()?
@@ -2990,7 +2991,8 @@ function readParams(){
     if(P.has("gs")) document.getElementById("mGSC").value=P.get("gs");
     if(P.has("gu")) document.getElementById("mGU").value=P.get("gu");
   } else {
-    setTariffChoice(["fixed","start"].includes(P.get("t"))?P.get("t"):"saver");
+    const svc=P.get("renew")==="1"?P.get("svc"):null;
+    setTariffChoice(svc==="1"?"start":svc==="2"?"fixed":["fixed","start"].includes(P.get("t"))?P.get("t"):"saver");
     prefillManual(region);
   }
   // if the shared usage isn't one of the bands, show it as personalised figures
@@ -3023,6 +3025,28 @@ function readParams(){
 
 function render(){
   const s=state();
+  const query=new URLSearchParams(location.search);
+  const customer=s.renewal&&query.get("renew")==="1"&&query.get("demo")!=="1";
+  document.body.classList.toggle("customer-renewal",customer);
+  document.getElementById("heroHeading").textContent=s.renewal?
+    "Your energy options when your fixed tariff ends":"Should I fix or track?";
+  document.getElementById("heroDeck").textContent=s.renewal?
+    "What happens if you default to variable, accept the offer in your email, or compare today's public fixed tariff?":
+    "Compare the variable tariff, fixed rates and Tracker against energy price forecasts.";
+  document.getElementById("renewalSetup").classList.toggle("hidden",!s.renewal);
+  const regionLabel=s.region?.name||"your region";
+  document.getElementById("renewalCustomerProfile").textContent=s.renewal?
+    "Based on "+regionLabel+", "+s.elecY.toLocaleString("en-GB")+" kWh/year electricity, "+
+    s.gasY.toLocaleString("en-GB")+" kWh/year gas, and "+
+    ["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]+".":"";
+  const warning=document.getElementById("renewalPreviewWarning");
+  if(warning){
+    warning.hidden=renewalCatalogueSource==="live";
+    if(renewalCatalogueSource==="demo")warning.innerHTML=
+      "<strong>DEMONSTRATION RATES ONLY - DO NOT SHARE</strong> These mock tariff rates are for testing the layout. Customer share links are disabled.";
+    else if(renewalFeedStatus==="error")warning.innerHTML=
+      "<strong>Live historical data unavailable</strong> No tariff rates will be invented. This tool needs a deployed tariff-history feed.";
+  }
   // Fail closed: the embedded rates are historic examples, NEVER verified customer savings.
   // The same guard applies to the Companion and the customer-facing share iframe.
   const selectedLiveRow=liveFixedRow(s.region.n,s.tariff==="custom"?"saver":s.tariff);
@@ -3030,7 +3054,8 @@ function render(){
   const renewalReady=s.renewal&&renewalInputsValid(s.mode);
   if(s.renewal)renewalUpdateStatus();
   const canShow=s.renewal?renewalReady:verified;
-  const availability=canShow?"verified":s.renewal?"incomplete":evFeedStatus==="loading"?"loading":"unavailable";
+  const availability=canShow?(s.renewal&&renewalCatalogueSource==="demo"?"demo":"verified"):
+    s.renewal?"incomplete":evFeedStatus==="loading"?"loading":"unavailable";
   document.body.classList.toggle("tariff-unverified",!canShow);
   document.body.dataset.tariffDataStatus=availability;
   const notice=document.getElementById("tariffCheck");
@@ -3049,7 +3074,7 @@ function render(){
   setComparisonPeriod(s);
   syncVisibility(s);
   renderRenewalStory(s);
-  document.getElementById("shareUrl").value=canShow?buildShareUrl(s):"";
+  document.getElementById("shareUrl").value=canShow&&(!s.renewal||renewalCatalogueSource==="live")?buildShareUrl(s):"";
   document.getElementById("renewalBenchmark").classList.toggle("hidden",!s.renewal||!renewalReady);
   document.getElementById("renewalOldCost").classList.toggle("hidden",!s.renewal||!renewalReady);
   if(s.renewal&&!renewalReady)return;
@@ -3235,11 +3260,17 @@ function statics(){
     render();
   }));
   document.getElementById("renewalServices").addEventListener("change",()=>{
+    renewalEndingSeriesWanted=renewalFixedNumber(renewalSelectedRows().ending);
+    renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
     renewalUserChoices={};
     document.getElementById("renewalVariable").value="";
+    document.getElementById("renewalEnding").value="";
+    document.getElementById("renewalOffered").value="";
+    document.getElementById("renewalPublic").value="";
     if(renewalFeedStatus==="ready")renewalRefreshChoices();
     render();
   });
+  document.getElementById("renewalEndingQuickSelect").addEventListener("change",e=>renewalSelectEnding(e.target.value));
   RENEWAL_FIELDS.forEach(id=>document.getElementById(id).addEventListener("change",()=>{
     renewalUserChoices[id]=document.getElementById(id).value;
     render();
@@ -3270,10 +3301,12 @@ function statics(){
     if(renewalMode()){
       if(b.dataset.tariff==="custom")return;
       setTariffChoice(b.dataset.tariff);
+      renewalEndingSeriesWanted=renewalFixedNumber(renewalSelectedRows().ending);
+      renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
       document.getElementById("renewalServices").value=b.dataset.tariff==="start"?"1":b.dataset.tariff==="fixed"?"2":"3";
       renewalUserChoices={};
-      document.getElementById("renewalVariable").value="";
-      if(renewalFeedStatus==="ready"){renewalRefreshChoices();storyAutoSelectDefaults();}
+      for(const id of RENEWAL_FIELDS)document.getElementById(id).value="";
+      if(renewalFeedStatus==="ready")renewalRefreshChoices();
       render();
       return;
     }
