@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.75.0">
+<meta name="app-version" content="2.75.1">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -1916,6 +1916,38 @@ function storyAutoSelectDefaults(){
  */
 const RENEWAL_OLD_FIELD_IDS=["oldElecUnit","oldElecSC","oldGasUnit","oldGasSC"];
 let renewalOldSourceTier=null;
+
+let builderCurrentMode="variable";
+function builderSetCurrentMode(mode){
+  if(!["variable","fixed"].includes(mode))return;
+  builderCurrentMode=mode;builderRefreshCurrentMode();render();
+}
+function builderRefreshCurrentMode(){
+  document.getElementById("builderCurrentSwitch").querySelectorAll("button").forEach(button=>
+    button.setAttribute("aria-pressed",String(button.dataset.current===builderCurrentMode)));
+  const fixed=builderCurrentMode==="fixed";
+  document.getElementById("renewalOldManualSetup").hidden=!fixed;
+  document.getElementById("builderHistoryDetails").hidden=!fixed;
+  const name=renewalDefaultVariable(renewalTier());
+  document.getElementById("builderCurrentHelp").textContent=fixed?
+    "Enter your previous fixed unit rates and standing charges (including VAT). These create the grey dotted historic-cost line.":
+    "UW "+name+" is selected automatically from the current tariff guide. The grey line illustrates a previous year's usage pattern at today's variable rates, not actual historic charges.";
+}
+function renewalVariablePreviousProfile(s){
+  const selected=renewalSelectedRows().variable,rate=standardFixedRate(selected);
+  if(!rate||!MONTHS.length)return null;
+  const discount=s.mode==="dual"?DISCOUNT:0;
+  return MONTHS.map(m=>{
+    const year=m.year-1,days=new Date(Date.UTC(year,m.cal+1,0)).getUTCDate();
+    const eK=s.elecY*((s.mode==="elec"&&s.electricHeat)?GAS_W[m.cal]:ELEC_W[m.cal]);
+    const gK=s.gasY*GAS_W[m.cal];
+    // What last year's USAGE would cost at today's variable rates - not actual past charges.
+    const e=s.mode==="gas"?0:Math.max(0,(rate.eSC-discount)*days+rate.eU*eK)*(1+elecVAT({year,cal:m.cal}))/100;
+    const g=s.mode==="elec"?0:Math.max(0,(rate.gSC-discount)*days+rate.gU*gK)*1.05/100;
+    return {k:m.k,year,total:e+g,e,g,ref:"Current variable tariff applied to previous-year usage profile"};
+  });
+}
+
 function renewalBudgetAmount(){
   const raw=document.getElementById("renewalBudgetMonthly").value.trim();
   if(raw==="")return null;
@@ -1923,6 +1955,7 @@ function renewalBudgetAmount(){
   return Number.isFinite(v)&&v>0&&v<=5000?v:null;
 }
 function renewalManualOldRates(){
+  if(builderCurrentMode!=="fixed")return null;
   if(renewalOldSourceTier&&renewalOldSourceTier!==renewalTier())return null;
   const bounds=[150,300,50,300];
   const vals=RENEWAL_OLD_FIELD_IDS.map((id,i)=>{
@@ -1951,6 +1984,7 @@ function renewalManualPastMonths(s){
 }
 
 function renewalLastYearMonthly(s){
+  if(builderCurrentMode==="variable")return renewalVariablePreviousProfile(s);
   const manuallyEntered=renewalManualPastMonths(s);
   if(manuallyEntered)return manuallyEntered;
   const selected=renewalSelectedRows();
@@ -3203,6 +3237,7 @@ function builderName(){
   return document.getElementById("builderCustomer").value.trim().slice(0,40);
 }
 function builderRefreshInputs(){
+  builderRefreshCurrentMode();
   const region=document.getElementById("region");
   if(!region.value)return;
   document.getElementById("builderRegion").value=region.value;
@@ -3251,7 +3286,8 @@ function renewalBudgetReference(s){
   if(confirmed!==null)return {amount:confirmed,source:"confirmed"};
   const old=renewalLastYearMonthly(s);
   if(!old||old.length!==12||old.some(row=>!row||!Number.isFinite(row.total)))return null;
-  return {amount:old.reduce((sum,row)=>sum+row.total,0)/12,source:"estimated"};
+  return {amount:old.reduce((sum,row)=>sum+row.total,0)/12,
+    source:builderCurrentMode==="variable"?"illustrative":"estimated"};
 }
 function builderUpdateShareUi(url){
   const canShare=!!url;
@@ -3274,6 +3310,7 @@ function buildShareUrl(s){
   if(!s.renewal&&s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
     p.set("renew","1");
+    p.set("ct",builderCurrentMode);
     const name=builderName();
     if(name)p.set("cn",name);
     p.set("svc",renewalTier());
@@ -3317,6 +3354,9 @@ function readParams(){
   if(!P.has("r")&&!P.has("e")) return;              // no shared state
   if(P.has("r")) document.getElementById("region").value=P.get("r");
   if(P.get("renew")==="1"){
+    const current=P.get("ct");
+    builderCurrentMode=["variable","fixed"].includes(current)?current:
+      (P.has("oeu")||P.has("ogs")||!!P.get("ending")?"fixed":"variable");
     renewalLegacyLink=!P.has("svc")||!P.has("ending")||!P.has("offered")||!P.has("variable");
     document.querySelectorAll("#comparisonSwitch button").forEach(b=>
       b.setAttribute("aria-pressed",b.dataset.compareMode==="renewal"?"true":"false"));
@@ -3623,7 +3663,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.75.0 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
+    <div>App version: 2.75.1 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3659,6 +3699,8 @@ function statics(){
   });
   document.getElementById("builderServiceSwitch").querySelectorAll("button").forEach(button=>
     button.addEventListener("click",()=>builderSetService(button.dataset.svc)));
+  document.getElementById("builderCurrentSwitch").querySelectorAll("button").forEach(button=>
+    button.addEventListener("click",()=>builderSetCurrentMode(button.dataset.current)));
   for(const [type,slider,exact] of [["elec","builderElecRange","builderElecExact"],["gas","builderGasRange","builderGasExact"]]){
     document.getElementById(slider).addEventListener("input",e=>builderSetUsage(type,e.target.value));
     document.getElementById(exact).addEventListener("input",e=>{
@@ -3848,6 +3890,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.75.0"></script>
+<script src="./forecast-feed.js?v=2.75.1"></script>
 </body>
 </html>
