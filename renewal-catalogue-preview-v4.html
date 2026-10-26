@@ -1780,7 +1780,51 @@ function storyAutoSelectDefaults(){
   renewalUpdateQuickPicks();
 }
 /* ---------- SIMPLE FOUR-LINE RENEWAL COMPARISON v2.66.0 ---------- */
+
+/* ----- Historical confirmation-email rates and Budget Plan reference -----
+ * Enter only the four VAT-INCLUSIVE values actually supplied to the customer.
+ * Manual rates are scoped to the selected qualifying-service level to prevent
+ * an old Fixed Saver rate being reused as an old Fixed Start rate.
+ */
+const RENEWAL_OLD_FIELD_IDS=["oldElecUnit","oldElecSC","oldGasUnit","oldGasSC"];
+let renewalOldSourceTier=null;
+function renewalBudgetAmount(){
+  const raw=document.getElementById("renewalBudgetMonthly").value.trim();
+  if(raw==="")return null;
+  const v=Number(raw);
+  return Number.isFinite(v)&&v>0&&v<=5000?v:null;
+}
+function renewalManualOldRates(){
+  if(renewalOldSourceTier&&renewalOldSourceTier!==renewalTier())return null;
+  const bounds=[150,300,50,300];
+  const vals=RENEWAL_OLD_FIELD_IDS.map((id,i)=>{
+    const raw=String(document.getElementById(id).value||"").trim();
+    const v=Number(raw);
+    return raw!==""&&Number.isFinite(v)&&v>=0&&v<=bounds[i]?v:null;
+  });
+  if(vals.some(v=>v===null))return null;
+  const name=(document.getElementById("oldTariffName").value||"Previous fixed tariff").trim();
+  return {name,eU:vals[0],eSC:vals[1],gU:vals[2],gSC:vals[3],
+    source:"original confirmation email",vatIncluded:true};
+}
+function renewalManualPastMonths(s){
+  const rates=renewalManualOldRates();
+  if(!rates||!MONTHS.length)return null;
+  return MONTHS.map(m=>{
+    const oldYear=m.year-1,days=new Date(Date.UTC(oldYear,m.cal+1,0)).getUTCDate();
+    const elecK=s.elecY*((s.mode==="elec"&&s.electricHeat)?GAS_W[m.cal]:ELEC_W[m.cal]);
+    const gasK=s.gasY*GAS_W[m.cal];
+    // Rates entered from the customer's email ALREADY include VAT.
+    // Do not apply another 5% and do not apply a historic April revision.
+    const e=s.mode==="gas"?0:(rates.eSC*days+rates.eU*elecK)/100;
+    const g=s.mode==="elec"?0:(rates.gSC*days+rates.gU*gasK)/100;
+    return {k:m.k,year:oldYear,total:e+g,e,g,ref:"Customer confirmation email (original rates)"};
+  });
+}
+
 function renewalLastYearMonthly(s){
+  const manuallyEntered=renewalManualPastMonths(s);
+  if(manuallyEntered)return manuallyEntered;
   const selected=renewalSelectedRows();
   if(!selected.ending)return null;
   const historical=renewalRows().filter(r=>renewalNameKey(r)===renewalNameKey(selected.ending)&&
