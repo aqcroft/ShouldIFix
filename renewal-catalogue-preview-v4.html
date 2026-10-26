@@ -719,6 +719,9 @@
   .renewal-setup select{width:100%;padding:9px 10px;margin-top:7px;border-radius:9px;font-size:.83rem}
   .renewal-setup .renewal-evidence{font-size:.69rem;color:#766c81;line-height:1.5;margin-top:12px}
   .renewal-profile{font:.78rem/1.5 Nunito,sans-serif;color:#695c79;font-weight:700;margin:0 0 14px}
+  .renewal-mode #mainSearchIntro{display:none!important}
+  .customer-renewal #generalControls,.customer-renewal #evExtension,
+  .customer-renewal .wrap > details{display:none!important}
   .customer-renewal .search-intro,.customer-renewal #comparisonSwitch,.customer-renewal #renewalSetup,
   .customer-renewal #fixedCard,.customer-renewal #usageCard,.customer-renewal .share,
   .customer-renewal .outlook-card,.customer-renewal .answer-faq,.customer-renewal #renewalCard{display:none!important}
@@ -748,7 +751,7 @@
     <button type="button" data-compare-mode="standard" aria-pressed="true">Current tariffs</button>
     <button type="button" data-compare-mode="renewal" aria-pressed="false">Existing customer - fixed ending</button>
   </div>
-  <section class="card">
+  <section class="card" id="generalControls">
     <h2 class="hidden">Your details</h2>
 
     <div class="field">
@@ -3036,7 +3039,7 @@ function render(){
   document.getElementById("heroHeading").textContent=s.renewal?
     "Your energy options when your fixed tariff ends":"Should I fix or track?";
   document.getElementById("heroDeck").textContent=s.renewal?
-    "What happens if you default to variable, accept the offer in your email, or compare today's public fixed tariff?":
+    "Compare the variable tariff, the fixed offer in your renewal email, and the latest publicly available fixed tariff.":
     "Compare the variable tariff, fixed rates and Tracker against energy price forecasts.";
   document.getElementById("renewalSetup").classList.toggle("hidden",!s.renewal);
   const regionLabel=s.region?.name||"your region";
@@ -3256,7 +3259,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.69.1 (26 October 2026; customer-facing cards with dynamic tick/cross pros and cons, default-to-variable label, visible Energy only/Energy + 1/Energy + 2 service buttons, scoped illustrative Budget Plan, stronger colour contrast and restored January stress scenarios; customer-friendly pros/cons, renamed variable choice, visible energy-only/+1/+2 service buttons,  four-line renewal chart, previous-year seasonal reconstruction, dual annual-savings cards, monthly equivalent comparison table; automatic tariff-hunter history selectors, first-of-month renewal dates, historical rate comparison, version-pinned customer share links, individual offer versus selected public tariff cost comparison; previous 2.64.0 manual renewal input was replaced; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.69.2 (26 October 2026; default-to-live Tariff Hunter, dynamic three-expiry quick picks, recent complete tariff suites, customer-specific share view, full history required for sharing; customer-facing cards with dynamic tick/cross pros and cons, default-to-variable label, visible Energy only/Energy + 1/Energy + 2 service buttons, scoped illustrative Budget Plan, stronger colour contrast and restored January stress scenarios; customer-friendly pros/cons, renamed variable choice, visible energy-only/+1/+2 service buttons,  four-line renewal chart, previous-year seasonal reconstruction, dual annual-savings cards, monthly equivalent comparison table; automatic tariff-hunter history selectors, first-of-month renewal dates, historical rate comparison, version-pinned customer share links, individual offer versus selected public tariff cost comparison; previous 2.64.0 manual renewal input was replaced; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3427,6 +3430,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.69.1"></script>
+<script src="./forecast-feed.js?v=2.69.2"></script>
 </body>
 </html>
