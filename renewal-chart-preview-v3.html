@@ -1297,7 +1297,9 @@ function renewalSetOptions(id){
   for(const item of options){
     const o=document.createElement("option");o.value=item.value;o.textContent=item.label;el.appendChild(o);
   }
-  const desired=preferred||before;
+  const matchedDefault=id==="renewalVariable"?options.find(item=>item.label.toLowerCase()===
+    renewalDefaultVariable(renewalTier()).toLowerCase()):null;
+  const desired=preferred||(matchedDefault?matchedDefault.value:before);
   if(desired&&options.some(item=>item.value===desired)){el.value=desired;}
   else if(preferred){
     const archivedRow=renewalFindRow(preferred);
