@@ -728,6 +728,18 @@
   .customer-renewal .hero{padding-bottom:14px}
   .customer-renewal .hero p{font-size:.9rem}
   .customer-renewal .renewal-chart-card{margin-top:12px}
+
+  /* v2.71.0 renewal: real old-rate manual case input, payment reference and x-axis legend */
+  .renewal-input-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 14px;margin:12px 0}
+  .renewal-input-grid label{font-size:.72rem!important;font-weight:850;color:#524565;line-height:1.45}
+  .renewal-input-grid input,.renewal-setup input.renewal-budget-input,.renewal-setup input#oldTariffName{
+    display:block;width:100%;max-width:100%;box-sizing:border-box;margin-top:5px;border:1px solid #cabbdf;border-radius:9px;padding:9px;
+    color:#3b2b53;font:750 .88rem Nunito,sans-serif;background:#fff
+  }
+  .renewal-chart-key-below{margin:2px auto 12px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 17px;border-top:1px solid #f0eaf4;padding-top:12px}
+  .renewal-chart-key-below .dash i{border-top-style:dotted}
+  .renewal-previous-pay{margin-top:10px}
+  @media(max-width:540px){.renewal-input-grid{grid-template-columns:1fr}}
   body.tariff-unverified #resultCard{display:none!important}
 </style>
 </head>
@@ -845,19 +857,39 @@
       <label>Which fixed tariff number is offered in your email?</label>
       <div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Choose an offer series"></div>
     </div>
+    <div class="renewal-setting-group" id="renewalOldManualSetup">
+      <details id="renewalManualDetails">
+        <summary>Enter previous fixed rates from a confirmation email</summary>
+        <p>For older tariffs missing from Tariff Hunter. Enter the original VAT-inclusive rates to reconstruct last year's monthly energy costs. The customer link will retain the rates you enter.</p>
+        <label for="oldTariffName">Previous fixed tariff</label>
+        <input id="oldTariffName" type="text" placeholder="e.g. Fixed Saver 65" maxlength="70"/>
+        <div class="renewal-input-grid">
+          <label>⚡ Electricity unit (p/kWh, inc VAT)<input id="oldElecUnit" type="number" min="0" max="150" step="0.00001" inputmode="decimal" placeholder="24.45345"/></label>
+          <label>⚡ Electricity standing (p/day, inc VAT)<input id="oldElecSC" type="number" min="0" max="300" step="0.00001" inputmode="decimal" placeholder="48.1257"/></label>
+          <label>🔥 Gas unit (p/kWh, inc VAT)<input id="oldGasUnit" type="number" min="0" max="50" step="0.00001" inputmode="decimal" placeholder="5.69835"/></label>
+          <label>🔥 Gas standing (p/day, inc VAT)<input id="oldGasSC" type="number" min="0" max="300" step="0.00001" inputmode="decimal" placeholder="26.1681"/></label>
+        </div>
+        <p class="renewal-evidence">Previous-year line uses these original rates for all 12 months, deliberately ignoring later price adjustments. For each new customer, confirm VAT treatment and the exact rates before sharing.</p>
+      </details>
+    </div>
+    <div class="renewal-setting-group">
+      <label for="renewalBudgetMonthly">Your customer's current monthly Budget Plan payment, including VAT (£)</label>
+      <input id="renewalBudgetMonthly" class="renewal-budget-input" type="number" min="0" max="5000" step="0.01" inputmode="decimal" placeholder="e.g. 152.26"/>
+      <p>Shows a flat reference line against future energy costs. This is the amount currently paid, not the cost of energy used.</p>
+    </div>
     <p class="renewal-evidence" id="renewalLiveStatus" role="status">Checking Tariff Hunter for source tariff records…</p>
   </section>
   <section id="renewalStory" class="renewal-chart-card hidden" aria-labelledby="renewalChartHeading">
     <h2 id="renewalChartHeading">Should you fix when your current tariff ends?</h2>
     <p class="renewal-profile" id="renewalCustomerProfile"></p>
-    <p class="renewal-chart-subtitle" id="renewalChartIntro">Four lines show the previous 12 months and your three choices for the year ahead, using the same annual electricity and gas usage.</p>
+    <p class="renewal-chart-subtitle" id="renewalChartIntro">Compare your monthly Budget Plan, previous fixed tariff and three options for the coming 12 months.</p>
     <div class="renewal-savings-pair" id="renewalSavingsPair" aria-label="Three tariff choices, annual costs and monthly equivalents"></div>
     <p class="renewal-previous-pay" id="renewalPreviousBudget">📌 Please check your current UW Budget Plan payments. These are not the same as your underlying energy costs.</p>
     <div class="renewal-scenario-bar"><strong>Stress test January's price-cap change</strong>
       <div class="renewal-scenario-buttons" id="renewalScenarioButtons" role="group" aria-label="January price cap stress tests"></div></div>
-    <div class="renewal-chart-key" id="renewalLineLegend" aria-label="Line chart legend"></div>
-    <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy costs for last year's fixed tariff, Double Gold variable, Fixed Saver 99 and Fixed Saver 100"></div>
-    <p class="renewal-chart-caption">The grey line is your <b>previous year</b>, aligned by month to show the same seasonal usage. The other three lines run from November 2026 to October 2027. A dashed variable line indicates forecast prices from January onwards.</p>
+    <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy costs and Budget Plan reference"></div>
+    <div class="renewal-chart-key renewal-chart-key-below" id="renewalLineLegend" aria-label="Chart line legend"></div>
+    <p class="renewal-chart-caption">The grey dotted line shows last year's estimated seasonal energy costs. The red dotted line is your current monthly Budget Plan payment. Other lines show your costs for the next 12 months.</p>
     <p class="renewal-chart-small" id="renewalChartDisclosure">The variable tariff uses an illustrative future price-cap scenario, not a prediction of UW's actual prices. Tariff selection and rates must be verified before sharing with a customer.</p>
   </section>
 
@@ -3304,7 +3336,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.70.2 (26 October 2026; live-first renewal feed, explicit demo-only sample data, three closest expiring tariff buttons ranked by end dates, complete Fixed Saver/Fixed/Fixed Start number suites, 99 versus current 100 by default, four-line chart, customer-only share view and full-history sharing gate; customer-facing cards with dynamic tick/cross pros and cons, default-to-variable label, visible Energy only/Energy + 1/Energy + 2 service buttons, scoped illustrative Budget Plan, stronger colour contrast and restored January stress scenarios; customer-friendly pros/cons, renamed variable choice, visible energy-only/+1/+2 service buttons,  four-line renewal chart, previous-year seasonal reconstruction, dual annual-savings cards, monthly equivalent comparison table; automatic tariff-hunter history selectors, first-of-month renewal dates, historical rate comparison, version-pinned customer share links, individual offer versus selected public tariff cost comparison; previous 2.64.0 manual renewal input was replaced; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.71.0 (26 October 2026; live-first renewal feed, explicit demo-only sample data, three closest expiring tariff buttons ranked by end dates, complete Fixed Saver/Fixed/Fixed Start number suites, 99 versus current 100 by default, four-line chart, customer-only share view and full-history sharing gate; customer-facing cards with dynamic tick/cross pros and cons, default-to-variable label, visible Energy only/Energy + 1/Energy + 2 service buttons, scoped illustrative Budget Plan, stronger colour contrast and restored January stress scenarios; customer-friendly pros/cons, renamed variable choice, visible energy-only/+1/+2 service buttons,  four-line renewal chart, previous-year seasonal reconstruction, dual annual-savings cards, monthly equivalent comparison table; automatic tariff-hunter history selectors, first-of-month renewal dates, historical rate comparison, version-pinned customer share links, individual offer versus selected public tariff cost comparison; previous 2.64.0 manual renewal input was replaced; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3475,6 +3507,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.70.2"></script>
+<script src="./forecast-feed.js?v=2.71.0"></script>
 </body>
 </html>
