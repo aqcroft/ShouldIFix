@@ -1858,16 +1858,16 @@ function renewalComputeSeries(s,fix){
     variable:renewalRates("Var"),variableDisc:s.mode==="dual"?DISCOUNT:0,
     janRise:s.janRise,electricHeat:s.electricHeat,tracker:null});
 }
-function renewalFullChart(s,old,variable,fix99,fix100){
+function renewalFullChart(s,old,variable,fix99,fix100,budget){
   const W=690,H=325,L=50,R=17,T=24,B=39,months=MONTHS;
-  const all=[old,variable,fix99,fix100].filter(Array.isArray).flat();
+  const all=[old,variable,fix99,fix100,budget===null?null:Array(MONTHS.length).fill(budget)].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
   const spread=Math.max(10,max-min);
   const low=Math.max(0,Math.floor((min-spread*.18)/10)*10),high=Math.ceil((max+spread*.20)/10)*10;
   const x=i=>L+(W-L-R)*i/11;
   const y=v=>T+(H-T-B)*(1-(v-low)/(high-low));
   const path=values=>values.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
-  const colors={old:"#99949f",variable:"#bd6413",offer:"#15803d",public:"#225cd0"};
+  const colors={old:"#8d8c99",variable:"#bd6413",offer:"#15803d",public:"#225cd0",budget:"#c14253"};
   const grid=[];
   const step=niceStep(high-low);
   for(let v=Math.ceil(low/step)*step;v<=high+.01;v+=step){
@@ -1891,20 +1891,24 @@ function renewalFullChart(s,old,variable,fix99,fix100){
   const svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Monthly costs by tariff for November to October">'+grid.join("")+
     janMarker+
     (old?line(old,colors.old,'stroke-dasharray="2 6"'):'')+
+    (budget!==null?line(Array(months.length).fill(budget),colors.budget,'stroke-dasharray="2 6"'):"")+
     variablePath+line(fix99,colors.offer)+line(fix100,colors.public)+
-    (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+labels+'</svg>';
+    (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+
+    (budget!==null?'<title>Monthly Budget Plan payment: £'+budget.toFixed(2)+'</title>':"")+labels+'</svg>';
+  const original=renewalManualOldRates();
   const legends=[
-    ["old","Last year - "+renewalRawName(renewalSelectedRows().ending),!!old],
-    ["variable","Default to variable - "+safeHtml(s.variableName),true],
-    ["offer","Accept "+renewalRawName(renewalSelectedRows().offered),true],
-    ["public","Compare "+renewalRawName(renewalSelectedRows().public),true]
+    ["old",original?original.name+" - last year":"Last year - "+renewalRawName(renewalSelectedRows().ending),!!old],
+    ["budget",budget===null?"":("Budget Plan ~£"+Math.ceil(budget)+"/month"),budget!==null],
+    ["variable","Default to variable",true],
+    ["offer",renewalRawName(renewalSelectedRows().offered),true],
+    ["public",renewalRawName(renewalSelectedRows().public),true]
   ];
   document.getElementById("renewalLineLegend").innerHTML=legends.filter(r=>r[2]).map(([key,label])=>
     '<span class="'+(key==="old"?"dash":"")+'" style="--lc:'+colors[key]+'"><i aria-hidden="true"></i>'+safeHtml(label)+'</span>').join("");
   document.getElementById("renewalFourLineChart").innerHTML=svg;
   document.getElementById("renewalFourLineChart").setAttribute("aria-label",
-    "Monthly comparison: "+(old?"previous fixed tariff, ":"")+s.variableName+", "+
-    s.offerName+" and "+renewalRawName(renewalSelectedRows().public)+".");
+    "Monthly comparison: "+(old?"previous fixed tariff, ":"")+(budget!==null?"Budget Plan payment, ":"")+
+    s.variableName+", "+s.offerName+" and "+renewalRawName(renewalSelectedRows().public)+".");
 }
 function renewalCostTableRow(name,yearCost,variableTotal,desc,kind,isBest=false){
   if(yearCost===null)return '';
@@ -1945,15 +1949,18 @@ function renderRenewalStory(s){
   }
   const old=renewalLastYearMonthly(s),past=old&&old.every(Boolean)?old.map(r=>r.total):null;
   document.querySelector(".renewal-chart-caption").textContent=past?
-    "Grey: your previous 12 months, modelled at the same usage, including confirmed rate revisions. The three coloured lines show the coming year.":
-    "Your previous fixed tariff is not fully recorded in the archive, so no previous-year cost line is assumed. The three coloured lines compare the coming 12 months.";
+    (renewalManualOldRates()?
+      "Grey dotted: last year's estimated energy costs at your original confirmation-email rates, without later price adjustments. Red dotted: your flat Budget Plan contribution. The coloured lines show next year's seasonal costs.":
+      "Grey dotted: last year's estimated energy costs at archived rates. Red dotted: your flat Budget Plan contribution. The coloured lines show next year's seasonal costs.") :
+    "Previous fixed rates are unavailable, so the grey historical line is hidden. The red dotted Budget Plan line is your payment reference; the three coloured lines model future energy costs.";
   const yearVariable=x99.yCap,year99=x99.yFix,year100=x100.yFix;
-  // The £150/m example is specific to the demo usage, not a general customer default.
-  const exampleBudget=s.region.n===11&&s.elecY===3073&&s.gasY===12823&&
-    renewalTier()==="3"&&s.mode==="dual";
-  document.getElementById("renewalPreviousBudget").innerHTML=exampleBudget
-    ?'📌 <b>Your original Budget Plan may still be £75 electricity + £75 gas (£150/month, £1,800/year in payments).</b> Please double-check what you currently pay. Payments and energy costs are different.'
-    :'📌 <b>Check your current UW Budget Plan payments.</b> The monthly averages above are estimated energy costs, not necessarily the amount collected by Direct Debit.';
+  const budget=renewalBudgetAmount();
+  const budgetLabel=budget===null?"":new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(budget);
+  document.getElementById("renewalPreviousBudget").innerHTML=budget!==null?
+    '📌 <b>For reference, you are currently paying about £'+Math.ceil(budget)+
+    ' per month towards your gas and electricity costs.</b> Your Budget Plan is '+budgetLabel+
+    '/month. This is what you pay, not necessarily the monthly cost of the energy you use.':
+    '📌 <b>Check your current UW Budget Plan payment.</b> It can be added as a red dotted line against the three options. It is not the same as your underlying energy costs.';
   // Check the first two calendar months, not annual average prices.
   const initiallyCheapest=[0,1].every(i=>x99.rows[i].cap<=x99.rows[i].fixed+.01 &&
     x99.rows[i].cap<=x100.rows[i].fixed+.01);
@@ -2001,14 +2008,16 @@ function renderRenewalStory(s){
     costCard("","Default to variable - "+s.variableName,yearVariable,null,variablePoints)+
     costCard("best","Accept your "+renewalRawName(fix99)+" offer",year99,delta99,offeredPoints)+
     costCard("second","Compare with public "+renewalRawName(fix100),year100,delta100,publicPoints);
-  renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),x100.rows.map(r=>r.fixed));
+  renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),x100.rows.map(r=>r.fixed),renewalBudgetAmount());
   document.getElementById("renewalChartIntro").textContent=
-    (past?"Your previous year's line is a modelled reference. ":"The old fixed tariff is not in the archive; only the three future options are charted. ")+"Compare the three choices for "+
+    (past?"Grey dotted: estimated costs for the previous year. ":"No verified previous-year tariff rates available. ")+
+    (renewalBudgetAmount()!==null?" Red dotted: your current Budget Plan payment. ":"")+
+    "Compare your three choices for "+
     formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)+".";
   document.getElementById("renewalChartDisclosure").textContent=
     "Scenario: "+(s.janRise>=0?"+":"")+s.janRise+"% is an illustrative change in Ofgem's January price cap, "+
     "not a forecast of your UW variable rates. Your previous-year grey line includes the April 2026 rate adjustment; "+
-    "Budget Plan figures are payment assumptions, not billed usage. "+
+    "The Budget Plan line is the stated monthly contribution, not the cost of energy used. Previous-year costs are modelled at the selected rates and usage. "+
     "Annual / monthly equivalent costs are not Direct Debit instalments. "+
     (renewalCatalogueSource==="demo"?"DEMONSTRATION ONLY - these tariff rates are made up.":
      renewalCatalogueSource==="snapshot"?"Rates from the UW_Tariff_Data snapshot dated 26 Oct 2026, not live. Confirm current prices before switching.":
