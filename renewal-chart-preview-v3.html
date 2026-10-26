@@ -676,7 +676,7 @@
 <div class="wrap">
   <div id="renewalPreviewWarning" style="position:relative;z-index:3;background:#fff3da;border:2px solid #b87913;border-radius:15px;padding:14px 17px;margin:8px 0 18px;color:#654309;font:800 14px/1.5 Nunito,system-ui,sans-serif">
     <strong style="display:block;font-size:19px;margin-bottom:4px">TEST PREVIEW - DEMONSTRATION RATES ONLY</strong>
-    This preview charts four lines: last year, do nothing, Fixed Saver 99 and Fixed Saver 100. Annual savings are shown above the chart. Figures are illustrative, NOT verified UW tariff prices. Do not send this preview to Sandie or use its cost estimates for decisions. The existing live Should I Fix is unchanged.
+    This Sandie-specific preview charts last year, do nothing, Fixed Saver 99 and Fixed Saver 100. It opens with her current estimated usage (3,073 kWh electricity / 12,823 kWh gas). Annual savings are above the chart. Demo rates are NOT verified. Figures are illustrative, NOT verified UW tariff prices. Do not send this preview to Sandie or use its cost estimates for decisions. The existing live Should I Fix is unchanged.
   </div>
 
 
@@ -1544,10 +1544,10 @@ function renewalFullChart(s,old,variable,fix99,fix100){
     variablePath+line(fix99,colors.offer)+line(fix100,colors.public)+
     (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+labels+'</svg>';
   const legends=[
-    ["old","Last year - Fixed Saver 65",!!old],
-    ["variable","Do nothing - Double Gold",true],
-    ["offer","Accept Fixed Saver 99",true],
-    ["public","Compare Fixed Saver 100",true]
+    ["old","Last year - "+renewalRawName(renewalSelectedRows().ending),!!old],
+    ["variable","Do nothing - "+safeHtml(s.variableName),true],
+    ["offer","Accept "+renewalRawName(renewalSelectedRows().offered),true],
+    ["public","Compare "+renewalRawName(renewalSelectedRows().public),true]
   ];
   document.getElementById("renewalLineLegend").innerHTML=legends.filter(r=>r[2]).map(([key,label])=>
     '<span class="'+(key==="old"?"dash":"")+'" style="--lc:'+colors[key]+'"><i aria-hidden="true"></i>'+safeHtml(label)+'</span>').join("");
@@ -1577,10 +1577,10 @@ function renderRenewalStory(s){
   }
   const rows=renewalSelectedRows();
   const candidates=renewalOptionsFor("renewalOffered");
-  const offer99=candidates.find(row=>/^Fixed Saver 99$/i.test(renewalRawName(row)))||rows.offered;
+  const offer99=candidates.find(row=>/ 99$/.test(renewalRawName(row)))||rows.offered;
   const public100=rows.public;
-  if(!offer99||!public100||!/100$/.test(renewalRawName(public100))||
-     !/^Fixed Saver 99$/i.test(renewalRawName(offer99))){
+  if(!offer99||!public100||!/ 100$/.test(renewalRawName(public100))||
+     !/ 99$/.test(renewalRawName(offer99))){
     savings.innerHTML='<p class="renewal-chart-small">Both 99 and 100 are needed for a four-line comparison. No public tariff is substituted.</p>';
     table.innerHTML="";plot.innerHTML="";return;
   }
@@ -1601,7 +1601,8 @@ function renderRenewalStory(s){
        '<div class="saving-note">'+(positive?"potentially saved":"vs the variable forecast")+' over 12 months vs doing nothing</div>'+
        '<div class="cost-note">Projected cost: '+gbp(price)+' /year · '+gbp(price/12)+'/month avg.</div></div>';
   };
-  savings.innerHTML=cardHtml("Accept Fixed Saver 99",s99,a.yFix,false)+cardHtml("Compare Fixed Saver 100",s100,b.yFix,true);
+  savings.innerHTML=cardHtml("Accept "+renewalRawName(offer99),s99,a.yFix,false)+
+    cardHtml("Compare "+renewalRawName(public100),s100,b.yFix,true);
   renewalFullChart(s,oldValues,doubleGold,fix99,fix100);
   const best=Math.min(variableYear,a.yFix,b.yFix);
   const tariffName=renewalRawName(rows.ending)||"Previous fixed tariff";
@@ -1610,16 +1611,16 @@ function renderRenewalStory(s){
       "Like-for-like usage; pre/post April rates","old"))+
    renewalCostTableRow("Do nothing - Double Gold",variableYear,variableYear,
       "Price-cap scenario, not fixed","variable",best===variableYear)+
-   renewalCostTableRow("Fixed Saver 99",a.yFix,variableYear,"Offer in renewal email","fixed",best===a.yFix)+
-   renewalCostTableRow("Fixed Saver 100",b.yFix,variableYear,"Current public fixed comparison","fixed",best===b.yFix)+
+   renewalCostTableRow(renewalRawName(offer99),a.yFix,variableYear,"Offer in renewal email","fixed",best===a.yFix)+
+   renewalCostTableRow(renewalRawName(public100),b.yFix,variableYear,"Current public fixed comparison","fixed",best===b.yFix)+
    '</tbody></table>';
   const compared=b.yFix-a.yFix;
-  const bestText=compared>.5?"Fixed Saver 99 is "+gbp(compared)+" cheaper than 100 over the same period":
-    compared<-.5?"Fixed Saver 100 is "+gbp(-compared)+" cheaper than 99 over the same period":
-    "Fixed Saver 99 and 100 cost approximately the same";
+  const bestText=compared>.5?renewalRawName(offer99)+" is "+gbp(compared)+" cheaper than "+renewalRawName(public100)+" over the same period":
+    compared<-.5?renewalRawName(public100)+" is "+gbp(-compared)+" cheaper than "+renewalRawName(offer99)+" over the same period":
+    "The offered fix and current public fix cost approximately the same";
   const recommendation=s99>=0?
-    'Accepting the offered 99 could save '+gbp(s99)+' compared with doing nothing over the year.':
-    'The offered 99 costs '+gbp(-s99)+' more than this variable scenario, but provides price certainty.';
+    'Accepting '+safeHtml(renewalRawName(offer99))+' could save '+gbp(s99)+' compared with doing nothing over the year.':
+    'The offered fixed tariff costs '+gbp(-s99)+' more than this variable scenario, but provides price certainty.';
   const pastNote=oldYear!==null?
     ' Last year would have cost about '+gbp(oldYear)+' at this same usage - including the April 2026 tariff adjustment.':
     ' The archive does not contain a complete, date-valid previous-year rate history, so no historic cost is invented.';
@@ -3113,11 +3114,21 @@ function statics(){
       b.setAttribute("aria-pressed",b.dataset.compareMode==="renewal"?"true":"false"));
   }
   readParams();
+  // Sandie-specific preview defaults. Shared links override all these inputs.
+  // The production generic calculator must not prefill a different customer's use.
+  if(!new URLSearchParams(location.search).has("r")&&!new URLSearchParams(location.search).has("e")){
+    document.getElementById("region").value="11";
+    document.getElementById("elec").value="3073";
+    document.getElementById("gas").value="12823";
+    document.getElementById("btnPersonal").setAttribute("aria-pressed","true");
+    lastCustom={e:3073,g:12823};
+    customTouched=true;
+  }
   statics();
   render();
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.65.0"></script>
+<script src="./forecast-feed.js?v=2.66.0"></script>
 </body>
 </html>
