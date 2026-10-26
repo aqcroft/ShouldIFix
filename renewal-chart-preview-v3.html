@@ -669,6 +669,23 @@
     .renewal-saving-card .saving-note{font-size:.69rem}
     .renewal-chart-key{gap:7px 12px}
   }
+
+  /* v2.67.0: clear amber/green/blue headline cards and stress tests */
+  .renewal-savings-pair{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px}
+  .renewal-saving-card{background:#fff4e6;border:2px solid #d99b54;padding:15px;border-radius:15px}
+  .renewal-saving-card .kicker,.renewal-saving-card .amount{color:#99500c}
+  .renewal-saving-card.best{background:#e7f6eb;border-color:#53a56c}
+  .renewal-saving-card.best .kicker,.renewal-saving-card.best .amount{color:#13653a}
+  .renewal-saving-card.second{background:#e9f1fe;border:2px solid #7ea8e5}
+  .renewal-saving-card.second .kicker,.renewal-saving-card.second .amount{color:#2154ab}
+  .renewal-saving-card .cost-note{font-size:.85rem;line-height:1.6}
+  .renewal-previous-pay{font-size:.8rem;line-height:1.55;color:#544f61;background:#f7f5fa;border:1px solid #e5e0ec;border-radius:11px;padding:11px 14px;margin:0 0 15px;font-weight:700}
+  .renewal-scenario-bar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin:9px 0 13px}
+  .renewal-scenario-bar strong{font-size:.8rem;color:#513d70}
+  .renewal-scenario-buttons{display:flex;gap:6px;flex-wrap:wrap}
+  .renewal-scenario-buttons button{border:1px solid #b8a7d4;background:#f7f3fc;border-radius:9px;padding:8px 11px;font-weight:850;color:#63488b;cursor:pointer}
+  .renewal-scenario-buttons button[aria-pressed="true"]{background:#563695;color:#fff;border-color:#563695}
+  @media(max-width:650px){.renewal-savings-pair{grid-template-columns:1fr;gap:9px}.renewal-saving-card .amount{font-size:1.85rem}}
   body.tariff-unverified #resultCard{display:none!important}
 </style>
 </head>
@@ -775,16 +792,13 @@
   <section id="renewalStory" class="renewal-chart-card hidden" aria-labelledby="renewalChartHeading">
     <h2 id="renewalChartHeading">Should I fix when my current tariff ends?</h2>
     <p class="renewal-chart-subtitle" id="renewalChartIntro">Four lines show the previous 12 months and your three choices for the year ahead, using the same annual electricity and gas usage.</p>
-    <div class="renewal-savings-pair" id="renewalSavingsPair" aria-label="Annual savings with Fixed Saver 99 or 100"></div>
+    <div class="renewal-savings-pair" id="renewalSavingsPair" aria-label="Three tariff choices, annual costs and monthly equivalents"></div>
+    <p class="renewal-previous-pay" id="renewalPreviousBudget">📌 <b>Assumed original Budget Plan:</b> £75 electricity + £75 gas = <b>£150/month (£1,800/year in payments).</b> Please check her actual current payments. A Budget Plan is not a measure of energy used.</p>
+    <div class="renewal-scenario-bar"><strong>Stress test January's price-cap change</strong>
+      <div class="renewal-scenario-buttons" id="renewalScenarioButtons" role="group" aria-label="January price cap stress tests"></div></div>
     <div class="renewal-chart-key" id="renewalLineLegend" aria-label="Line chart legend"></div>
     <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy costs for last year's fixed tariff, Double Gold variable, Fixed Saver 99 and Fixed Saver 100"></div>
     <p class="renewal-chart-caption">The grey line is your <b>previous year</b>, aligned by month to show the same seasonal usage. The other three lines run from November 2026 to October 2027. A dashed variable line indicates forecast prices from January onwards.</p>
-    <div class="renewal-table-heading">
-      <h3>What each option costs over 12 months</h3>
-      <span>Costs from Nov 2026 to Oct 2027 · not Direct Debit payments</span>
-    </div>
-    <div class="renewal-cost-table-wrap" id="renewalCostsTable"></div>
-    <div class="renewal-conclusion" id="renewalConclusion"></div>
     <p class="renewal-chart-small" id="renewalChartDisclosure">The variable tariff uses an illustrative future price-cap scenario, not a prediction of UW's actual prices. Tariff selection and rates must be verified before sharing with a customer.</p>
   </section>
 
@@ -1521,7 +1535,7 @@ function renewalFullChart(s,old,variable,fix99,fix100){
   const x=i=>L+(W-L-R)*i/11;
   const y=v=>T+(H-T-B)*(1-(v-low)/(high-low));
   const path=values=>values.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
-  const colors={old:"#a6a2ad",variable:"#c47a35",offer:"#4d3491",public:"#277b88"};
+  const colors={old:"#99949f",variable:"#bd6413",offer:"#15803d",public:"#225cd0"};
   const grid=[];
   const step=niceStep(high-low);
   for(let v=Math.ceil(low/step)*step;v<=high+.01;v+=step){
@@ -1569,74 +1583,55 @@ function renderRenewalStory(s){
   const card=document.getElementById("renewalStory");
   card.classList.toggle("hidden",!s.renewal);
   if(!s.renewal)return;
-  const savings=document.getElementById("renewalSavingsPair"),table=document.getElementById("renewalCostsTable"),
-    plot=document.getElementById("renewalFourLineChart");
+  const savings=document.getElementById("renewalSavingsPair");
+  const plot=document.getElementById("renewalFourLineChart");
+  const buttons=document.getElementById("renewalScenarioButtons");
+  const tests=forecastScenarioValues();
+  if(!tests.includes(s.janRise))tests.push(s.janRise);
+  tests.sort((a,b)=>a-b);
+  buttons.innerHTML=tests.map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+
+    (Math.abs(v-s.janRise)<.001)+'">'+(v>0?"+":"")+v+'%</button>').join("");
   if(!renewalInputsValid(s.mode)){
-    savings.innerHTML='<p class="renewal-chart-small">Select a supported tariff series. Verified catalogue rates are required before this comparison can be calculated.</p>';
-    table.innerHTML="";plot.innerHTML="";document.getElementById("renewalConclusion").textContent="";
-    document.getElementById("renewalLineLegend").innerHTML="";
+    savings.innerHTML='<p class="renewal-chart-small">Tariff history unavailable. No cost comparison is shown until all tariff rates are verified.</p>';
+    plot.innerHTML="";document.getElementById("renewalLineLegend").innerHTML="";
     return;
   }
-  const rows=renewalSelectedRows();
-  const candidates=renewalOptionsFor("renewalOffered");
-  const offer99=candidates.find(row=>/ 99$/.test(renewalRawName(row)))||rows.offered;
-  const public100=rows.public;
-  if(!offer99||!public100||!/ 100$/.test(renewalRawName(public100))||
-     !/ 99$/.test(renewalRawName(offer99))){
-    savings.innerHTML='<p class="renewal-chart-small">Both 99 and 100 are needed for a four-line comparison. No public tariff is substituted.</p>';
-    table.innerHTML="";plot.innerHTML="";return;
+  const rows=renewalSelectedRows(),available=renewalOptionsFor("renewalOffered");
+  const fix99=available.find(r=>/ 99$/.test(renewalRawName(r)))||rows.offered,fix100=rows.public;
+  if(!fix99||!fix100||!/ 99$/.test(renewalRawName(fix99))||!/ 100$/.test(renewalRawName(fix100))){
+    savings.innerHTML='<p class="renewal-chart-small">Fixed 99 and 100 must both be available. No other rates are substituted.</p>';
+    plot.innerHTML="";return;
   }
-  const a=renewalComputeSeries(s,offer99),b=renewalComputeSeries(s,public100);
-  if(!a||!b||a.rows.length!==12||b.rows.length!==12){
-    savings.innerHTML='<p class="renewal-chart-small">A full twelve months of comparable data are required.</p>';
-    table.innerHTML="";plot.innerHTML="";return;
+  const x99=renewalComputeSeries(s,fix99),x100=renewalComputeSeries(s,fix100);
+  if(!x99||!x100||x99.rows.length!==12||x100.rows.length!==12){
+    savings.innerHTML='<p class="renewal-chart-small">A complete twelve-month tariff comparison is required.</p>';
+    plot.innerHTML="";return;
   }
-  const past=renewalLastYearMonthly(s),oldValues=past&&past.every(Boolean)?past.map(r=>r.total):null;
-  const doubleGold=a.rows.map(r=>r.cap),fix99=a.rows.map(r=>r.fixed),fix100=b.rows.map(r=>r.fixed);
-  const variableYear=a.yCap,oldYear=oldValues?oldValues.reduce((acc,x)=>acc+x,0):null;
-  const s99=a.yCap-a.yFix,s100=a.yCap-b.yFix;
-  const cardHtml=(name,saving,price,secondary=false)=>{
-    const positive=saving>=0,amount=gbp(Math.abs(saving));
-    return '<div class="renewal-saving-card'+(secondary?" second":"")+'">'+
-       '<div class="kicker">'+safeHtml(name)+'</div>'+
-       '<div class="amount">'+(positive?"Save ":"Costs extra ")+amount+'</div>'+
-       '<div class="saving-note">'+(positive?"potentially saved":"vs the variable forecast")+' over 12 months vs doing nothing</div>'+
-       '<div class="cost-note">Projected cost: '+gbp(price)+' /year · '+gbp(price/12)+'/month avg.</div></div>';
+  const old=renewalLastYearMonthly(s),past=old&&old.every(Boolean)?old.map(r=>r.total):null;
+  const yearVariable=x99.yCap,year99=x99.yFix,year100=x100.yFix;
+  const option=(style,name,annual,delta)=>{
+    const extra=delta===null?'Variable costs may rise or fall':
+      delta>=0?'Potential saving vs doing nothing: <b>'+gbp(delta)+'</b> per year':
+      'Extra vs doing nothing: <b>'+gbp(-delta)+'</b> per year';
+    return '<div class="renewal-saving-card '+style+'"><div class="kicker">'+safeHtml(name)+'</div>'+
+      '<div class="amount">'+gbp(annual)+'</div>'+
+      '<div class="saving-note">Projected annual cost</div>'+
+      '<div class="cost-note"><b>'+gbp(annual/12)+'/month</b> average</div>'+
+      '<div class="saving-note" style="margin-top:8px">'+extra+'</div></div>';
   };
-  savings.innerHTML=cardHtml("Accept "+renewalRawName(offer99),s99,a.yFix,false)+
-    cardHtml("Compare "+renewalRawName(public100),s100,b.yFix,true);
-  renewalFullChart(s,oldValues,doubleGold,fix99,fix100);
-  const best=Math.min(variableYear,a.yFix,b.yFix);
-  const tariffName=renewalRawName(rows.ending)||"Previous fixed tariff";
-  table.innerHTML='<table><thead><tr><th>Tariff</th><th>12-month cost</th><th>Monthly avg.</th><th>Vs do nothing</th></tr></thead><tbody>'+
-   (oldYear===null?"":renewalCostTableRow(tariffName+" - last year",oldYear,variableYear,
-      "Like-for-like usage; pre/post April rates","old"))+
-   renewalCostTableRow("Do nothing - Double Gold",variableYear,variableYear,
-      "Price-cap scenario, not fixed","variable",best===variableYear)+
-   renewalCostTableRow(renewalRawName(offer99),a.yFix,variableYear,"Offer in renewal email","fixed",best===a.yFix)+
-   renewalCostTableRow(renewalRawName(public100),b.yFix,variableYear,"Current public fixed comparison","fixed",best===b.yFix)+
-   '</tbody></table>';
-  const compared=b.yFix-a.yFix;
-  const bestText=compared>.5?renewalRawName(offer99)+" is "+gbp(compared)+" cheaper than "+renewalRawName(public100)+" over the same period":
-    compared<-.5?renewalRawName(public100)+" is "+gbp(-compared)+" cheaper than "+renewalRawName(offer99)+" over the same period":
-    "The offered fix and current public fix cost approximately the same";
-  const recommendation=s99>=0?
-    'Accepting '+safeHtml(renewalRawName(offer99))+' could save '+gbp(s99)+' compared with doing nothing over the year.':
-    'The offered fixed tariff costs '+gbp(-s99)+' more than this variable scenario, but provides price certainty.';
-  const pastNote=oldYear!==null?
-    ' Last year would have cost about '+gbp(oldYear)+' at this same usage - including the April 2026 tariff adjustment.':
-    ' The archive does not contain a complete, date-valid previous-year rate history, so no historic cost is invented.';
-  document.getElementById("renewalConclusion").innerHTML=
-    '<b>What does that mean?</b> '+recommendation+' '+bestText+'.'+pastNote+
-    '<br><span style="font-size:.78rem">📌 Check the actual UW Budget Plan payments separately. Monthly averages are not the monthly Direct Debit or seasonal bill.</span>';
+  savings.innerHTML=option("","Do nothing - "+s.variableName,yearVariable,null)+
+    option("best","Accept "+renewalRawName(fix99),year99,yearVariable-year99)+
+    option("second","Compare "+renewalRawName(fix100),year100,yearVariable-year100);
+  renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),x100.rows.map(r=>r.fixed));
   document.getElementById("renewalChartIntro").textContent=
-    "The previous 12 months are a reference, not an available option. Compare the same annual energy usage for the 12 months from "+
+    "The grey line shows last year's estimated energy costs as a reference. Compare the three choices for "+
     formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)+".";
   document.getElementById("renewalChartDisclosure").textContent=
-    "Forecast "+(s.janRise>=0?"+":"")+s.janRise+
-    "% refers to the Ofgem January price-cap scenario, applied using the main Should I Fix energy model. "+
-    "UW Double Gold may not change by the same percentage. Figures are based on selected tariff data, VAT and seasonal consumption, "+
-    "not actual monthly Direct Debits. DEMONSTRATION ONLY: tariff rows in this preview are mock data.";
+    "Scenario: "+(s.janRise>=0?"+":"")+s.janRise+"% is an illustrative change in Ofgem's January price cap, "+
+    "not a UW Double Gold tariff forecast. Last year's grey line includes the April 2026 rate adjustment; "+
+    "the £150/month figure above is an assumed Budget Plan payment, not billed usage. "+
+    "Annual / monthly equivalent costs are not Direct Debit instalments. "+
+    "DEMONSTRATION ONLY - the tariff rates in this preview are test data.";
 }
 function renewalAnnualEquivalent(row,s){
   const rate=standardFixedRate(row);
@@ -2970,7 +2965,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.1 (26 October 2026; four-line renewal chart, previous-year seasonal reconstruction, dual annual-savings cards, monthly equivalent comparison table; automatic tariff-hunter history selectors, first-of-month renewal dates, historical rate comparison, version-pinned customer share links, individual offer versus selected public tariff cost comparison; previous 2.64.0 manual renewal input was replaced; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.67.0 (26 October 2026; four-line renewal chart, previous-year seasonal reconstruction, dual annual-savings cards, monthly equivalent comparison table; automatic tariff-hunter history selectors, first-of-month renewal dates, historical rate comparison, version-pinned customer share links, individual offer versus selected public tariff cost comparison; previous 2.64.0 manual renewal input was replaced; preceding 2.63.3 from 17 October 2026; Friday/Saturday MSE monitor with Friday no-change email and conditional Saturday recheck; live-tariff verification gate, retry and no unverified customer savings; approved forecast feed, synchronised source table; forecast scenario choices simplified to 0%, 15%, 25% and 30%; MSE forecast refreshed; Tracker line solid for published Oct-Dec rates and dashed for forecasts, live tariff series in chart key, electricity-first fuel selector, expandable quarterly kWh, forecast data synchronised from the approved MSE snapshot). October 2027 price cap held flat as an assumption. The comparison period follows UW fixed expiry. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3133,6 +3128,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.1"></script>
+<script src="./forecast-feed.js?v=2.67.0"></script>
 </body>
 </html>
