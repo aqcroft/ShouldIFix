@@ -1942,7 +1942,7 @@ function renewalComputeSeries(s,fix){
     variable:renewalRates("Var"),variableDisc:s.mode==="dual"?DISCOUNT:0,
     janRise:s.janRise,electricHeat:s.electricHeat,tracker:null});
 }
-function renewalFullChart(s,old,variable,fix99,fix100,budget){
+function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=false){
   const W=690,H=325,L=50,R=17,T=24,B=39,months=MONTHS;
   const all=[old,variable,fix99,fix100,budget===null?null:Array(MONTHS.length).fill(budget)].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
@@ -1982,7 +1982,8 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget){
   const original=renewalManualOldRates();
   const legends=[
     ["old",original?original.name+" - last year":"Last year - "+renewalRawName(renewalSelectedRows().ending),!!old],
-    ["budget",budget===null?"":("Budget Plan ~£"+Math.ceil(budget)+"/month"),budget!==null],
+    ["budget",budget===null?"":(estimatedBudget?"Previous tariff average ~£":"Budget Plan ~£")+
+      Math.round(budget)+"/month"+(estimatedBudget?" (estimate)":""),budget!==null],
     ["variable","Default to variable",true],
     ["offer",renewalRawName(renewalSelectedRows().offered),true],
     ["public",renewalRawName(renewalSelectedRows().public),true]
@@ -2038,13 +2039,18 @@ function renderRenewalStory(s){
       "Grey dotted: last year's estimated energy costs at archived rates. Red dotted: your flat Budget Plan contribution. The coloured lines show next year's seasonal costs.") :
     "Previous fixed rates are unavailable, so the grey historical line is hidden. The red dotted Budget Plan line is your payment reference; the three coloured lines model future energy costs.";
   const yearVariable=x99.yCap,year99=x99.yFix,year100=x100.yFix;
-  const budget=renewalBudgetAmount();
-  const budgetLabel=budget===null?"":new Intl.NumberFormat("en-GB",{style:"currency",currency:"GBP"}).format(budget);
-  document.getElementById("renewalPreviousBudget").innerHTML=budget!==null?
+  const payment=renewalBudgetReference(s);
+  const budget=payment?payment.amount:null;
+  const budgetLabel=budget===null?"":new Intl.NumberFormat("en-GB",
+    {style:"currency",currency:"GBP"}).format(budget);
+  document.getElementById("renewalPreviousBudget").innerHTML=payment?.source==="confirmed"?
     '📌 <b>For reference, you are currently paying about £'+Math.ceil(budget)+
     ' per month towards your gas and electricity costs.</b> Your Budget Plan is '+budgetLabel+
     '/month. This is what you pay, not necessarily the monthly cost of the energy you use.':
-    '📌 <b>Check your current UW Budget Plan payment.</b> It can be added as a red dotted line against the three options. It is not the same as your underlying energy costs.';
+    payment?.source==="estimated"?
+    '📌 <b>Your previous tariff works out at approximately '+budgetLabel+
+    '/month on average, using the same annual consumption.</b> This is an estimated previous energy cost, not your confirmed Budget Plan payment.':
+    '📌 <b>Budget Plan payment not supplied.</b> Add your actual payment in the builder to show a flat monthly payment reference.';
   // Check the first two calendar months, not annual average prices.
   const initiallyCheapest=[0,1].every(i=>x99.rows[i].cap<=x99.rows[i].fixed+.01 &&
     x99.rows[i].cap<=x100.rows[i].fixed+.01);
@@ -2089,10 +2095,12 @@ function renderRenewalStory(s){
     costCard("","Default to variable - "+s.variableName,yearVariable,null,variablePoints)+
     costCard("best","Accept your "+renewalRawName(fix99)+" offer",year99,delta99,offeredPoints)+
     costCard("second","Compare with public "+renewalRawName(fix100),year100,delta100,publicPoints);
-  renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),x100.rows.map(r=>r.fixed),renewalBudgetAmount());
+  renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),
+    x100.rows.map(r=>r.fixed),budget,payment?.source==="estimated");
   document.getElementById("renewalChartIntro").textContent=
     (past?"Grey dotted: estimated costs for the previous year. ":"No verified previous-year tariff rates available. ")+
-    (renewalBudgetAmount()!==null?" Red dotted: your current Budget Plan payment. ":"")+
+    (payment?" Red dotted: "+(payment.source==="confirmed"?
+      "your current Budget Plan payment. ":"estimated previous tariff monthly average. "):"")+
     "Compare your three choices for "+
     formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)+".";
   document.getElementById("renewalChartDisclosure").textContent=
@@ -2101,7 +2109,11 @@ function renderRenewalStory(s){
     (renewalManualOldRates()
       ?"The grey previous-year line uses your original confirmation-email rates throughout, ignoring the April price reduction. "
       :"The grey previous-year line uses dated archive records, including any rate changes. ")+
-    "The Budget Plan line is the stated monthly contribution, not the cost of energy used. Previous-year costs are modelled at the selected rates and usage. "+
+    (payment?.source==="confirmed"?
+      "The red dotted line represents the stated monthly payment, not the cost of energy used. ":
+      payment?.source==="estimated"?
+      "The red dotted line is the modelled historical annual cost divided by 12, not a confirmed Budget Plan payment. ":"")+
+    "Previous-year monthly costs are modelled at the selected rates and usage. "+
     "Annual / monthly equivalent costs are not Direct Debit instalments. "+
     (renewalCatalogueSource==="demo"?"DEMONSTRATION ONLY - these tariff rates are made up.":
      renewalCatalogueSource==="snapshot"?"Rates from the UW_Tariff_Data snapshot dated 26 Oct 2026, not live. Confirm current prices before switching.":
@@ -3141,6 +3153,73 @@ function setTariffChoice(tariff){
   tariffPanelOpen=!(tariff==="saver" || tariff==="custom");
   document.getElementById("openTariffs").setAttribute("aria-pressed",tariffPanelOpen?"true":"false");
 }
+
+/* v2.73.0 - reusable builder; all share state stays in the URL, never in storage. */
+function builderName(){
+  return document.getElementById("builderCustomer").value.trim().slice(0,40);
+}
+function builderRefreshInputs(){
+  const region=document.getElementById("region");
+  if(!region.value)return;
+  document.getElementById("builderRegion").value=region.value;
+  document.getElementById("builderStart").value=renewalStartDate().slice(0,7);
+  document.getElementById("builderServiceSwitch").querySelectorAll("button").forEach(button=>
+    button.setAttribute("aria-pressed",String(button.dataset.svc===renewalTier())));
+  for(const [key,range,exact,label,container] of [
+    ["elec","builderElecRange","builderElecExact","builderElecValue","builderElecWrap"],
+    ["gas","builderGasRange","builderGasExact","builderGasValue","builderGasWrap"]
+  ]){
+    const v=Math.max(0,+document.getElementById(key).value||0);
+    const slider=document.getElementById(range);
+    const bounded=Math.max(+slider.min,Math.min(+slider.max,Math.round(v/50)*50));
+    slider.value=String(bounded);
+    document.getElementById(exact).value=String(v);
+    document.getElementById(label).textContent=v.toLocaleString("en-GB");
+    document.getElementById(container).hidden=
+      (document.querySelector('#fuelSeg button[aria-pressed="true"]')?.dataset.mode===
+       (key==="gas"?"elec":"gas"));
+  }
+}
+function builderSetUsage(type,value){
+  const n=Number(value);
+  const maximum=type==="elec"?200000:300000;
+  if(!Number.isFinite(n)||n<0||n>maximum||!Number.isInteger(n))return;
+  document.getElementById(type).value=String(n);
+  document.getElementById("btnPersonal").setAttribute("aria-pressed","true");
+  lastCustom={e:+document.getElementById("elec").value||0,
+              g:+document.getElementById("gas").value||0};
+  customTouched=true;
+  render();
+}
+function builderSetService(tier){
+  if(!["1","2","3"].includes(tier))return;
+  renewalEndingSeriesWanted=renewalFixedNumber(renewalSelectedRows().ending);
+  renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
+  document.getElementById("renewalServices").value=tier;
+  setTariffChoice(tier==="1"?"start":tier==="2"?"fixed":"saver");
+  renewalUserChoices={};
+  for(const id of RENEWAL_FIELDS)document.getElementById(id).value="";
+  if(renewalFeedStatus==="ready")renewalRefreshChoices();
+  render();
+}
+function renewalBudgetReference(s){
+  const confirmed=renewalBudgetAmount();
+  if(confirmed!==null)return {amount:confirmed,source:"confirmed"};
+  const old=renewalLastYearMonthly(s);
+  if(!old||old.length!==12||old.some(row=>!row||!Number.isFinite(row.total)))return null;
+  return {amount:old.reduce((sum,row)=>sum+row.total,0)/12,source:"estimated"};
+}
+function builderUpdateShareUi(url){
+  const canShare=!!url;
+  document.getElementById("builderCopyLink").disabled=!canShare;
+  const preview=document.getElementById("builderPreviewLink");
+  preview.href=url||"#";
+  preview.setAttribute("aria-disabled",String(!canShare));
+  document.getElementById("builderShareStatus").textContent=canShare?
+    "Ready to share - your annual usage and tariff rates are included.":
+    "A verified tariff comparison must be available before sharing.";
+}
+
 function buildShareUrl(s){
   const p=new URLSearchParams();
   p.set("r", s.region.n); p.set("f", s.mode);
@@ -3151,6 +3230,8 @@ function buildShareUrl(s){
   if(!s.renewal&&s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
     p.set("renew","1");
+    const name=builderName();
+    if(name)p.set("cn",name);
     p.set("svc",renewalTier());
     p.set("ending",document.getElementById("renewalEnding").value);
     p.set("variable",document.getElementById("renewalVariable").value);
@@ -3206,6 +3287,7 @@ function readParams(){
     const pinned=P.get("rs")||"";
     if(/^20\d{2}-\d{2}-01$/.test(pinned)&&parseContractEnd(pinned))renewalPinnedStart=pinned;
     if(P.has("bp"))document.getElementById("renewalBudgetMonthly").value=P.get("bp");
+    if(P.has("cn"))document.getElementById("builderCustomer").value=P.get("cn").slice(0,40);
     for(const [param,id] of [["ol","oldTariffName"],["oeu","oldElecUnit"],["oes","oldElecSC"],
                               ["ogu","oldGasUnit"],["ogs","oldGasSC"]]){
       if(P.has(param))document.getElementById(id).value=P.get(param);
@@ -3269,8 +3351,11 @@ function render(){
     "Compare your default variable rate, the offer in your renewal email, and the current public fixed tariff.":
     "Compare the variable tariff, fixed rates and Tracker against energy price forecasts.";
   document.getElementById("renewalSetup").classList.toggle("hidden",!s.renewal);
+  document.getElementById("renewalBuilder").classList.toggle("hidden",!s.renewal||customer);
+  if(s.renewal&&!customer)builderRefreshInputs();
   const regionLabel=s.region?.name||"your region";
   document.getElementById("renewalCustomerProfile").textContent=s.renewal?
+    (builderName()?"Prepared for "+builderName()+". ":"")+
     "Based on "+regionLabel+", "+s.elecY.toLocaleString("en-GB")+" kWh/year electricity, "+
     s.gasY.toLocaleString("en-GB")+" kWh/year gas, and "+
     ["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]+".":"";
@@ -3317,6 +3402,7 @@ function render(){
   // Omit its grey line and clearly say why, rather than inventing a baseline.
   const shareReady=canShow&&(!s.renewal||["live","snapshot"].includes(renewalCatalogueSource));
   document.getElementById("shareUrl").value=shareReady?buildShareUrl(s):"";
+  builderUpdateShareUi(document.getElementById("shareUrl").value);
   if(s.renewal&&canShow&&!historyComplete){
     document.getElementById("renewalLiveStatus").textContent+=" Previous-year line omitted: the archive cannot verify a full historical period.";
   }
