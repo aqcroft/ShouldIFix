@@ -781,7 +781,7 @@
     <p class="renewal-chart-caption">The grey line is your <b>previous year</b>, aligned by month to show the same seasonal usage. The other three lines run from November 2026 to October 2027. A dashed variable line indicates forecast prices from January onwards.</p>
     <div class="renewal-table-heading">
       <h3>What each option costs over 12 months</h3>
-      <span>Average monthly equivalent, not actual Direct Debit</span>
+      <span>Costs from Nov 2026 to Oct 2027 · not Direct Debit payments</span>
     </div>
     <div class="renewal-cost-table-wrap" id="renewalCostsTable"></div>
     <div class="renewal-conclusion" id="renewalConclusion"></div>
@@ -1483,7 +1483,7 @@ function renewalLastYearMonthly(s){
     renewalRowType(r)==="fixed"&&!!standardFixedRate(r)).sort((a,b)=>renewalSourceDate(a)-renewalSourceDate(b));
   if(!historical.length)return null;
   const firstComparisonYear=MONTHS[0]?.year||2026;
-  const oldStart=new Date(Date.UTC(firstComparisonYear-1,MONTHS[0]?.cal||10,1));
+  const oldStart=new Date(Date.UTC(firstComparisonYear-1,MONTHS[0]?MONTHS[0].cal:10,1));
   // Fail closed if the records do not cover the first month of the historic
   // comparison: an old fixed tariff must not inherit rates from a later revision.
   if(renewalSourceDate(historical[0])>oldStart.getTime())return null;
@@ -2985,6 +2985,7 @@ function statics(){
   }));
   document.getElementById("renewalServices").addEventListener("change",()=>{
     renewalUserChoices={};
+    document.getElementById("renewalVariable").value="";
     if(renewalFeedStatus==="ready")renewalRefreshChoices();
     render();
   });
@@ -3020,6 +3021,7 @@ function statics(){
       setTariffChoice(b.dataset.tariff);
       document.getElementById("renewalServices").value=b.dataset.tariff==="start"?"1":b.dataset.tariff==="fixed"?"2":"3";
       renewalUserChoices={};
+      document.getElementById("renewalVariable").value="";
       if(renewalFeedStatus==="ready"){renewalRefreshChoices();storyAutoSelectDefaults();}
       render();
       return;
