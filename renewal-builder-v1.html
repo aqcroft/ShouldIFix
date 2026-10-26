@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.74.0">
+<meta name="app-version" content="2.75.0">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -797,6 +797,19 @@
   }
   body.renewal-mode #oldMethodologyDetails{display:none!important}
   body.renewal-mode #foot .legacy-method,body.renewal-mode .answer-faq{display:none!important}
+
+  /* Builder's simple current-tariff switch */
+  .builder-current-switch{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .builder-current-switch button{border:1.5px solid #cbbdda;border-radius:10px;padding:11px 15px;background:#faf8fc;color:#523a77;font:900 .86rem Nunito,sans-serif;cursor:pointer}
+  .builder-current-switch button[aria-pressed="true"]{background:#563695;color:#fff;border-color:#563695}
+  .builder-current-help{font-size:.73rem!important;line-height:1.5;margin-top:9px!important}
+  .builder-history-details{font-size:.77rem;margin:9px 0}
+  .builder-history-details summary{cursor:pointer}
+  #renewalOldManualSetup[hidden],#builderHistoryDetails[hidden]{display:none!important}
+  .renewal-builder #renewalSetup{padding:11px;margin:14px 0;background:#faf9fd}
+  .renewal-builder #renewalSetup h2{font:900 .86rem Nunito,sans-serif;margin:0 0 5px}
+  .renewal-builder #renewalSetup .renewal-quick-picks button{min-width:82px;padding:8px}
+  .renewal-builder #renewalOldManualSetup summary{font-weight:900;color:#4e387d}
   body.tariff-unverified #resultCard{display:none!important}
 </style>
 </head>
@@ -920,6 +933,13 @@
       <button type="button" data-svc="2">Energy + 1 service</button>
       <button type="button" data-svc="3">Energy + 2 services</button>
     </div>
+    
+    <div class="builder-section-title">What tariff are you on now?</div>
+    <div class="builder-current-switch" id="builderCurrentSwitch" role="group" aria-label="Choose the current energy tariff type">
+      <button type="button" data-current="variable" aria-pressed="true">Variable</button>
+      <button type="button" data-current="fixed" aria-pressed="false">Fixed</button>
+    </div>
+    <p class="builder-current-help" id="builderCurrentHelp">Defaults to UW's current Value, Gold or Double Gold variable rates for your chosen service level. The grey line illustrates last year's consumption shape at those rates - not actual historic bills.</p>
     <div class="builder-section-title">Annual energy usage</div>
     <div class="builder-usage-grid">
       <div class="builder-usage" id="builderElecWrap">
@@ -943,29 +963,8 @@
       </div>
       <p>Slider adjustments are in 50 kWh increments. Exact entries are preserved in the customer link.</p>
     </details>
-    <div class="builder-share">
-      <button type="button" id="builderCopyLink">Copy customer link</button>
-      <a id="builderPreviewLink" target="_blank" rel="noopener" href="#">Preview customer view</a>
-      <span id="builderShareStatus" role="status"></span>
-    </div>
-    <p class="builder-privacy">The link includes the customer's name, annual usage, previous tariff rates and payment reference. Share privately.</p>
-  </section>
-  <section id="renewalSetup" class="renewal-setup hidden" aria-labelledby="renewalSetupTitle">
-    <h2 id="renewalSetupTitle">Set up your renewal comparison</h2>
-    <p>Choose your current fixed tariff and the numbered fixed offer in your renewal email. Rates are selected automatically for your region and number of services.</p>
-    <div class="renewal-setting-group">
-      <label>Which fixed tariff is ending?</label>
-      <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Most likely expiring fixed tariffs"></div>
-      <details><summary>Choose a different fixed tariff</summary>
-        <select id="renewalEndingQuickSelect" aria-label="All available historical fixed tariffs"><option value="">Checking tariff history…</option></select>
-      </details>
-    </div>
-    <div class="renewal-setting-group">
-      <label>Which fixed tariff number is offered in your email?</label>
-      <div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Choose an offer series"></div>
-    </div>
-    <div class="renewal-setting-group" id="renewalOldManualSetup">
-      <details id="renewalManualDetails">
+    <div class="renewal-setting-group" id="renewalOldManualSetup" hidden>
+      <details id="renewalManualDetails" open>
         <summary>Enter previous fixed rates from a confirmation email</summary>
         <p>For older tariffs missing from Tariff Hunter. Enter the original VAT-inclusive rates to reconstruct last year's monthly energy costs. The customer link will retain the rates you enter.</p>
         <label for="oldTariffName">Previous fixed tariff</label>
@@ -984,7 +983,29 @@
       <input id="renewalBudgetMonthly" class="renewal-budget-input" type="number" min="0" max="5000" step="0.01" inputmode="decimal" placeholder="e.g. 152.26"/>
       <p>Shows a flat reference line against future energy costs. This is the amount currently paid, not the cost of energy used.</p>
     </div>
+    <details id="builderHistoryDetails" class="builder-exact" hidden><summary>Find your previous fixed tariff in the archive</summary>    <div class="renewal-setting-group">
+      <label>Which fixed tariff is ending?</label>
+      <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Most likely expiring fixed tariffs"></div>
+      <details><summary>Choose a different fixed tariff</summary>
+        <select id="renewalEndingQuickSelect" aria-label="All available historical fixed tariffs"><option value="">Checking tariff history…</option></select>
+      </details>
+    </div>
+</details>
+  <section id="renewalSetup" class="renewal-setup hidden" aria-labelledby="renewalSetupTitle">
+    <h2 id="renewalSetupTitle">Which fixed offer are you comparing?</h2>
+    <p>Select the tariff number offered in the renewal email. The corresponding Fixed Start, Fixed or Fixed Saver rates are chosen automatically.</p>
+    <div class="renewal-setting-group">
+      <label>Which fixed tariff number is offered in your email?</label>
+      <div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Choose an offer series"></div>
+    </div>
     <p class="renewal-evidence" id="renewalLiveStatus" role="status">Checking Tariff Hunter for source tariff records…</p>
+  </section>
+    <div class="builder-share">
+      <button type="button" id="builderCopyLink">Copy customer link</button>
+      <a id="builderPreviewLink" target="_blank" rel="noopener" href="#">Preview customer view</a>
+      <span id="builderShareStatus" role="status"></span>
+    </div>
+    <p class="builder-privacy">The link includes the customer's name, annual usage, previous tariff rates and payment reference. Share privately.</p>
   </section>
   <section id="renewalStory" class="renewal-chart-card hidden" aria-labelledby="renewalChartHeading">
     <h2 id="renewalChartHeading">What are my options?</h2>
@@ -3602,7 +3623,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.74.0 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
+    <div>App version: 2.75.0 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3827,6 +3848,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.74.0"></script>
+<script src="./forecast-feed.js?v=2.75.0"></script>
 </body>
 </html>
