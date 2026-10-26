@@ -1761,10 +1761,12 @@ function renewalFullChart(s,old,variable,fix99,fix100){
     '<line x1="'+(x(janIndex)-24).toFixed(1)+'" y1="'+T+'" x2="'+(x(janIndex)-24).toFixed(1)+'" y2="'+(H-B)+'" stroke="#d9cad9" stroke-dasharray="3 4"/>'+
     '<text x="'+(x(janIndex)+3).toFixed(1)+'" y="'+(T+9)+'" font-size="10" fill="'+colors.variable+'" font-weight="900">Jan '+(s.janRise>=0?"+":"")+s.janRise+'% cap scenario</text>':"";
   const line=(data,color,extra="")=>'<path d="'+path(data)+'" fill="none" stroke="'+color+'" stroke-width="3.25" '+extra+' stroke-linejoin="round" stroke-linecap="round"/>';
-  const variableKnown=variable.slice(0,2),forecast=variable.slice(1);
-  const variablePath=line(variableKnown,colors.variable)+
-    '<path d="'+forecast.map((v,i)=>(i?"L":"M")+x(i+1).toFixed(1)+","+y(v).toFixed(1)).join(" ")+
-    '" fill="none" stroke="'+colors.variable+'" stroke-width="3.25" stroke-dasharray="7 5" stroke-linejoin="round"/>';
+  const firstForecast=months.findIndex(m=>m.ph!=="conf");
+  const confirmed=firstForecast<0?variable:variable.slice(0,Math.max(1,firstForecast));
+  const from=Math.max(0,firstForecast-1),forecast=firstForecast<0?[]:variable.slice(from);
+  const variablePath=(confirmed.length>1?line(confirmed,colors.variable):"")+
+    (forecast.length>1?'<path d="'+forecast.map((v,i)=>(i?"L":"M")+x(i+from).toFixed(1)+","+y(v).toFixed(1)).join(" ")+
+    '" fill="none" stroke="'+colors.variable+'" stroke-width="3.25" stroke-dasharray="7 5" stroke-linejoin="round"/>':"");
   const dots=(values,color)=>values.map((v,i)=>'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+
     '" r="3" fill="#fff" stroke="'+color+'" stroke-width="2"><title>'+months[i].k+': '+gbp(v)+'</title></circle>').join("");
   const svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Monthly costs by tariff for November to October">'+grid.join("")+
@@ -1809,10 +1811,9 @@ function renderRenewalStory(s){
     plot.innerHTML="";document.getElementById("renewalLineLegend").innerHTML="";
     return;
   }
-  const rows=renewalSelectedRows(),available=renewalOptionsFor("renewalOffered");
-  const fix99=available.find(r=>/ 99$/.test(renewalRawName(r)))||rows.offered,fix100=rows.public;
-  if(!fix99||!fix100||!/ 99$/.test(renewalRawName(fix99))||!/ 100$/.test(renewalRawName(fix100))){
-    savings.innerHTML='<p class="renewal-chart-small">Fixed 99 and 100 must both be available. No other rates are substituted.</p>';
+  const rows=renewalSelectedRows(),fix99=rows.offered,fix100=rows.public;
+  if(!fix99||!fix100||renewalFixedNumber(fix99)===null||renewalFixedNumber(fix100)===null){
+    savings.innerHTML='<p class="renewal-chart-small">Both your selected offer and the current public fix are required. No other rates are substituted.</p>';
     plot.innerHTML="";return;
   }
   const x99=renewalComputeSeries(s,fix99),x100=renewalComputeSeries(s,fix100);
@@ -1858,7 +1859,7 @@ function renderRenewalStory(s){
   const offeredPoints=[
     plus("More certainty over your unit rates"),
     ...(publicPremium>0.5?
-      [plus("Your individual offer is "+gbp(publicPremium)+" cheaper than current UW 100 over the year")]:
+      [plus("Your individual offer is "+gbp(publicPremium)+" cheaper than current UW "+renewalFixedNumber(fix100)+" over the year")]:
       [plus("Your personalised renewal offer is available to consider")]),
     minus(delta99>=0?
       "Early exit fees may apply if you leave the fix":
@@ -1868,7 +1869,7 @@ function renderRenewalStory(s){
     plus("UW's current public fixed offer - a benchmark when comparing other suppliers"),
     plus("More certainty over your unit rates"),
     minus(publicPremium>0.5?
-      "Costs "+gbp(publicPremium)+" more than your offered 99 over the year":
+      "Costs "+gbp(publicPremium)+" more than your offered "+renewalFixedNumber(fix99)+" over the year":
       "Early exit fees may apply if you leave the fix")
   ];
   savings.innerHTML=
@@ -1884,7 +1885,7 @@ function renderRenewalStory(s){
     "not a forecast of your UW variable rates. Your previous-year grey line includes the April 2026 rate adjustment; "+
     "Any Budget Plan figure above is an assumed payment, not billed usage. "+
     "Annual / monthly equivalent costs are not Direct Debit instalments. "+
-    "DEMONSTRATION ONLY - the tariff rates in this preview are test data.";
+    (renewalCatalogueSource==="demo"?"DEMONSTRATION ONLY - these tariff rates are made up.":"Prices sourced from the published UW feed. Check the individual renewal offer before accepting.");
 }
 function renewalAnnualEquivalent(row,s){
   const rate=standardFixedRate(row);
