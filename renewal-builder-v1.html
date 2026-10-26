@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.76.0">
+<meta name="app-version" content="2.76.1">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -817,6 +817,9 @@
     color:#523282;font:900 1.45rem/1 Nunito,sans-serif;cursor:pointer;touch-action:manipulation}
   .builder-range-row .builder-step:focus-visible{outline:3px solid #d1a9ff;outline-offset:2px}
   .builder-range-row input[type="range"]{min-width:0}
+  /* Renewal mode has its own relevant scenario footnote above the chart. */
+  body.renewal-mode #foot{display:none!important}
+  body.renewal-mode #oldMethodologyDetails{display:none!important}
   body.tariff-unverified #resultCard{display:none!important}
 </style>
 </head>
@@ -3518,10 +3521,18 @@ function render(){
   builderUpdateShareUi(document.getElementById("shareUrl").value);
   // This status is reset in renewalUpdateQuickPicks when the catalogue changes.
   // Never append warnings during render(): sliders can trigger hundreds of renders.
-  if(s.renewal&&canShow&&!historyComplete){
-    const el=document.getElementById("renewalLiveStatus");
-    const warning="Previous-year reference unavailable without confirmed previous tariff rates.";
-    if(!el.textContent.includes(warning))el.textContent=el.textContent.trim()+" "+warning;
+  if(s.renewal){
+    // Always SET the status, never concatenate on each slider redraw.
+    const message=renewalCatalogueSource==="live"?
+      "Rates from the published UW tariff feed.":
+      renewalCatalogueSource==="snapshot"?
+      "East Midlands tariff rates from 26 Oct 2026 spreadsheet snapshot - not live. Check current tariff labels.":
+      renewalCatalogueSource==="demo"?
+      "DEMONSTRATION DATA ONLY - not for customer quotes.":
+      renewalFeedStatus==="loading"?"Checking tariff data…":"Rates not available for this selection.";
+    const historicalMessage=historyComplete?"":builderCurrentMode==="fixed"?
+      " Add the previous fixed rates for a retrospective reference.":"";
+    document.getElementById("renewalLiveStatus").textContent=message+historicalMessage;
   }
   document.getElementById("renewalBenchmark").classList.toggle("hidden",!s.renewal||!renewalReady);
   document.getElementById("renewalOldCost").classList.toggle("hidden",!s.renewal||!renewalReady);
@@ -3692,7 +3703,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.76.0 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
+    <div>App version: 2.76.1 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3927,6 +3938,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.76.0"></script>
+<script src="./forecast-feed.js?v=2.76.1"></script>
 </body>
 </html>
