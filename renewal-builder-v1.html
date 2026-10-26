@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.76.2">
+<meta name="app-version" content="2.76.3">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -1949,7 +1949,7 @@ function builderRefreshCurrentMode(){
   const name=renewalDefaultVariable(renewalTier());
   document.getElementById("builderCurrentHelp").textContent=fixed?
     "Enter your previous fixed unit rates and standing charges (including VAT). These create the grey dotted historic-cost line.":
-    "UW "+name+" is selected automatically from the current tariff guide. The grey line illustrates a previous year's usage pattern at today's variable rates, not actual historic charges.";
+    "UW "+name+" is selected automatically from available tariff-guide data. The grey line applies those rates to a previous year's seasonal usage - it does not show actual historic charges.";
 }
 function renewalVariablePreviousProfile(s){
   const selected=renewalSelectedRows().variable,rate=standardFixedRate(selected);
@@ -2204,14 +2204,16 @@ function renderRenewalStory(s){
       "Accept your "+renewalRawName(fix99)+" offer",year99,delta99,offeredPoints)+
     costCard("second","Compare with public "+renewalRawName(fix100),year100,delta100,publicPoints);
   renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),
-    x100.rows.map(r=>r.fixed),budget,payment?.source==="estimated");
+    x100.rows.map(r=>r.fixed),budget,payment?.source!=="confirmed");
   document.getElementById("renewalChartIntro").textContent=
     (past?(builderCurrentMode==="variable"?
       "Grey dotted: illustrative past-year profile using current variable rates. ":
       "Grey dotted: modelled previous fixed-tariff costs. "):
       "No verified previous fixed-tariff rates available. ")+
     (payment?" Red dotted: "+(payment.source==="confirmed"?
-      "your current Budget Plan payment. ":"estimated previous tariff monthly average. "):"")+
+      "your current Budget Plan payment. ":
+      payment.source==="illustrative"?"current-rate usage average (illustrative). ":
+      "estimated previous fixed-tariff monthly average. "):"")+
     "Compare your three choices for "+
     formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)+".";
   document.getElementById("renewalChartDisclosure").textContent=
@@ -3333,7 +3335,7 @@ function builderUpdateShareUi(url){
   preview.href=url||"#";
   preview.setAttribute("aria-disabled",String(!canShare));
   document.getElementById("builderShareStatus").textContent=canShare?
-    "Ready to share - your annual usage and tariff rates are included.":
+    "Ready to share - your chosen tariffs and annual usage are in the link.":
     "A verified tariff comparison must be available before sharing.";
 }
 
@@ -3711,7 +3713,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.76.2 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
+    <div>App version: 2.76.3 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3946,6 +3948,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.76.2"></script>
+<script src="./forecast-feed.js?v=2.76.3"></script>
 </body>
 </html>
