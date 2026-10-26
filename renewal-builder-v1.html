@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.76.1">
+<meta name="app-version" content="2.76.2">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -2182,21 +2182,26 @@ function renderRenewalStory(s){
       :"Flexible - no fixed-term exit fees"),
     minus("Could become the most expensive if forecast rises materialise")
   ];
-  const offeredPoints=[
-    plus(publicPremium>0.5
+  const offeredPoints=builderCurrentMode==="variable"?
+    [plus("Fixed unit rates offer price certainty"),
+     minus("Only available if UW has specifically offered this older tariff to you")]:
+    [plus(publicPremium>0.5
       ?"Fixed-price peace of mind, "+gbp(publicPremium)+" less than today's "+renewalFixedNumber(fix100)+" over the year"
       :"Fixed-price peace of mind at the rates in your renewal email"),
-    minus("Early exit fees may apply if you leave the fix")
-  ];
+     minus("Early exit fees may apply if you leave the fix")];
   const publicPoints=[
     plus("Current public UW fix for comparing with other deals"),
-    minus(publicPremium>0.5
-      ?gbp(publicPremium)+" more than your personalised "+renewalFixedNumber(fix99)+" offer over the year"
-      :"Exit fees may apply if you leave the fix")
+    minus(builderCurrentMode==="variable"?
+      "Exit fees may apply if you leave this fix":
+      publicPremium>0.5?
+      gbp(publicPremium)+" more than your offered "+renewalFixedNumber(fix99)+" offer over the year":
+      "Exit fees may apply if you leave the fix")
   ];
   savings.innerHTML=
     costCard("","Default to variable - "+s.variableName,yearVariable,null,variablePoints)+
-    costCard("best","Accept your "+renewalRawName(fix99)+" offer",year99,delta99,offeredPoints)+
+    costCard("best",builderCurrentMode==="variable"?
+      renewalRawName(fix99)+" - if offered":
+      "Accept your "+renewalRawName(fix99)+" offer",year99,delta99,offeredPoints)+
     costCard("second","Compare with public "+renewalRawName(fix100),year100,delta100,publicPoints);
   renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),
     x100.rows.map(r=>r.fixed),budget,payment?.source==="estimated");
@@ -3462,9 +3467,12 @@ function render(){
   const customer=s.renewal&&query.get("renew")==="1"&&query.get("demo")!=="1";
   document.body.classList.toggle("customer-renewal",customer);
   document.getElementById("heroHeading").textContent=s.renewal?
-    "Your energy options when your fixed tariff ends":"Should I fix or track?";
+    (builderCurrentMode==="fixed"?"Your options when your fixed tariff ends":"Your energy tariff options"):
+    "Should I fix or track?";
   document.getElementById("heroDeck").textContent=s.renewal?
-    "Compare your default variable rate, the offer in your renewal email, and the current public fixed tariff.":
+    (builderCurrentMode==="fixed"?
+      "Compare defaulting to variable, the offer in your renewal email and the public fixed tariff.":
+      "Compare your current variable tariff with public fixed rates. Older tariffs are available only if individually offered."): 
     "Compare the variable tariff, fixed rates and Tracker against energy price forecasts.";
   document.getElementById("renewalSetup").classList.toggle("hidden",!s.renewal);
   document.getElementById("renewalBuilder").classList.toggle("hidden",!s.renewal||customer);
@@ -3703,7 +3711,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.76.1 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
+    <div>App version: 2.76.2 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3938,6 +3946,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.76.1"></script>
+<script src="./forecast-feed.js?v=2.76.2"></script>
 </body>
 </html>
