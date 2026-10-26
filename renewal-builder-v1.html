@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.63.3">
+<meta name="app-version" content="2.74.0">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -774,6 +774,29 @@
   .customer-renewal #renewalBuilder{display:none!important}
   @media(max-width:650px){.builder-form-grid{grid-template-columns:1fr 1fr}.builder-usage-grid{grid-template-columns:1fr}}
   @media(max-width:440px){.builder-form-grid{grid-template-columns:1fr}.builder-service-switch button{font-size:.7rem;padding:10px 4px}}
+
+  /* v2.74.0 - mobile-first card layout and scoped disclosure */
+  @media(max-width:650px){
+    .renewal-chart-card{padding:14px!important;border-radius:15px}
+    .renewal-chart-card h2{font-size:clamp(1.3rem,5vw,1.5rem)}
+    .renewal-chart-subtitle,.renewal-profile{font-size:.75rem;line-height:1.5}
+    .renewal-savings-pair{display:grid;grid-template-columns:1fr;gap:8px}
+    .renewal-saving-card{padding:10px 12px!important;border-width:1.5px!important;gap:0;border-radius:13px}
+    .renewal-saving-card .kicker{font-size:.68rem;letter-spacing:.02em;line-height:1.25}
+    .renewal-saving-card .amount{font-size:1.65rem!important;line-height:1.15;margin:5px 0 2px}
+    .renewal-saving-card .saving-note{font-size:.69rem;line-height:1.35}
+    .renewal-saving-card .cost-note{font-size:.78rem;margin-top:5px}
+    .renewal-card-points{margin-top:8px;gap:4px}
+    .renewal-card-points li{font-size:.69rem;line-height:1.35;grid-template-columns:15px minmax(0,1fr)}
+    .renewal-card-points .mark{font-size:.75rem}
+    .renewal-previous-pay{font-size:.73rem;line-height:1.4;padding:10px}
+    .renewal-chart-key-below{gap:7px 10px}
+    .renewal-chart-key-below span{font-size:.65rem}
+    .renewal-chart-small,.renewal-chart-caption{font-size:.65rem;line-height:1.4}
+    .renewal-builder,.renewal-setup{padding:12px}
+  }
+  body.renewal-mode #oldMethodologyDetails{display:none!important}
+  body.renewal-mode #foot .legacy-method,body.renewal-mode .answer-faq{display:none!important}
   body.tariff-unverified #resultCard{display:none!important}
 </style>
 </head>
@@ -1184,7 +1207,7 @@
     </div>
   </details>
 
-  <details>
+  <details id="oldMethodologyDetails">
     <summary>Assumptions, sources and small print</summary>
     <div class="body"><p id="discText" style="margin:0 0 11px"></p><ul id="method"></ul></div>
   </details>
@@ -3403,8 +3426,12 @@ function render(){
   const shareReady=canShow&&(!s.renewal||["live","snapshot"].includes(renewalCatalogueSource));
   document.getElementById("shareUrl").value=shareReady?buildShareUrl(s):"";
   builderUpdateShareUi(document.getElementById("shareUrl").value);
+  // This status is reset in renewalUpdateQuickPicks when the catalogue changes.
+  // Never append warnings during render(): sliders can trigger hundreds of renders.
   if(s.renewal&&canShow&&!historyComplete){
-    document.getElementById("renewalLiveStatus").textContent+=" Previous-year line omitted: the archive cannot verify a full historical period.";
+    const el=document.getElementById("renewalLiveStatus");
+    const warning="Previous-year reference unavailable without confirmed previous tariff rates.";
+    if(!el.textContent.includes(warning))el.textContent=el.textContent.trim()+" "+warning;
   }
   document.getElementById("renewalBenchmark").classList.toggle("hidden",!s.renewal||!renewalReady);
   document.getElementById("renewalOldCost").classList.toggle("hidden",!s.renewal||!renewalReady);
@@ -3575,7 +3602,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.73.1 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
+    <div>App version: 2.74.0 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3800,6 +3827,6 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.73.1"></script>
+<script src="./forecast-feed.js?v=2.74.0"></script>
 </body>
 </html>
