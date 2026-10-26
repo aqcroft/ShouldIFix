@@ -1400,6 +1400,7 @@ function renewalSetOptions(id){
 function renewalRefreshChoices(){
   RENEWAL_FIELDS.forEach(renewalSetOptions);
   if(renewalPendingSelections)renewalPendingSelections=null;
+  storyAutoSelectDefaults();
   const selected=renewalSelectedRows();
   const audit=document.getElementById("renewalAudit"),end=selected.ending;
   const versions=end?renewalRows().filter(row=>renewalNameKey(row)===renewalNameKey(end))
@@ -1412,10 +1413,10 @@ function renewalRefreshChoices(){
 function renewalInputsValid(mode){
   if(renewalLegacyLink||renewalFeedStatus!=="ready"||!renewalCatalogue||renewalFeedRegion!==+document.getElementById("region").value)return false;
   const rows=renewalSelectedRows();
-  const needed=["ending","variable","offered"];
+  const needed=["ending","variable","offered","public"];
   if(needed.some(key=>!rows[key]||!standardFixedRate(rows[key])))return false;
   if(renewalRowType(rows.variable)!=="variable"||renewalRowType(rows.ending)!=="fixed"||renewalRowType(rows.offered)!=="fixed")return false;
-  if(!renewalFixedFamily(renewalTier()).test(renewalRawName(rows.ending))||!renewalFixedFamily(renewalTier()).test(renewalRawName(rows.offered)))return false;
+  if(["ending","offered","public"].some(key=>renewalRowType(rows[key])!=="fixed"||!renewalFixedFamily(renewalTier()).test(renewalRawName(rows[key]))))return false;
   const start=parseContractEnd(renewalStartDate()),end=parseContractEnd(rows.offered.fixed_end_date||rows.offered.contract_end_date);
   return !!start&&(!end||end>=start);
 }
@@ -1436,8 +1437,17 @@ function renewalUpdateStatus(){
 }
 function loadRenewalCatalogue(){
   const region=+document.getElementById("region").value;
-  // PREVIEW ONLY. These invented sample rates exist exclusively to test the UI.
-  // The actual production renewal mode remains gated on verified Tariff_History.
+  if(!renewalMode())return;
+  const demo=new URLSearchParams(location.search).get("demo")==="1";
+  if(renewalFeedStatus==="ready"&&renewalFeedRegion===region&&
+      renewalCatalogueSource===(demo?"demo":"live"))return;
+  const request=++renewalRequestId;
+  renewalFeedRegion=region;renewalFeedStatus="loading";renewalCatalogueSource="none";
+  renewalFeedError="";renewalCatalogue=null;
+  document.getElementById("renewalLiveStatus").textContent=demo
+    ?"Preparing a clearly labelled demonstration…":"Requesting current and historical tariff records…";
+  if(demo){
+    // EXPLICIT ?demo=1 ONLY. These synthetic rates can never be copied as a quote.
   const sample=(name,type,ref,a,end)=>({
     tariff_name:name,tariff_type:type,source_ref:ref,region_no:region,payment_method:"DD",
     EDSC_Std:a[0],EUR_Std:a[1],GDSC:a[2],GUR:a[3],fixed_end_date:end||"",
@@ -1457,33 +1467,35 @@ function loadRenewalCatalogue(){
     live.push(sample(name,"variable","DEMO-VARIABLE-202610",
       [52.102*factor,25.36*factor,21.845*factor,7.45*factor]));
   });
-  renewalFeedRegion=region;
-  renewalFeedStatus="ready";renewalFeedError="";
-  renewalCatalogue={schemaVersion:1,region,historyAvailable:true,tariffLive:live,tariffHistory:historic};
-  renewalRefreshChoices();
-  storyAutoSelectDefaults();
-  render();
-  document.getElementById("renewalStatus").textContent="TEST PREVIEW: invented rates loaded for interface testing only. Not official UW prices.";
-  return;
-
-  if(!renewalMode())return;
-  if(renewalFeedStatus==="ready"&&renewalFeedRegion===region)return;
-  renewalFeedStatus="loading";renewalFeedError="";renewalFeedRegion=region;
-  const request=++renewalRequestId;
-  renewalUpdateStatus();
+    renewalCatalogue={schemaVersion:1,region,historyAvailable:true,tariffLive:live,tariffHistory:historic};
+    renewalCatalogueSource="demo";renewalFeedStatus="ready";
+    renewalRefreshChoices();
+    render();
+    return;
+  }
   fetch(EV_FEED_URL+"?mode=renewal&region="+encodeURIComponent(region),{cache:"no-store"})
-    .then(r=>{if(!r.ok)throw Error("HTTP "+r.status);return r.json();})
-    .then(d=>{
+    .then(response=>{if(!response.ok)throw Error("HTTP "+response.status);return response.json();})
+    .then(data=>{
       if(request!==renewalRequestId)return;
-      if(d.schemaVersion!==1||d.region!==region||d.historyAvailable!==true||
-         !Array.isArray(d.tariffLive)||!Array.isArray(d.tariffHistory))
-        throw Error("The published feed does not yet expose the historical catalogue");
-      renewalCatalogue=d;renewalFeedStatus="ready";
-      renewalRefreshChoices();render();
-    }).catch(err=>{
-      if(request!==renewalRequestId)return;
-      renewalCatalogue=null;renewalFeedStatus="error";renewalFeedError=String(err.message||err);
+      if(data.schemaVersion!==1||Number(data.region)!==region||data.historyAvailable!==true||
+         !Array.isArray(data.tariffLive)||!Array.isArray(data.tariffHistory))
+        throw Error("The deployed tariff feed does not yet expose historical renewal rates");
+      if(!data.tariffHistory.length)
+        throw Error("The source sheet has no archived tariff records for this region");
+      renewalCatalogue=data;
+      renewalCatalogueSource="live";renewalFeedStatus="ready";
+      renewalRefreshChoices();
       render();
+    })
+    .catch(error=>{
+      if(request!==renewalRequestId)return;
+      renewalFeedStatus="error";renewalCatalogueSource="none";
+      renewalFeedError=String(error.message||error);
+      renewalCatalogue=null;
+      render();
+      document.getElementById("renewalLiveStatus").textContent=
+        "The historical rate feed is not available: "+renewalFeedError+
+        ". No demo prices have been substituted. For layout testing only, open ?demo=1.";
     });
 }
 function renewalVariableRate(base,phase,janRise){
