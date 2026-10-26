@@ -3575,7 +3575,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.73.0 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
+    <div>App version: 2.73.1 (26 October 2026) - Retitled the customer chart 'What are my options?' and added a case-specific previous fixed tariff from the customer's VAT-inclusive confirmation-email rates; added a red dotted current Budget Plan line alongside the grey dotted seasonal previous-year line; put the five-label legend beneath the chart; preserved manual rates and payments in share links. Variable, offered 99 and public 100 use tariff-feed data or the clearly dated East Midlands source snapshot. <b>Note:</b> the historical grey line models original rates without April revisions; the red line is the payment contribution, not an energy cost. Customer share setup hides irrelevant controls.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -3585,6 +3585,52 @@ function statics(){
   REGIONS.forEach(r=>{const o=document.createElement("option");o.value=r.n;o.textContent=r.name;rSel.appendChild(o);});
   rSel.value=11;
   prefillManual(REGIONS.find(r=>r.n==11));
+
+  const builderRegion=document.getElementById("builderRegion");
+  REGIONS.forEach(item=>{const option=document.createElement("option");option.value=item.n;option.textContent=item.name;builderRegion.appendChild(option);});
+  builderRegion.addEventListener("change",()=>{
+    if(document.getElementById("region").value===builderRegion.value)return;
+    document.getElementById("region").value=builderRegion.value;
+    renewalCatalogue=null;renewalFeedStatus="idle";renewalCatalogueSource="none";
+    renewalUserChoices={};renewalPendingSelections=null;
+    for(const id of RENEWAL_FIELDS)document.getElementById(id).value="";
+    // Refuse to carry region-specific fixed rates into another region.
+    for(const id of ["oldTariffName",...RENEWAL_OLD_FIELD_IDS])document.getElementById(id).value="";
+    renewalOldSourceTier=null;
+    document.getElementById("builderShareStatus").textContent="Region changed. Please supply the matching previous tariff rates.";
+    loadRenewalCatalogue();render();
+  });
+  document.getElementById("builderStart").addEventListener("change",event=>{
+    const value=event.target.value;
+    if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(value))return;
+    renewalPinnedStart=value+"-01";
+    renewalUserChoices={};
+    for(const id of ["renewalEnding","renewalOffered","renewalPublic"])document.getElementById(id).value="";
+    if(renewalFeedStatus==="ready")renewalRefreshChoices();
+    render();
+  });
+  document.getElementById("builderServiceSwitch").querySelectorAll("button").forEach(button=>
+    button.addEventListener("click",()=>builderSetService(button.dataset.svc)));
+  for(const [type,slider,exact] of [["elec","builderElecRange","builderElecExact"],["gas","builderGasRange","builderGasExact"]]){
+    document.getElementById(slider).addEventListener("input",e=>builderSetUsage(type,e.target.value));
+    document.getElementById(exact).addEventListener("input",e=>{
+      if(e.target.value!=="")builderSetUsage(type,e.target.value);
+    });
+  }
+  document.getElementById("builderCustomer").addEventListener("input",render);
+  document.getElementById("builderCopyLink").addEventListener("click",async ()=>{
+    const url=document.getElementById("shareUrl").value;
+    if(!url)return;
+    const status=document.getElementById("builderShareStatus");
+    try{
+      if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(url);status.textContent="Customer link copied.";return;}
+    }catch(e){}
+    const share=document.getElementById("shareUrl");
+    share.focus();share.select();
+    try{document.execCommand("copy");status.textContent="Customer link copied.";}
+    catch(e){status.textContent="Select and copy the link below.";}
+  });
+
   document.querySelectorAll("#comparisonSwitch button").forEach(button=>button.addEventListener("click",()=>{
     document.querySelectorAll("#comparisonSwitch button").forEach(b=>b.setAttribute("aria-pressed",b===button?"true":"false"));
     if(renewalMode())loadRenewalCatalogue();
@@ -3738,21 +3784,22 @@ function statics(){
       b.setAttribute("aria-pressed",b.dataset.compareMode==="renewal"?"true":"false"));
   }
   readParams();
-  // Example usage defaults for this test preview. Shared links override these inputs.
-  // The production generic calculator must not prefill a different customer's use.
+  // Reusable builder starts with rounded example usage, not a customer's private figures.
+  // A customer-specific link overrides usage, payment and prior tariff rates.
   if(!new URLSearchParams(location.search).has("r")&&!new URLSearchParams(location.search).has("e")){
     document.getElementById("region").value="11";
-    document.getElementById("elec").value="3073";
-    document.getElementById("gas").value="12823";
+    document.getElementById("elec").value="3000";
+    document.getElementById("gas").value="12500";
     document.getElementById("btnPersonal").setAttribute("aria-pressed","true");
-    lastCustom={e:3073,g:12823};
+    lastCustom={e:3000,g:12500};
     customTouched=true;
   }
   statics();
+  builderRefreshInputs();
   render();
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.73.0"></script>
+<script src="./forecast-feed.js?v=2.73.1"></script>
 </body>
 </html>
