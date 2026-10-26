@@ -1535,18 +1535,163 @@ function chooseStoryFixed(series){
   renewalUserChoices.renewalOffered=key;
   render();
 }
-function storyAutoSelectDefaults(){
-  const target=id=>{
-    const el=document.getElementById(id);
-    if(el.value)return;
-    const name=id==="renewalEnding"?" 65":id==="renewalOffered"?" 99":"";
-    const row=renewalOptionsFor(id).find(r=>renewalRawName(r).endsWith(name));
-    if(row)el.value=renewalRowKey(row);
-  };
-  target("renewalEnding");
-  target("renewalOffered");
+/* ---------- renewal quick picks, calculated from source tariff expiry dates ---------- */
+let renewalEndingSeriesWanted=null,renewalOfferSeriesWanted=null,renewalCatalogueSource="none";
+function renewalFixedNumber(row){
+  const match=renewalRawName(row).match(/\s(\d+)$/);
+  return match?Number(match[1]):null;
 }
-
+function renewalEndTimestamp(row){
+  const date=parseContractEnd(row?.fixed_end_date||row?.contract_end_date);
+  return date?date.getTime():null;
+}
+function renewalSuiteCandidates(){
+  const start=parseContractEnd(renewalStartDate())?.getTime()||0;
+  const familyPatterns=[renewalFixedFamily("1"),renewalFixedFamily("2"),renewalFixedFamily("3")];
+  const rows=renewalRows().filter(row=>renewalRowType(row)==="fixed"&&
+    Number.isFinite(renewalFixedNumber(row))&&!!standardFixedRate(row)&&
+    (renewalEndTimestamp(row)===null||renewalEndTimestamp(row)>=start));
+  const bySeries=new Map();
+  for(const row of rows){
+    const number=renewalFixedNumber(row);
+    if(!bySeries.has(number))bySeries.set(number,[]);
+    bySeries.get(number).push(row);
+  }
+  // A selectable number is a complete suite - every service level must exist.
+  return [...bySeries.entries()].filter(([n,items])=>
+    familyPatterns.every(pattern=>items.some(row=>pattern.test(renewalRawName(row)))))
+    .map(([n])=>n).sort((a,b)=>b-a);
+}
+function renewalPublicSeries(){
+  const live=renewalCatalogue?.tariffLive||[];
+  const start=parseContractEnd(renewalStartDate())?.getTime()||0;
+  const numbers=live.filter(row=>renewalRowType(row)==="fixed"&&
+    renewalFixedFamily(renewalTier()).test(renewalRawName(row))&&
+    (renewalEndTimestamp(row)===null||renewalEndTimestamp(row)>=start)&&
+    !!standardFixedRate(row)).map(renewalFixedNumber).filter(Number.isFinite);
+  return numbers.length?Math.max(...numbers):null;
+}
+function renewalLikelyEnding(){
+  const start=parseContractEnd(renewalStartDate())?.getTime()||0;
+  const family=renewalFixedFamily(renewalTier());
+  const bySeries=new Map();
+  renewalOptionsFor("renewalEnding").filter(row=>
+    family.test(renewalRawName(row))&&renewalEndTimestamp(row)!==null)
+  .forEach(row=>{
+    const days=(renewalEndTimestamp(row)-start)/86400000;
+    // Only promote genuinely near-expiring tariffs to the quick choices.
+    if(Math.abs(days)>185)return;
+    const num=renewalFixedNumber(row),prev=bySeries.get(num);
+    if(!prev||Math.abs(days)<Math.abs(prev.days)||
+       (Math.abs(days)===Math.abs(prev.days)&&renewalSourceDate(row)>renewalSourceDate(prev.row)))
+      bySeries.set(num,{row,days});
+  });
+  return [...bySeries.values()].sort((a,b)=>Math.abs(a.days)-Math.abs(b.days)||
+    b.days-a.days||renewalFixedNumber(b.row)-renewalFixedNumber(a.row)).slice(0,3).map(e=>e.row);
+}
+function renewalSelectEnding(key){
+  const row=renewalFindRow(key);
+  if(!row||!renewalFixedFamily(renewalTier()).test(renewalRawName(row)))return;
+  renewalEndingSeriesWanted=renewalFixedNumber(row);
+  const select=document.getElementById("renewalEnding");
+  select.value=key;
+  renewalUserChoices.renewalEnding=key;
+  document.getElementById("renewalEndingQuickSelect").value=key;
+  renewalUpdateQuickPicks();
+  render();
+}
+function renewalSelectSuite(number){
+  if(!renewalSuiteCandidates().includes(number))return;
+  renewalOfferSeriesWanted=number;
+  const offered=renewalOptionsFor("renewalOffered").find(row=>renewalFixedNumber(row)===number);
+  if(!offered)return;
+  const key=renewalRowKey(offered);
+  document.getElementById("renewalOffered").value=key;
+  renewalUserChoices.renewalOffered=key;
+  renewalUpdateQuickPicks();
+  render();
+}
+function renewalUpdateQuickPicks(){
+  const endButtons=document.getElementById("renewalEndingPicks");
+  const suiteButtons=document.getElementById("renewalSuitePicks");
+  const dropdown=document.getElementById("renewalEndingQuickSelect");
+  const ends=renewalLikelyEnding();
+  const selected=renewalSelectedRows();
+  const cutoff=parseContractEnd(renewalStartDate())?.getTime()||0;
+  endButtons.replaceChildren();
+  for(const row of ends){
+    const key=renewalRowKey(row),date=new Date(renewalEndTimestamp(row));
+    const button=document.createElement("button");
+    button.type="button";
+    button.setAttribute("aria-pressed",String(renewalFixedNumber(selected.ending)===renewalFixedNumber(row)));
+    const name=document.createElement("b");name.textContent=renewalRawName(row);
+    const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"});
+    button.append(name,small);
+    button.addEventListener("click",()=>renewalSelectEnding(key));
+    endButtons.appendChild(button);
+  }
+  if(!ends.length)endButtons.textContent="No near-expiring tariffs found in the available archive.";
+  const all=renewalOptionsFor("renewalEnding");
+  dropdown.replaceChildren();
+  const blank=document.createElement("option");blank.value="";blank.textContent="Choose a historical fixed tariff";dropdown.appendChild(blank);
+  all.forEach(row=>{
+    const opt=document.createElement("option");opt.value=renewalRowKey(row);
+    const end=renewalEndTimestamp(row);
+    opt.textContent=renewalRawName(row)+(end?" - ends "+new Date(end).toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"}):"");
+    dropdown.appendChild(opt);
+  });
+  dropdown.value=selected.ending?renewalRowKey(selected.ending):"";
+  const suites=renewalSuiteCandidates(),publicNumber=renewalPublicSeries();
+  suiteButtons.replaceChildren();
+  // Current public suite and the most recent earlier suites are the likely email offers.
+  const offeredChoices=suites.filter(n=>publicNumber===null||n<=publicNumber).slice(0,3);
+  if(renewalOfferSeriesWanted!==null&&!offeredChoices.includes(renewalOfferSeriesWanted)&&
+    suites.includes(renewalOfferSeriesWanted))offeredChoices.push(renewalOfferSeriesWanted);
+  offeredChoices.forEach(n=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.setAttribute("aria-pressed",String(renewalFixedNumber(selected.offered)===n));
+    const name=document.createElement("b");name.textContent="Fixed suite "+n;
+    const sub=document.createElement("span");
+    sub.textContent=n===publicNumber?"Current public fixed tariff":"Possible email offer";
+    button.append(name,sub);button.addEventListener("click",()=>renewalSelectSuite(n));
+    suiteButtons.appendChild(button);
+  });
+  if(!offeredChoices.length)suiteButtons.textContent="No complete current fixed tariff suites available.";
+  const status=document.getElementById("renewalLiveStatus");
+  status.textContent=renewalCatalogueSource==="demo"
+    ?"DEMONSTRATION ONLY: these selections use made-up example rates and cannot be shared."
+    :renewalCatalogueSource==="live"?"Tariffs loaded from the published UW tariff feed. Check the selected expiry and individual email offer."
+    :renewalFeedStatus==="loading"?"Checking live tariff history…":"Historical tariff feed unavailable. No figures will be estimated.";
+}
+function storyAutoSelectDefaults(){
+  if(!renewalCatalogue)return;
+  const ending=document.getElementById("renewalEnding");
+  const offer=document.getElementById("renewalOffered");
+  if(!ending.value){
+    const ends=renewalLikelyEnding();
+    const matched=renewalEndingSeriesWanted===null?null:
+      renewalOptionsFor("renewalEnding").find(row=>renewalFixedNumber(row)===renewalEndingSeriesWanted);
+    const chosen=matched||ends[0];
+    if(chosen)ending.value=renewalRowKey(chosen);
+  }
+  if(!offer.value){
+    const suite=renewalSuiteCandidates(),publicNumber=renewalPublicSeries();
+    const preferred=renewalOfferSeriesWanted!==null?renewalOfferSeriesWanted:
+      suite.find(n=>publicNumber!==null&&n<publicNumber)??(publicNumber??suite[0]);
+    const row=renewalOptionsFor("renewalOffered").find(row=>renewalFixedNumber(row)===preferred);
+    if(row)offer.value=renewalRowKey(row);
+  }
+  const publicNo=renewalPublicSeries();
+  if(publicNo!==null){
+    const publicRow=renewalOptionsFor("renewalPublic").find(row=>renewalFixedNumber(row)===publicNo);
+    if(publicRow&&!document.getElementById("renewalPublic").value)
+      document.getElementById("renewalPublic").value=renewalRowKey(publicRow);
+  }
+  renewalEndingSeriesWanted=renewalFixedNumber(renewalSelectedRows().ending);
+  renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
+  renewalUpdateQuickPicks();
+}
 /* ---------- SIMPLE FOUR-LINE RENEWAL COMPARISON v2.66.0 ---------- */
 function renewalLastYearMonthly(s){
   const selected=renewalSelectedRows();
