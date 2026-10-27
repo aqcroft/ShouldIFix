@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.78.0">
+<meta name="app-version" content="2.78.1">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -841,7 +841,7 @@
 #renewalBuilder .renewal-short-note{margin:5px 0!important;font-size:.72rem!important}
 #renewalBuilder .renewal-simple-usage{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
 #renewalBuilder .renewal-simple-usage label{font-size:.78rem}
-#renewalBuilder .renewal-more-settings{border:1px solid #e5ddf0;background:#fbf9ff;padding:12px 13px;border-radius:11px;margin-top:16px}
+#renewalBuilder .renewal-more-settings{border:1px solid #e5ddf0;background:#fbf9ff;padding:9px 12px;border-radius:11px;margin:10px 0 18px}
 #renewalBuilder .renewal-more-settings>summary{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 #renewalBuilder #builderSettingsSummary{font-weight:650;color:#796b91;font-size:.72rem}
 #renewalBuilder .builder-share{margin-top:15px}
@@ -962,6 +962,34 @@
   <section class="renewal-builder hidden" id="renewalBuilder" aria-labelledby="builderTitle">
     <div class="builder-head"><div><h2 id="builderTitle">Compare your renewal options</h2><p>Choose the two tariffs, then add the monthly payment and annual usage. That's it.</p></div></div>
 
+    <details class="renewal-mini-details renewal-more-settings" id="builderOptionalSettings">
+      <summary>Region &amp; services <span id="builderSettingsSummary">East Midlands · Energy + 2 services</span></summary>
+      <div class="builder-form-grid">
+        <label class="builder-field" for="builderRegion">Energy region
+          <select id="builderRegion"></select>
+        </label>
+        <label class="builder-field" for="builderStart">New tariff starts
+          <input id="builderStart" type="month" min="2026-01" max="2030-12"/>
+        </label>
+        <label class="builder-field" for="builderCustomer">Customer first name <span>(optional)</span>
+          <input id="builderCustomer" type="text" maxlength="40" placeholder="e.g. Sandie" autocomplete="off"/>
+        </label>
+      </div>
+      <div class="builder-section-title">Qualifying services</div>
+      <div class="builder-service-switch" id="builderServiceSwitch" role="group" aria-label="Energy bundle service level">
+        <button type="button" data-svc="1">Energy only</button>
+        <button type="button" data-svc="2">Energy + 1 service</button>
+        <button type="button" data-svc="3">Energy + 2 services</button>
+      </div>
+      <div class="builder-section-title">What tariff are you on now?</div>
+      <div class="builder-current-switch" id="builderCurrentSwitch" role="group" aria-label="Current tariff type">
+        <button type="button" data-current="variable" aria-pressed="false">Variable</button>
+        <button type="button" data-current="fixed" aria-pressed="true">Fixed</button>
+      </div>
+      <p id="builderCurrentHelp" class="builder-current-help">Your chosen fixed tariff will be loaded from the archive.</p>
+    </details>
+
+
     <div class="renewal-simple-step" id="builderHistoryDetails" hidden>
       <h3><span class="renewal-simple-number">1</span> Fixed tariff coming to an end</h3>
       <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Three likely expiring fixed tariffs"></div>
@@ -1037,33 +1065,6 @@
         </div>
       </details>
     </div>
-
-    <details class="renewal-mini-details renewal-more-settings" id="builderOptionalSettings">
-      <summary>More settings <span id="builderSettingsSummary">East Midlands · Energy + 2 services</span></summary>
-      <div class="builder-form-grid">
-        <label class="builder-field" for="builderRegion">Energy region
-          <select id="builderRegion"></select>
-        </label>
-        <label class="builder-field" for="builderStart">New tariff starts
-          <input id="builderStart" type="month" min="2026-01" max="2030-12"/>
-        </label>
-        <label class="builder-field" for="builderCustomer">Customer first name <span>(optional)</span>
-          <input id="builderCustomer" type="text" maxlength="40" placeholder="e.g. Sandie" autocomplete="off"/>
-        </label>
-      </div>
-      <div class="builder-section-title">Qualifying services</div>
-      <div class="builder-service-switch" id="builderServiceSwitch" role="group" aria-label="Energy bundle service level">
-        <button type="button" data-svc="1">Energy only</button>
-        <button type="button" data-svc="2">Energy + 1 service</button>
-        <button type="button" data-svc="3">Energy + 2 services</button>
-      </div>
-      <div class="builder-section-title">What tariff are you on now?</div>
-      <div class="builder-current-switch" id="builderCurrentSwitch" role="group" aria-label="Current tariff type">
-        <button type="button" data-current="variable" aria-pressed="false">Variable</button>
-        <button type="button" data-current="fixed" aria-pressed="true">Fixed</button>
-      </div>
-      <p id="builderCurrentHelp" class="builder-current-help">Your chosen fixed tariff will be loaded from the archive.</p>
-    </details>
 
     <div class="builder-share">
       <button type="button" id="builderCopyLink">Copy customer link</button>
@@ -1960,7 +1961,7 @@ function renewalUpdateQuickPicks(){
     const button=document.createElement("button");
     button.type="button";
     button.setAttribute("aria-pressed",String(renewalFixedNumber(selected.offered)===n));
-    const name=document.createElement("b");name.textContent="Fixed suite "+n;
+    const name=document.createElement("b");name.textContent=(renewalTier()==="1"?"Fixed Start ":renewalTier()==="2"?"Fixed ":"Fixed Saver ")+n;
     const sub=document.createElement("span");
     sub.textContent=n===publicNumber?"Current public fixed tariff":"Possible email offer";
     button.append(name,sub);button.addEventListener("click",()=>renewalSelectSuite(n));
