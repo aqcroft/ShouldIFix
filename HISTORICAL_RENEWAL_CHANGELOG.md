@@ -1,5 +1,9 @@
 # Historical renewal preview changelog
 
+## v2.79.1 - 27 October 2026
+- Hide the old prospective-customer Share panel in existing-customer renewal mode; use the dedicated verified renewal customer-link controls instead.
+- Preserve the original prospective-customer comparison and sharing UI unchanged.
+
 ## v2.79.0 - 27 October 2026
 - Add a direct partner entry URL using `?existing=1` so the four-input existing-customer renewal form opens without the standard calculator setup.
 - Keep new-customer/default and customer-share links unchanged, and keep the real live tariff feed.
