@@ -1,5 +1,10 @@
 # Historical renewal preview changelog
 
+## v2.78.2 - 27th October 2026 (preview; not production)
+- Require an explicit selection for both the customer's expiring fixed tariff and their individual renewal offer; do not guess based on the nearest expiry date or assume Fixed Saver 99 was offered.
+- Do not enable a fixed-customer comparison until the old tariff is selected or verified manual rates are provided, and the offered tariff is selected.
+- Publish a separate version-pinned customer renewal layout demo. Live Apps Script integration is still pending.
+
 ## v2.78.1 - 27th October 2026 (simplified preview; not production)
 - Reduce existing-customer renewal setup to four prominent choices: expiring fixed tariff, fixed offer in email, current monthly Direct Debit/Budget Plan, and estimated annual electricity/gas usage.
 - Move region, qualifying services, start date, optional name and Variable/Fixed selector into one collapsed **Region & services** section at the top, with the current region/service combination visible in its summary.
