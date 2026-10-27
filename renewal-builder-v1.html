@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.77.1">
+<meta name="app-version" content="2.77.2">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -2035,6 +2035,12 @@ function renewalManualPastMonths(s){
   });
 }
 
+function renewalHistoryRateFrom(row){
+  // UW issued pre- and post-April 2026 versions under overlapping source refs.
+  // A source_ref date alone cannot identify the April price revision.
+  return row?.rate_version_code==="POST_APR_2026"?
+    Math.max(renewalSourceDate(row),Date.UTC(2026,3,1)):renewalSourceDate(row);
+}
 function renewalLastYearMonthly(s){
   if(builderCurrentMode==="variable")return renewalVariablePreviousProfile(s);
   const manuallyEntered=renewalManualPastMonths(s);
@@ -2042,17 +2048,20 @@ function renewalLastYearMonthly(s){
   const selected=renewalSelectedRows();
   if(!selected.ending)return null;
   const historical=renewalRows().filter(r=>renewalNameKey(r)===renewalNameKey(selected.ending)&&
-    renewalRowType(r)==="fixed"&&!!standardFixedRate(r)).sort((a,b)=>renewalSourceDate(a)-renewalSourceDate(b));
+    renewalRowType(r)==="fixed"&&!!standardFixedRate(r)&&
+    r.rate_version_code!=="IDENTICAL_COPY_2")
+    .sort((a,b)=>renewalHistoryRateFrom(a)-renewalHistoryRateFrom(b)||
+      renewalVersionPreference(a)-renewalVersionPreference(b));
   if(!historical.length)return null;
   const firstComparisonYear=MONTHS[0]?.year||2026;
   const oldStart=new Date(Date.UTC(firstComparisonYear-1,MONTHS[0]?MONTHS[0].cal:10,1));
   // Fail closed if the records do not cover the first month of the historic
   // comparison: an old fixed tariff must not inherit rates from a later revision.
-  if(renewalSourceDate(historical[0])>oldStart.getTime())return null;
+  if(renewalHistoryRateFrom(historical[0])>oldStart.getTime())return null;
   const discount=s.mode==="dual"?DISCOUNT:0;
   return MONTHS.map(m=>{
     const historicalMonth=new Date(Date.UTC(m.year-1,m.cal,1));
-    const available=historical.filter(row=>renewalSourceDate(row)<=historicalMonth.getTime());
+    const available=historical.filter(row=>renewalHistoryRateFrom(row)<=historicalMonth.getTime());
     if(!available.length)return null;
     const rate=standardFixedRate(available[available.length-1]);
     const days=new Date(Date.UTC(historicalMonth.getUTCFullYear(),m.cal+1,0)).getUTCDate();
