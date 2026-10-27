@@ -17,10 +17,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install headless browser
+      - name: Use preinstalled Chrome with Playwright
         run: |
           npm install --no-save playwright@1.58.2
-          npx playwright install chromium --with-deps
+          BROWSER="$(command -v google-chrome || command -v chromium)"
+          if [ -z "$BROWSER" ]; then echo "No system Chrome found"; exit 1; fi
+          echo "CI_BROWSER_PATH=$BROWSER" >> "$GITHUB_ENV"
+          "$BROWSER" --version
       - name: Exercise live 390px renewal page
         run: |
           mkdir -p test-artifacts
