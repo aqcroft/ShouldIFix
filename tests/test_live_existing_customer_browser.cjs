@@ -45,6 +45,29 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    const check=await page.locator("#renewalStatus").textContent();
    console.log("Selected tariff:",selected,"Share state:",status,"Disabled:",disabled,"Renewal:",check);
    assert(!disabled,"A complete verified selection should enable customer link");
+   // New mobile results: 3 ranked summaries, a left-aligned legend and sourced quarterly costs.
+   await page.locator("#renewalSavingsPair .renewal-active-choice").first().waitFor({state:"visible",timeout:20000});
+   assert.equal(await page.locator("#renewalSavingsPair .renewal-active-choice").count(),3,
+     "All three energy choices need compact, tappable summaries");
+   assert(await page.locator("#renewalQuarterlyCosts tbody tr").count()>=4,
+     "Quarterly cost comparison must use modelled months");
+   assert.equal(await page.locator("#renewalPreviewWarning").isVisible(),false,
+     "No obsolete beige preview warning on verified results");
+   const ordered=await page.evaluate(()=>{
+     const legend=document.querySelector("#renewalLineLegend"),chart=document.querySelector("#renewalFourLineChart");
+     return !!(legend.compareDocumentPosition(chart)&Node.DOCUMENT_POSITION_FOLLOWING);
+   });
+   assert(ordered,"Legend should come immediately before the forecast chart");
+   const costRows=await page.locator("#renewalLineLegend .renewal-key-item").count();
+   assert.equal(costRows,3,"Chart key must label each route with monthly and annual costs");
+   await page.locator("#renewalSavingsPair .renewal-saving-card").first().click();
+   assert.equal(await page.locator("#renewalChoiceDetails").isVisible(),true,
+     "Tap a hero to open the full explanation");
+   assert(await page.locator("#renewalChoiceDetails .renewal-card-points").isVisible(),
+     "Explanation modal retains benefits and cautions");
+   await page.locator("#renewalChoiceDetails .renewal-modal-close").click();
+   assert.equal(await page.locator("#renewalChoiceDetails").isVisible(),false);
+
    const shareUrl=await page.locator("#builderPreviewLink").getAttribute("href");
    assert(shareUrl&&shareUrl.includes("renew=1")&&shareUrl.includes("bp=155.00"),
      "Share link must preserve the renewal mode and entered monthly payment");
@@ -66,6 +89,14 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    assert.equal(pay,"155.00");
    assert.equal(restoredEnding,params.get("ending"));
    assert.equal(restoredOffered,params.get("offered"));
+
+   await customer.locator("#renewalSavingsPair .renewal-active-choice").first().waitFor({state:"visible",timeout:20000});
+   assert.equal(await customer.locator("#renewalSavingsPair .renewal-active-choice").count(),3,
+     "Customer share must have three compact summaries");
+   assert(await customer.locator("#renewalQuarterlyCosts tbody tr").count()>=4,
+     "Customer share retains quarterly cost table");
+   assert.equal(await customer.locator("#renewalPreviewWarning").isVisible(),false,
+     "No preview warning on verified customer link");
    assert(!customerErrors.length,"Customer page errors: "+customerErrors.join("; "));
    console.log("Customer share view: successful, partner builder hidden, both tariff IDs and £155 preserved.");
    await customer.screenshot({path:"test-artifacts/customer-mobile.png",fullPage:true});
