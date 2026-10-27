@@ -3,7 +3,10 @@ const {chromium}=require("playwright");
 const assert=require("node:assert/strict");
 const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing=1";
 (async()=>{
- const browser=await chromium.launch({headless:true});
+ const browser=await chromium.launch({
+   headless:true,
+   ...(process.env.CI_BROWSER_PATH?{executablePath:process.env.CI_BROWSER_PATH}: {})
+ });
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
  const errors=[];page.on("pageerror",err=>errors.push(err.message));
  try{
