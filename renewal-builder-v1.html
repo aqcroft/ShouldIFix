@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.76.4">
+<meta name="app-version" content="2.77.0">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -1471,8 +1471,18 @@ function safeHtml(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;
 function renewalRawName(row){return String((row&&(row.tariff_name!=null?row.tariff_name:row.tariffName))||"").trim().replace(/^UW\s+/i,"").replace(/\s+Direct Debit$/i,"");}
 function renewalNameKey(row){return renewalRawName(row).toLowerCase().replace(/\s+/g," ");}
 function renewalRowKey(row){
+  // UW's source_ref is not unique: pre/post-April published PDFs can share it.
+  const version=String(row?.tariff_version_id||"").trim();
+  if(version)return "historic|"+version;
   const ref=String(row&&(row.source_ref!=null?row.source_ref:row.sourceRef)||"").trim();
   return ref?renewalNameKey(row)+"|"+ref:"";
+}
+function renewalDisplayName(row){return String(row?.tariff_display_name||renewalRawName(row));}
+function renewalVersionPreference(row){
+  const code=String(row?.rate_version_code||"");
+  return code==="POST_APR_2026"?5:code==="AS_PUBLISHED"?4:
+    code==="PRE_APR_2026"?3:code==="IDENTICAL_COPY_1"?2:
+    code==="IDENTICAL_COPY_2"?1:0;
 }
 function renewalRowType(row){return String((row&&(row.tariff_type!=null?row.tariff_type:row.tariffType))||"").toLowerCase();}
 function renewalTier(){return document.getElementById("renewalServices").value;}
@@ -1524,23 +1534,25 @@ function renewalOptionsFor(id){
     if(id==="renewalVariable")return type==="variable"&&["Value","Gold","Double Gold"].some(x=>x.toLowerCase()===name.toLowerCase());
     return type==="fixed"&&fixedPattern.test(name);
   }).filter(row=>!!renewalRowKey(row)&&!!standardFixedRate(row));
-  // One option per tariff number. Where UW republished a tariff, automatically
-  // use its newest sourced revision, preserving the selected source in share URLs.
-  const byName=new Map();
-  candidates.forEach(row=>{
-    const key=renewalNameKey(row),prev=byName.get(key);
-    if(!prev||renewalSourceDate(row)>renewalSourceDate(prev))byName.set(key,row);
+  // Preserve both pre/post-April versions under unique tariff_version_id values.
+  // Hide the second identical Fixed Saver 81 PDF from user choices, but retain
+  // its full evidential record in the master Sheet.
+  const byKey=new Map();
+  candidates.filter(row=>String(row.rate_version_code||"")!=="IDENTICAL_COPY_2").forEach(row=>{
+    const key=renewalRowKey(row),previous=byKey.get(key);
+    if(!previous||renewalSourceDate(row)>renewalSourceDate(previous))byKey.set(key,row);
   });
-  return [...byName.values()].sort((a,b)=>{
+  return [...byKey.values()].sort((a,b)=>{
+    if(id==="renewalVariable")return renewalRawName(a).localeCompare(renewalRawName(b));
     const na=Number(renewalRawName(a).match(/\d+$/)?.[0]||0),nb=Number(renewalRawName(b).match(/\d+$/)?.[0]||0);
-    return id==="renewalVariable"?renewalRawName(a).localeCompare(renewalRawName(b)):nb-na;
+    return nb-na||renewalVersionPreference(b)-renewalVersionPreference(a);
   });
 }
 function renewalSetOptions(id){
   const el=document.getElementById(id),before=renewalUserChoices[id]||el.value;
   const candidates=renewalOptionsFor(id);
   const preferred=renewalPendingSelections&&renewalPendingSelections[id];
-  const options=candidates.map(row=>({value:renewalRowKey(row),label:renewalRawName(row)}));
+  const options=candidates.map(row=>({value:renewalRowKey(row),label:renewalDisplayName(row)}));
   el.replaceChildren();
   if(!options.length){
     const o=document.createElement("option");o.value="";o.textContent="Tariff not in catalogue";el.appendChild(o);return;
@@ -1558,7 +1570,7 @@ function renewalSetOptions(id){
       ?renewalRowType(archivedRow)==="variable"
       :renewalRowType(archivedRow)==="fixed"&&renewalFixedFamily(renewalTier()).test(renewalRawName(archivedRow)));
     const option=document.createElement("option");option.value=preferred;
-    option.textContent=allowed?renewalRawName(archivedRow)+" (selected historical version)":"Shared historical tariff unavailable";
+    option.textContent=allowed?renewalDisplayName(archivedRow)+" (selected historical version)":"Shared historical tariff unavailable";
     el.appendChild(option);el.value=preferred;
   }else{
     // Require deliberate selection of expiring and offered tariffs.
@@ -1587,8 +1599,8 @@ function renewalRefreshChoices(){
   const versions=end?renewalRows().filter(row=>renewalNameKey(row)===renewalNameKey(end))
     .sort((a,b)=>renewalSourceDate(a)-renewalSourceDate(b)):[];
   audit.textContent=versions.length>1
-    ?versions.map(row=>renewalRawName(row)+" - "+(row.source_ref||row.sourceRef)+" ("+
-      new Date(renewalSourceDate(row)).toLocaleDateString("en-GB")+")").join(" | ")
+    ?versions.map(row=>renewalDisplayName(row)+" - "+(row.source_ref||row.sourceRef)+
+      (row.version_basis?" ["+row.version_basis+"]":"")).join(" | ")
     :"Only one historical version is currently available in the catalogue.";
 }
 function renewalInputsValid(mode){
@@ -1813,7 +1825,8 @@ function renewalLikelyEnding(){
     if(Math.abs(days)>90)return;
     const num=renewalFixedNumber(row),prev=bySeries.get(num);
     if(!prev||Math.abs(days)<Math.abs(prev.days)||
-       (Math.abs(days)===Math.abs(prev.days)&&renewalSourceDate(row)>renewalSourceDate(prev.row)))
+       (Math.abs(days)===Math.abs(prev.days)&&renewalVersionPreference(row)>renewalVersionPreference(prev.row))||
+       (Math.abs(days)===Math.abs(prev.days)&&renewalVersionPreference(row)===renewalVersionPreference(prev.row)&&renewalSourceDate(row)>renewalSourceDate(prev.row)))
       bySeries.set(num,{row,days});
   });
   return [...bySeries.values()].sort((a,b)=>Math.abs(a.days)-Math.abs(b.days)||
@@ -1853,9 +1866,10 @@ function renewalUpdateQuickPicks(){
     const key=renewalRowKey(row),date=new Date(renewalEndTimestamp(row));
     const button=document.createElement("button");
     button.type="button";
-    button.setAttribute("aria-pressed",String(renewalFixedNumber(selected.ending)===renewalFixedNumber(row)));
+    button.setAttribute("aria-pressed",String(renewalRowKey(selected.ending)===renewalRowKey(row)));
     const name=document.createElement("b");name.textContent=renewalRawName(row);
-    const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"});
+    const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"})+
+      (row.rate_version_code==="POST_APR_2026"?" · Apr 2026 rates":"");
     button.append(name,small);
     button.addEventListener("click",()=>renewalSelectEnding(key));
     endButtons.appendChild(button);
@@ -1867,7 +1881,7 @@ function renewalUpdateQuickPicks(){
   all.forEach(row=>{
     const opt=document.createElement("option");opt.value=renewalRowKey(row);
     const end=renewalEndTimestamp(row);
-    opt.textContent=renewalRawName(row)+(end?" - ends "+new Date(end).toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"}):"");
+    opt.textContent=renewalDisplayName(row)+(end?" - ends "+new Date(end).toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"}):"");
     dropdown.appendChild(opt);
   });
   dropdown.value=selected.ending?renewalRowKey(selected.ending):"";
