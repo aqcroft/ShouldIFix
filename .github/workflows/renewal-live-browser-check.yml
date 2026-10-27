@@ -1,0 +1,35 @@
+name: Browser check existing customer renewal (live)
+on:
+  push:
+    branches: [main]
+    paths:
+      - tests/test_live_existing_customer_browser.cjs
+      - .github/workflows/renewal-live-browser-check.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  browser-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install headless browser
+        run: |
+          npm install --no-save playwright@1.58.2
+          npx playwright install chromium --with-deps
+      - name: Exercise live 390px renewal page
+        run: |
+          mkdir -p test-artifacts
+          node tests/test_live_existing_customer_browser.cjs
+      - name: Save screenshot for debugging
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: existing-customer-renewal-mobile
+          path: test-artifacts/*.png
+          if-no-files-found: ignore
+          retention-days: 5
