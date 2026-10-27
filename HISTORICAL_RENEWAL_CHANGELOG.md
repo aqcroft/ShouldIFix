@@ -1,5 +1,11 @@
 # Historical renewal preview changelog
 
+## v2.79.0 - 27 October 2026
+- Add a direct partner entry URL using `?existing=1` so the four-input existing-customer renewal form opens without the standard calculator setup.
+- Keep new-customer/default and customer-share links unchanged, and keep the real live tariff feed.
+- Add a 390px browser test for the direct entry, real archive choices, individual offered tariff, kWh inputs and enabled customer-share link.
+- The UW historical Apps Script endpoint is deployed and validated across all 14 regions; the ordinary feed continues to return 168 rows.
+
 ## v2.78.2 - 27th October 2026 (preview; not production)
 - Require an explicit selection for both the customer's expiring fixed tariff and their individual renewal offer; do not guess based on the nearest expiry date or assume Fixed Saver 99 was offered.
 - Do not enable a fixed-customer comparison until the old tariff is selected or verified manual rates are provided, and the offered tariff is selected.
