@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.78.1">
+<meta name="app-version" content="2.78.2">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -1658,8 +1658,9 @@ function renewalInputsValid(mode){
   if(needed.some(key=>!rows[key]||!standardFixedRate(rows[key])))return false;
   if(renewalRowType(rows.variable)!=="variable")return false;
   if(["offered","public"].some(key=>renewalRowType(rows[key])!=="fixed"||!renewalFixedFamily(renewalTier()).test(renewalRawName(rows[key]))))return false;
-  // Older customer tariffs may predate Tariff Hunter's archive: do not block
-  // verified forward costs merely because the old tariff has no source record.
+  // Require a deliberately selected existing tariff before sharing. A verified
+  // manual historical-rate entry remains available for genuinely missing tariffs.
+  if(builderCurrentMode==="fixed"&&!rows.ending&&!renewalManualOldRates())return false;
   if(rows.ending&&(renewalRowType(rows.ending)!=="fixed"||!standardFixedRate(rows.ending)||
       !renewalFixedFamily(renewalTier()).test(renewalRawName(rows.ending))))return false;
   const start=parseContractEnd(renewalStartDate()),end=parseContractEnd(rows.offered.fixed_end_date||rows.offered.contract_end_date);
@@ -1993,21 +1994,17 @@ function storyAutoSelectDefaults(){
   if(!renewalCatalogue)return;
   const ending=document.getElementById("renewalEnding");
   const offer=document.getElementById("renewalOffered");
-  if(!ending.value){
-    const ends=renewalLikelyEnding();
-    const matched=renewalEndingSeriesWanted===null?null:
-      renewalOptionsFor("renewalEnding").find(row=>renewalFixedNumber(row)===renewalEndingSeriesWanted);
-    const close=ends[0]&&Math.abs((renewalEndTimestamp(ends[0])-
-      (parseContractEnd(renewalStartDate())?.getTime()||0))/86400000)<=45?ends[0]:null;
-    const chosen=matched||close;
-    if(chosen)ending.value=renewalRowKey(chosen);
+  // Do not guess the customer's existing tariff or their personal email offer.
+  // Preserve a previous deliberate selection when adjusting service level.
+  if(!ending.value&&renewalEndingSeriesWanted!==null){
+    const matched=renewalOptionsFor("renewalEnding")
+      .find(row=>renewalFixedNumber(row)===renewalEndingSeriesWanted);
+    if(matched)ending.value=renewalRowKey(matched);
   }
-  if(!offer.value){
-    const suite=renewalSuiteCandidates(),publicNumber=renewalPublicSeries();
-    const preferred=renewalOfferSeriesWanted!==null?renewalOfferSeriesWanted:
-      suite.find(n=>publicNumber!==null&&n<publicNumber)??(publicNumber??suite[0]);
-    const row=renewalOptionsFor("renewalOffered").find(row=>renewalFixedNumber(row)===preferred);
-    if(row)offer.value=renewalRowKey(row);
+  if(!offer.value&&renewalOfferSeriesWanted!==null){
+    const matched=renewalOptionsFor("renewalOffered")
+      .find(row=>renewalFixedNumber(row)===renewalOfferSeriesWanted);
+    if(matched)offer.value=renewalRowKey(matched);
   }
   const publicNo=renewalPublicSeries();
   if(publicNo!==null){
