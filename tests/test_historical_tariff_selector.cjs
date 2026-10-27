@@ -37,4 +37,17 @@ assert.equal(choices.filter(r=>r.tariff_name==="Fixed Saver 65").length,2);
 assert.equal(choices.filter(r=>r.tariff_name==="Fixed Saver 81").length,1);
 assert.equal(choices.find(r=>r.tariff_name==="Fixed Saver 65").rate_version_code,"POST_APR_2026");
 assert(choices.every(r=>r.tariff_display_name));
-console.log("Historical tariff version selector tests passed.");
+
+assert(html.indexOf('id="builderHistoryDetails"') > html.indexOf('id="builderCurrentSwitch"'));
+assert(html.indexOf('id="builderHistoryDetails"') < html.indexOf('id="builderElecRange"'));
+assert(html.includes('id="builderArchivedRateSummary"'));
+assert(html.includes('<details id="renewalManualDetails">'));
+assert(!html.includes('<details id="renewalManualDetails" open>'));
+assert(html.includes('const available=historical.filter(row=>renewalHistoryRateFrom(row)<=historicalMonth.getTime())'));
+const dateSrc=section("function renewalHistoryRateFrom(row){","function renewalLastYearMonthly(s){");
+const dateCtx={renewalSourceDate(r){return Date.parse(r.pdf_source_date);},renewalVersionPreference(){}};
+vm.createContext(dateCtx);
+vm.runInContext(dateSrc,dateCtx);
+assert.equal(vm.runInContext('renewalHistoryRateFrom({rate_version_code:"POST_APR_2026",pdf_source_date:"2025-10-22"})',dateCtx),Date.UTC(2026,3,1));
+assert.equal(vm.runInContext('renewalHistoryRateFrom({rate_version_code:"PRE_APR_2026",pdf_source_date:"2025-10-22"})',dateCtx),Date.UTC(2025,9,22));
+console.log("Historical archive-first selector and April effective-date tests passed.");
