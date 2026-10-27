@@ -1,5 +1,9 @@
 # Historical renewal preview changelog
 
+## v2.79.3 - 27 October 2026
+- Place the high-contrast chart legend on the left immediately above the graph, including monthly and 12-month totals.
+- Update tariff-verification regression expectations to reflect existing fail-closed sharing checks, without changing the guards.
+
 ## v2.79.2 - 27 October 2026
 - Three compact, tappable renewal cost summaries (variable / email offer / public fixed) with accessible detail modal, including on shared customer links.
 - Rank-based high-contrast green, amber and red chart lines, monthly annotations, left-aligned legend with monthly and 12-month figures, and model-derived quarterly cost comparison.

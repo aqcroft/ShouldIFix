@@ -66,8 +66,8 @@ test('partial live tariff feed for another region must not unlock the wrong quot
 });
 
 test('a standalone share URL cannot be copied before the feed is verified', () => {
-  assert.match(html, /shareUrl"\)\.value=verified\?buildShareUrl\(s\):""/);
-  assert.match(html, /if\(document\.body\.dataset\.tariffDataStatus!=="verified"\)\{copyBtn\.textContent="Verify tariffs first"/);
+  assert.match(html, /shareUrl"\)\.value=canShow\?buildShareUrl\(s\):""/);
+  assert.match(html, /if\(document\.body\.dataset\.tariffDataStatus!=="verified"\)\{copyBtn\.textContent="Complete or verify tariff rates first"/);
 });
 
 test('failed network request retries, then reports an error rather than using fallback', () => {
