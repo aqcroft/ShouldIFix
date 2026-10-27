@@ -1,5 +1,11 @@
 # Historical renewal preview changelog
 
+## v2.79.0 - 27 October 2026 (staged for release)
+- Add an existing-customer direct entry route using `?existing=1`, without activating the customer-only `?renew=1` share mode.
+- Show the four-step builder immediately and hide the duplicate standard calculator controls on that direct-entry route.
+- Preserve the current public calculator and shared customer links without changing their URLs.
+- Requires the tested read-only historical Apps Script endpoint; that endpoint has now passed all 14-region live checks.
+
 ## v2.78.2 - 27th October 2026 (preview; not production)
 - Require an explicit selection for both the customer's expiring fixed tariff and their individual renewal offer; do not guess based on the nearest expiry date or assume Fixed Saver 99 was offered.
 - Do not enable a fixed-customer comparison until the old tariff is selected or verified manual rates are provided, and the offered tariff is selected.
