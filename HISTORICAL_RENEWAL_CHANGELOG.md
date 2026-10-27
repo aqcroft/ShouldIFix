@@ -1,5 +1,15 @@
 # Historical renewal preview changelog
 
+## v2.78.1 - 27th October 2026 (simplified preview; not production)
+- Reduce existing-customer renewal setup to four prominent choices: expiring fixed tariff, fixed offer in email, current monthly Direct Debit/Budget Plan, and estimated annual electricity/gas usage.
+- Move region, qualifying services, start date, optional name and Variable/Fixed selector into one collapsed **Region & services** section at the top, with the current region/service combination visible in its summary.
+- Use direct kWh entry by default; keep sliders as an optional adjustment.
+- Present three likely tariffs with full-dropdown fallbacks for both existing and offered tariffs.
+- Collapse manual unit-rate entry; display a short loaded-tariff confirmation rather than all four rates.
+- Remove the duplicated £155-style monthly Budget Plan paragraph from the results without changing the payment reference used by the chart.
+- Clarify offered buttons as **Fixed Saver / Fixed / Fixed Start**, not a technical "suite" label.
+- Regression tests verified on isolated branch; customer-facing production feed still requires explicit review and Apps Script deployment.
+
 ## v2.77.2 - 27th October 2026 (preview; not production)
 - Move the historical tariff selector directly beneath the **Fixed** choice in the existing-customer builder.
 - Show three likely expiring tariffs first, with the complete historical dropdown underneath.
