@@ -30,6 +30,31 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    const check=await page.locator("#renewalStatus").textContent();
    console.log("Selected tariff:",selected,"Share state:",status,"Disabled:",disabled,"Renewal:",check);
    assert(!disabled,"A complete verified selection should enable customer link");
+   const shareUrl=await page.locator("#builderPreviewLink").getAttribute("href");
+   assert(shareUrl&&shareUrl.includes("renew=1")&&shareUrl.includes("bp=155.00"),
+     "Share link must preserve the renewal mode and entered monthly payment");
+   const params=new URL(shareUrl).searchParams;
+   assert(params.get("ending")&&params.get("offered"),"Customer link must preserve BOTH tariff selections");
+   const customer=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
+   const customerErrors=[];customer.on("pageerror",err=>customerErrors.push(err.message));
+   const response2=await customer.goto(shareUrl,{waitUntil:"domcontentloaded",timeout:60000});
+   assert(response2?.ok(),"Customer shared view must load");
+   await customer.locator("#renewalStory").waitFor({state:"visible",timeout:85000});
+   await customer.waitForFunction(()=>{
+     const label=document.querySelector("#renewalStatus");
+     return label&&/Selected current and renewal tariff rates loaded/i.test(label.textContent||"");
+   },{timeout:85000});
+   assert(await customer.locator("#renewalBuilder").isHidden(),"Customer should NOT see partner's builder inputs");
+   const pay=await customer.locator("#renewalBudgetMonthly").inputValue();
+   const restoredEnding=await customer.locator("#renewalEnding").inputValue();
+   const restoredOffered=await customer.locator("#renewalOffered").inputValue();
+   assert.equal(pay,"155.00");
+   assert.equal(restoredEnding,params.get("ending"));
+   assert.equal(restoredOffered,params.get("offered"));
+   assert(!customerErrors.length,"Customer page errors: "+customerErrors.join("; "));
+   console.log("Customer share view: successful, partner builder hidden, both tariff IDs and £155 preserved.");
+   await customer.screenshot({path:"test-artifacts/customer-mobile.png",fullPage:true});
+   await customer.close();
    assert(!errors.length,"Browser runtime errors: "+errors.join("; "));
    await page.screenshot({path:"test-artifacts/renewal-mobile.png",fullPage:true});
    console.log("PASS: Live customer renewal has functional historical buttons, real rates, offer selection, annual usage and share links.");
