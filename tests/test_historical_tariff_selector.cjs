@@ -66,6 +66,12 @@ assert(builder.includes('<details id="renewalManualDetails" class="renewal-mini-
 assert(html.includes('document.getElementById("renewalPreviousBudget").hidden=true;'));
 assert(!html.includes("For reference, you are currently paying about"));
 assert(html.includes('let builderCurrentMode="fixed";'));
+assert(html.includes('if(builderCurrentMode==="fixed"&&!rows.ending&&!renewalManualOldRates())return false;'));
+assert(!html.includes('const chosen=matched||close;'));
+assert(!html.includes('suite.find(n=>publicNumber!==null&&n<publicNumber)'));
+assert(html.includes('if(!ending.value&&renewalEndingSeriesWanted!==null){'));
+assert(html.includes('if(!offer.value&&renewalOfferSeriesWanted!==null){'));
+
 const ids=[...builder.matchAll(/\\bid="([^"]+)"/g)].map(m=>m[1]);
 assert.equal(ids.length,new Set(ids).size,"Every builder ID must be unique");
 console.log("Historical simplified four-step builder, historical selector and April effective-date tests passed.");
