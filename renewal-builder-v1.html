@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.79.0">
+<meta name="app-version" content="2.79.1">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -610,6 +610,9 @@
   body.renewal-mode #renewalCard,body.renewal-mode #resultCard,
   body.renewal-mode .outlook-card,body.renewal-mode .answer-faq,
   body.renewal-mode .share .cta-row{display:none!important}
+  /* The renewal builder has its own verified customer-link controls. The older
+     generic Share panel belongs to prospective-customer comparisons only. */
+  body.renewal-mode section.card.share{display:none!important}
   body.renewal-mode #fixedCard{display:block!important}
   body.renewal-mode #fixedCard .tariff-custom-row,body.renewal-mode #fixedCard #manualWrap,body.renewal-mode #fixedCard #tariffDetailsBtn,body.renewal-mode #fixedCard .tariff-pick span,body.renewal-mode #fixedCard #bundleChoicePair{display:none!important}
   body.renewal-mode #fixedCard .compare-head .lab{font-size:0}
