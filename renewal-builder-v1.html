@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.78.2">
+<meta name="app-version" content="2.79.0">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -857,7 +857,16 @@
  #renewalBuilder .renewal-more-settings .builder-form-grid{grid-template-columns:1fr}
 }
 </style>
-</head>
+<style>
+/* Direct partner-facing existing-customer link: one simple form, no duplicate old calculator controls. */
+body.existing-builder #comparisonSwitch,
+body.existing-builder #generalControls,
+body.existing-builder #usageCard,
+body.existing-builder #fixedCard,
+body.existing-builder #tariffCheck,
+body.existing-builder #evExtension {display:none!important}
+body.existing-builder #renewalBuilder{margin:14px auto}
+</style></head>
 <body class="tariff-unverified">
 <div class="wrap">
   <div id="renewalPreviewWarning" style="position:relative;z-index:3;background:#fff3da;border:2px solid #b87913;border-radius:15px;padding:14px 17px;margin:8px 0 18px;color:#654309;font:800 14px/1.5 Nunito,system-ui,sans-serif">
@@ -3565,6 +3574,7 @@ function render(){
   const query=new URLSearchParams(location.search);
   const customer=s.renewal&&query.get("renew")==="1"&&query.get("demo")!=="1";
   document.body.classList.toggle("customer-renewal",customer);
+  document.body.classList.toggle("existing-builder",query.get("existing")==="1"&&!customer);
   document.getElementById("heroHeading").textContent=s.renewal?
     (builderCurrentMode==="fixed"?"Your options when your fixed tariff ends":"Your energy tariff options"):
     "Should I fix or track?";
@@ -4038,6 +4048,13 @@ function statics(){
       b.setAttribute("aria-pressed",b.dataset.compareMode==="renewal"?"true":"false"));
   }
   readParams();
+  // Partner-only direct entry. Do not use renew=1, which belongs to customer
+  // share links and deliberately suppresses the partner editing controls.
+  const opening=new URLSearchParams(location.search);
+  if(opening.get("existing")==="1"&&opening.get("renew")!=="1"){
+    document.querySelectorAll("#comparisonSwitch button").forEach(button=>
+      button.setAttribute("aria-pressed",String(button.dataset.compareMode==="renewal")));
+  }
   // Reusable builder starts with rounded example usage, not a customer's private figures.
   // A customer-specific link overrides usage, payment and prior tariff rates.
   if(!new URLSearchParams(location.search).has("r")&&!new URLSearchParams(location.search).has("e")){
