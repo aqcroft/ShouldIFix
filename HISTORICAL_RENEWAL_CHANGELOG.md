@@ -1,5 +1,12 @@
 # Historical renewal preview changelog
 
+## v2.79.2 - 27 October 2026
+- Three compact, tappable renewal cost summaries (variable / email offer / public fixed) with accessible detail modal, including on shared customer links.
+- Rank-based high-contrast green, amber and red chart lines, monthly annotations, left-aligned legend with monthly and 12-month figures, and model-derived quarterly cost comparison.
+- Clarify fixed-tariff renewal headings and introduction; remove the obsolete preview warning for live and customer views, keeping an explicit demonstration-only warning.
+- Hide the legacy embedded prospective mode switch and redundant hero only when launched with companion=1; standalone and public sharing retain their original options.
+- No changes to energy calculation, historical tariff selection, quote sharing guards or tariff feed.
+
 ## v2.79.1 - 27 October 2026
 - Hide the old prospective-customer Share panel in existing-customer renewal mode; use the dedicated verified renewal customer-link controls instead.
 - Preserve the original prospective-customer comparison and sharing UI unchanged.

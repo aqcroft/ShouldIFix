@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.79.1">
-<title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
+<meta name="app-version" content="2.79.2">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.79.2</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -873,7 +873,7 @@ body.existing-builder #renewalBuilder{margin:14px auto}
 </head>
 <body class="tariff-unverified">
 <div class="wrap">
-  <div id="renewalPreviewWarning" style="position:relative;z-index:3;background:#fff3da;border:2px solid #b87913;border-radius:15px;padding:14px 17px;margin:8px 0 18px;color:#654309;font:800 14px/1.5 Nunito,system-ui,sans-serif">
+  <div id="renewalPreviewWarning" hidden style="position:relative;z-index:3;background:#fff3da;border:2px solid #b87913;border-radius:15px;padding:14px 17px;margin:8px 0 18px;color:#654309;font:800 14px/1.5 Nunito,system-ui,sans-serif">
     <strong style="display:block;font-size:19px;margin-bottom:4px">PREVIEW - live renewal data required</strong>
     This preview first requests the published UW tariff feed. If it lacks historical renewal rates, it will not claim to show verified prices. Add ?demo=1 to the address only for a clearly labelled layout demonstration. Do not share this demonstration preview with customers or use its cost estimates for decisions. The existing live Should I Fix is unchanged.
   </div>
@@ -2152,7 +2152,7 @@ function renewalComputeSeries(s,fix){
     janRise:s.janRise,electricHeat:s.electricHeat,tracker:null});
 }
 function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=false){
-  const W=690,H=325,L=50,R=17,T=24,B=39,months=MONTHS;
+  const W=690,H=325,L=50,R=94,T=24,B=39,months=MONTHS;
   const all=[old,variable,fix99,fix100,budget===null?null:Array(MONTHS.length).fill(budget)].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
   const spread=Math.max(10,max-min);
@@ -2160,7 +2160,9 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
   const x=i=>L+(W-L-R)*i/11;
   const y=v=>T+(H-T-B)*(1-(v-low)/(high-low));
   const path=values=>values.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
-  const colors={old:"#8d8c99",variable:"#bd6413",offer:"#15803d",public:"#225cd0",budget:"#c14253"};
+  const totals=[["variable",variable.reduce((a,b)=>a+b,0)],["offer",fix99.reduce((a,b)=>a+b,0)],["public",fix100.reduce((a,b)=>a+b,0)]].sort((a,b)=>a[1]-b[1]);
+  const colors={old:"#777784",budget:"#394b70"};
+  totals.forEach((row,i)=>{colors[row[0]]=["#087a3b","#ab5400","#bc2030"][i];});
   const grid=[];
   const step=niceStep(high-low);
   for(let v=Math.ceil(low/step)*step;v<=high+.01;v+=step){
@@ -2187,7 +2189,10 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
     (budget!==null?line(Array(months.length).fill(budget),colors.budget,'stroke-dasharray="2 6"'):"")+
     variablePath+line(fix99,colors.offer)+line(fix100,colors.public)+
     (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+
-    (budget!==null?'<title>Monthly Budget Plan payment: £'+budget.toFixed(2)+'</title>':"")+labels+'</svg>';
+    (budget!==null?'<title>Monthly Budget Plan payment: £'+budget.toFixed(2)+'</title>':"")+
+    [['variable',variable],['offer',fix99],['public',fix100]].map(([key,vals],i)=>
+      '<text x="'+(x(11)+8).toFixed(1)+'" y="'+(Math.max(T+12,Math.min(H-B-8,y(vals[vals.length-1])+[-13,0,13][i]))).toFixed(1)+'" fill="'+colors[key]+'" font-size="13" font-weight="900">'+gbp(vals.reduce((a,b)=>a+b,0)/12)+'/m</text>').join("")+
+    labels+'</svg>';
   const original=renewalManualOldRates();
   const legends=[
     ["old",builderCurrentMode==="variable"?"Variable - previous usage profile":
@@ -2220,6 +2225,8 @@ function renderRenewalStory(s){
   const card=document.getElementById("renewalStory");
   card.classList.toggle("hidden",!s.renewal);
   if(!s.renewal)return;
+  window.__renewalVisualData=null;
+  if(window.RenewalMobileUX)window.RenewalMobileUX.clear();
   const savings=document.getElementById("renewalSavingsPair");
   const plot=document.getElementById("renewalFourLineChart");
   const buttons=document.getElementById("renewalScenarioButtons");
@@ -2312,6 +2319,14 @@ function renderRenewalStory(s){
     costCard("second","Compare with public "+renewalRawName(fix100),year100,delta100,publicPoints);
   renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),
     x100.rows.map(r=>r.fixed),budget,payment?.source!=="confirmed");
+  window.__renewalVisualData={
+    years:{variable:yearVariable,offer:year99,public:year100},
+    series:{variable:x99.rows.map(r=>r.cap),offer:x99.rows.map(r=>r.fixed),public:x100.rows.map(r=>r.fixed)},
+    months:MONTHS.map(m=>({year:m.year,cal:m.cal})),budget:budget,hasPast:!!past,
+    names:{variable:"Default to "+s.variableName,offer:renewalRawName(fix99),public:renewalRawName(fix100)},
+    range:formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)
+  };
+  if(window.RenewalMobileUX)window.RenewalMobileUX.render(window.__renewalVisualData);
   document.getElementById("renewalChartIntro").textContent=
     (past?(builderCurrentMode==="variable"?
       "Grey dotted: illustrative past-year profile using current variable rates. ":
@@ -3580,11 +3595,11 @@ function render(){
   document.body.classList.toggle("customer-renewal",customer);
   document.body.classList.toggle("existing-builder",query.get("existing")==="1"&&!customer);
   document.getElementById("heroHeading").textContent=s.renewal?
-    (builderCurrentMode==="fixed"?"Your options when your fixed tariff ends":"Your energy tariff options"):
+    (builderCurrentMode==="fixed"?"Exploring your options at the end of your fixed tariff":"Your energy tariff options"):
     "Should I fix or track?";
   document.getElementById("heroDeck").textContent=s.renewal?
     (builderCurrentMode==="fixed"?
-      "Compare defaulting to variable, the offer in your renewal email and the public fixed tariff.":
+      "Compare the cost of defaulting to a variable tariff, the offer in your renewal email from UW, and the fixed tariff publicly available.":
       "Compare your current variable tariff with public fixed rates. Older tariffs are available only if individually offered."): 
     "Compare the variable tariff, fixed rates and Tracker against energy price forecasts.";
   document.getElementById("renewalSetup").classList.toggle("hidden",!s.renewal);
@@ -3598,7 +3613,7 @@ function render(){
     ["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]+".":"";
   const warning=document.getElementById("renewalPreviewWarning");
   if(warning){
-    warning.hidden=renewalCatalogueSource==="live";
+    warning.hidden=renewalCatalogueSource!=="demo";
     if(renewalCatalogueSource==="snapshot")warning.innerHTML=
       "<strong>DATED TARIFF DATA - 26 OCT 2026</strong> These rates are sourced from UW_Tariff_Data, not from a live tariff feed. Please check the latest tariff labels before making a change.";
     else if(renewalCatalogueSource==="demo")warning.innerHTML=
@@ -4075,5 +4090,6 @@ function statics(){
 })();
 </script>
 <script src="./forecast-feed.js?v=2.76.4"></script>
+<script src="./renewal-mobile-experience-v2.79.2.js"></script>
 </body>
 </html>
