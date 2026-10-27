@@ -38,7 +38,7 @@ assert.equal(choices.filter(r=>r.tariff_name==="Fixed Saver 81").length,1);
 assert.equal(choices.find(r=>r.tariff_name==="Fixed Saver 65").rate_version_code,"POST_APR_2026");
 assert(choices.every(r=>r.tariff_display_name));
 
-assert(html.indexOf('id="builderHistoryDetails"') > html.indexOf('id="builderCurrentSwitch"'));
+assert(html.indexOf('id="builderHistoryDetails"') < html.indexOf('id="builderCurrentSwitch"'));
 assert(html.indexOf('id="builderHistoryDetails"') < html.indexOf('id="builderElecRange"'));
 assert(html.includes('id="builderArchivedRateSummary"'));
 assert(html.includes('<details id="renewalManualDetails" class="renewal-mini-details">'));
