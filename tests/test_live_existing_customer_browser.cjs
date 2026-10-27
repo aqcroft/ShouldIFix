@@ -15,6 +15,8 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    await page.locator("#renewalBuilder").waitFor({state:"visible",timeout:25000});
    assert.equal(await page.locator("#comparisonSwitch").isVisible(),false,"Direct builder should hide legacy comparison choice");
    assert.equal(await page.locator("#generalControls").isVisible(),false,"Direct builder should hide duplicate region controls");
+   assert.equal(await page.locator("section.card.share").isVisible(),false,"Old prospective customer Share panel must be hidden in renewal mode");
+   assert.equal(await page.locator("#builderCopyLink").isVisible(),true,"Verified customer-share control must remain visible");
    await page.locator("#renewalEndingPicks button").first().waitFor({state:"visible",timeout:85000});
    const ending=await page.locator("#renewalEndingPicks button").count();
    const offers=await page.locator("#renewalSuitePicks button").count();
