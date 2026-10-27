@@ -1077,7 +1077,7 @@
     <p class="renewal-profile" id="renewalCustomerProfile"></p>
     <p class="renewal-chart-subtitle" id="renewalChartIntro">Compare your monthly Budget Plan, previous fixed tariff and three options for the coming 12 months.</p>
     <div class="renewal-savings-pair" id="renewalSavingsPair" aria-label="Three tariff choices, annual costs and monthly equivalents"></div>
-    <p class="renewal-previous-pay" id="renewalPreviousBudget">📌 Please check your current UW Budget Plan payments. These are not the same as your underlying energy costs.</p>
+    <p class="renewal-previous-pay" id="renewalPreviousBudget" hidden></p>
     <div class="renewal-scenario-bar"><strong>Stress test January's price-cap change</strong>
       <div class="renewal-scenario-buttons" id="renewalScenarioButtons" role="group" aria-label="January price cap stress tests"></div></div>
     <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy costs and Budget Plan reference"></div>
@@ -1915,9 +1915,9 @@ function renewalUpdateQuickPicks(){
   if(info){
     if(selected.ending&&standardFixedRate(selected.ending)){
       const rate=standardFixedRate(selected.ending);
-      info.textContent="✓ "+renewalDisplayName(selected.ending)+" loaded for "+
-        (REGIONS.find(region=>region.n===Number(selected.ending.region_no))?.name||"the selected region")+
-        ". Electricity "+rate.eU+"p/kWh + "+rate.eSC+"p/day; gas "+rate.gU+"p/kWh + "+rate.gSC+"p/day (before VAT).";
+      info.textContent="✓ "+renewalDisplayName(selected.ending)+" selected - rates loaded automatically.";
+      info.title="Electricity "+rate.eU+"p/kWh + "+rate.eSC+"p/day; gas "+
+        rate.gU+"p/kWh + "+rate.gSC+"p/day, before VAT.";
     }else{
       info.textContent=renewalCatalogueSource==="demo"?
         "Demo choices only - example tariff rates, not a customer quotation.":
@@ -1967,6 +1967,20 @@ function renewalUpdateQuickPicks(){
     suiteButtons.appendChild(button);
   });
   if(!offeredChoices.length)suiteButtons.textContent="No complete current fixed tariff suites available.";
+  const offeredDropdown=document.getElementById("renewalOfferedQuickSelect");
+  if(offeredDropdown){
+    const options=renewalOptionsFor("renewalOffered");
+    offeredDropdown.replaceChildren();
+    const blank=document.createElement("option");blank.value="";
+    blank.textContent="Choose the fixed tariff offered";offeredDropdown.appendChild(blank);
+    options.forEach(row=>{
+      const opt=document.createElement("option");
+      opt.value=renewalRowKey(row);
+      opt.textContent=renewalDisplayName(row);
+      offeredDropdown.appendChild(opt);
+    });
+    offeredDropdown.value=selected.offered?renewalRowKey(selected.offered):"";
+  }
   const status=document.getElementById("renewalLiveStatus");
   status.textContent=renewalCatalogueSource==="demo"
     ?"DEMONSTRATION ONLY: these selections use made-up example rates and cannot be shared."
@@ -2231,17 +2245,11 @@ function renderRenewalStory(s){
   const budget=payment?payment.amount:null;
   const budgetLabel=budget===null?"":new Intl.NumberFormat("en-GB",
     {style:"currency",currency:"GBP"}).format(budget);
-  document.getElementById("renewalPreviousBudget").innerHTML=payment?.source==="confirmed"?
-    '📌 <b>For reference, you are currently paying about £'+Math.ceil(budget)+
-    ' per month towards your gas and electricity costs.</b> Your Budget Plan is '+budgetLabel+
-    '/month. This is what you pay, not necessarily the monthly cost of the energy you use.':
-    payment?.source==="illustrative"?
-    '📌 <b>At current '+safeHtml(renewalDefaultVariable(renewalTier()))+' variable rates, this usage would average approximately '+budgetLabel+
-    '/month over a year.</b> An illustration, not the Budget Plan amount or historical bills.':
-    payment?.source==="estimated"?
-    '📌 <b>Your previous tariff works out at approximately '+budgetLabel+
-    '/month on average, using the same annual consumption.</b> This is an estimated previous energy cost, not your confirmed Budget Plan payment.':
-    '📌 <b>Budget Plan payment not supplied.</b> Add your actual payment in the builder to show a flat monthly payment reference.';
+  // The customer's monthly payment is already entered in the builder and
+  // represented by the chart reference line. Avoid repeating the same £ figure
+  // in a long note that makes the comparison feel more complex.
+  document.getElementById("renewalPreviousBudget").textContent="";
+  document.getElementById("renewalPreviousBudget").hidden=true;
   // Check the first two calendar months, not annual average prices.
   const initiallyCheapest=[0,1].every(i=>x99.rows[i].cap<=x99.rows[i].fixed+.01 &&
     x99.rows[i].cap<=x100.rows[i].fixed+.01);
@@ -3369,6 +3377,9 @@ function builderRefreshInputs(){
   if(!region.value)return;
   document.getElementById("builderRegion").value=region.value;
   document.getElementById("builderStart").value=renewalStartDate().slice(0,7);
+  const summary=document.getElementById("builderSettingsSummary");
+  if(summary)summary.textContent=(REGIONS.find(r=>r.n===Number(region.value))?.name||"Choose region")+
+    " · "+(["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]||"Choose services");
   document.getElementById("builderServiceSwitch").querySelectorAll("button").forEach(button=>
     button.setAttribute("aria-pressed",String(button.dataset.svc===renewalTier())));
   for(const [key,range,exact,label,container] of [
@@ -3884,6 +3895,15 @@ function statics(){
     render();
   });
   document.getElementById("renewalEndingQuickSelect").addEventListener("change",e=>renewalSelectEnding(e.target.value));
+  document.getElementById("renewalOfferedQuickSelect").addEventListener("change",e=>{
+    const row=renewalFindRow(e.target.value);
+    if(!row||!renewalFixedFamily(renewalTier()).test(renewalRawName(row)))return;
+    const key=renewalRowKey(row);
+    document.getElementById("renewalOffered").value=key;
+    renewalOfferSeriesWanted=renewalFixedNumber(row);
+    renewalUserChoices.renewalOffered=key;
+    renewalUpdateQuickPicks();render();
+  });
   for(const id of ["oldTariffName",...RENEWAL_OLD_FIELD_IDS]){
     document.getElementById(id).addEventListener("input",()=>{
       renewalOldSourceTier=renewalTier();
