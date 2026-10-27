@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en-GB">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Existing-customer renewal - simplified v2.78.1 demo</title>
+<style>body{font:16px system-ui,sans-serif;margin:30px auto;padding:10px;max-width:600px;color:#433167}a{color:#553694}</style></head>
+<body><h2>Opening the simplified renewal demonstration</h2>
+<p>This is the review-only preview. Tariff prices are illustrative; do not share as a customer quote.</p>
+<p id="status">Loading the version-controlled preview…</p>
+<script>
+(async()=>{
+try{
+  const source="https://raw.githubusercontent.com/aqcroft/ShouldIFix/6c920ec544743b0c6941c38cb0741eb5ac3583be/renewal-builder-v1.html";
+  const response=await fetch(source,{cache:"no-store"});
+  if(!response.ok)throw Error("Source unavailable (HTTP "+response.status+")");
+  const content=await response.text();
+  if(!content.includes('content="2.78.1"')||!content.includes('id="renewalOfferedQuickSelect"'))throw Error("Unexpected preview version");
+  document.open();document.write(content);document.close();
+}catch(error){
+ document.getElementById("status").textContent="Preview not loaded: "+error.message;
+}
+})();
+</script></body></html>
