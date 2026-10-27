@@ -1,7 +1,7 @@
 "use strict";
 const {chromium}=require("playwright");
 const assert=require("node:assert/strict");
-const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html";
+const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing=1";
 (async()=>{
  const browser=await chromium.launch({headless:true});
  const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
@@ -10,6 +10,8 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html";
    const response=await page.goto(url,{waitUntil:"domcontentloaded",timeout:60000});
    assert(response?.ok(),"Renewal page must load");
    await page.locator("#renewalBuilder").waitFor({state:"visible",timeout:25000});
+   assert.equal(await page.locator("#comparisonSwitch").isVisible(),false,"Direct builder should hide legacy comparison choice");
+   assert.equal(await page.locator("#generalControls").isVisible(),false,"Direct builder should hide duplicate region controls");
    await page.locator("#renewalEndingPicks button").first().waitFor({state:"visible",timeout:85000});
    const ending=await page.locator("#renewalEndingPicks button").count();
    const offers=await page.locator("#renewalSuitePicks button").count();
