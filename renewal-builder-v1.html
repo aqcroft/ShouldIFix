@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.77.0">
+<meta name="app-version" content="2.77.1">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -950,6 +950,16 @@
       <button type="button" data-current="fixed" aria-pressed="false">Fixed</button>
     </div>
     <p class="builder-current-help" id="builderCurrentHelp">Defaults to UW's current Value, Gold or Double Gold variable rates for your chosen service level. The grey line illustrates last year's consumption shape at those rates - not actual historic bills.</p>
+    <div id="builderHistoryDetails" class="renewal-setting-group" hidden>
+      <div class="builder-section-title" style="margin-top:8px">Which fixed tariff are you on?</div>
+      <p class="builder-current-help">Tap one of the three most likely expiring tariffs. If yours isn't shown, choose it from the full list. The regional unit rates and standing charges will be loaded automatically.</p>
+      <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Three likely expiring fixed tariffs"></div>
+      <details class="builder-exact" style="margin-top:10px">
+        <summary>Choose a different fixed tariff</summary>
+        <select id="renewalEndingQuickSelect" aria-label="All available historical fixed tariffs"><option value="">Checking tariff history…</option></select>
+      </details>
+      <p class="renewal-evidence" id="builderArchivedRateSummary" role="status" aria-live="polite">Choose a fixed tariff to load its historical rates.</p>
+    </div>
     <div class="builder-section-title">Annual energy usage</div>
     <div class="builder-usage-grid">
       <div class="builder-usage" id="builderElecWrap">
@@ -982,8 +992,8 @@
       <p>Slider adjustments are in 50 kWh increments. Exact entries are preserved in the customer link.</p>
     </details>
     <div class="renewal-setting-group" id="renewalOldManualSetup" hidden>
-      <details id="renewalManualDetails" open>
-        <summary>Enter previous fixed rates from a confirmation email</summary>
+      <details id="renewalManualDetails">
+        <summary>Can't find your tariff? Enter rates manually</summary>
         <p>For older tariffs missing from Tariff Hunter. Enter the original VAT-inclusive rates to reconstruct last year's monthly energy costs. The customer link will retain the rates you enter.</p>
         <label for="oldTariffName">Previous fixed tariff</label>
         <input id="oldTariffName" type="text" placeholder="e.g. Fixed Saver 65" maxlength="70"/>
@@ -1001,15 +1011,7 @@
       <input id="renewalBudgetMonthly" class="renewal-budget-input" type="number" min="0" max="5000" step="0.01" inputmode="decimal" placeholder="e.g. 152.26"/>
       <p>Shows a flat reference line against future energy costs. This is the amount currently paid, not the cost of energy used.</p>
     </div>
-    <details id="builderHistoryDetails" class="builder-exact" hidden><summary>Find your previous fixed tariff in the archive</summary>    <div class="renewal-setting-group">
-      <label>Which fixed tariff is ending?</label>
-      <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Most likely expiring fixed tariffs"></div>
-      <details><summary>Choose a different fixed tariff</summary>
-        <select id="renewalEndingQuickSelect" aria-label="All available historical fixed tariffs"><option value="">Checking tariff history…</option></select>
-      </details>
-    </div>
-</details>
-  <section id="renewalSetup" class="renewal-setup hidden" aria-labelledby="renewalSetupTitle">
+   <section id="renewalSetup" class="renewal-setup hidden" aria-labelledby="renewalSetupTitle">
     <h2 id="renewalSetupTitle">Which fixed offer are you comparing?</h2>
     <p>Select the tariff number offered in the renewal email. The corresponding Fixed Start, Fixed or Fixed Saver rates are chosen automatically.</p>
     <div class="renewal-setting-group">
@@ -1835,6 +1837,10 @@ function renewalLikelyEnding(){
 function renewalSelectEnding(key){
   const row=renewalFindRow(key);
   if(!row||!renewalFixedFamily(renewalTier()).test(renewalRawName(row)))return;
+  // An explicit archive selection must override any previous manual-rate input.
+  for(const id of ["oldTariffName",...RENEWAL_OLD_FIELD_IDS])document.getElementById(id).value="";
+  document.getElementById("renewalManualDetails").open=false;
+  renewalOldSourceTier=null;
   renewalEndingSeriesWanted=renewalFixedNumber(row);
   const select=document.getElementById("renewalEnding");
   select.value=key;
@@ -1860,6 +1866,20 @@ function renewalUpdateQuickPicks(){
   const dropdown=document.getElementById("renewalEndingQuickSelect");
   const ends=renewalLikelyEnding();
   const selected=renewalSelectedRows();
+  const info=document.getElementById("builderArchivedRateSummary");
+  if(info){
+    if(selected.ending&&standardFixedRate(selected.ending)){
+      const rate=standardFixedRate(selected.ending);
+      info.textContent="✓ "+renewalDisplayName(selected.ending)+" loaded for "+
+        (REGIONS.find(region=>region.n===Number(selected.ending.region_no))?.name||"the selected region")+
+        ". Electricity "+rate.eU+"p/kWh + "+rate.eSC+"p/day; gas "+rate.gU+"p/kWh + "+rate.gSC+"p/day (before VAT).";
+    }else{
+      info.textContent=renewalCatalogueSource==="demo"?
+        "Demo choices only - example tariff rates, not a customer quotation.":
+        renewalFeedStatus==="loading"?"Checking the historical tariff archive…":
+        "Choose a tariff above to load your region's electricity and gas rates automatically.";
+    }
+  }
   const cutoff=parseContractEnd(renewalStartDate())?.getTime()||0;
   endButtons.replaceChildren();
   for(const row of ends){
@@ -1962,7 +1982,7 @@ function builderRefreshCurrentMode(){
   document.getElementById("builderHistoryDetails").hidden=!fixed;
   const name=renewalDefaultVariable(renewalTier());
   document.getElementById("builderCurrentHelp").textContent=fixed?
-    "Enter your previous fixed unit rates and standing charges (including VAT). These create the grey dotted historic-cost line.":
+    "Select your previous fixed tariff below - no need to type electricity and gas rates. Manual entry is only for a tariff missing from the archive.":
     "UW "+name+" is selected automatically from available tariff-guide data. The grey line applies those rates to a previous year's seasonal usage - it does not show actual historic charges.";
 }
 function renewalVariablePreviousProfile(s){
