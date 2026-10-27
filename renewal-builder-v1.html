@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.76.4">
+<meta name="app-version" content="2.78.2">
 <title>TEST PREVIEW - Should I Fix Four-Line Renewal Comparison v3</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -822,6 +822,41 @@
   body.renewal-mode #oldMethodologyDetails{display:none!important}
   body.tariff-unverified #resultCard{display:none!important}
 </style>
+
+<style>
+/* Existing customer v2.78.0: four-choice progressive-disclosure builder */
+#renewalBuilder{max-width:750px;margin:12px auto 20px;padding:16px}
+#renewalBuilder .builder-head h2{font-size:1.24rem}
+#renewalBuilder .builder-head p{font-size:.82rem;color:#655976;margin-bottom:14px}
+#renewalBuilder .renewal-simple-step{margin:11px 0 16px;padding:13px 0 0;border-top:1px solid #ece6f4}
+#renewalBuilder .renewal-simple-step h3{display:flex;align-items:center;gap:8px;font:900 .94rem/1.3 Nunito,sans-serif;color:#422d71;margin:0 0 11px}
+#renewalBuilder .renewal-simple-number{width:25px;height:25px;flex:0 0 25px;border-radius:50%;display:inline-grid;place-items:center;background:#f0e9fa;color:#553694;font-size:.77rem}
+#renewalBuilder .renewal-mini-details{border:0;padding:0;background:transparent;margin:9px 0 2px}
+#renewalBuilder .renewal-mini-details>summary{font:800 .8rem Nunito,sans-serif;color:#5a3c8f;cursor:pointer;padding:6px 0}
+#renewalBuilder .renewal-mini-details select{width:100%;border:1px solid #dfd3ee;border-radius:10px;padding:12px;background:#fff;color:#41305e;margin-top:5px;box-sizing:border-box}
+#renewalBuilder .renewal-selection-note{font-size:.76rem!important;margin:7px 0 0!important;color:#726687!important}
+#renewalBuilder .renewal-simple-money{display:flex;align-items:center;border:1px solid #dacbec;border-radius:12px;min-height:48px;padding:0 13px;gap:10px}
+#renewalBuilder .renewal-simple-money span{font:900 1rem Nunito,sans-serif;color:#523781}
+#renewalBuilder .renewal-simple-money input{width:100%;flex:1;min-width:0;border:0;outline-offset:3px;background:transparent;font:850 1.1rem Nunito,sans-serif;color:#3f3266}
+#renewalBuilder .renewal-short-note{margin:5px 0!important;font-size:.72rem!important}
+#renewalBuilder .renewal-simple-usage{grid-template-columns:repeat(2,minmax(0,1fr));margin:0}
+#renewalBuilder .renewal-simple-usage label{font-size:.78rem}
+#renewalBuilder .renewal-more-settings{border:1px solid #e5ddf0;background:#fbf9ff;padding:9px 12px;border-radius:11px;margin:10px 0 18px}
+#renewalBuilder .renewal-more-settings>summary{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
+#renewalBuilder #builderSettingsSummary{font-weight:650;color:#796b91;font-size:.72rem}
+#renewalBuilder .builder-share{margin-top:15px}
+#renewalBuilder .renewal-setup{padding:13px 0 0!important;border:0!important;border-top:1px solid #ece6f4!important;background:none!important;border-radius:0!important;margin:11px 0 16px!important}
+#renewalBuilder .renewal-setup h3{font:900 .94rem Nunito,sans-serif}
+#renewalBuilder .renewal-mini-details .renewal-input-grid input{width:100%;box-sizing:border-box}
+@media(max-width:480px){
+ #renewalBuilder{padding:13px}
+ #renewalBuilder .renewal-simple-usage{gap:8px}
+ #renewalBuilder .builder-field input{padding:11px 8px}
+ #renewalBuilder .renewal-quick-picks{gap:6px}
+ #renewalBuilder .renewal-quick-picks button{padding:10px 5px}
+ #renewalBuilder .renewal-more-settings .builder-form-grid{grid-template-columns:1fr}
+}
+</style>
 </head>
 <body class="tariff-unverified">
 <div class="wrap">
@@ -925,112 +960,125 @@
   <input id="janRise" type="hidden" value="25"><input id="forecastDefault" type="hidden" value="25">
 
   <section class="renewal-builder hidden" id="renewalBuilder" aria-labelledby="builderTitle">
-    <div class="builder-head"><div><h2 id="builderTitle">Build a customer renewal comparison</h2><p>Enter the details once. Your share link opens straight onto the customer's chart.</p></div></div>
-    <div class="builder-form-grid">
-      <label class="builder-field" for="builderCustomer">Customer first name <span>(optional)</span>
-        <input id="builderCustomer" type="text" maxlength="40" placeholder="e.g. Sandie" autocomplete="off"/>
-      </label>
-      <label class="builder-field" for="builderRegion">Energy region
-        <select id="builderRegion"></select>
-      </label>
-      <label class="builder-field" for="builderStart">New tariff starts
-        <input id="builderStart" type="month" min="2026-01" max="2030-12" />
-      </label>
-    </div>
-    <div class="builder-section-title">Qualifying services</div>
-    <div class="builder-service-switch" id="builderServiceSwitch" role="group" aria-label="Energy bundle service level">
-      <button type="button" data-svc="1">Energy only</button>
-      <button type="button" data-svc="2">Energy + 1 service</button>
-      <button type="button" data-svc="3">Energy + 2 services</button>
-    </div>
-    
-    <div class="builder-section-title">What tariff are you on now?</div>
-    <div class="builder-current-switch" id="builderCurrentSwitch" role="group" aria-label="Choose the current energy tariff type">
-      <button type="button" data-current="variable" aria-pressed="true">Variable</button>
-      <button type="button" data-current="fixed" aria-pressed="false">Fixed</button>
-    </div>
-    <p class="builder-current-help" id="builderCurrentHelp">Defaults to UW's current Value, Gold or Double Gold variable rates for your chosen service level. The grey line illustrates last year's consumption shape at those rates - not actual historic bills.</p>
-    <div class="builder-section-title">Annual energy usage</div>
-    <div class="builder-usage-grid">
-      <div class="builder-usage" id="builderElecWrap">
-        <div class="builder-usage-label"><label for="builderElecRange">⚡ Electricity</label><strong><span id="builderElecValue">3,000</span> kWh/year</strong></div>
-        <div class="builder-range-row">
-          <button type="button" class="builder-step" data-fuel="elec" data-dir="-1" aria-label="Reduce electricity usage by 50 kWh">−</button>
-          <input id="builderElecRange" type="range" min="0" max="12000" step="50" value="3000"/>
-          <button type="button" class="builder-step" data-fuel="elec" data-dir="1" aria-label="Increase electricity usage by 50 kWh">+</button>
-        </div>
-      </div>
-      <div class="builder-usage" id="builderGasWrap">
-        <div class="builder-usage-label"><label for="builderGasRange">🔥 Gas</label><strong><span id="builderGasValue">12,500</span> kWh/year</strong></div>
-        <div class="builder-range-row">
-          <button type="button" class="builder-step" data-fuel="gas" data-dir="-1" aria-label="Reduce gas usage by 50 kWh">−</button>
-          <input id="builderGasRange" type="range" min="0" max="40000" step="50" value="12500"/>
-          <button type="button" class="builder-step" data-fuel="gas" data-dir="1" aria-label="Increase gas usage by 50 kWh">+</button>
-        </div>
-      </div>
-    </div>
-    <details class="builder-exact" id="builderExactUsage">
-      <summary>Enter exact annual usage instead</summary>
+    <div class="builder-head"><div><h2 id="builderTitle">Compare your renewal options</h2><p>Choose the two tariffs, then add the monthly payment and annual usage. That's it.</p></div></div>
+
+    <details class="renewal-mini-details renewal-more-settings" id="builderOptionalSettings">
+      <summary>Region &amp; services <span id="builderSettingsSummary">East Midlands · Energy + 2 services</span></summary>
       <div class="builder-form-grid">
-        <label class="builder-field" for="builderElecExact">Electricity (kWh/year)
-          <input id="builderElecExact" type="number" min="0" max="200000" step="1" inputmode="numeric"/>
+        <label class="builder-field" for="builderRegion">Energy region
+          <select id="builderRegion"></select>
         </label>
-        <label class="builder-field" for="builderGasExact">Gas (kWh/year)
-          <input id="builderGasExact" type="number" min="0" max="300000" step="1" inputmode="numeric"/>
+        <label class="builder-field" for="builderStart">New tariff starts
+          <input id="builderStart" type="month" min="2026-01" max="2030-12"/>
+        </label>
+        <label class="builder-field" for="builderCustomer">Customer first name <span>(optional)</span>
+          <input id="builderCustomer" type="text" maxlength="40" placeholder="e.g. Sandie" autocomplete="off"/>
         </label>
       </div>
-      <p>Slider adjustments are in 50 kWh increments. Exact entries are preserved in the customer link.</p>
+      <div class="builder-section-title">Qualifying services</div>
+      <div class="builder-service-switch" id="builderServiceSwitch" role="group" aria-label="Energy bundle service level">
+        <button type="button" data-svc="1">Energy only</button>
+        <button type="button" data-svc="2">Energy + 1 service</button>
+        <button type="button" data-svc="3">Energy + 2 services</button>
+      </div>
+      <div class="builder-section-title">What tariff are you on now?</div>
+      <div class="builder-current-switch" id="builderCurrentSwitch" role="group" aria-label="Current tariff type">
+        <button type="button" data-current="variable" aria-pressed="false">Variable</button>
+        <button type="button" data-current="fixed" aria-pressed="true">Fixed</button>
+      </div>
+      <p id="builderCurrentHelp" class="builder-current-help">Your chosen fixed tariff will be loaded from the archive.</p>
     </details>
-    <div class="renewal-setting-group" id="renewalOldManualSetup" hidden>
-      <details id="renewalManualDetails" open>
-        <summary>Enter previous fixed rates from a confirmation email</summary>
-        <p>For older tariffs missing from Tariff Hunter. Enter the original VAT-inclusive rates to reconstruct last year's monthly energy costs. The customer link will retain the rates you enter.</p>
-        <label for="oldTariffName">Previous fixed tariff</label>
-        <input id="oldTariffName" type="text" placeholder="e.g. Fixed Saver 65" maxlength="70"/>
-        <div class="renewal-input-grid">
-          <label>⚡ Electricity unit (p/kWh, inc VAT)<input id="oldElecUnit" type="number" min="0" max="150" step="0.00001" inputmode="decimal" placeholder="24.45345"/></label>
-          <label>⚡ Electricity standing (p/day, inc VAT)<input id="oldElecSC" type="number" min="0" max="300" step="0.00001" inputmode="decimal" placeholder="48.1257"/></label>
-          <label>🔥 Gas unit (p/kWh, inc VAT)<input id="oldGasUnit" type="number" min="0" max="50" step="0.00001" inputmode="decimal" placeholder="5.69835"/></label>
-          <label>🔥 Gas standing (p/day, inc VAT)<input id="oldGasSC" type="number" min="0" max="300" step="0.00001" inputmode="decimal" placeholder="26.1681"/></label>
-        </div>
-        <p class="renewal-evidence">Previous-year line uses these original rates for all 12 months, deliberately ignoring later price adjustments. For each new customer, confirm VAT treatment and the exact rates before sharing.</p>
-      </details>
-    </div>
-    <div class="renewal-setting-group">
-      <label for="renewalBudgetMonthly">Your customer's current monthly Budget Plan payment, including VAT (£)</label>
-      <input id="renewalBudgetMonthly" class="renewal-budget-input" type="number" min="0" max="5000" step="0.01" inputmode="decimal" placeholder="e.g. 152.26"/>
-      <p>Shows a flat reference line against future energy costs. This is the amount currently paid, not the cost of energy used.</p>
-    </div>
-    <details id="builderHistoryDetails" class="builder-exact" hidden><summary>Find your previous fixed tariff in the archive</summary>    <div class="renewal-setting-group">
-      <label>Which fixed tariff is ending?</label>
-      <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Most likely expiring fixed tariffs"></div>
-      <details><summary>Choose a different fixed tariff</summary>
+
+
+    <div class="renewal-simple-step" id="builderHistoryDetails" hidden>
+      <h3><span class="renewal-simple-number">1</span> Fixed tariff coming to an end</h3>
+      <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Three likely expiring fixed tariffs"></div>
+      <details class="renewal-mini-details">
+        <summary>Not listed? Choose a different tariff</summary>
         <select id="renewalEndingQuickSelect" aria-label="All available historical fixed tariffs"><option value="">Checking tariff history…</option></select>
       </details>
+      <p class="renewal-evidence renewal-selection-note" id="builderArchivedRateSummary" role="status" aria-live="polite">Choose your existing fixed tariff.</p>
+      <div id="renewalOldManualSetup" hidden>
+        <details id="renewalManualDetails" class="renewal-mini-details">
+          <summary>Can't find it? Enter rates manually</summary>
+          <p>Only needed if your old tariff is missing from the archive. Use the VAT-inclusive rates on the customer's original confirmation email.</p>
+          <label for="oldTariffName">Previous fixed tariff</label>
+          <input id="oldTariffName" type="text" maxlength="70" placeholder="e.g. Fixed Saver 65"/>
+          <div class="renewal-input-grid">
+            <label>⚡ Electricity unit (p/kWh, inc VAT)<input id="oldElecUnit" type="number" min="0" max="150" step="0.00001" inputmode="decimal" placeholder="24.45345"/></label>
+            <label>⚡ Electricity standing (p/day, inc VAT)<input id="oldElecSC" type="number" min="0" max="300" step="0.00001" inputmode="decimal" placeholder="48.1257"/></label>
+            <label>🔥 Gas unit (p/kWh, inc VAT)<input id="oldGasUnit" type="number" min="0" max="50" step="0.00001" inputmode="decimal" placeholder="5.69835"/></label>
+            <label>🔥 Gas standing (p/day, inc VAT)<input id="oldGasSC" type="number" min="0" max="300" step="0.00001" inputmode="decimal" placeholder="26.1681"/></label>
+          </div>
+        </details>
+      </div>
     </div>
-</details>
-  <section id="renewalSetup" class="renewal-setup hidden" aria-labelledby="renewalSetupTitle">
-    <h2 id="renewalSetupTitle">Which fixed offer are you comparing?</h2>
-    <p>Select the tariff number offered in the renewal email. The corresponding Fixed Start, Fixed or Fixed Saver rates are chosen automatically.</p>
-    <div class="renewal-setting-group">
-      <label>Which fixed tariff number is offered in your email?</label>
-      <div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Choose an offer series"></div>
+
+    <section id="renewalSetup" class="renewal-simple-step renewal-setup hidden" aria-labelledby="renewalSetupTitle">
+      <h3 id="renewalSetupTitle"><span class="renewal-simple-number">2</span> Fixed tariff offered in your email</h3>
+      <div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Likely renewal offers"></div>
+      <details class="renewal-mini-details">
+        <summary>Different offer? Choose from the full list</summary>
+        <select id="renewalOfferedQuickSelect" aria-label="All available fixed renewal offers"><option value="">Checking offers…</option></select>
+      </details>
+      <p class="renewal-evidence renewal-selection-note" id="renewalLiveStatus" role="status">Checking the available offers…</p>
+    </section>
+
+    <div class="renewal-simple-step">
+      <h3><span class="renewal-simple-number">3</span> Current monthly payment</h3>
+      <div class="renewal-simple-money">
+        <span aria-hidden="true">£</span><input id="renewalBudgetMonthly" type="number" min="0" max="5000" step="0.01" inputmode="decimal" aria-label="Current monthly Direct Debit or Budget Plan in pounds" placeholder="e.g. 155"/>
+        <span aria-hidden="true">/month</span>
+      </div>
+      <p class="renewal-short-note">Your customer's Direct Debit / Budget Plan amount.</p>
     </div>
-    <p class="renewal-evidence" id="renewalLiveStatus" role="status">Checking Tariff Hunter for source tariff records…</p>
-  </section>
+
+    <div class="renewal-simple-step">
+      <h3><span class="renewal-simple-number">4</span> Estimated annual usage</h3>
+      <div class="renewal-simple-usage builder-form-grid" id="builderExactUsage">
+        <label class="builder-field" for="builderElecExact">⚡ Electricity <span>(kWh/year)</span>
+          <input id="builderElecExact" type="number" min="0" max="200000" step="1" inputmode="numeric" placeholder="e.g. 3000"/>
+        </label>
+        <label class="builder-field" for="builderGasExact">🔥 Gas <span>(kWh/year)</span>
+          <input id="builderGasExact" type="number" min="0" max="300000" step="1" inputmode="numeric" placeholder="e.g. 12500"/>
+        </label>
+      </div>
+      <details class="renewal-mini-details" id="builderUsageAdjust">
+        <summary>Adjust usage with sliders</summary>
+        <div class="builder-usage-grid">
+          <div class="builder-usage" id="builderElecWrap">
+            <div class="builder-usage-label"><label for="builderElecRange">⚡ Electricity</label><strong><span id="builderElecValue">3,000</span> kWh/year</strong></div>
+            <div class="builder-range-row">
+              <button type="button" class="builder-step" data-fuel="elec" data-dir="-1" aria-label="Reduce electricity usage by 50 kWh">−</button>
+              <input id="builderElecRange" type="range" min="0" max="12000" step="50" value="3000"/>
+              <button type="button" class="builder-step" data-fuel="elec" data-dir="1" aria-label="Increase electricity usage by 50 kWh">+</button>
+            </div>
+          </div>
+          <div class="builder-usage" id="builderGasWrap">
+            <div class="builder-usage-label"><label for="builderGasRange">🔥 Gas</label><strong><span id="builderGasValue">12,500</span> kWh/year</strong></div>
+            <div class="builder-range-row">
+              <button type="button" class="builder-step" data-fuel="gas" data-dir="-1" aria-label="Reduce gas usage by 50 kWh">−</button>
+              <input id="builderGasRange" type="range" min="0" max="40000" step="50" value="12500"/>
+              <button type="button" class="builder-step" data-fuel="gas" data-dir="1" aria-label="Increase gas usage by 50 kWh">+</button>
+            </div>
+          </div>
+        </div>
+      </details>
+    </div>
+
     <div class="builder-share">
       <button type="button" id="builderCopyLink">Copy customer link</button>
       <a id="builderPreviewLink" target="_blank" rel="noopener" href="#">Preview customer view</a>
       <span id="builderShareStatus" role="status"></span>
     </div>
-    <p class="builder-privacy">The link includes the customer's name, annual usage, previous tariff rates and payment reference. Share privately.</p>
+    <p class="builder-privacy">Only share a customer link after verifying the tariff options and usage. Demo comparisons cannot be shared.</p>
   </section>
   <section id="renewalStory" class="renewal-chart-card hidden" aria-labelledby="renewalChartHeading">
     <h2 id="renewalChartHeading">What are my options?</h2>
     <p class="renewal-profile" id="renewalCustomerProfile"></p>
     <p class="renewal-chart-subtitle" id="renewalChartIntro">Compare your monthly Budget Plan, previous fixed tariff and three options for the coming 12 months.</p>
     <div class="renewal-savings-pair" id="renewalSavingsPair" aria-label="Three tariff choices, annual costs and monthly equivalents"></div>
-    <p class="renewal-previous-pay" id="renewalPreviousBudget">📌 Please check your current UW Budget Plan payments. These are not the same as your underlying energy costs.</p>
+    <p class="renewal-previous-pay" id="renewalPreviousBudget" hidden></p>
     <div class="renewal-scenario-bar"><strong>Stress test January's price-cap change</strong>
       <div class="renewal-scenario-buttons" id="renewalScenarioButtons" role="group" aria-label="January price cap stress tests"></div></div>
     <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy costs and Budget Plan reference"></div>
@@ -1471,8 +1519,18 @@ function safeHtml(value){return String(value).replace(/[&<>"']/g,c=>({"&":"&amp;
 function renewalRawName(row){return String((row&&(row.tariff_name!=null?row.tariff_name:row.tariffName))||"").trim().replace(/^UW\s+/i,"").replace(/\s+Direct Debit$/i,"");}
 function renewalNameKey(row){return renewalRawName(row).toLowerCase().replace(/\s+/g," ");}
 function renewalRowKey(row){
+  // UW's source_ref is not unique: pre/post-April published PDFs can share it.
+  const version=String(row?.tariff_version_id||"").trim();
+  if(version)return "historic|"+version;
   const ref=String(row&&(row.source_ref!=null?row.source_ref:row.sourceRef)||"").trim();
   return ref?renewalNameKey(row)+"|"+ref:"";
+}
+function renewalDisplayName(row){return String(row?.tariff_display_name||renewalRawName(row));}
+function renewalVersionPreference(row){
+  const code=String(row?.rate_version_code||"");
+  return code==="POST_APR_2026"?5:code==="AS_PUBLISHED"?4:
+    code==="PRE_APR_2026"?3:code==="IDENTICAL_COPY_1"?2:
+    code==="IDENTICAL_COPY_2"?1:0;
 }
 function renewalRowType(row){return String((row&&(row.tariff_type!=null?row.tariff_type:row.tariffType))||"").toLowerCase();}
 function renewalTier(){return document.getElementById("renewalServices").value;}
@@ -1524,23 +1582,25 @@ function renewalOptionsFor(id){
     if(id==="renewalVariable")return type==="variable"&&["Value","Gold","Double Gold"].some(x=>x.toLowerCase()===name.toLowerCase());
     return type==="fixed"&&fixedPattern.test(name);
   }).filter(row=>!!renewalRowKey(row)&&!!standardFixedRate(row));
-  // One option per tariff number. Where UW republished a tariff, automatically
-  // use its newest sourced revision, preserving the selected source in share URLs.
-  const byName=new Map();
-  candidates.forEach(row=>{
-    const key=renewalNameKey(row),prev=byName.get(key);
-    if(!prev||renewalSourceDate(row)>renewalSourceDate(prev))byName.set(key,row);
+  // Preserve both pre/post-April versions under unique tariff_version_id values.
+  // Hide the second identical Fixed Saver 81 PDF from user choices, but retain
+  // its full evidential record in the master Sheet.
+  const byKey=new Map();
+  candidates.filter(row=>String(row.rate_version_code||"")!=="IDENTICAL_COPY_2").forEach(row=>{
+    const key=renewalRowKey(row),previous=byKey.get(key);
+    if(!previous||renewalSourceDate(row)>renewalSourceDate(previous))byKey.set(key,row);
   });
-  return [...byName.values()].sort((a,b)=>{
+  return [...byKey.values()].sort((a,b)=>{
+    if(id==="renewalVariable")return renewalRawName(a).localeCompare(renewalRawName(b));
     const na=Number(renewalRawName(a).match(/\d+$/)?.[0]||0),nb=Number(renewalRawName(b).match(/\d+$/)?.[0]||0);
-    return id==="renewalVariable"?renewalRawName(a).localeCompare(renewalRawName(b)):nb-na;
+    return nb-na||renewalVersionPreference(b)-renewalVersionPreference(a);
   });
 }
 function renewalSetOptions(id){
   const el=document.getElementById(id),before=renewalUserChoices[id]||el.value;
   const candidates=renewalOptionsFor(id);
   const preferred=renewalPendingSelections&&renewalPendingSelections[id];
-  const options=candidates.map(row=>({value:renewalRowKey(row),label:renewalRawName(row)}));
+  const options=candidates.map(row=>({value:renewalRowKey(row),label:renewalDisplayName(row)}));
   el.replaceChildren();
   if(!options.length){
     const o=document.createElement("option");o.value="";o.textContent="Tariff not in catalogue";el.appendChild(o);return;
@@ -1558,7 +1618,7 @@ function renewalSetOptions(id){
       ?renewalRowType(archivedRow)==="variable"
       :renewalRowType(archivedRow)==="fixed"&&renewalFixedFamily(renewalTier()).test(renewalRawName(archivedRow)));
     const option=document.createElement("option");option.value=preferred;
-    option.textContent=allowed?renewalRawName(archivedRow)+" (selected historical version)":"Shared historical tariff unavailable";
+    option.textContent=allowed?renewalDisplayName(archivedRow)+" (selected historical version)":"Shared historical tariff unavailable";
     el.appendChild(option);el.value=preferred;
   }else{
     // Require deliberate selection of expiring and offered tariffs.
@@ -1587,8 +1647,8 @@ function renewalRefreshChoices(){
   const versions=end?renewalRows().filter(row=>renewalNameKey(row)===renewalNameKey(end))
     .sort((a,b)=>renewalSourceDate(a)-renewalSourceDate(b)):[];
   audit.textContent=versions.length>1
-    ?versions.map(row=>renewalRawName(row)+" - "+(row.source_ref||row.sourceRef)+" ("+
-      new Date(renewalSourceDate(row)).toLocaleDateString("en-GB")+")").join(" | ")
+    ?versions.map(row=>renewalDisplayName(row)+" - "+(row.source_ref||row.sourceRef)+
+      (row.version_basis?" ["+row.version_basis+"]":"")).join(" | ")
     :"Only one historical version is currently available in the catalogue.";
 }
 function renewalInputsValid(mode){
@@ -1598,8 +1658,9 @@ function renewalInputsValid(mode){
   if(needed.some(key=>!rows[key]||!standardFixedRate(rows[key])))return false;
   if(renewalRowType(rows.variable)!=="variable")return false;
   if(["offered","public"].some(key=>renewalRowType(rows[key])!=="fixed"||!renewalFixedFamily(renewalTier()).test(renewalRawName(rows[key]))))return false;
-  // Older customer tariffs may predate Tariff Hunter's archive: do not block
-  // verified forward costs merely because the old tariff has no source record.
+  // Require a deliberately selected existing tariff before sharing. A verified
+  // manual historical-rate entry remains available for genuinely missing tariffs.
+  if(builderCurrentMode==="fixed"&&!rows.ending&&!renewalManualOldRates())return false;
   if(rows.ending&&(renewalRowType(rows.ending)!=="fixed"||!standardFixedRate(rows.ending)||
       !renewalFixedFamily(renewalTier()).test(renewalRawName(rows.ending))))return false;
   const start=parseContractEnd(renewalStartDate()),end=parseContractEnd(rows.offered.fixed_end_date||rows.offered.contract_end_date);
@@ -1813,7 +1874,8 @@ function renewalLikelyEnding(){
     if(Math.abs(days)>90)return;
     const num=renewalFixedNumber(row),prev=bySeries.get(num);
     if(!prev||Math.abs(days)<Math.abs(prev.days)||
-       (Math.abs(days)===Math.abs(prev.days)&&renewalSourceDate(row)>renewalSourceDate(prev.row)))
+       (Math.abs(days)===Math.abs(prev.days)&&renewalVersionPreference(row)>renewalVersionPreference(prev.row))||
+       (Math.abs(days)===Math.abs(prev.days)&&renewalVersionPreference(row)===renewalVersionPreference(prev.row)&&renewalSourceDate(row)>renewalSourceDate(prev.row)))
       bySeries.set(num,{row,days});
   });
   return [...bySeries.values()].sort((a,b)=>Math.abs(a.days)-Math.abs(b.days)||
@@ -1822,6 +1884,10 @@ function renewalLikelyEnding(){
 function renewalSelectEnding(key){
   const row=renewalFindRow(key);
   if(!row||!renewalFixedFamily(renewalTier()).test(renewalRawName(row)))return;
+  // An explicit archive selection must override any previous manual-rate input.
+  for(const id of ["oldTariffName",...RENEWAL_OLD_FIELD_IDS])document.getElementById(id).value="";
+  document.getElementById("renewalManualDetails").open=false;
+  renewalOldSourceTier=null;
   renewalEndingSeriesWanted=renewalFixedNumber(row);
   const select=document.getElementById("renewalEnding");
   select.value=key;
@@ -1847,15 +1913,30 @@ function renewalUpdateQuickPicks(){
   const dropdown=document.getElementById("renewalEndingQuickSelect");
   const ends=renewalLikelyEnding();
   const selected=renewalSelectedRows();
+  const info=document.getElementById("builderArchivedRateSummary");
+  if(info){
+    if(selected.ending&&standardFixedRate(selected.ending)){
+      const rate=standardFixedRate(selected.ending);
+      info.textContent="✓ "+renewalDisplayName(selected.ending)+" selected - rates loaded automatically.";
+      info.title="Electricity "+rate.eU+"p/kWh + "+rate.eSC+"p/day; gas "+
+        rate.gU+"p/kWh + "+rate.gSC+"p/day, before VAT.";
+    }else{
+      info.textContent=renewalCatalogueSource==="demo"?
+        "Demo choices only - example tariff rates, not a customer quotation.":
+        renewalFeedStatus==="loading"?"Checking the historical tariff archive…":
+        "Choose a tariff above to load your region's electricity and gas rates automatically.";
+    }
+  }
   const cutoff=parseContractEnd(renewalStartDate())?.getTime()||0;
   endButtons.replaceChildren();
   for(const row of ends){
     const key=renewalRowKey(row),date=new Date(renewalEndTimestamp(row));
     const button=document.createElement("button");
     button.type="button";
-    button.setAttribute("aria-pressed",String(renewalFixedNumber(selected.ending)===renewalFixedNumber(row)));
+    button.setAttribute("aria-pressed",String(renewalRowKey(selected.ending)===renewalRowKey(row)));
     const name=document.createElement("b");name.textContent=renewalRawName(row);
-    const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"});
+    const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"})+
+      (row.rate_version_code==="POST_APR_2026"?" · Apr 2026 rates":"");
     button.append(name,small);
     button.addEventListener("click",()=>renewalSelectEnding(key));
     endButtons.appendChild(button);
@@ -1867,7 +1948,7 @@ function renewalUpdateQuickPicks(){
   all.forEach(row=>{
     const opt=document.createElement("option");opt.value=renewalRowKey(row);
     const end=renewalEndTimestamp(row);
-    opt.textContent=renewalRawName(row)+(end?" - ends "+new Date(end).toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"}):"");
+    opt.textContent=renewalDisplayName(row)+(end?" - ends "+new Date(end).toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"}):"");
     dropdown.appendChild(opt);
   });
   dropdown.value=selected.ending?renewalRowKey(selected.ending):"";
@@ -1881,13 +1962,27 @@ function renewalUpdateQuickPicks(){
     const button=document.createElement("button");
     button.type="button";
     button.setAttribute("aria-pressed",String(renewalFixedNumber(selected.offered)===n));
-    const name=document.createElement("b");name.textContent="Fixed suite "+n;
+    const name=document.createElement("b");name.textContent=(renewalTier()==="1"?"Fixed Start ":renewalTier()==="2"?"Fixed ":"Fixed Saver ")+n;
     const sub=document.createElement("span");
     sub.textContent=n===publicNumber?"Current public fixed tariff":"Possible email offer";
     button.append(name,sub);button.addEventListener("click",()=>renewalSelectSuite(n));
     suiteButtons.appendChild(button);
   });
   if(!offeredChoices.length)suiteButtons.textContent="No complete current fixed tariff suites available.";
+  const offeredDropdown=document.getElementById("renewalOfferedQuickSelect");
+  if(offeredDropdown){
+    const options=renewalOptionsFor("renewalOffered");
+    offeredDropdown.replaceChildren();
+    const blank=document.createElement("option");blank.value="";
+    blank.textContent="Choose the fixed tariff offered";offeredDropdown.appendChild(blank);
+    options.forEach(row=>{
+      const opt=document.createElement("option");
+      opt.value=renewalRowKey(row);
+      opt.textContent=renewalDisplayName(row);
+      offeredDropdown.appendChild(opt);
+    });
+    offeredDropdown.value=selected.offered?renewalRowKey(selected.offered):"";
+  }
   const status=document.getElementById("renewalLiveStatus");
   status.textContent=renewalCatalogueSource==="demo"
     ?"DEMONSTRATION ONLY: these selections use made-up example rates and cannot be shared."
@@ -1899,21 +1994,17 @@ function storyAutoSelectDefaults(){
   if(!renewalCatalogue)return;
   const ending=document.getElementById("renewalEnding");
   const offer=document.getElementById("renewalOffered");
-  if(!ending.value){
-    const ends=renewalLikelyEnding();
-    const matched=renewalEndingSeriesWanted===null?null:
-      renewalOptionsFor("renewalEnding").find(row=>renewalFixedNumber(row)===renewalEndingSeriesWanted);
-    const close=ends[0]&&Math.abs((renewalEndTimestamp(ends[0])-
-      (parseContractEnd(renewalStartDate())?.getTime()||0))/86400000)<=45?ends[0]:null;
-    const chosen=matched||close;
-    if(chosen)ending.value=renewalRowKey(chosen);
+  // Do not guess the customer's existing tariff or their personal email offer.
+  // Preserve a previous deliberate selection when adjusting service level.
+  if(!ending.value&&renewalEndingSeriesWanted!==null){
+    const matched=renewalOptionsFor("renewalEnding")
+      .find(row=>renewalFixedNumber(row)===renewalEndingSeriesWanted);
+    if(matched)ending.value=renewalRowKey(matched);
   }
-  if(!offer.value){
-    const suite=renewalSuiteCandidates(),publicNumber=renewalPublicSeries();
-    const preferred=renewalOfferSeriesWanted!==null?renewalOfferSeriesWanted:
-      suite.find(n=>publicNumber!==null&&n<publicNumber)??(publicNumber??suite[0]);
-    const row=renewalOptionsFor("renewalOffered").find(row=>renewalFixedNumber(row)===preferred);
-    if(row)offer.value=renewalRowKey(row);
+  if(!offer.value&&renewalOfferSeriesWanted!==null){
+    const matched=renewalOptionsFor("renewalOffered")
+      .find(row=>renewalFixedNumber(row)===renewalOfferSeriesWanted);
+    if(matched)offer.value=renewalRowKey(matched);
   }
   const publicNo=renewalPublicSeries();
   if(publicNo!==null){
@@ -1935,7 +2026,7 @@ function storyAutoSelectDefaults(){
 const RENEWAL_OLD_FIELD_IDS=["oldElecUnit","oldElecSC","oldGasUnit","oldGasSC"];
 let renewalOldSourceTier=null;
 
-let builderCurrentMode="variable";
+let builderCurrentMode="fixed";
 function builderSetCurrentMode(mode){
   if(!["variable","fixed"].includes(mode))return;
   builderCurrentMode=mode;builderRefreshCurrentMode();render();
@@ -1948,7 +2039,7 @@ function builderRefreshCurrentMode(){
   document.getElementById("builderHistoryDetails").hidden=!fixed;
   const name=renewalDefaultVariable(renewalTier());
   document.getElementById("builderCurrentHelp").textContent=fixed?
-    "Enter your previous fixed unit rates and standing charges (including VAT). These create the grey dotted historic-cost line.":
+    "Select your previous fixed tariff below - no need to type electricity and gas rates. Manual entry is only for a tariff missing from the archive.":
     "UW "+name+" is selected automatically from available tariff-guide data. The grey line applies those rates to a previous year's seasonal usage - it does not show actual historic charges.";
 }
 function renewalVariablePreviousProfile(s){
@@ -2001,6 +2092,12 @@ function renewalManualPastMonths(s){
   });
 }
 
+function renewalHistoryRateFrom(row){
+  // UW issued pre- and post-April 2026 versions under overlapping source refs.
+  // A source_ref date alone cannot identify the April price revision.
+  return row?.rate_version_code==="POST_APR_2026"?
+    Math.max(renewalSourceDate(row),Date.UTC(2026,3,1)):renewalSourceDate(row);
+}
 function renewalLastYearMonthly(s){
   if(builderCurrentMode==="variable")return renewalVariablePreviousProfile(s);
   const manuallyEntered=renewalManualPastMonths(s);
@@ -2008,17 +2105,20 @@ function renewalLastYearMonthly(s){
   const selected=renewalSelectedRows();
   if(!selected.ending)return null;
   const historical=renewalRows().filter(r=>renewalNameKey(r)===renewalNameKey(selected.ending)&&
-    renewalRowType(r)==="fixed"&&!!standardFixedRate(r)).sort((a,b)=>renewalSourceDate(a)-renewalSourceDate(b));
+    renewalRowType(r)==="fixed"&&!!standardFixedRate(r)&&
+    r.rate_version_code!=="IDENTICAL_COPY_2")
+    .sort((a,b)=>renewalHistoryRateFrom(a)-renewalHistoryRateFrom(b)||
+      renewalVersionPreference(a)-renewalVersionPreference(b));
   if(!historical.length)return null;
   const firstComparisonYear=MONTHS[0]?.year||2026;
   const oldStart=new Date(Date.UTC(firstComparisonYear-1,MONTHS[0]?MONTHS[0].cal:10,1));
   // Fail closed if the records do not cover the first month of the historic
   // comparison: an old fixed tariff must not inherit rates from a later revision.
-  if(renewalSourceDate(historical[0])>oldStart.getTime())return null;
+  if(renewalHistoryRateFrom(historical[0])>oldStart.getTime())return null;
   const discount=s.mode==="dual"?DISCOUNT:0;
   return MONTHS.map(m=>{
     const historicalMonth=new Date(Date.UTC(m.year-1,m.cal,1));
-    const available=historical.filter(row=>renewalSourceDate(row)<=historicalMonth.getTime());
+    const available=historical.filter(row=>renewalHistoryRateFrom(row)<=historicalMonth.getTime());
     if(!available.length)return null;
     const rate=standardFixedRate(available[available.length-1]);
     const days=new Date(Date.UTC(historicalMonth.getUTCFullYear(),m.cal+1,0)).getUTCDate();
@@ -2143,17 +2243,11 @@ function renderRenewalStory(s){
   const budget=payment?payment.amount:null;
   const budgetLabel=budget===null?"":new Intl.NumberFormat("en-GB",
     {style:"currency",currency:"GBP"}).format(budget);
-  document.getElementById("renewalPreviousBudget").innerHTML=payment?.source==="confirmed"?
-    '📌 <b>For reference, you are currently paying about £'+Math.ceil(budget)+
-    ' per month towards your gas and electricity costs.</b> Your Budget Plan is '+budgetLabel+
-    '/month. This is what you pay, not necessarily the monthly cost of the energy you use.':
-    payment?.source==="illustrative"?
-    '📌 <b>At current '+safeHtml(renewalDefaultVariable(renewalTier()))+' variable rates, this usage would average approximately '+budgetLabel+
-    '/month over a year.</b> An illustration, not the Budget Plan amount or historical bills.':
-    payment?.source==="estimated"?
-    '📌 <b>Your previous tariff works out at approximately '+budgetLabel+
-    '/month on average, using the same annual consumption.</b> This is an estimated previous energy cost, not your confirmed Budget Plan payment.':
-    '📌 <b>Budget Plan payment not supplied.</b> Add your actual payment in the builder to show a flat monthly payment reference.';
+  // The customer's monthly payment is already entered in the builder and
+  // represented by the chart reference line. Avoid repeating the same £ figure
+  // in a long note that makes the comparison feel more complex.
+  document.getElementById("renewalPreviousBudget").textContent="";
+  document.getElementById("renewalPreviousBudget").hidden=true;
   // Check the first two calendar months, not annual average prices.
   const initiallyCheapest=[0,1].every(i=>x99.rows[i].cap<=x99.rows[i].fixed+.01 &&
     x99.rows[i].cap<=x100.rows[i].fixed+.01);
@@ -3281,6 +3375,9 @@ function builderRefreshInputs(){
   if(!region.value)return;
   document.getElementById("builderRegion").value=region.value;
   document.getElementById("builderStart").value=renewalStartDate().slice(0,7);
+  const summary=document.getElementById("builderSettingsSummary");
+  if(summary)summary.textContent=(REGIONS.find(r=>r.n===Number(region.value))?.name||"Choose region")+
+    " · "+(["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]||"Choose services");
   document.getElementById("builderServiceSwitch").querySelectorAll("button").forEach(button=>
     button.setAttribute("aria-pressed",String(button.dataset.svc===renewalTier())));
   for(const [key,range,exact,label,container] of [
@@ -3796,6 +3893,15 @@ function statics(){
     render();
   });
   document.getElementById("renewalEndingQuickSelect").addEventListener("change",e=>renewalSelectEnding(e.target.value));
+  document.getElementById("renewalOfferedQuickSelect").addEventListener("change",e=>{
+    const row=renewalFindRow(e.target.value);
+    if(!row||!renewalFixedFamily(renewalTier()).test(renewalRawName(row)))return;
+    const key=renewalRowKey(row);
+    document.getElementById("renewalOffered").value=key;
+    renewalOfferSeriesWanted=renewalFixedNumber(row);
+    renewalUserChoices.renewalOffered=key;
+    renewalUpdateQuickPicks();render();
+  });
   for(const id of ["oldTariffName",...RENEWAL_OLD_FIELD_IDS]){
     document.getElementById(id).addEventListener("input",()=>{
       renewalOldSourceTier=renewalTier();

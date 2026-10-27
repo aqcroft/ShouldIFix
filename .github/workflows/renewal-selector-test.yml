@@ -1,0 +1,17 @@
+name: Historical Renewal Selector Preview Tests
+on:
+  push:
+    branches:
+      - existing-customer-historical-versions-20261027
+    paths:
+      - renewal-builder-v1.html
+      - tests/test_historical_tariff_selector.cjs
+      - .github/workflows/renewal-selector-test.yml
+  workflow_dispatch:
+jobs:
+  selector:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test source-backed historical tariff identities and ordering
+        run: node tests/test_historical_tariff_selector.cjs
