@@ -136,6 +136,22 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    console.log("Customer share view: successful, partner builder hidden, both tariff IDs and £155 preserved.");
    await customer.screenshot({path:"test-artifacts/customer-mobile.png",fullPage:true});
    await customer.close();
+   // Manual renewal-offer rates must remain a partner-only, non-shareable scenario.
+   await page.locator("#renewalBuilder .renewal-row-cog").nth(1).click();
+   assert.equal(await page.locator("#renewalOfferManualDetails").evaluate(el=>el.open),true);
+   for(const [id,value] of [
+     ["offerTariffName","Fixed Saver 99"],["offerElecUnit","20"],
+     ["offerElecSC","42"],["offerGasUnit","4.5"],["offerGasSC","24"]
+   ]) await page.locator("#"+id).fill(value);
+   await page.waitForFunction(()=>window.__renewalVisualData?.rates?.offer?.eU===20);
+   assert.equal(await page.locator("#renewalSavingsPair .renewal-active-choice").count(),3,
+     "Manually entered rates should produce an on-screen scenario");
+   assert.equal(await page.locator("#builderCopyLink").isDisabled(),true,
+     "Never share manually entered rates as verified customer tariffs");
+   assert.match(await page.locator("#builderShareStatus").innerText(),/manual offer rates.*sharing disabled/i);
+   await page.locator("#renewalSuitePicks button").first().click();
+   assert.equal(await page.locator("#builderCopyLink").isDisabled(),false,
+     "Re-selecting a verified tariff restores verified sharing");
    assert(!errors.length,"Browser runtime errors: "+errors.join("; "));
    await page.screenshot({path:"test-artifacts/renewal-mobile.png",fullPage:true});
    console.log("PASS: Live customer renewal has functional historical buttons, real rates, offer selection, annual usage and share links.");
