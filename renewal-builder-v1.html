@@ -730,6 +730,7 @@
   .renewal-setup select{width:100%;padding:9px 10px;margin-top:7px;border-radius:9px;font-size:.83rem}
   .renewal-setup .renewal-evidence{font-size:.69rem;color:#766c81;line-height:1.5;margin-top:12px}
   .renewal-profile{font:.78rem/1.5 Nunito,sans-serif;color:#695c79;font-weight:700;margin:0 0 14px}
+  #renewalCustomerProfile[hidden],#renewalChartIntro[hidden]{display:none!important}
   .renewal-mode #mainSearchIntro{display:none!important}
   .customer-renewal #generalControls,.customer-renewal #evExtension,
   .customer-renewal .wrap > details{display:none!important}
@@ -1010,7 +1011,7 @@ body.existing-builder #renewalBuilder{margin:14px auto}
   <input id="janRise" type="hidden" value="25"><input id="forecastDefault" type="hidden" value="25">
 
   <section class="renewal-builder hidden" id="renewalBuilder" aria-labelledby="builderTitle">
-    <div class="builder-head"><div><h2 id="builderTitle">Compare your renewal options</h2><p>Choose the two tariffs, then add the monthly payment and annual usage. That's it.</p></div></div>
+    <div class="builder-head"><div><h2 id="builderTitle">Compare your renewal options</h2><p>Choose the tariff options, then add estimated annual usage.</p></div></div>
 
     <details class="renewal-mini-details renewal-more-settings" id="builderOptionalSettings">
       <summary>Region &amp; services <span id="builderSettingsSummary">East Midlands · Energy + 2 services</span></summary>
@@ -2066,7 +2067,7 @@ function storyAutoSelectDefaults(){
 }
 /* ---------- SIMPLE FOUR-LINE RENEWAL COMPARISON v2.66.0 ---------- */
 
-/* ----- Historical confirmation-email rates and Budget Plan reference -----
+/* ----- Historical confirmation-email tariff rates -----
  * Enter only the four VAT-INCLUSIVE values actually supplied to the customer.
  * Manual rates are scoped to the selected qualifying-service level to prevent
  * an old Fixed Saver rate being reused as an old Fixed Start rate.
@@ -2236,7 +2237,7 @@ function renewalQuarterGeometry(months){
   });
   return {labelWidth,quarterWidths,monthX,edges,groups:groups.map(g=>g.key)};
 }
-function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=false){
+function renewalFullChart(s,old,variable,fix99,fix100){
   const W=690,H=325,L=130,R=0,T=24,B=39,months=MONTHS;
   const quarterLayout=renewalQuarterGeometry(months);
   const all=[old,variable,fix99,fix100].filter(Array.isArray).flat();
@@ -2282,7 +2283,7 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
     ["public",renewalRawName(renewalSelectedRows().public),true]
   ];
   document.getElementById("renewalLineLegend").innerHTML=legends.filter(r=>r[2]).map(([key,label])=>
-    '<span class="'+(key==="old"||key==="budget"?"dash":"")+'" style="--lc:'+colors[key]+'"><i aria-hidden="true"></i>'+safeHtml(label)+'</span>').join("");
+    '<span class="'+(key==="old"?"dash":"")+'" style="--lc:'+colors[key]+'"><i aria-hidden="true"></i>'+safeHtml(label)+'</span>').join("");
   document.getElementById("renewalFourLineChart").innerHTML=svg;
   document.getElementById("renewalFourLineChart").setAttribute("aria-label",
     "Monthly comparison: "+(old?"previous fixed tariff, ":"")+
@@ -2390,7 +2391,7 @@ function renderRenewalStory(s){
       "Accept your "+renewalRawName(fix99)+" offer",year99,delta99,offeredPoints)+
     costCard("second","Compare with public "+renewalRawName(fix100),year100,delta100,publicPoints);
   renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),
-    x100.rows.map(r=>r.fixed),null,false);
+    x100.rows.map(r=>r.fixed));
   window.__renewalVisualData={
     years:{variable:yearVariable,offer:year99,public:year100},
     series:{variable:x99.rows.map(r=>r.cap),offer:x99.rows.map(r=>r.fixed),public:x100.rows.map(r=>r.fixed)},
@@ -3522,14 +3523,6 @@ function builderSetService(tier){
   for(const id of RENEWAL_FIELDS)document.getElementById(id).value="";
   if(renewalFeedStatus==="ready")renewalRefreshChoices();
   render();
-}
-function renewalBudgetReference(s){
-  const confirmed=renewalBudgetAmount();
-  if(confirmed!==null)return {amount:confirmed,source:"confirmed"};
-  const old=renewalLastYearMonthly(s);
-  if(!old||old.length!==12||old.some(row=>!row||!Number.isFinite(row.total)))return null;
-  return {amount:old.reduce((sum,row)=>sum+row.total,0)/12,
-    source:builderCurrentMode==="variable"?"illustrative":"estimated"};
 }
 function builderUpdateShareUi(url){
   const canShare=!!url;
