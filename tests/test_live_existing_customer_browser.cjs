@@ -31,6 +31,16 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    const ending=await page.locator("#renewalEndingPicks button").count();
    const offers=await page.locator("#renewalSuitePicks button").count();
    assert(ending>=3&&offers>=1,"Archive and offer selections must populate");
+   const shortcutTitles=await page.locator("#renewalSuitePicks button b").allTextContents();
+   assert(shortcutTitles.every(s=>/\b(?:99|100)$/.test(s)), "Only tariffs 99 and 100 appear as shortcut buttons: "+shortcutTitles);
+   assert(!shortcutTitles.some(s=>/98$/.test(s)), "Fixed 98 must not be a shortcut");
+   assert.equal((await page.locator("#renewalSuitePicks button").count()),2,
+     "The verified archive should expose both Fixed 99 and Fixed 100");
+   const chooser=page.locator('#renewalOfferedQuickSelect').locator('xpath=ancestor::details[1]');
+   assert.match(await chooser.locator('summary').innerText(),/Choose a different tariff/i);
+   assert.equal(await chooser.evaluate(el=>el.open),false,"All-tariff select remains collapsed until requested");
+   const endingHints=await page.locator("#renewalEndingPicks button span").allTextContents();
+   assert(endingHints.every(h=>!h.includes(" · Apr 2026 rates")),"Use the explicit April 26 rate-version wording");
    const historyLabel=await page.locator("#builderArchivedRateSummary").textContent();
    console.log("Historical choices:",ending,"Offer choices:",offers,"Initial:",historyLabel);
    await page.locator("#renewalEndingPicks button").first().click();
@@ -49,8 +59,15 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    await page.locator("#renewalSavingsPair .renewal-active-choice").first().waitFor({state:"visible",timeout:20000});
    assert.equal(await page.locator("#renewalSavingsPair .renewal-active-choice").count(),3,
      "All three energy choices need compact, tappable summaries");
-   assert(await page.locator("#renewalQuarterlyCosts tbody tr").count()>=4,
-     "Quarterly cost comparison must use modelled months");
+   assert.equal(await page.locator("#renewalQuarterlyCosts .renewal-q-label").count(),4,
+     "Quarter strip should have a heading and three tariff rows");
+   const widths=await page.evaluate(()=>{
+     const table=document.querySelector("#renewalQuarterlyCosts");
+     const chart=document.querySelector("#renewalFourLineChart svg");
+     return {quarters:table?.dataset.quarterCount,grid:table&&getComputedStyle(table.querySelector('.renewal-q-grid')).gridTemplateColumns,svg:chart?.getAttribute('viewBox'),scroller:!!table?.closest('#renewalChartTableScroller')};
+   });
+   assert(widths.scroller&&widths.svg.startsWith("0 0 690"),"Chart and rows need one aligned, scrollable viewport");
+   assert(Number(widths.quarters)>=4,"Quarter cells must come from the forecast months");
    assert.equal(await page.locator("#renewalPreviewWarning").isVisible(),false,
      "No obsolete beige preview warning on verified results");
    const ordered=await page.evaluate(()=>{
@@ -65,6 +82,15 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
      "Tap a hero to open the full explanation");
    assert(await page.locator("#renewalChoiceDetails .renewal-card-points").isVisible(),
      "Explanation modal retains benefits and cautions");
+   assert.equal(await page.locator("#renewalChoiceDetails .renewal-fuel-row").count(),2,
+     "Modal must provide electricity and gas costs separately");
+   assert(await page.locator("#renewalChoiceDetails .renewal-variable-caution").isVisible(),
+     "Variable comparison warns that future variable rates are illustrative");
+   await page.locator("#renewalChoiceDetails .renewal-modal-close").click();
+   await page.locator("#renewalSavingsPair .renewal-saving-card").nth(1).click();
+   assert.equal(await page.locator("#renewalChoiceDetails .renewal-fuel-row").count(),2);
+   assert.equal(await page.locator("#renewalChoiceDetails .renewal-rate-grid strong").count(),4,
+     "Email offer modal displays four source rates");
    await page.locator("#renewalChoiceDetails .renewal-modal-close").click();
    assert.equal(await page.locator("#renewalChoiceDetails").isVisible(),false);
 
@@ -93,8 +119,8 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    await customer.locator("#renewalSavingsPair .renewal-active-choice").first().waitFor({state:"visible",timeout:20000});
    assert.equal(await customer.locator("#renewalSavingsPair .renewal-active-choice").count(),3,
      "Customer share must have three compact summaries");
-   assert(await customer.locator("#renewalQuarterlyCosts tbody tr").count()>=4,
-     "Customer share retains quarterly cost table");
+   assert.equal(await customer.locator("#renewalQuarterlyCosts .renewal-q-label").count(),4,
+     "Customer share retains main-tool-style quarterly strip");
    assert.equal(await customer.locator("#renewalPreviewWarning").isVisible(),false,
      "No preview warning on verified customer link");
    assert(!customerErrors.length,"Customer page errors: "+customerErrors.join("; "));

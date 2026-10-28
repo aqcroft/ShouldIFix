@@ -1,5 +1,10 @@
 # Historical renewal preview changelog
 
+## v2.79.5 - 27 October 2026
+- Correct the renewal fuel-breakdown data references to the two verified annual model series; keep their underlying results unchanged.
+- Tidy pence display and apply the illustrated variable-price caution to Value, Gold and Double Gold.
+- Update browser regressions to check the original-style four-row quarter strip, 99/100 shortcuts, fuel detail modal and customer sharing.
+
 ## v2.79.4 - 27 October 2026
 - Show only the Fixed 99 and 100 quick choices where genuinely present; older 98 remains accessible only via **Choose a different tariff**, without implying availability.
 - Clarify historical fixed labels with `(April 26 rates)` and pre-April versions where applicable.
