@@ -1,5 +1,12 @@
 # Historical renewal preview changelog
 
+## v2.66.12 - 28 October 2026 - Minimal existing-customer comparison and vibrant colours
+- Remove the Current monthly payment / Budget Plan question, which was never part of tariff-cost or saving calculations. Retain a hidden legacy field only to safely open previously shared links with bp=.
+- Remove the redundant Ready to share confirmation, share-page boilerplate, What are my options heading, region/usage narration and obsolete grey/red dotted-line introduction. Keep verification error messages, the three tariff cards, price-cap scenario controls and the expandable methodology.
+- Remove all claims about a Budget Plan chart line, which is no longer drawn. The grey previous-tariff historical cost line remains.
+- Brighten the ranked red, orange and green colours consistently across the graph, key and tappable hero cards. Calculation formulae, historical tariff data, customer sharing permissions, forecasts and totals are unchanged.
+- Update standalone and integrated version to v2.66.12 and refresh chart/share regression tests.
+
 ## v2.66.11 - 28 October 2026 - Stacked renewal labels and monthly equivalents
 - Stack the renewal chart's three left-axis labels vertically, descending red (most expensive), amber, green (least expensive). Keep both the tariff name and monthly equivalent in the matching colour and preserve the SVG/quarter-table alignment.
 - Shorten the existing-customer legend names to Variable, Fixed 100 and Fixed 101 (or whichever fixed series are selected), without changing full tariff names elsewhere.
