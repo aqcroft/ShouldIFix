@@ -53,6 +53,28 @@ class MSEParserTests(unittest.TestCase):
         found = mod.read_table(changed, self.approved, today=self.day)
         self.assertNotEqual(mod.signature(found), mod.signature(baseline))
 
+
+    def test_25_october_unavailable_british_gas_row(self):
+        new_html = """<!doctype html><html><body>
+        <p>Updated 28 October 2026</p>
+        <h2>Annual Price Cap predictions for week starting 25 Oct</h2>
+        <table><tr><th>1 Oct to 31 Dec 2026</th><th>1 Jan to 31 March 2027</th>
+        <th>1 Apr to 30 June 2027</th><th>1 Jul to 30 Sep 2027</th></tr>
+        <tr><td>EDF</td><td>UP 3.6% £1,723 a year</td><td>UP 27.2% £2,192 a year</td><td>UP 9% £2,389 a year</td><td>DOWN 9.7% £2,157 a year</td></tr>
+        <tr><td>British Gas (1)</td><td>No predictions yet</td><td>-</td><td>-</td><td>-</td></tr>
+        <tr><td>E.on Next</td><td>UP 3.6% £1,723 a year</td><td>UP 26.7% £2,183 a year</td><td>UP 8% £2,358 a year</td><td>DOWN 9.5% £2,133</td></tr>
+        <tr><td>Average (2)</td><td>UP 3.6% £1,723 a year</td><td>UP 27% £2,188 a year</td><td>UP 8.5% £2,374 a year</td><td>DOWN 9.6% £2,145 a year</td></tr></table>
+        <p>Based on a dual-fuel household.</p></body></html>"""
+        found = mod.read_table(new_html, self.approved, today=dt.date(2026, 10, 28))
+        self.assertEqual(found["revision"], "mse-2026-10-25")
+        self.assertEqual(found["source"]["article_updated"], "2026-10-28")
+        self.assertEqual([p["average"]["change_pct"] for p in found["periods"]], [3.6, 27.0, 8.5, -9.6])
+        self.assertEqual(found["suppliers"][1]["values"], [None, None, None, None])
+        self.assertIsNone(found["suppliers"][1]["predicted_on"])
+        self.assertEqual(found["suppliers"][0]["values"][1]["annual_gbp"], 2192)
+        self.assertEqual(found["suppliers"][2]["values"][3]["annual_gbp"], 2133)
+        self.assertIsNone(found["suppliers"][0]["predicted_on"])
+
     def test_rejects_incomplete_table(self):
         with self.assertRaises(ValueError):
             mod.read_table(HTML.replace("DOWN 9.8% £1,985 a year", "No prediction yet"), self.approved, today=self.day)
