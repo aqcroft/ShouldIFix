@@ -21,7 +21,7 @@ assert.match(builder,/quarterLayout:renewalQuarterGeometry\(MONTHS\)/);
 assert.match(builder,/id="renewalSavingsPair"/,"Three hero cards remain");
 assert.match(builder,/id="renewalFourLineChart"/);
 assert.match(builder,/id="renewalLineLegend"/);
-assert.match(builder,/id="renewalQuarterlyCosts"|renewalQuarterlyCosts/);
+assert.match(legend,/quarterly\.id='renewalQuarterlyCosts'/,"Quarterly table is created alongside the shared chart");
 assert.match(standalone,/data-compare-mode="renewal"[^>]*>Existing customers<\/button>/);
 assert.match(standalone,/new URL\('\.\/renewal-builder-v1\.html',location\.href\)/);
 assert.match(standalone,/url\.searchParams\.set\('existing','1'\)/);
