@@ -87,7 +87,7 @@
    if(legend){
      // Highest projected annual cost first, matching red > amber > green.
      legend.innerHTML=keys.slice().sort((a,b)=>data.years[b]-data.years[a] || keys.indexOf(a)-keys.indexOf(b)).map(key=>
-       '<div class="renewal-key-item" style="--rank-color:'+palette[order[key]]+'"><i aria-hidden="true"></i><div><b>'+safe(String(labels[key]).replace(/^Default to\\s+/i,'').replace(/^Compare with public\\s+/i,''))+'</b><strong class="renewal-key-monthly" title="'+safe(gbp(data.years[key]/12)+' per month')+'">'+gbp(data.years[key]/12)+'/m</strong></div></div>'
+       '<div class="renewal-key-item" style="--rank-color:'+palette[order[key]]+'"><i aria-hidden="true"></i><div><b>'+safe(String(labels[key]).replace(/^Default to\s+/i,'').replace(/^Compare with public\s+/i,''))+'</b><strong class="renewal-key-monthly" title="'+safe(gbp(data.years[key]/12)+' per month')+'">'+gbp(data.years[key]/12)+'/m</strong></div></div>'
      ).join('');
    }
    let scroller=document.getElementById('renewalChartTableScroller');
