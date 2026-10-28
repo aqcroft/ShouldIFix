@@ -30,7 +30,13 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    await page.locator("#renewalEndingPicks button").first().waitFor({state:"visible",timeout:85000});
    const ending=await page.locator("#renewalEndingPicks button").count();
    const offers=await page.locator("#renewalSuitePicks button").count();
-   assert(ending>=3&&offers>=1,"Archive and offer selections must populate");
+   assert(ending===2&&offers===2,"Exactly two historical (66/65) and two offered (100/99) shortcuts");
+   assert.deepEqual(await page.locator("#renewalEndingPicks button b").allTextContents(),["Fixed Saver 66","Fixed Saver 65"]);
+   assert.deepEqual(await page.locator("#renewalSuitePicks button b").allTextContents(),["Fixed Saver 100","Fixed Saver 99"]);
+   assert.equal(await page.locator("#renewalBuilder .renewal-choice-line").count(),2,"Two tidy rows");
+   assert.equal(await page.locator("#renewalBuilder .renewal-row-cog").count(),2,"Manual rate cog on each row");
+   const version = await page.locator('meta[name="app-version"]').getAttribute('content');
+   assert.equal(version,"2.66.6","Should I Fix version must match Companion");
    const shortcutTitles=await page.locator("#renewalSuitePicks button b").allTextContents();
    assert(shortcutTitles.every(s=>/\b(?:99|100)$/.test(s)), "Only tariffs 99 and 100 appear as shortcut buttons: "+shortcutTitles);
    assert(!shortcutTitles.some(s=>/98$/.test(s)), "Fixed 98 must not be a shortcut");
@@ -43,6 +49,9 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    assert(endingHints.every(h=>!h.includes(" · Apr 2026 rates")),"Use the explicit April 26 rate-version wording");
    const historyLabel=await page.locator("#builderArchivedRateSummary").textContent();
    console.log("Historical choices:",ending,"Offer choices:",offers,"Initial:",historyLabel);
+   await page.locator("#renewalBuilder .renewal-row-cog").first().click();
+   assert.equal(await page.locator("#renewalManualDetails").evaluate(el=>el.open),true,"Expiring tariff cog opens editable rates");
+   await page.locator("#renewalBuilder .renewal-row-cog").first().click();
    await page.locator("#renewalEndingPicks button").first().click();
    await page.locator("#renewalSuitePicks button").first().click();
    await page.locator("#renewalBudgetMonthly").fill("155");

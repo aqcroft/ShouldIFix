@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.79.5">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.79.5</title>
+<meta name="app-version" content="2.66.6">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.6</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -874,6 +874,31 @@ body.existing-builder #tariffCheck,
 body.existing-builder #evExtension{display:none!important}
 body.existing-builder #renewalBuilder{margin:14px auto}
 </style>
+<style id="compactRenewalV2666">
+#renewalBuilder .renewal-choice-line{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;align-items:stretch;margin:7px 0 3px}
+#renewalBuilder .renewal-choice-line .renewal-quick-picks{display:contents}
+#renewalBuilder .renewal-choice-line .renewal-quick-picks>button{width:100%;min-width:0;min-height:51px;text-align:center;padding:8px 3px;line-height:1.2}
+#renewalBuilder .renewal-choice-line .renewal-quick-picks>button b{font-size:clamp(.67rem,2.8vw,.88rem)}
+#renewalBuilder .renewal-choice-line .renewal-quick-picks>button span{font-size:clamp(.55rem,2.2vw,.67rem)}
+#renewalBuilder .renewal-choice-line>details{position:relative;min-width:0;margin:0!important;padding:0!important}
+#renewalBuilder .renewal-choice-line>details>summary{box-sizing:border-box;display:flex;align-items:center;justify-content:center;width:100%;min-height:51px;height:100%;padding:6px 2px!important;border:1.5px solid #d2c5e7;border-radius:11px;background:#fbfaff;color:#493269;font:850 .85rem Nunito,sans-serif;text-align:center}
+#renewalBuilder .renewal-choice-line>details>summary::after{content:" ▾";margin-left:5px}
+#renewalBuilder .renewal-choice-line>details select{position:absolute;z-index:5;right:0;top:calc(100% + 4px);width:max(245px,100%);max-width:78vw;box-shadow:0 6px 20px #22153433;background:#fff}
+#renewalBuilder .renewal-row-cog{margin-left:auto;flex:0 0 38px;min-width:38px;height:38px;border:1.5px solid #cbbce0;border-radius:11px;background:#fff;color:#563695;font-size:1.2rem;display:grid;place-items:center;padding:0;cursor:pointer}
+#renewalBuilder .renewal-row-cog[aria-expanded=true]{background:#563695;color:#fff}
+#renewalBuilder .renewal-row-cog:focus-visible{outline:3px solid #9360c7;outline-offset:2px}
+#renewalBuilder #renewalManualDetails>summary,#renewalBuilder #renewalOfferManualDetails>summary{display:none!important}
+#renewalBuilder .renewal-cog-details:not([open]){display:none!important}
+#renewalBuilder .renewal-cog-details[open],#renewalBuilder #renewalManualDetails[open]{display:block;border:1px solid #e1d6ef;border-radius:11px;padding:11px;margin-top:9px;background:#faf9fd}
+#renewalBuilder #renewalOfferManualDetails input{min-width:0;max-width:100%;box-sizing:border-box;padding:9px;border:1px solid #d8cde5;border-radius:8px}
+#renewalBuilder #renewalOfferManualDetails label{display:block;font-size:.76rem;font-weight:800;margin:8px 0}
+#renewalBuilder #renewalOfferManualDetails p{font-size:.73rem;line-height:1.5}
+#renewalBuilder #builderArchivedRateSummary,#renewalBuilder #renewalLiveStatus{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;padding:0!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}
+#renewalBuilder #builderCurrentHelp{display:none!important}
+#renewalBuilder .renewal-simple-step{margin:7px 0 11px;padding-top:10px}
+#renewalBuilder .renewal-simple-step h3{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+@media(max-width:420px){#renewalBuilder .renewal-choice-line{gap:5px}#renewalBuilder .renewal-choice-line .renewal-quick-picks>button{padding:7px 2px}}
+</style>
 </head>
 <body class="tariff-unverified">
 <div class="wrap">
@@ -1008,16 +1033,17 @@ body.existing-builder #renewalBuilder{margin:14px auto}
 
 
     <div class="renewal-simple-step" id="builderHistoryDetails" hidden>
-      <h3><span class="renewal-simple-number">1</span> Fixed tariff coming to an end</h3>
-      <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Three likely expiring fixed tariffs"></div>
+      <h3><span class="renewal-simple-number">1</span> Fixed tariff ending
+  <button type="button" class="renewal-row-cog" title="Manual tariff rates" aria-label="Enter manual expiring tariff rates" aria-controls="renewalManualDetails" aria-expanded="false" onclick="toggleRenewalRateCog('ending',this)">⚙</button></h3>
+      <div class="renewal-choice-line"><div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Expiring fixed tariffs"></div>
       <details class="renewal-mini-details">
-        <summary>Choose a different tariff</summary>
+        <summary>Choose</summary>
         <select id="renewalEndingQuickSelect" aria-label="All available historical fixed tariffs"><option value="">Checking tariff history…</option></select>
-      </details>
+      </details></div>
       <p class="renewal-evidence renewal-selection-note" id="builderArchivedRateSummary" role="status" aria-live="polite">Choose your existing fixed tariff.</p>
       <div id="renewalOldManualSetup" hidden>
         <details id="renewalManualDetails" class="renewal-mini-details">
-          <summary>Can't find it? Enter rates manually</summary>
+          <summary>Manual rates</summary>
           <p>Only needed if your old tariff is missing from the archive. Use the VAT-inclusive rates on the customer's original confirmation email.</p>
           <label for="oldTariffName">Previous fixed tariff</label>
           <input id="oldTariffName" type="text" maxlength="70" placeholder="e.g. Fixed Saver 65"/>
@@ -1032,11 +1058,24 @@ body.existing-builder #renewalBuilder{margin:14px auto}
     </div>
 
     <section id="renewalSetup" class="renewal-simple-step renewal-setup hidden" aria-labelledby="renewalSetupTitle">
-      <h3 id="renewalSetupTitle"><span class="renewal-simple-number">2</span> Fixed tariff offered in your email</h3>
-      <div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Likely renewal offers"></div>
+      <h3 id="renewalSetupTitle"><span class="renewal-simple-number">2</span> Fixed tariff offered in your email
+  <button type="button" class="renewal-row-cog" title="Manual tariff rates" aria-label="Enter manual renewal offer rates" aria-controls="renewalOfferManualDetails" aria-expanded="false" onclick="toggleRenewalRateCog('offer',this)">⚙</button></h3>
+      <div class="renewal-choice-line"><div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Likely renewal offers"></div>
       <details class="renewal-mini-details">
-        <summary>Choose a different tariff</summary>
+        <summary>Choose</summary>
         <select id="renewalOfferedQuickSelect" aria-label="All available fixed renewal offers"><option value="">Checking offers…</option></select>
+      </details></div>
+      <details id="renewalOfferManualDetails" class="renewal-cog-details">
+        <summary>Manual rates for renewal offer</summary>
+        <p>Enter rates excluding VAT from the customer's offer. Manual rates are for an on-screen comparison only, not a verified customer link.</p>
+        <label>Tariff name <input id="offerTariffName" maxlength="70" placeholder="e.g. Fixed Saver 99" /></label>
+        <div class="renewal-input-grid">
+          <label>⚡ Electricity unit (p/kWh, ex VAT)<input id="offerElecUnit" type="number" step="0.00001" inputmode="decimal" /></label>
+          <label>⚡ Electricity standing (p/day, ex VAT)<input id="offerElecSC" type="number" step="0.00001" inputmode="decimal" /></label>
+          <label>🔥 Gas unit (p/kWh, ex VAT)<input id="offerGasUnit" type="number" step="0.00001" inputmode="decimal" /></label>
+          <label>🔥 Gas standing (p/day, ex VAT)<input id="offerGasSC" type="number" step="0.00001" inputmode="decimal" /></label>
+        </div>
+        <label>Fixed tariff end date (optional) <input id="offerEndDate" type="date" /></label>
       </details>
       <p class="renewal-evidence renewal-selection-note" id="renewalLiveStatus" role="status">Checking the available offers…</p>
     </section>
@@ -1584,7 +1623,7 @@ function renewalSelectedRows(){
   return {
     ending:renewalFindRow(document.getElementById("renewalEnding").value),
     variable:renewalFindRow(document.getElementById("renewalVariable").value),
-    offered:renewalFindRow(document.getElementById("renewalOffered").value),
+    offered:renewalOfferManualActive?renewalManualOfferedRow():renewalFindRow(document.getElementById("renewalOffered").value),
     public:renewalFindRow(document.getElementById("renewalPublic").value)
   };
 }
@@ -1881,22 +1920,10 @@ function renewalPublicSeries(){
 }
 function renewalLikelyEnding(){
   const start=parseContractEnd(renewalStartDate())?.getTime()||0;
-  const family=renewalFixedFamily(renewalTier());
-  const bySeries=new Map();
-  renewalOptionsFor("renewalEnding").filter(row=>
-    family.test(renewalRawName(row))&&renewalEndTimestamp(row)!==null)
-  .forEach(row=>{
-    const days=(renewalEndTimestamp(row)-start)/86400000;
-    // Only promote genuinely near-expiring tariffs to the quick choices.
-    if(Math.abs(days)>90)return;
-    const num=renewalFixedNumber(row),prev=bySeries.get(num);
-    if(!prev||Math.abs(days)<Math.abs(prev.days)||
-       (Math.abs(days)===Math.abs(prev.days)&&renewalVersionPreference(row)>renewalVersionPreference(prev.row))||
-       (Math.abs(days)===Math.abs(prev.days)&&renewalVersionPreference(row)===renewalVersionPreference(prev.row)&&renewalSourceDate(row)>renewalSourceDate(prev.row)))
-      bySeries.set(num,{row,days});
-  });
-  return [...bySeries.values()].sort((a,b)=>Math.abs(a.days)-Math.abs(b.days)||
-    b.days-a.days||renewalFixedNumber(b.row)-renewalFixedNumber(a.row)).slice(0,3).map(e=>e.row);
+  const options=renewalOptionsFor("renewalEnding");
+  return [66,65].map(n=>options.filter(row=>renewalFixedNumber(row)===n&&renewalEndTimestamp(row)!==null&&
+    Math.abs((renewalEndTimestamp(row)-start)/86400000)<=120)
+    .sort((a,b)=>renewalVersionPreference(b)-renewalVersionPreference(a)||renewalSourceDate(b)-renewalSourceDate(a))[0]).filter(Boolean);
 }
 function renewalSelectEnding(key){
   const row=renewalFindRow(key);
@@ -1915,6 +1942,8 @@ function renewalSelectEnding(key){
 }
 function renewalSelectSuite(number){
   if(!renewalSuiteCandidates().includes(number))return;
+  renewalOfferManualActive=false;
+  document.getElementById("renewalOfferManualDetails").open=false;
   renewalOfferSeriesWanted=number;
   const offered=renewalOptionsFor("renewalOffered").find(row=>renewalFixedNumber(row)===number);
   if(!offered)return;
@@ -1934,7 +1963,7 @@ function renewalUpdateQuickPicks(){
   if(info){
     if(selected.ending&&standardFixedRate(selected.ending)){
       const rate=standardFixedRate(selected.ending);
-      info.textContent="✓ "+renewalDisplayName(selected.ending)+" selected - rates loaded automatically.";
+      info.textContent="";
       info.title="Electricity "+rate.eU+"p/kWh + "+rate.eSC+"p/day; gas "+
         rate.gU+"p/kWh + "+rate.gSC+"p/day, before VAT.";
     }else{
@@ -1952,14 +1981,12 @@ function renewalUpdateQuickPicks(){
     button.type="button";
     button.setAttribute("aria-pressed",String(renewalRowKey(selected.ending)===renewalRowKey(row)));
     const name=document.createElement("b");name.textContent=renewalRawName(row);
-    const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"})+
-      (row.rate_version_code==="POST_APR_2026"?" (April 26 rates)":
-       row.rate_version_code==="PRE_APR_2026"?" (before April 26 rates)":"");
+    const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"});
     button.append(name,small);
     button.addEventListener("click",()=>renewalSelectEnding(key));
     endButtons.appendChild(button);
   }
-  if(!ends.length)endButtons.textContent="No near-expiring tariffs found in the available archive.";
+  if(!ends.length)endButtons.textContent="66 / 65 unavailable";
   const all=renewalOptionsFor("renewalEnding");
   dropdown.replaceChildren();
   const blank=document.createElement("option");blank.value="";blank.textContent="Choose a historical fixed tariff";dropdown.appendChild(blank);
@@ -1975,14 +2002,14 @@ function renewalUpdateQuickPicks(){
   // Current public suite and the most recent earlier suites are the likely email offers.
   // Quick options deliberately limited to 99/100, not the older 98.
   // A different actual offer remains selectable below and is never silently replaced.
-  const offeredChoices=[99,100].filter(n=>suites.includes(n));
+  const offeredChoices=[100,99].filter(n=>suites.includes(n));
   offeredChoices.forEach(n=>{
     const button=document.createElement("button");
     button.type="button";
     button.setAttribute("aria-pressed",String(renewalFixedNumber(selected.offered)===n));
     const name=document.createElement("b");name.textContent=(renewalTier()==="1"?"Fixed Start ":renewalTier()==="2"?"Fixed ":"Fixed Saver ")+n;
     const sub=document.createElement("span");
-    sub.textContent=n===publicNumber?"Current public fixed tariff":"Possible email offer";
+    sub.textContent="";
     button.append(name,sub);button.addEventListener("click",()=>renewalSelectSuite(n));
     suiteButtons.appendChild(button);
   });
@@ -2031,7 +2058,7 @@ function storyAutoSelectDefaults(){
       document.getElementById("renewalPublic").value=renewalRowKey(publicRow);
   }
   renewalEndingSeriesWanted=renewalFixedNumber(renewalSelectedRows().ending);
-  renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
+  if(!renewalOfferManualActive)renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
   renewalUpdateQuickPicks();
 }
 /* ---------- SIMPLE FOUR-LINE RENEWAL COMPARISON v2.66.0 ---------- */
@@ -2042,7 +2069,29 @@ function storyAutoSelectDefaults(){
  * an old Fixed Saver rate being reused as an old Fixed Start rate.
  */
 const RENEWAL_OLD_FIELD_IDS=["oldElecUnit","oldElecSC","oldGasUnit","oldGasSC"];
-let renewalOldSourceTier=null;
+const RENEWAL_OFFER_FIELD_IDS=["offerElecUnit","offerElecSC","offerGasUnit","offerGasSC"];
+let renewalOldSourceTier=null,renewalOfferManualActive=false,renewalOfferManualTier=null;
+function renewalManualOfferedRow(){
+  if(!renewalOfferManualActive||renewalOfferManualTier!==renewalTier())return null;
+  const name=String(document.getElementById("offerTariffName").value||"").trim();
+  if(!renewalFixedFamily(renewalTier()).test(name))return null;
+  const bounds=[150,300,50,300];
+  const vals=RENEWAL_OFFER_FIELD_IDS.map((id,i)=>{
+    const raw=String(document.getElementById(id).value||"").trim(),n=Number(raw);
+    return raw!==""&&Number.isFinite(n)&&n>=0&&n<=bounds[i]?n:null;
+  });
+  if(vals.some(n=>n===null))return null;
+  return {tariff_name:name,tariff_type:"fixed",EUR_Std:vals[0],EDSC_Std:vals[1],
+    GUR:vals[2],GDSC:vals[3],fixed_end_date:document.getElementById("offerEndDate").value||"",
+    manual_comparison:true};
+}
+function toggleRenewalRateCog(which,button){
+  const details=document.getElementById(which==="ending"?"renewalManualDetails":"renewalOfferManualDetails");
+  if(!details)return;
+  details.open=!details.open;
+  button.setAttribute("aria-expanded",String(details.open));
+  if(details.open)details.querySelector("input")?.focus();
+}
 
 let builderCurrentMode="fixed";
 function builderSetCurrentMode(mode){
@@ -2241,12 +2290,14 @@ function renderRenewalStory(s){
   buttons.innerHTML=tests.map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+
     (Math.abs(v-s.janRise)<.001)+'">'+(v>0?"+":"")+v+'%</button>').join("");
   if(!renewalInputsValid(s.mode)){
-    savings.innerHTML='<p class="renewal-chart-small">Tariff history unavailable. No cost comparison is shown until all tariff rates are verified.</p>';
+    savings.innerHTML='<p class="renewal-chart-small">'+(renewalOfferManualActive?
+      'Enter the tariff name and all four rates in the offer cog. Manual comparisons cannot be shared.':
+      'Choose tariffs to see the comparison.')+'</p>';
     plot.innerHTML="";document.getElementById("renewalLineLegend").innerHTML="";
     return;
   }
   const rows=renewalSelectedRows(),fix99=rows.offered,fix100=rows.public;
-  if(!fix99||!fix100||renewalFixedNumber(fix99)===null||renewalFixedNumber(fix100)===null){
+  if(!fix99||!fix100||(!renewalOfferManualActive&&renewalFixedNumber(fix99)===null)||renewalFixedNumber(fix100)===null){
     savings.innerHTML='<p class="renewal-chart-small">Both your selected offer and the current public fix are required. No other rates are substituted.</p>';
     plot.innerHTML="";return;
   }
@@ -3453,6 +3504,7 @@ function builderSetUsage(type,value){
 }
 function builderSetService(tier){
   if(!["1","2","3"].includes(tier))return;
+  renewalOfferManualActive=false;
   renewalEndingSeriesWanted=renewalFixedNumber(renewalSelectedRows().ending);
   renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
   document.getElementById("renewalServices").value=tier;
@@ -3477,8 +3529,8 @@ function builderUpdateShareUi(url){
   preview.href=url||"#";
   preview.setAttribute("aria-disabled",String(!canShare));
   document.getElementById("builderShareStatus").textContent=canShare?
-    "Ready to share - your chosen tariffs and annual usage are in the link.":
-    "A verified tariff comparison must be available before sharing.";
+    "Ready to share.":renewalOfferManualActive?
+    "Manual offer rates: on-screen comparison only. Sharing disabled.":"Choose verified rates before sharing.";
 }
 
 function buildShareUrl(s){
@@ -3648,7 +3700,7 @@ function render(){
   const availability=canShow?(s.renewal&&renewalCatalogueSource==="demo"?"demo":"verified"):
     s.renewal?"incomplete":evFeedStatus==="loading"?"loading":"unavailable";
   document.body.classList.toggle("tariff-unverified",!canShow);
-  document.body.dataset.tariffDataStatus=availability;
+  document.body.dataset.tariffDataStatus=(s.renewal&&renewalOfferManualActive&&canShow)?"manual":availability;
   const notice=document.getElementById("tariffCheck");
   notice.hidden=canShow;
   if(!canShow){
@@ -3669,7 +3721,7 @@ function render(){
   const historyComplete=Array.isArray(pastMonths)&&pastMonths.length===12&&pastMonths.every(Boolean);
   // A missing old tariff is not a reason to suppress verified forward options.
   // Omit its grey line and clearly say why, rather than inventing a baseline.
-  const shareReady=canShow&&(!s.renewal||["live","snapshot"].includes(renewalCatalogueSource));
+  const shareReady=canShow&&(!s.renewal||(["live","snapshot"].includes(renewalCatalogueSource)&&!renewalOfferManualActive));
   document.getElementById("shareUrl").value=shareReady?buildShareUrl(s):"";
   builderUpdateShareUi(document.getElementById("shareUrl").value);
   // This status is reset in renewalUpdateQuickPicks when the catalogue changes.
@@ -3928,6 +3980,7 @@ function statics(){
     render();
   }));
   document.getElementById("renewalServices").addEventListener("change",()=>{
+    renewalOfferManualActive=false;
     renewalEndingSeriesWanted=renewalFixedNumber(renewalSelectedRows().ending);
     renewalOfferSeriesWanted=renewalFixedNumber(renewalSelectedRows().offered);
     renewalUserChoices={};
@@ -3944,10 +3997,19 @@ function statics(){
     if(!row||!renewalFixedFamily(renewalTier()).test(renewalRawName(row)))return;
     const key=renewalRowKey(row);
     document.getElementById("renewalOffered").value=key;
+    renewalOfferManualActive=false;
+    document.getElementById("renewalOfferManualDetails").open=false;
     renewalOfferSeriesWanted=renewalFixedNumber(row);
     renewalUserChoices.renewalOffered=key;
     renewalUpdateQuickPicks();render();
   });
+  for(const id of ["offerTariffName","offerEndDate",...RENEWAL_OFFER_FIELD_IDS]){
+    document.getElementById(id).addEventListener("input",()=>{
+      renewalOfferManualActive=true;renewalOfferManualTier=renewalTier();
+      renewalOfferSeriesWanted=null;
+      render();
+    });
+  }
   for(const id of ["oldTariffName",...RENEWAL_OLD_FIELD_IDS]){
     document.getElementById(id).addEventListener("input",()=>{
       renewalOldSourceTier=renewalTier();
@@ -4107,6 +4169,6 @@ function statics(){
 })();
 </script>
 <script src="./forecast-feed.js?v=2.76.4"></script>
-<script src="./renewal-mobile-experience-v2.79.5.js"></script>
+<script src="./renewal-mobile-experience-v2.66.6.js"></script>
 </body>
 </html>

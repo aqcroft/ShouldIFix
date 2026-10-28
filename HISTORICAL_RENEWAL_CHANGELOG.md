@@ -1,5 +1,11 @@
 # Historical renewal preview changelog
 
+## v2.66.6 - 28 October 2026 - Unified user-facing version and compact renewal controls
+- Align the user-facing Should I Fix version with Appointment Companion v2.66.6; repositories retain independent history and internal maintenance.
+- Streamline expiring tariff selection to Fixed 66 / 65 / Choose and renewal offers to Fixed 100 / 99 / Choose in two compact rows, with cog controls for manual rates.
+- Manual renewal offer rates are permitted for an explicitly entered on-screen scenario only. The customer share link is disabled for these unverified rates.
+- Hide lengthy selected-tariff confirmations while preserving accessible status notices, archive choice, calculations, and verification safeguards.
+
 ## v2.79.5 - 27 October 2026
 - Correct the renewal fuel-breakdown data references to the two verified annual model series; keep their underlying results unchanged.
 - Tidy pence display and apply the illustrated variable-price caution to Value, Gold and Double Gold.
