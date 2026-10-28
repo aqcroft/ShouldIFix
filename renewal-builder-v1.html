@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.9">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.9</title>
+<meta name="app-version" content="2.66.10">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.10</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -2238,7 +2238,7 @@ function renewalQuarterGeometry(months){
 function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=false){
   const W=690,H=325,L=130,R=0,T=24,B=39,months=MONTHS;
   const quarterLayout=renewalQuarterGeometry(months);
-  const all=[old,variable,fix99,fix100,budget===null?null:Array(MONTHS.length).fill(budget)].filter(Array.isArray).flat();
+  const all=[old,variable,fix99,fix100].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
   const spread=Math.max(10,max-min);
   const low=Math.max(0,Math.floor((min-spread*.18)/10)*10),high=Math.ceil((max+spread*.20)/10)*10;
@@ -2246,7 +2246,7 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
   const y=v=>T+(H-T-B)*(1-(v-low)/(high-low));
   const path=values=>values.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
   const totals=[["variable",variable.reduce((a,b)=>a+b,0)],["offer",fix99.reduce((a,b)=>a+b,0)],["public",fix100.reduce((a,b)=>a+b,0)]].sort((a,b)=>a[1]-b[1]);
-  const colors={old:"#777784",budget:"#394b70"};
+  const colors={old:"#777784"};
   totals.forEach((row,i)=>{colors[row[0]]=["#087a3b","#ab5400","#bc2030"][i];});
   const grid=[];
   const step=niceStep(high-low);
@@ -2268,19 +2268,14 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
   const svg='<svg viewBox="0 0 '+W+' '+H+'" data-quarter-edges="'+quarterLayout.edges.map(v=>v.toFixed(2)).join(',')+'" role="img" aria-label="Monthly energy costs by tariff">'+grid.join("")+
     janMarker+
     (old?line(old,colors.old,'stroke-dasharray="2 5"'):'')+
-    (budget!==null?line(Array(months.length).fill(budget),colors.budget,'stroke-dasharray="2 6"'):"")+
-    variablePath+line(fix99,colors.offer)+line(fix100,colors.public)+
+    variablePath+line(fix99,colors.offer)+line(fix100,colors.public,'stroke-dasharray="7 4"')+
     (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+
-    (budget!==null?'<title>Monthly Budget Plan payment: £'+budget.toFixed(2)+'</title>':"")+
     // Monthly and yearly costs are shown in the responsive colour-coded legend above.
     labels+'</svg>';
   const original=renewalManualOldRates();
   const legends=[
     ["old",builderCurrentMode==="variable"?"Variable - previous usage profile":
       original?original.name+" - last year":"Last year - "+renewalRawName(renewalSelectedRows().ending),!!old],
-    ["budget",budget===null?"":(estimatedBudget?
-      builderCurrentMode==="variable"?"Current-rate average ~£":"Previous tariff average ~£":"Budget Plan ~£")+
-      Math.round(budget)+"/month"+(estimatedBudget?" (illustrative)":""),budget!==null],
     ["variable","Default to variable",true],
     ["offer",renewalRawName(renewalSelectedRows().offered),true],
     ["public",renewalRawName(renewalSelectedRows().public),true]
@@ -2289,7 +2284,7 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
     '<span class="'+(key==="old"||key==="budget"?"dash":"")+'" style="--lc:'+colors[key]+'"><i aria-hidden="true"></i>'+safeHtml(label)+'</span>').join("");
   document.getElementById("renewalFourLineChart").innerHTML=svg;
   document.getElementById("renewalFourLineChart").setAttribute("aria-label",
-    "Monthly comparison: "+(old?"previous fixed tariff, ":"")+(budget!==null?"Budget Plan payment, ":"")+
+    "Monthly comparison: "+(old?"previous fixed tariff, ":"")+
     s.variableName+", "+s.offerName+" and "+renewalRawName(renewalSelectedRows().public)+".");
 }
 function renewalCostTableRow(name,yearCost,variableTotal,desc,kind,isBest=false){
@@ -3304,7 +3299,13 @@ function draw(res,janRise,s,tracker){
   const trackerSeries=tracker&&tracker.series?String(tracker.series).replace(/\D/g,""):"";
   const trackerLegend="Tracker"+(trackerSeries?" "+trackerSeries:"");
   const W=548,H=360,padT=48,padB=38;
-  const rows=res.rows,n=rows.length;
+  // Only the plotted points use full-calendar-month equivalents.
+  // Original rows remain pro-rated for totals, savings and quarterly comparisons.
+  const rows=res.rows.map((row,i)=>{
+    const m=MONTHS[i],factor=m&&m.days>0?m.fullDays/m.days:1;
+    return {...row,cap:row.cap*factor,fixed:row.fixed*factor,
+      tracker:Number.isFinite(row.tracker)?row.tracker*factor:null};
+  }),n=rows.length;
   const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
   const span=Math.max(20,rawMax-rawMin);
@@ -3386,6 +3387,7 @@ function draw(res,janRise,s,tracker){
         </svg>
       </div>
     </div>
+    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Totals, quarterly costs and savings use the actual pro-rated comparison dates.</p>
   </div>`;
 }
 
@@ -3936,7 +3938,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.9 (28 October 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
+    <div>App version: 2.66.10 (28 October 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -4196,7 +4198,7 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.9"></script>
-<script src="./renewal-mobile-experience-v2.66.9.js"></script>
+<script src="./forecast-feed.js?v=2.66.10"></script>
+<script src="./renewal-mobile-experience-v2.66.10.js"></script>
 </body>
 </html>
