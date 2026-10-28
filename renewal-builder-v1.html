@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.10">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.10</title>
+<meta name="app-version" content="2.66.11">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.11</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -324,6 +324,14 @@
   .chart-key-swatch.fix{background:var(--fixed)}
   .chart-key-swatch.tracker{background:var(--tracker)}
   .chart-ylabel{position:absolute;right:5px;transform:translateY(-50%);font-size:.52rem;font-weight:750;color:#8b849f;line-height:1;white-space:nowrap}
+    /* Compact vertical legend on the left: tariff name and full-month equivalent together. */
+  .chart-key{left:2px;top:6%;height:86%;width:34px;display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;gap:4px;transform:none;white-space:normal}
+  .chart-key-item{box-sizing:border-box;flex:1;min-height:0;display:flex;flex-direction:row;align-items:center;justify-content:center;gap:2px;border-left:2px solid currentColor;padding-left:1px}
+  .chart-key-item.fix{color:var(--fixed)}.chart-key-item.tracker{color:var(--tracker)}.chart-key-item.cap{color:var(--cap)}
+  .chart-key-item span,.chart-key-item strong{writing-mode:vertical-rl;transform:rotate(180deg);display:block;line-height:1;white-space:nowrap;font-size:clamp(.44rem,1.2vw,.59rem);font-weight:850}
+  .chart-key-item strong{font-weight:950}
+  .chart-key-swatch{display:none}
+  @media(max-width:430px){.chart-key{left:1px;width:31px}.chart-key-item span,.chart-key-item strong{font-size:.44rem}}
   .chart-plot{min-width:0}
   .chart-plot svg.chart{width:100%;height:auto;display:block}
   @media(max-width:430px){
@@ -3306,6 +3314,7 @@ function draw(res,janRise,s,tracker){
     return {...row,cap:row.cap*factor,fixed:row.fixed*factor,
       tracker:Number.isFinite(row.tracker)?row.tracker*factor:null};
   }),n=rows.length;
+  const monthlyEq=key=>gbp(rows.reduce((sum,row)=>sum+(Number(row[key])||0),0)/Math.max(1,n))+'/m';
   const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
   const span=Math.max(20,rawMax-rawMin);
@@ -3365,9 +3374,9 @@ function draw(res,janRise,s,tracker){
     <div class="chart-grid">
       <div class="chart-side" aria-label="Chart key and monthly cost scale">
         <div class="chart-key">
-          <div class="chart-key-item"><i class="chart-key-swatch fix"></i><span>${fixedLegend}</span></div>
-          ${s.renewal?"":'<div class="chart-key-item"><i class="chart-key-swatch tracker"></i><span>'+trackerLegend+'</span></div>'}
-          <div class="chart-key-item"><i class="chart-key-swatch cap"></i><span>${s.renewal?safeHtml(s.variableName):"Variable"}</span></div>
+          <div class="chart-key-item fix" title="Estimated average full-month fixed cost"><i class="chart-key-swatch fix"></i><span>${fixedLegend}</span><strong>${monthlyEq('fixed')}</strong></div>
+          ${s.renewal?"":'<div class="chart-key-item tracker" title="Estimated average full-month Tracker cost"><i class="chart-key-swatch tracker"></i><span>'+trackerLegend+'</span><strong>'+monthlyEq('tracker')+'</strong></div>'}
+          <div class="chart-key-item cap" title="Estimated average full-month variable cost"><i class="chart-key-swatch cap"></i><span>Variable</span><strong>${monthlyEq('cap')}</strong></div>
         </div>
         ${yScale}
       </div>
@@ -3938,7 +3947,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.10 (28 October 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
+    <div>App version: 2.66.11 (28 October 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -4198,7 +4207,7 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.10"></script>
-<script src="./renewal-mobile-experience-v2.66.10.js"></script>
+<script src="./forecast-feed.js?v=2.66.11"></script>
+<script src="./renewal-mobile-experience-v2.66.11.js"></script>
 </body>
 </html>
