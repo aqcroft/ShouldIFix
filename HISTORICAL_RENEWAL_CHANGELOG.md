@@ -1,5 +1,13 @@
 # Historical renewal preview changelog
 
+## v2.66.10 - 28 October 2026 - Clearer renewal comparison and realistic full-month chart
+- Dock the three fully vertical, cost-ranked tariff labels inside the existing left axis gutter, recovering the chart width and preserving exact chart/quarter alignment.
+- Subtly tint the three existing tappable hero cards red, amber and green. Draw the public fixed option dashed to make close-priced fixed tariffs visually distinguishable.
+- Omit the horizontal Budget Plan/payment reference line from the renewal plot, but retain the grey historical fixed-cost line and payment information elsewhere.
+- Display full calendar month equivalents for the first and last monthly chart points in both prospective calculators; leave financial model rows, quarterly totals, savings, actual switch dates and seasonal weighting pro-rated exactly as before.
+- Add a short graph-only disclosure clarifying that financial totals cover the actual comparison period. The same Oct2026 calculator is embedded in Appointment Companion and public customer-share views.
+- Refresh version/cache metadata and regression tests. All changes are presentation-only.
+
 ## v2.66.9 - 28 October 2026 - Cleaner chart key and unified standalone customer journey
 - Preserve the three tappable hero cards. Move only the three tariff line labels into a narrow left-hand rail beside the chart, ranked red (highest projected cost), amber, then green (lowest), with vertically set equivalent monthly amounts.
 - Remove Budget Plan and modelled previous cost details from the crowded tariff key; their dotted chart references and the expandable methodology remain.
