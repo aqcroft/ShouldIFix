@@ -36,7 +36,7 @@ for(const [name,html] of [["standalone",standalone],["builder",builder]]){
   const rows=[row("Oct","conf",5,5,5),row("Nov","conf",155,160,170),row("Dec","conf",160,165,175)];
   const res={rows,yCap:320,yFix:330,ySave:-10};
   const ctx={
-    MONTHS:months,document:{getElementById:()=>chart},DEFAULT_JAN_RISE:27,
+    MONTHS:months,res,document:{getElementById:()=>chart},DEFAULT_JAN_RISE:27,
     liveFixedRow:()=>null,safeHtml:x=>x,niceStep:()=>50,
     forecastScenarioValues:()=>[0,15,27,30],Number,Math
   };
