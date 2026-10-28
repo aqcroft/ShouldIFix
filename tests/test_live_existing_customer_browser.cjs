@@ -94,6 +94,30 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    assert(layout.content<=layout.inner+2,"No sideways scroll in renewal chart: "+JSON.stringify(layout));
    assert(layout.page<=layout.window+2,"No horizontal overflow on phone: "+JSON.stringify(layout));
    assert(layout.collapsed,"Methodology should not clutter the screen before expansion");
+   const alignment=await page.evaluate(()=>{
+     const svg=document.querySelector("#renewalFourLineChart svg");
+     const grid=document.querySelector("#renewalQuarterlyCosts .renewal-q-grid");
+     const quarter=document.querySelector("#renewalQuarterlyCosts");
+     const xs=svg.dataset.quarterEdges.split(",").map(Number);
+     const box=svg.getBoundingClientRect();
+     const cells=Array.from(grid.children);
+     const actual=[cells[0].getBoundingClientRect().right,...cells.slice(1,6).map(x=>x.getBoundingClientRect().right)];
+     const expected=xs.map(x=>box.left+x*box.width/690);
+     const errors=actual.map((x,i)=>Math.abs(x-expected[i]));
+     const counts=["#bc2030","#ab5400","#087a3b"].map(colour=>
+       svg.querySelectorAll('path[stroke="'+colour+'"]').length);
+     return {quarterCount:xs.length-1,errors,actual,expected,
+       chartAlignment:quarter.dataset.chartAlignment,
+       consistentEdges:quarter.dataset.quarterEdges===svg.dataset.quarterEdges,
+       plottedOptionCounts:counts};
+   });
+   assert.equal(alignment.chartAlignment,"shared-geometry");
+   assert.equal(alignment.quarterCount,5,"Five calendar quarter columns share the graph timeline");
+   assert(alignment.consistentEdges,"Table and graph must use identical quarter boundaries");
+   assert(alignment.errors.every(v=>v<2.5),
+     "Quarter column boundaries should align with the chart to within 2.5px: "+JSON.stringify(alignment));
+   assert.deepEqual(alignment.plottedOptionCounts,[1,1,1],
+     "One distinct red, amber and green line per tariff - no duplicate red line");
    assert(Number(widths.quarters)>=4,"Quarter cells must come from the forecast months");
    assert.equal(await page.locator("#renewalPreviewWarning").isVisible(),false,
      "No obsolete beige preview warning on verified results");

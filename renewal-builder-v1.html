@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.7">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.7</title>
+<meta name="app-version" content="2.66.8">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.8</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -2207,13 +2207,42 @@ function renewalComputeSeries(s,fix){
     variable:renewalRates("Var"),variableDisc:s.mode==="dual"?DISCOUNT:0,
     janRise:s.janRise,electricHeat:s.electricHeat,tracker:null});
 }
+/* One shared calendar geometry for both the graph and the quarterly cost grid.
+   Keeps shorter first/last quarters readable without detaching their month markers. */
+function renewalQuarterGeometry(months){
+  const groups=[];
+  months.forEach((m,index)=>{
+    const key=m.year+"-Q"+(Math.floor(m.cal/3)+1);
+    let group=groups[groups.length-1];
+    if(!group||group.key!==key){
+      group={key,indices:[]};
+      groups.push(group);
+    }
+    group.indices.push(index);
+  });
+  const labelWidth=130,plotWidth=690-labelWidth;
+  const preferred=groups.map(g=>g.indices.length===1?80:g.indices.length===2?110:g.indices.length*(125/3));
+  const total=preferred.reduce((a,b)=>a+b,0);
+  const quarterWidths=preferred.map(x=>plotWidth*x/total);
+  const monthX=[];
+  const edges=[labelWidth];
+  let cursor=labelWidth;
+  groups.forEach((group,i)=>{
+    const width=quarterWidths[i];
+    group.indices.forEach((index,j)=>{monthX[index]=cursor+(j+.5)*width/group.indices.length;});
+    cursor+=width;
+    edges.push(cursor);
+  });
+  return {labelWidth,quarterWidths,monthX,edges,groups:groups.map(g=>g.key)};
+}
 function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=false){
-  const W=690,H=325,L=62,R=16,T=24,B=39,months=MONTHS;
+  const W=690,H=325,L=130,R=0,T=24,B=39,months=MONTHS;
+  const quarterLayout=renewalQuarterGeometry(months);
   const all=[old,variable,fix99,fix100,budget===null?null:Array(MONTHS.length).fill(budget)].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
   const spread=Math.max(10,max-min);
   const low=Math.max(0,Math.floor((min-spread*.18)/10)*10),high=Math.ceil((max+spread*.20)/10)*10;
-  const x=i=>L+(W-L-R)*i/11;
+  const x=i=>quarterLayout.monthX[i];
   const y=v=>T+(H-T-B)*(1-(v-low)/(high-low));
   const path=values=>values.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
   const totals=[["variable",variable.reduce((a,b)=>a+b,0)],["offer",fix99.reduce((a,b)=>a+b,0)],["public",fix100.reduce((a,b)=>a+b,0)]].sort((a,b)=>a[1]-b[1]);
@@ -2229,17 +2258,14 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
   const janIndex=months.findIndex(m=>m.cal===0);
   const janMarker=janIndex>=0?
     '<line x1="'+(x(janIndex)-24).toFixed(1)+'" y1="'+T+'" x2="'+(x(janIndex)-24).toFixed(1)+'" y2="'+(H-B)+'" stroke="#d9cad9" stroke-dasharray="3 4"/>'+
-    '<text x="'+(x(janIndex)+3).toFixed(1)+'" y="'+(T+9)+'" font-size="10" fill="'+colors.variable+'" font-weight="900">Jan '+(s.janRise>=0?"+":"")+s.janRise+'% cap scenario</text>':"";
+    '<text x="'+(x(janIndex)+3).toFixed(1)+'" y="'+(T+9)+'" font-size="12" fill="#615575" font-weight="900">Jan '+(s.janRise>=0?"+":"")+s.janRise+'% cap scenario</text>':"";
   const line=(data,color,extra="")=>'<path d="'+path(data)+'" fill="none" stroke="'+color+'" stroke-width="3.25" '+extra+' stroke-linejoin="round" stroke-linecap="round"/>';
-  const firstForecast=months.findIndex(m=>m.ph!=="conf");
-  const confirmed=firstForecast<0?variable:variable.slice(0,Math.max(1,firstForecast));
-  const from=Math.max(0,firstForecast-1),forecast=firstForecast<0?[]:variable.slice(from);
-  const variablePath=(confirmed.length>1?line(confirmed,colors.variable):"")+
-    (forecast.length>1?'<path d="'+forecast.map((v,i)=>(i?"L":"M")+x(i+from).toFixed(1)+","+y(v).toFixed(1)).join(" ")+
-    '" fill="none" stroke="'+colors.variable+'" stroke-width="3.25" stroke-dasharray="7 5" stroke-linejoin="round"/>':"");
+  // Draw one continuous red/amber/green path per option. The January marker
+  // communicates the forecast transition without adding a second red stroke.
+  const variablePath=line(variable,colors.variable);
   const dots=(values,color)=>values.map((v,i)=>'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+
     '" r="3" fill="#fff" stroke="'+color+'" stroke-width="2"><title>'+months[i].k+': '+gbp(v)+'</title></circle>').join("");
-  const svg='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Monthly costs by tariff for November to October">'+grid.join("")+
+  const svg='<svg viewBox="0 0 '+W+' '+H+'" data-quarter-edges="'+quarterLayout.edges.map(v=>v.toFixed(2)).join(',')+'" role="img" aria-label="Monthly energy costs by tariff">'+grid.join("")+
     janMarker+
     (old?line(old,colors.old,'stroke-dasharray="2 5"'):'')+
     (budget!==null?line(Array(months.length).fill(budget),colors.budget,'stroke-dasharray="2 6"'):"")+
@@ -2380,6 +2406,7 @@ function renderRenewalStory(s){
     years:{variable:yearVariable,offer:year99,public:year100},
     series:{variable:x99.rows.map(r=>r.cap),offer:x99.rows.map(r=>r.fixed),public:x100.rows.map(r=>r.fixed)},
     months:MONTHS.map(m=>({year:m.year,cal:m.cal})),budget:budget,hasPast:!!past,
+    quarterLayout:renewalQuarterGeometry(MONTHS),
     names:{variable:"Default to "+s.variableName,offer:renewalRawName(fix99),public:renewalRawName(fix100)},
     range:formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate),
     fuels:{
@@ -4170,6 +4197,6 @@ function statics(){
 })();
 </script>
 <script src="./forecast-feed.js?v=2.76.4"></script>
-<script src="./renewal-mobile-experience-v2.66.7.js"></script>
+<script src="./renewal-mobile-experience-v2.66.8.js"></script>
 </body>
 </html>

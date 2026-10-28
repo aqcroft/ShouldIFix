@@ -1,5 +1,12 @@
 # Historical renewal preview changelog
 
+## v2.66.8 - 28 October 2026 - Exact month-to-quarter alignment and distinct lines
+- Draw the existing-customer chart and quarter table from one shared calendar geometry, so all five quarter boundaries line up with the actual month markers on the chart.
+- Allow differing widths for two-month, three-month and one-month quarters, keeping the short final quarter legible on mobile.
+- Draw just one continuous variable tariff line, using green, amber and red exclusively for the three ranked tariff options; the January scenario annotation uses neutral text.
+- Keep previous-cost and Budget Plan reference lines in grey and navy, and preserve rate calculations, sharing, scenarios and data feeds.
+- Add mobile browser assertions measuring each quarter boundary against the SVG to within 2.5px, with no horizontal overflow.
+
 ## v2.66.7 - 28 October 2026 - Match the compact prospective chart layout
 - Scale renewal's chart and its five price-cap-quarter columns to the mobile viewport; remove the forced 690px horizontal scrolling and clipping.
 - Keep three tariff cost rows directly beneath the plot, including individual quarter totals and comparisons, without altering monthly cost calculations.
