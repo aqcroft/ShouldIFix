@@ -8,6 +8,8 @@ const standalone=fs.readFileSync("Oct2026.html","utf8");
 // The input is removed from the form but the DOM ID is maintained solely for
 // backward compatibility with old shared bp= links.
 assert.doesNotMatch(builder,/Current monthly payment<\/h3>/);
+assert.doesNotMatch(builder,/Choose the two tariffs, then add the monthly payment/);
+assert.doesNotMatch(builder,/function renewalBudgetReference\(s\)/);
 assert.match(builder,/<input id="renewalBudgetMonthly" type="hidden" value=""/);
 assert.match(builder,/if\(P\.has\("bp"\)\)document\.getElementById\("renewalBudgetMonthly"\)/);
 assert.match(builder,/if\(budget!==null\)p\.set\("bp",budget\.toFixed\(2\)\)/);
