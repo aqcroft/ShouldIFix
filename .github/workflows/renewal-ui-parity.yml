@@ -1,19 +1,21 @@
-name: Should I Fix renewal UI parity v2.66.10
+name: Should I Fix renewal UI parity v2.66.11
 on:
   pull_request:
     paths:
       - Oct2026.html
       - renewal-builder-v1.html
-      - renewal-mobile-experience-v2.66.10.js
+      - renewal-mobile-experience-v2.66.11.js
       - tests/test_full_month_chart_v26610.cjs
+      - tests/test_chart_legends_v26611.cjs
       - .github/workflows/renewal-ui-parity.yml
   push:
     branches: [main]
     paths:
       - Oct2026.html
       - renewal-builder-v1.html
-      - renewal-mobile-experience-v2.66.10.js
+      - renewal-mobile-experience-v2.66.11.js
       - tests/test_full_month_chart_v26610.cjs
+      - tests/test_chart_legends_v26611.cjs
 permissions:
   contents: read
 jobs:
@@ -25,6 +27,8 @@ jobs:
         with:
           node-version: '24'
       - name: Check renewal legend JavaScript syntax
-        run: node --check renewal-mobile-experience-v2.66.10.js
+        run: node --check renewal-mobile-experience-v2.66.11.js
       - name: Check whole-month chart, untouched pro-rated totals and compact axis legend
-        run: node tests/test_full_month_chart_v26610.cjs
+        run: |
+          node tests/test_full_month_chart_v26610.cjs
+          node tests/test_chart_legends_v26611.cjs

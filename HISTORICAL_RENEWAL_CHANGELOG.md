@@ -1,5 +1,11 @@
 # Historical renewal preview changelog
 
+## v2.66.11 - 28 October 2026 - Stacked renewal labels and monthly equivalents
+- Stack the renewal chart's three left-axis labels vertically, descending red (most expensive), amber, green (least expensive). Keep both the tariff name and monthly equivalent in the matching colour and preserve the SVG/quarter-table alignment.
+- Shorten the existing-customer legend names to Variable, Fixed 100 and Fixed 101 (or whichever fixed series are selected), without changing full tariff names elsewhere.
+- Add a matching-colour, estimated full-calendar-month average cost beside each tariff in the prospective chart legend, including Tracker where available; keep the blue/purple/orange lines and their seasonal data.
+- Preserve financial totals, savings, historic reference lines, hero cards, pro-rated switching period, public customer sharing and historical tariff selectors. Update shared release metadata and regression checks.
+
 ## v2.66.10 - 28 October 2026 - Clearer renewal comparison and realistic full-month chart
 - Dock the three fully vertical, cost-ranked tariff labels inside the existing left axis gutter, recovering the chart width and preserving exact chart/quarter alignment.
 - Subtly tint the three existing tappable hero cards red, amber and green. Draw the public fixed option dashed to make close-priced fixed tariffs visually distinguishable.
