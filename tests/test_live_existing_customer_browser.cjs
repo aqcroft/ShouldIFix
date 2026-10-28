@@ -36,7 +36,7 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    assert.equal(await page.locator("#renewalBuilder .renewal-choice-line").count(),2,"Two tidy rows");
    assert.equal(await page.locator("#renewalBuilder .renewal-row-cog").count(),2,"Manual rate cog on each row");
    const version = await page.locator('meta[name="app-version"]').getAttribute('content');
-   assert.equal(version,"2.66.7","Should I Fix version must match Companion");
+   assert.equal(version,"2.66.8","Should I Fix version must match Companion");
    const shortcutTitles=await page.locator("#renewalSuitePicks button b").allTextContents();
    assert(shortcutTitles.every(s=>/\b(?:99|100)$/.test(s)), "Only tariffs 99 and 100 appear as shortcut buttons: "+shortcutTitles);
    assert(!shortcutTitles.some(s=>/98$/.test(s)), "Fixed 98 must not be a shortcut");
