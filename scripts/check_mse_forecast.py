@@ -12,8 +12,8 @@ from bs4 import BeautifulSoup
 
 URL="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/"
 LABELS=("1 Oct to 31 Dec 2026","1 Jan to 31 March 2027","1 Apr to 30 June 2027","1 Jul to 30 Sep 2027")
-ROW=re.compile(r"EDF\s*\(\s*1\s*\)|British\s+Gas\s*\(\s*2\s*\)|E\.on\s+Next\s*\(\s*3\s*\)|Average\s*\(\s*4\s*\)",re.I)
-CELL=re.compile(r"(?:\b(UP|DOWN)\s+(\d+(?:\.\d+)?)\s*%\s*£\s*([\d,]+)(?:\s+a year)?)|No prediction yet",re.I)
+ROW=re.compile(r"(?:\bEDF\b|\bBritish\s+Gas\b|\bE\.on\s+Next\b|\bAverage\b)(?:\s*\(\s*\d+\s*\))?",re.I)
+CELL=re.compile(r"(?:\b(UP|DOWN)\s+(\d+(?:\.\d+)?)\s*%\s*£\s*([\d,]+)(?:\s+a year)?)|No predictions? yet|(?<!\w)[-–—](?!\w)",re.I)
 def iso(text):
     for fmt in ("%d %B %Y","%d %b %Y"):
         try: return dt.datetime.strptime(text.strip(),fmt).date().isoformat()
@@ -51,7 +51,7 @@ def read_table(html,approved,today=None):
         for v in values:
             if v is not None and not(-90<v["change_pct"]<150 and 100<v["annual_gbp"]<10000):
                 raise ValueError("MSE figure outside safe range")
-        if values[0] is None or values[0]["change_pct"]!=3.6: raise ValueError("Confirmed October cap changed")
+        if values[0] is not None and values[0]["change_pct"]!=3.6: raise ValueError("Confirmed October cap changed")
         rows.append(values)
     if any(x is None for x in rows[3]): raise ValueError("Average forecast row incomplete")
     new=copy.deepcopy(approved)
@@ -64,7 +64,7 @@ def read_table(html,approved,today=None):
     for i,row in enumerate(rows[:3]):
         new["suppliers"][i]["values"]=row
         match=re.search(r"\("+str(i+1)+r"\)\s*According to the latest prediction\s*\(on\s*(\d{1,2}\s+[A-Za-z]+\s+20\d{2})\)",txt,re.I)
-        new["suppliers"][i]["predicted_on"]=iso(match.group(1)) if match else published
+        new["suppliers"][i]["predicted_on"]=iso(match.group(1)) if match and any(v is not None for v in row) else None
     return new
 def signature(data):
     # Normalise e.g. 25 and 25.0, otherwise a no-change week requests approval.
