@@ -1,0 +1,30 @@
+name: Should I Fix renewal UI parity v2.66.9
+on:
+  pull_request:
+    paths:
+      - Oct2026.html
+      - renewal-builder-v1.html
+      - renewal-mobile-experience-v2.66.9.js
+      - tests/test_renewal_layout_v2669.cjs
+      - .github/workflows/renewal-ui-parity.yml
+  push:
+    branches: [main]
+    paths:
+      - Oct2026.html
+      - renewal-builder-v1.html
+      - renewal-mobile-experience-v2.66.9.js
+      - tests/test_renewal_layout_v2669.cjs
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Check renewal legend JavaScript syntax
+        run: node --check renewal-mobile-experience-v2.66.9.js
+      - name: Check chart legend, monthly amounts, routing and old share links
+        run: node tests/test_renewal_layout_v2669.cjs

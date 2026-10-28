@@ -1,5 +1,12 @@
 # Historical renewal preview changelog
 
+## v2.66.9 - 28 October 2026 - Cleaner chart key and unified standalone customer journey
+- Preserve the three tappable hero cards. Move only the three tariff line labels into a narrow left-hand rail beside the chart, ranked red (highest projected cost), amber, then green (lowest), with vertically set equivalent monthly amounts.
+- Remove Budget Plan and modelled previous cost details from the crowded tariff key; their dotted chart references and the expandable methodology remain.
+- Keep the monthly SVG and five-quarter totals inside the same responsive chart/table wrapper so their month and quarter boundaries stay aligned; no tariff or seasonal cost calculations are changed.
+- Send standalone Should I Fix's Existing customers selection to the same automatic historical tariff-selector builder as the integrated Appointment Companion PWA. Preserve legacy renew=1 customer-share URLs.
+- Keep both interfaces at v2.66.9, update cache/version references and run regression checks before merging.
+
 ## v2.66.8 - 28 October 2026 - Exact month-to-quarter alignment and distinct lines
 - Draw the existing-customer chart and quarter table from one shared calendar geometry, so all five quarter boundaries line up with the actual month markers on the chart.
 - Allow differing widths for two-month, three-month and one-month quarters, keeping the short final quarter legible on mobile.
