@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.11">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.11</title>
+<meta name="app-version" content="2.66.12">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.12</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -1088,17 +1088,12 @@ body.existing-builder #renewalBuilder{margin:14px auto}
       <p class="renewal-evidence renewal-selection-note" id="renewalLiveStatus" role="status">Checking the available offers…</p>
     </section>
 
-    <div class="renewal-simple-step">
-      <h3><span class="renewal-simple-number">3</span> Current monthly payment</h3>
-      <div class="renewal-simple-money">
-        <span aria-hidden="true">£</span><input id="renewalBudgetMonthly" type="number" min="0" max="5000" step="0.01" inputmode="decimal" aria-label="Current monthly Direct Debit or Budget Plan in pounds" placeholder="e.g. 155"/>
-        <span aria-hidden="true">/month</span>
-      </div>
-      <p class="renewal-short-note">Your customer's Direct Debit / Budget Plan amount.</p>
-    </div>
+    <!-- Retained solely to parse older customer-share URLs carrying bp=.
+         The Budget Plan payment has no role in tariff-cost or savings maths. -->
+    <input id="renewalBudgetMonthly" type="hidden" value=""/>
 
     <div class="renewal-simple-step">
-      <h3><span class="renewal-simple-number">4</span> Estimated annual usage</h3>
+      <h3><span class="renewal-simple-number">3</span> Estimated annual usage</h3>
       <div class="renewal-simple-usage builder-form-grid" id="builderExactUsage">
         <label class="builder-field" for="builderElecExact">⚡ Electricity <span>(kWh/year)</span>
           <input id="builderElecExact" type="number" min="0" max="200000" step="1" inputmode="numeric" placeholder="e.g. 3000"/>
@@ -1135,20 +1130,18 @@ body.existing-builder #renewalBuilder{margin:14px auto}
       <a id="builderPreviewLink" target="_blank" rel="noopener" href="#">Preview customer view</a>
       <span id="builderShareStatus" role="status"></span>
     </div>
-    <p class="builder-privacy">Only share a customer link after verifying the tariff options and usage. Demo comparisons cannot be shared.</p>
   </section>
-  <section id="renewalStory" class="renewal-chart-card hidden" aria-labelledby="renewalChartHeading">
-    <h2 id="renewalChartHeading">What are my options?</h2>
-    <p class="renewal-profile" id="renewalCustomerProfile"></p>
-    <p class="renewal-chart-subtitle" id="renewalChartIntro">Compare your monthly Budget Plan, previous fixed tariff and three options for the coming 12 months.</p>
+  <section id="renewalStory" class="renewal-chart-card hidden" aria-label="Tariff cost comparison">
+    <p class="renewal-profile" id="renewalCustomerProfile" hidden></p>
+    <p class="renewal-chart-subtitle" id="renewalChartIntro" hidden></p>
     <div class="renewal-savings-pair" id="renewalSavingsPair" aria-label="Three tariff choices, annual costs and monthly equivalents"></div>
     <p class="renewal-previous-pay" id="renewalPreviousBudget" hidden></p>
     <div class="renewal-scenario-bar"><strong>Stress test January's price-cap change</strong>
       <div class="renewal-scenario-buttons" id="renewalScenarioButtons" role="group" aria-label="January price cap stress tests"></div></div>
-    <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy costs and Budget Plan reference"></div>
+    <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy cost comparison and previous tariff reference"></div>
     <div class="renewal-chart-key renewal-chart-key-below" id="renewalLineLegend" aria-label="Chart line legend"></div>
     <details class="renewal-explainer" id="renewalMethodology"><summary>How these estimates work</summary>
-      <p class="renewal-chart-caption">The grey dotted line shows modelled previous costs; navy dotted shows the monthly Budget Plan payment, not energy usage.</p>
+      <p class="renewal-chart-caption">The grey dotted line shows estimated previous-tariff energy costs, when verified historical rates are available.</p>
       <p class="renewal-chart-small" id="renewalChartDisclosure">The variable tariff uses an illustrative future price-cap scenario, not a prediction of UW's actual prices. Tariff selection and rates must be verified before sharing with a customer.</p>
     </details>
   </section>
@@ -2255,7 +2248,7 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
   const path=values=>values.map((v,i)=>(i?"L":"M")+x(i).toFixed(1)+","+y(v).toFixed(1)).join(" ");
   const totals=[["variable",variable.reduce((a,b)=>a+b,0)],["offer",fix99.reduce((a,b)=>a+b,0)],["public",fix100.reduce((a,b)=>a+b,0)]].sort((a,b)=>a[1]-b[1]);
   const colors={old:"#777784"};
-  totals.forEach((row,i)=>{colors[row[0]]=["#087a3b","#ab5400","#bc2030"][i];});
+  totals.forEach((row,i)=>{colors[row[0]]=["#00865a","#e57b00","#e21b3c"][i];});
   const grid=[];
   const step=niceStep(high-low);
   for(let v=Math.ceil(low/step)*step;v<=high+.01;v+=step){
@@ -2339,19 +2332,12 @@ function renderRenewalStory(s){
   const old=renewalLastYearMonthly(s),past=old&&old.every(Boolean)?old.map(r=>r.total):null;
   document.querySelector(".renewal-chart-caption").textContent=past?
     (builderCurrentMode==="variable"?
-      "Grey dotted: a previous year's seasonal usage modelled at current variable rates. This is illustrative, not actual historical costs. Red dotted: monthly contribution or estimated average. Coloured lines: coming year's options.":
-     (renewalManualOldRates()?
-      "Grey dotted: last year's estimated energy costs at your original confirmation-email rates, without later price adjustments. Red dotted: your flat Budget Plan contribution. The coloured lines show next year's seasonal costs.":
-      "Grey dotted: last year's estimated energy costs at archived rates. Red dotted: your flat Budget Plan contribution. The coloured lines show next year's seasonal costs.")) :
-    "Previous fixed rates are unavailable, so the grey historical line is hidden. The red dotted Budget Plan line is your payment reference; the three coloured lines model future energy costs.";
+      "Grey dotted: illustrative previous-year usage valued at current variable rates.":
+      "Grey dotted: modelled costs from the previous tariff, based on available historical rates."):
+    "Previous-tariff reference unavailable. The three coloured lines compare future tariff costs.";
   const yearVariable=x99.yCap,year99=x99.yFix,year100=x100.yFix;
-  const payment=renewalBudgetReference(s);
-  const budget=payment?payment.amount:null;
-  const budgetLabel=budget===null?"":new Intl.NumberFormat("en-GB",
-    {style:"currency",currency:"GBP"}).format(budget);
-  // The customer's monthly payment is already entered in the builder and
-  // represented by the chart reference line. Avoid repeating the same £ figure
-  // in a long note that makes the comparison feel more complex.
+  // Budget Plan instalments are not energy usage costs and are not plotted.
+  // All three options are computed from energy usage and tariff rates only.
   document.getElementById("renewalPreviousBudget").textContent="";
   document.getElementById("renewalPreviousBudget").hidden=true;
   // Check the first two calendar months, not annual average prices.
@@ -2404,11 +2390,11 @@ function renderRenewalStory(s){
       "Accept your "+renewalRawName(fix99)+" offer",year99,delta99,offeredPoints)+
     costCard("second","Compare with public "+renewalRawName(fix100),year100,delta100,publicPoints);
   renewalFullChart(s,past,x99.rows.map(r=>r.cap),x99.rows.map(r=>r.fixed),
-    x100.rows.map(r=>r.fixed),budget,payment?.source!=="confirmed");
+    x100.rows.map(r=>r.fixed),null,false);
   window.__renewalVisualData={
     years:{variable:yearVariable,offer:year99,public:year100},
     series:{variable:x99.rows.map(r=>r.cap),offer:x99.rows.map(r=>r.fixed),public:x100.rows.map(r=>r.fixed)},
-    months:MONTHS.map(m=>({year:m.year,cal:m.cal})),budget:budget,hasPast:!!past,
+    months:MONTHS.map(m=>({year:m.year,cal:m.cal})),budget:null,hasPast:!!past,
     quarterLayout:renewalQuarterGeometry(MONTHS),
     names:{variable:"Default to "+s.variableName,offer:renewalRawName(fix99),public:renewalRawName(fix100)},
     range:formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate),
@@ -2425,17 +2411,7 @@ function renderRenewalStory(s){
     monthsMeta:MONTHS.map(m=>({year:m.year,cal:m.cal,phaseLabel:phaseForecastLabel(m.ph,s.janRise)}))
   };
   if(window.RenewalMobileUX)window.RenewalMobileUX.render(window.__renewalVisualData);
-  document.getElementById("renewalChartIntro").textContent=
-    (past?(builderCurrentMode==="variable"?
-      "Grey dotted: illustrative past-year profile using current variable rates. ":
-      "Grey dotted: modelled previous fixed-tariff costs. "):
-      "No verified previous fixed-tariff rates available. ")+
-    (payment?" Red dotted: "+(payment.source==="confirmed"?
-      "your current Budget Plan payment. ":
-      payment.source==="illustrative"?"current-rate usage average (illustrative). ":
-      "estimated previous fixed-tariff monthly average. "):"")+
-    "Compare your three choices for "+
-    formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)+".";
+  document.getElementById("renewalChartIntro").textContent="";
   document.getElementById("renewalChartDisclosure").textContent=
     "Scenario: "+(s.janRise>=0?"+":"")+s.janRise+"% is an illustrative change in Ofgem's January price cap, "+
     "not a prediction of your UW variable rates. "+
@@ -2444,12 +2420,6 @@ function renderRenewalStory(s){
       renewalManualOldRates()?
       "The grey previous-year line uses your original confirmation-email rates throughout, ignoring any subsequent price adjustments. ":
       "The grey previous-year line uses dated archive records, including rate revisions. ")+
-    (payment?.source==="confirmed"?
-      "The red dotted line represents the stated monthly payment, not the cost of energy used. ":
-      payment?.source==="estimated"?
-      "The red dotted line is a modelled historical annual average, not a confirmed Budget Plan payment. ":
-      payment?.source==="illustrative"?
-      "The red dotted line is an illustrative annual average using current variable rates, not a confirmed Budget Plan payment. ":"")+
     "Previous-year monthly costs are modelled at the selected rates and usage. "+
     "Annual / monthly equivalent costs are not Direct Debit instalments. "+
     (renewalCatalogueSource==="demo"?"DEMONSTRATION ONLY - these tariff rates are made up.":
@@ -3568,7 +3538,7 @@ function builderUpdateShareUi(url){
   preview.href=url||"#";
   preview.setAttribute("aria-disabled",String(!canShare));
   document.getElementById("builderShareStatus").textContent=canShare?
-    "Ready to share.":renewalOfferManualActive?
+    "":renewalOfferManualActive?
     "Manual offer rates: on-screen comparison only. Sharing disabled.":"Choose verified rates before sharing.";
 }
 
@@ -3947,7 +3917,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.11 (28 October 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
+    <div>App version: 2.66.12 (28 October 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -4207,7 +4177,7 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.11"></script>
-<script src="./renewal-mobile-experience-v2.66.11.js"></script>
+<script src="./forecast-feed.js?v=2.66.12"></script>
+<script src="./renewal-mobile-experience-v2.66.12.js"></script>
 </body>
 </html>
