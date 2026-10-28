@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.79.3">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.79.3</title>
+<meta name="app-version" content="2.79.4">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.79.4</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -835,7 +835,11 @@
 #renewalBuilder .renewal-simple-step h3{display:flex;align-items:center;gap:8px;font:900 .94rem/1.3 Nunito,sans-serif;color:#422d71;margin:0 0 11px}
 #renewalBuilder .renewal-simple-number{width:25px;height:25px;flex:0 0 25px;border-radius:50%;display:inline-grid;place-items:center;background:#f0e9fa;color:#553694;font-size:.77rem}
 #renewalBuilder .renewal-mini-details{border:0;padding:0;background:transparent;margin:9px 0 2px}
-#renewalBuilder .renewal-mini-details>summary{font:800 .8rem Nunito,sans-serif;color:#5a3c8f;cursor:pointer;padding:6px 0}
+#renewalBuilder .renewal-mini-details>summary{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:9px 13px;list-style:none;border:1.5px solid #7047a9;border-radius:11px;background:#fff;color:#543181;font:850 .82rem Nunito,sans-serif;cursor:pointer}
+#renewalBuilder .renewal-mini-details>summary::-webkit-details-marker{display:none}
+#renewalBuilder .renewal-mini-details>summary::after{content:" ▾";margin-left:8px}
+#renewalBuilder .renewal-mini-details[open]>summary{background:#f3ebfc}
+#renewalBuilder .renewal-mini-details[open]>summary::after{content:" ▴"}
 #renewalBuilder .renewal-mini-details select{width:100%;border:1px solid #dfd3ee;border-radius:10px;padding:12px;background:#fff;color:#41305e;margin-top:5px;box-sizing:border-box}
 #renewalBuilder .renewal-selection-note{font-size:.76rem!important;margin:7px 0 0!important;color:#726687!important}
 #renewalBuilder .renewal-simple-money{display:flex;align-items:center;border:1px solid #dacbec;border-radius:12px;min-height:48px;padding:0 13px;gap:10px}
@@ -1007,7 +1011,7 @@ body.existing-builder #renewalBuilder{margin:14px auto}
       <h3><span class="renewal-simple-number">1</span> Fixed tariff coming to an end</h3>
       <div id="renewalEndingPicks" class="renewal-quick-picks" role="group" aria-label="Three likely expiring fixed tariffs"></div>
       <details class="renewal-mini-details">
-        <summary>Not listed? Choose a different tariff</summary>
+        <summary>Choose a different tariff</summary>
         <select id="renewalEndingQuickSelect" aria-label="All available historical fixed tariffs"><option value="">Checking tariff history…</option></select>
       </details>
       <p class="renewal-evidence renewal-selection-note" id="builderArchivedRateSummary" role="status" aria-live="polite">Choose your existing fixed tariff.</p>
@@ -1031,7 +1035,7 @@ body.existing-builder #renewalBuilder{margin:14px auto}
       <h3 id="renewalSetupTitle"><span class="renewal-simple-number">2</span> Fixed tariff offered in your email</h3>
       <div id="renewalSuitePicks" class="renewal-quick-picks" role="group" aria-label="Likely renewal offers"></div>
       <details class="renewal-mini-details">
-        <summary>Different offer? Choose from the full list</summary>
+        <summary>Choose a different tariff</summary>
         <select id="renewalOfferedQuickSelect" aria-label="All available fixed renewal offers"><option value="">Checking offers…</option></select>
       </details>
       <p class="renewal-evidence renewal-selection-note" id="renewalLiveStatus" role="status">Checking the available offers…</p>
@@ -1949,7 +1953,8 @@ function renewalUpdateQuickPicks(){
     button.setAttribute("aria-pressed",String(renewalRowKey(selected.ending)===renewalRowKey(row)));
     const name=document.createElement("b");name.textContent=renewalRawName(row);
     const small=document.createElement("span");small.textContent="Ends "+date.toLocaleDateString("en-GB",{month:"short",year:"numeric",timeZone:"UTC"})+
-      (row.rate_version_code==="POST_APR_2026"?" · Apr 2026 rates":"");
+      (row.rate_version_code==="POST_APR_2026"?" (April 26 rates)":
+       row.rate_version_code==="PRE_APR_2026"?" (before April 26 rates)":"");
     button.append(name,small);
     button.addEventListener("click",()=>renewalSelectEnding(key));
     endButtons.appendChild(button);
@@ -1968,9 +1973,9 @@ function renewalUpdateQuickPicks(){
   const suites=renewalSuiteCandidates(),publicNumber=renewalPublicSeries();
   suiteButtons.replaceChildren();
   // Current public suite and the most recent earlier suites are the likely email offers.
-  const offeredChoices=suites.filter(n=>publicNumber===null||n<=publicNumber).slice(0,3);
-  if(renewalOfferSeriesWanted!==null&&!offeredChoices.includes(renewalOfferSeriesWanted)&&
-    suites.includes(renewalOfferSeriesWanted))offeredChoices.push(renewalOfferSeriesWanted);
+  // Quick options deliberately limited to 99/100, not the older 98.
+  // A different actual offer remains selectable below and is never silently replaced.
+  const offeredChoices=[99,100].filter(n=>suites.includes(n));
   offeredChoices.forEach(n=>{
     const button=document.createElement("button");
     button.type="button";
@@ -2152,7 +2157,7 @@ function renewalComputeSeries(s,fix){
     janRise:s.janRise,electricHeat:s.electricHeat,tracker:null});
 }
 function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=false){
-  const W=690,H=325,L=50,R=94,T=24,B=39,months=MONTHS;
+  const W=690,H=325,L=120,R=94,T=24,B=39,months=MONTHS;
   const all=[old,variable,fix99,fix100,budget===null?null:Array(MONTHS.length).fill(budget)].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
   const spread=Math.max(10,max-min);
@@ -2324,7 +2329,18 @@ function renderRenewalStory(s){
     series:{variable:x99.rows.map(r=>r.cap),offer:x99.rows.map(r=>r.fixed),public:x100.rows.map(r=>r.fixed)},
     months:MONTHS.map(m=>({year:m.year,cal:m.cal})),budget:budget,hasPast:!!past,
     names:{variable:"Default to "+s.variableName,offer:renewalRawName(fix99),public:renewalRawName(fix100)},
-    range:formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)
+    range:formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate),
+    fuels:{
+      variable:{electricity:x.rows.reduce((a,r)=>a+(Number(r.capElec)||0),0),gas:x.rows.reduce((a,r)=>a+(Number(r.capGas)||0),0)},
+      offer:{electricity:x.rows.reduce((a,r)=>a+(Number(r.fixElec)||0),0),gas:x.rows.reduce((a,r)=>a+(Number(r.fixGas)||0),0)},
+      public:{electricity:x.rows.reduce((a,r)=>a+(Number(r.fixElec)||0),0),gas:x.rows.reduce((a,r)=>a+(Number(r.fixGas)||0),0)}
+    },
+    rates:{
+      offer:standardFixedRate(fix99),
+      public:standardFixedRate(fix100)
+    },
+    scenarios:{janRise:s.janRise},
+    monthsMeta:MONTHS.map(m=>({year:m.year,cal:m.cal,phaseLabel:phaseForecastLabel(m.ph,s.janRise)}))
   };
   if(window.RenewalMobileUX)window.RenewalMobileUX.render(window.__renewalVisualData);
   document.getElementById("renewalChartIntro").textContent=
@@ -3145,7 +3161,8 @@ function compute(o){
       const tr=trackerRateForMonth(tracker,r,m);
       trackerCost=(incE?(tr.eSC*m.days+tr.eU*eK)/100:0)+(incG?(tr.gSC*m.days+tr.gU*gK)/100:0);
     }
-    return {k:m.k,id:m.id,ph:m.ph,eK,gK,fixed,cap,tracker:trackerCost,save:cap-fixed};
+    // Retain the fuel components already used in the total; display-only breakdown.
+    return {k:m.k,id:m.id,ph:m.ph,eK,gK,fixElec,fixGas,capElec,capGas,fixed,cap,tracker:trackerCost,save:cap-fixed};
   });
   const sum=(f,filt)=>rows.filter(filt||(()=>true)).reduce((s,r)=>s+f(r),0), win=r=>WINTER.includes(r.k);
   return {rows,yCap:sum(r=>r.cap),yFix:sum(r=>r.fixed),ySave:sum(r=>r.save),wCap:sum(r=>r.cap,win),wFix:sum(r=>r.fixed,win),wSave:sum(r=>r.save,win)};
@@ -4090,6 +4107,6 @@ function statics(){
 })();
 </script>
 <script src="./forecast-feed.js?v=2.76.4"></script>
-<script src="./renewal-mobile-experience-v2.79.3.js"></script>
+<script src="./renewal-mobile-experience-v2.79.4.js"></script>
 </body>
 </html>

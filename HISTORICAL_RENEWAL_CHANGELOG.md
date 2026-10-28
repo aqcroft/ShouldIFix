@@ -1,5 +1,13 @@
 # Historical renewal preview changelog
 
+## v2.79.4 - 27 October 2026
+- Show only the Fixed 99 and 100 quick choices where genuinely present; older 98 remains accessible only via **Choose a different tariff**, without implying availability.
+- Clarify historical fixed labels with `(April 26 rates)` and pre-April versions where applicable.
+- Expand the three result modals with model-derived annual and equivalent monthly electricity/gas figures. Show source ex-VAT unit rates and standing charges for selected fixed tariffs; flag variable-fuel breakdown as illustrative, not a confirmed Double Gold tariff.
+- Replace the horizontal comparison table with an original-style quarter strip directly aligned beneath the monthly line graph, three coloured tariff rows and quarterly savings.
+- Restore the original gradient headline in embedded prospective mode, retaining the single Companion customer selector.
+- No changes to the sums, VAT calculation, comparison dates or tariff-verification/sharing gates.
+
 ## v2.79.3 - 27 October 2026
 - Place the high-contrast chart legend on the left immediately above the graph, including monthly and 12-month totals.
 - Update tariff-verification regression expectations to reflect existing fail-closed sharing checks, without changing the guards.
