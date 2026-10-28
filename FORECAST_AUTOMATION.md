@@ -92,5 +92,5 @@ Source: https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/
 
 ## Changelog
 
-- **28 October 2026 - standalone v2.66.7:** Prepared MSE forecasts for the week starting 25 October from a user-supplied screenshot and a direct source cross-check. Updated the parser for unnumbered supplier rows and British Gas's four unavailable forecasts, and corrected the table's missing-date display. The GitHub Actions HTTP 403 from MSE remains a separate source-access issue; these changes do not bypass it.
+- **28 October 2026 - standalone v2.66.8:** Prepared MSE forecasts for the week starting 25 October from a user-supplied screenshot and a direct source cross-check. Updated the parser for unnumbered supplier rows and British Gas's four unavailable forecasts, and corrected the table's missing-date display. The GitHub Actions HTTP 403 from MSE remains a separate source-access issue; these changes do not bypass it.
 - **Manual screenshot fallback:** If the MSE endpoint blocks automated requests, submit a clear screenshot of the complete table in ChatGPT for comparison and preparation of a reviewable GitHub pull request. The forecast must not be automatically published without approval.
