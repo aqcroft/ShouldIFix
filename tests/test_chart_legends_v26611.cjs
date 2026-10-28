@@ -1,6 +1,6 @@
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
-const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.11.js","utf8");
+const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.12.js","utf8");
 const standalone=fs.readFileSync("Oct2026.html","utf8");
 const builder=fs.readFileSync("renewal-builder-v1.html","utf8");
 
@@ -12,7 +12,7 @@ assert.match(mobile,/variable:'Variable'/);
 assert.match(mobile,/\.renewal-key-item b\{color:var\(--rank-color\)!important\}/);
 assert.match(mobile,/\.renewal-key-monthly/);
 assert.match(mobile,/replace\(\/Fixed Saver\\s\+\/i,'Fixed '\)/);
-assert.match(builder,/renewal-mobile-experience-v2\.66\.11\.js/);
+assert.match(builder,/renewal-mobile-experience-v2\.66\.12\.js/);
 assert.match(builder,/renewalQuarterGeometry\(MONTHS\)/);
 assert.match(standalone,/App version: 2\.66\.11/);
 
