@@ -35,4 +35,3 @@ jobs:
           node tests/test_full_month_chart_v26610.cjs
           node tests/test_chart_legends_v26611.cjs
           node tests/test_renewal_simplification_v26612.cjs
-      - tests/test_renewal_simplification_v26612.cjs
