@@ -43,7 +43,7 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
    assert.equal((await page.locator("#renewalSuitePicks button").count()),2,
      "The verified archive should expose both Fixed 99 and Fixed 100");
    const chooser=page.locator('#renewalOfferedQuickSelect').locator('xpath=ancestor::details[1]');
-   assert.match(await chooser.locator('summary').innerText(),/Choose a different tariff/i);
+   assert.equal((await chooser.locator('summary').innerText()).trim(),"Choose");
    assert.equal(await chooser.evaluate(el=>el.open),false,"All-tariff select remains collapsed until requested");
    const endingHints=await page.locator("#renewalEndingPicks button span").allTextContents();
    assert(endingHints.every(h=>!h.includes(" · Apr 2026 rates")),"Use the explicit April 26 rate-version wording");
