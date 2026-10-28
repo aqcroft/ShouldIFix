@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "revision": "mse-2026-10-12",
+  "revision": "mse-2026-10-25",
   "source": {
     "publisher": "MoneySavingExpert",
     "url": "https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/",
-    "week_start": "2026-10-12",
-    "article_updated": "2026-10-15"
+    "week_start": "2026-10-25",
+    "article_updated": "2026-10-28"
   },
   "benchmark": {
     "electricity_kwh": 2500,
@@ -27,8 +27,8 @@
       "label": "1 Jan to 31 March 2027",
       "status": "forecast",
       "average": {
-        "change_pct": 25,
-        "annual_gbp": 2154
+        "change_pct": 27,
+        "annual_gbp": 2188
       }
     },
     {
@@ -36,8 +36,8 @@
       "label": "1 Apr to 30 June 2027",
       "status": "forecast",
       "average": {
-        "change_pct": 2.2,
-        "annual_gbp": 2202
+        "change_pct": 8.5,
+        "annual_gbp": 2374
       }
     },
     {
@@ -45,75 +45,66 @@
       "label": "1 Jul to 30 Sep 2027",
       "status": "forecast",
       "average": {
-        "change_pct": -9.8,
-        "annual_gbp": 1985
+        "change_pct": -9.6,
+        "annual_gbp": 2145
       }
     }
   ],
   "suppliers": [
     {
       "name": "EDF",
-      "predicted_on": "2026-10-13",
+      "predicted_on": null,
       "values": [
         {
           "change_pct": 3.6,
           "annual_gbp": 1723
         },
         {
-          "change_pct": 24.7,
-          "annual_gbp": 2148
+          "change_pct": 27.2,
+          "annual_gbp": 2192
         },
         {
-          "change_pct": 2.6,
-          "annual_gbp": 2204
+          "change_pct": 9,
+          "annual_gbp": 2389
         },
         {
-          "change_pct": -10.1,
-          "annual_gbp": 1981
+          "change_pct": -9.7,
+          "annual_gbp": 2157
         }
       ]
     },
     {
       "name": "British Gas",
-      "predicted_on": "2026-10-15",
+      "predicted_on": null,
+      "values": [
+        null,
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "name": "E.on Next",
+      "predicted_on": null,
       "values": [
         {
           "change_pct": 3.6,
           "annual_gbp": 1723
         },
         {
-          "change_pct": 26.8,
-          "annual_gbp": 2185
+          "change_pct": 26.7,
+          "annual_gbp": 2183
         },
         {
-          "change_pct": 0.2,
-          "annual_gbp": 2190
-        },
-        null
-      ]
-    },
-    {
-      "name": "E.on Next",
-      "predicted_on": "2026-10-12",
-      "values": [
-        {
-          "change_pct": 3.6,
-          "annual_gbp": 2088
-        },
-        {
-          "change_pct": 23.6,
-          "annual_gbp": 2130
-        },
-        {
-          "change_pct": 3.8,
-          "annual_gbp": 2211
+          "change_pct": 8,
+          "annual_gbp": 2358
         },
         {
           "change_pct": -9.5,
-          "annual_gbp": 2000
+          "annual_gbp": 2133
         }
       ]
     }
   ],
-  "notes": "Annual benchmark figures are MSE's published examples, not a household quote. Future movements are forecasts, not Ofgem confirmations."
+  "notes": "Annual benchmark figures are MSE's published examples, not a household quote. Future movements are forecasts, not Ofgem confirmations. British Gas has not provided forecasts since the week starting 12 October 2026; its current row is unavailable. Manually transcribed from the MSE table for the week starting 25 October, article updated 28 October 2026."
 }

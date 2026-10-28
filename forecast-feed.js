@@ -64,9 +64,9 @@
     const big=$('#forecastPanelSource .source-big');
     if(big)big.textContent=signed(data.periods[1].average.change_pct);
     const sub=$('#forecastPanelSource .source-sub');
-    if(sub)sub.textContent='MoneySavingExpert average from EDF, British Gas and E.on Next. Forecast week starting '+dateLabel(data.source.week_start)+'. January defaults to '+signed(data.periods[1].average.change_pct)+'. These predictions are not confirmed Ofgem rates.';
+    if(sub)sub.textContent='MoneySavingExpert published average. Forecast week starting '+dateLabel(data.source.week_start)+'. January defaults to '+signed(data.periods[1].average.change_pct)+'. These predictions are not confirmed Ofgem rates.';
     const notes=$('#forecastPanelSource .source-note');
-    if(notes)notes.textContent='MSE benchmark: 2,500 kWh electricity and 9,500 kWh gas, paying by Direct Debit. '+data.suppliers.map(s=>s.name+' prediction '+dateLabel(s.predicted_on)).join('; ')+'.';
+    if(notes)notes.textContent='MSE benchmark: 2,500 kWh electricity and 9,500 kWh gas, paying by Direct Debit. '+data.suppliers.map(s=>s.name+(s.values.every(v=>v===null)?' - no current predictions':s.predicted_on?' prediction '+dateLabel(s.predicted_on):' - figures from this MSE table')).join('; ')+'.';
     const outlookCells=document.querySelectorAll('.outlook-grid .outlook-cell b');
     data.periods.forEach((period,index)=>{if(outlookCells[index])outlookCells[index].textContent=signed(period.average.change_pct);});
     const outlook=$('.outlook-note');
