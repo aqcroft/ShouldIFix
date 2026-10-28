@@ -12,7 +12,7 @@ table (including the EDF, British Gas and E.on Next rows). The built-in October
 - GitHub Actions workflow: `.github/workflows/mse-forecast-review.yml`.
 - Runs **Friday at approximately 5pm UK time**, in GMT or BST.
 - Fetches MSE's public energy price cap prediction page and verifies that the
-  current four-quarter table and all supplier and average figures are readable.
+  current four-quarter table is readable, including missing supplier figures where explicitly marked as unavailable. The MSE average must be complete.
 - If any numerical forecast changes, generates or refreshes a pull request named
   **Approval requested: updated MSE energy forecasts**, for manual approval.
 - If no numbers change, creates a Friday GitHub issue assigned to `aqcroft`
@@ -34,7 +34,7 @@ table (including the EDF, British Gas and E.on Next rows). The built-in October
    notification email or https://github.com/notifications.
 2. Open the proposed pull request and check the numerical table and MSE link.
 3. Select **Merge pull request** and **Confirm merge**. That publishes the
-   approved JSON to the `main` branch; it does not need a new app version.
+   approved JSON to the `main` branch. A data-only forecast change does not need a new app version; a bundled code or UI change does.
 4. To reject it, **Close pull request** without merging.
 
 The source data change and approval are recorded permanently in Git history.
@@ -83,9 +83,14 @@ settings that can be confirmed from repository source files alone.
   duplicates are not presented.
 - The feed refreshes when the calculator opens and uses a cache-busting URL.
 - A fetched JSON document must pass schema and range checks before use.
-- The initial built-in data is the week of **12 October 2026**.
+- The initial built-in data is the week of **12 October 2026**. Subsequent revisions are stored in `forecast-data.json`.
 - An unusual future source-table change, confirmed quarterly cap replacement,
   or model change should be reviewed before adapting the scraper. This
   automation deliberately does not extrapolate beyond its supported quarters.
 
 Source: https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/
+
+## Changelog
+
+- **28 October 2026 - standalone v2.66.7:** Prepared MSE forecasts for the week starting 25 October from a user-supplied screenshot and a direct source cross-check. Updated the parser for unnumbered supplier rows and British Gas's four unavailable forecasts, and corrected the table's missing-date display. The GitHub Actions HTTP 403 from MSE remains a separate source-access issue; these changes do not bypass it.
+- **Manual screenshot fallback:** If the MSE endpoint blocks automated requests, submit a clear screenshot of the complete table in ChatGPT for comparison and preparation of a reviewable GitHub pull request. The forecast must not be automatically published without approval.
