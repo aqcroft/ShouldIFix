@@ -75,7 +75,25 @@ const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing
      const chart=document.querySelector("#renewalFourLineChart svg");
      return {quarters:table?.dataset.quarterCount,grid:table&&getComputedStyle(table.querySelector('.renewal-q-grid')).gridTemplateColumns,svg:chart?.getAttribute('viewBox'),scroller:!!table?.closest('#renewalChartTableScroller')};
    });
-   assert(widths.scroller&&widths.svg.startsWith("0 0 690"),"Chart and rows need one aligned, scrollable viewport");
+   assert(widths.scroller&&widths.svg.startsWith("0 0 690"),"Chart and quarter rows use a shared viewBox");
+   const layout=await page.evaluate(()=>{
+     const chart=document.querySelector("#renewalFourLineChart"),
+       grid=document.querySelector("#renewalQuarterlyCosts .renewal-q-grid"),
+       wrapper=document.querySelector("#renewalChartTableScroller"),
+       svg=chart?.querySelector("svg");
+     const rect=e=>e.getBoundingClientRect().width;
+     return {chart:rect(chart),quarter:rect(grid),wrapper:rect(wrapper),
+       inner:wrapper.clientWidth,content:wrapper.scrollWidth,
+       window:document.documentElement.clientWidth,
+       page:document.documentElement.scrollWidth,
+       cols:getComputedStyle(grid).gridTemplateColumns.split(" ").length,
+       svg:rect(svg),collapsed:!document.getElementById("renewalMethodology").open};
+   });
+   assert.equal(layout.cols,6,"Six columns: tariff label plus five price-cap quarters");
+   assert(Math.abs(layout.chart-layout.quarter)<3,"Quarter figures must align under the chart: "+JSON.stringify(layout));
+   assert(layout.content<=layout.inner+2,"No sideways scroll in renewal chart: "+JSON.stringify(layout));
+   assert(layout.page<=layout.window+2,"No horizontal overflow on phone: "+JSON.stringify(layout));
+   assert(layout.collapsed,"Methodology should not clutter the screen before expansion");
    assert(Number(widths.quarters)>=4,"Quarter cells must come from the forecast months");
    assert.equal(await page.locator("#renewalPreviewWarning").isVisible(),false,
      "No obsolete beige preview warning on verified results");

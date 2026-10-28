@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.6">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.6</title>
+<meta name="app-version" content="2.66.7">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.7</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -1139,8 +1139,10 @@ body.existing-builder #renewalBuilder{margin:14px auto}
       <div class="renewal-scenario-buttons" id="renewalScenarioButtons" role="group" aria-label="January price cap stress tests"></div></div>
     <div class="renewal-chart-plot" id="renewalFourLineChart" role="img" aria-label="Monthly energy costs and Budget Plan reference"></div>
     <div class="renewal-chart-key renewal-chart-key-below" id="renewalLineLegend" aria-label="Chart line legend"></div>
-    <p class="renewal-chart-caption">The grey dotted line shows last year's estimated seasonal energy costs. The red dotted line is your current monthly Budget Plan payment. Other lines show your costs for the next 12 months.</p>
-    <p class="renewal-chart-small" id="renewalChartDisclosure">The variable tariff uses an illustrative future price-cap scenario, not a prediction of UW's actual prices. Tariff selection and rates must be verified before sharing with a customer.</p>
+    <details class="renewal-explainer" id="renewalMethodology"><summary>How these estimates work</summary>
+      <p class="renewal-chart-caption">The grey dotted line shows modelled previous costs; navy dotted shows the monthly Budget Plan payment, not energy usage.</p>
+      <p class="renewal-chart-small" id="renewalChartDisclosure">The variable tariff uses an illustrative future price-cap scenario, not a prediction of UW's actual prices. Tariff selection and rates must be verified before sharing with a customer.</p>
+    </details>
   </section>
 
     <div id="tariffCheck" class="tariff-check" role="status" aria-live="polite"><strong>Checking current UW tariff rates…</strong><p id="tariffCheckMessage">Savings will appear after the current tariff has been verified.</p><button id="retryTariffs" type="button" hidden>Retry tariff check</button></div>
@@ -2206,7 +2208,7 @@ function renewalComputeSeries(s,fix){
     janRise:s.janRise,electricHeat:s.electricHeat,tracker:null});
 }
 function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=false){
-  const W=690,H=325,L=120,R=94,T=24,B=39,months=MONTHS;
+  const W=690,H=325,L=62,R=16,T=24,B=39,months=MONTHS;
   const all=[old,variable,fix99,fix100,budget===null?null:Array(MONTHS.length).fill(budget)].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
   const spread=Math.max(10,max-min);
@@ -2221,9 +2223,9 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
   const step=niceStep(high-low);
   for(let v=Math.ceil(low/step)*step;v<=high+.01;v+=step){
     grid.push('<line x1="'+L+'" y1="'+y(v).toFixed(1)+'" x2="'+(W-R)+'" y2="'+y(v).toFixed(1)+'" stroke="#eee8f3"/>');
-    grid.push('<text x="'+(L-8)+'" y="'+(y(v)+4).toFixed(1)+'" fill="#8d849e" font-size="11" font-weight="700" text-anchor="end">'+gbp(v)+'</text>');
+    grid.push('<text x="'+(L-8)+'" y="'+(y(v)+4).toFixed(1)+'" fill="#776e8a" font-size="15" font-weight="800" text-anchor="end">'+gbp(v)+'</text>');
   }
-  const labels=months.map((m,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-12)+'" font-size="11" fill="#8b8399" font-weight="700" text-anchor="middle">'+m.k+'</text>').join("");
+  const labels=months.map((m,i)=>'<text x="'+x(i).toFixed(1)+'" y="'+(H-12)+'" font-size="15" fill="#776e8a" font-weight="800" text-anchor="middle">'+m.k+'</text>').join("");
   const janIndex=months.findIndex(m=>m.cal===0);
   const janMarker=janIndex>=0?
     '<line x1="'+(x(janIndex)-24).toFixed(1)+'" y1="'+T+'" x2="'+(x(janIndex)-24).toFixed(1)+'" y2="'+(H-B)+'" stroke="#d9cad9" stroke-dasharray="3 4"/>'+
@@ -2244,8 +2246,7 @@ function renewalFullChart(s,old,variable,fix99,fix100,budget,estimatedBudget=fal
     variablePath+line(fix99,colors.offer)+line(fix100,colors.public)+
     (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+
     (budget!==null?'<title>Monthly Budget Plan payment: £'+budget.toFixed(2)+'</title>':"")+
-    [['variable',variable],['offer',fix99],['public',fix100]].map(([key,vals],i)=>
-      '<text x="'+(x(11)+8).toFixed(1)+'" y="'+(Math.max(T+12,Math.min(H-B-8,y(vals[vals.length-1])+[-13,0,13][i]))).toFixed(1)+'" fill="'+colors[key]+'" font-size="13" font-weight="900">'+gbp(vals.reduce((a,b)=>a+b,0)/12)+'/m</text>').join("")+
+    // Monthly and yearly costs are shown in the responsive colour-coded legend above.
     labels+'</svg>';
   const original=renewalManualOldRates();
   const legends=[
@@ -4169,6 +4170,6 @@ function statics(){
 })();
 </script>
 <script src="./forecast-feed.js?v=2.76.4"></script>
-<script src="./renewal-mobile-experience-v2.66.6.js"></script>
+<script src="./renewal-mobile-experience-v2.66.7.js"></script>
 </body>
 </html>

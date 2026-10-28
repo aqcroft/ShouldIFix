@@ -1,5 +1,12 @@
 # Historical renewal preview changelog
 
+## v2.66.7 - 28 October 2026 - Match the compact prospective chart layout
+- Scale renewal's chart and its five price-cap-quarter columns to the mobile viewport; remove the forced 690px horizontal scrolling and clipping.
+- Keep three tariff cost rows directly beneath the plot, including individual quarter totals and comparisons, without altering monthly cost calculations.
+- Display coloured monthly and annual costs in a compact responsive legend; remove SVG endpoint annotations that were cut off on mobile.
+- Put lengthy forecast methodology behind a tappable disclosure, retaining Budget Plan and historical-cost explanations.
+- Preserve live historical tariff rates, seasonality, partner/customer sharing controls, manual quote safeguards and customer mode persistence.
+
 ## v2.66.6 - 28 October 2026 - Unified user-facing version and compact renewal controls
 - Align the user-facing Should I Fix version with Appointment Companion v2.66.6; repositories retain independent history and internal maintenance.
 - Streamline expiring tariff selection to Fixed 66 / 65 / Choose and renewal offers to Fixed 100 / 99 / Choose in two compact rows, with cog controls for manual rates.
