@@ -14,7 +14,7 @@ assert.match(mobile,/\.renewal-key-monthly/);
 assert.match(mobile,/replace\(\/Fixed Saver\\s\+\/i,'Fixed '\)/);
 assert.match(builder,/renewal-mobile-experience-v2\.66\.13\.js/);
 assert.match(builder,/renewalQuarterGeometry\(MONTHS\)/);
-assert.match(standalone,/App version: 2\.66\.12/);
+assert.match(standalone,/App version: 2\.66\.13/);
 
 for (const [name,html] of [["standalone",standalone],["builder",builder]]) {
   assert.match(html,/\.chart-key-item\.fix\{color:var\(--fixed\)\}/);
