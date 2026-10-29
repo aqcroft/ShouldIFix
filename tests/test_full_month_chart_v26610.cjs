@@ -1,6 +1,6 @@
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
-const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.12.js","utf8");
+const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.13.js","utf8");
 const builder=fs.readFileSync("renewal-builder-v1.html","utf8");
 const standalone=fs.readFileSync("Oct2026.html","utf8");
 assert.match(mobile,/#renewalFourLineChart #renewalLineLegend/,"Legend must occupy graph's existing left gutter");
@@ -12,7 +12,7 @@ assert.match(mobile,/\.renewal-key-item b,#renewalFourLineChart/,"Name uses vert
 assert.match(mobile,/renewal-saving-card\{background:color-mix/,"Tint the three existing hero cards");
 assert.match(mobile,/insertAdjacentElement\('afterend',key\)/,"Keep legend element across renders");
 assert.match(mobile,/quarterly\.style\.setProperty\('--renewal-quarter-columns'/,"Preserve month/quarter geometry");
-assert.match(builder,/renewal-mobile-experience-v2\.66\.12\.js/);
+assert.match(builder,/renewal-mobile-experience-v2\.66\.13\.js/);
 assert.doesNotMatch(builder,/line\(Array\(months\.length\)\.fill\(budget\)/,"Do not draw Budget Plan flat line");
 assert.match(builder,/line\(old,colors\.old/,"Historical tariff line stays");
 assert.match(builder,/line\(fix100,colors\.public,'stroke-dasharray/,"Make two close fixed lines distinguishable");

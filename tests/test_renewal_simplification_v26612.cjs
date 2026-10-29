@@ -2,7 +2,7 @@
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
 const builder=fs.readFileSync("renewal-builder-v1.html","utf8");
-const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.12.js","utf8");
+const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.13.js","utf8");
 const standalone=fs.readFileSync("Oct2026.html","utf8");
 
 // The input is removed from the form but the DOM ID is maintained solely for
@@ -37,7 +37,7 @@ assert.match(mobile,/grid-template-rows:repeat\(3,minmax\(0,1fr\)\)!important/);
 assert.match(mobile,/data\.years\[b\]-data\.years\[a\]/);
 assert.match(builder,/line\(old,colors\.old/);
 assert.doesNotMatch(builder,/line\(Array\(months\.length\)\.fill\(budget\)/);
-assert.match(builder,/renewal-mobile-experience-v2\.66\.12\.js/);
-assert.match(standalone,/App version: 2\.66\.12/);
-assert.match(builder,/forecast-feed\.js\?v=2\.66\.12/);
+assert.match(builder,/renewal-mobile-experience-v2\.66\.13\.js/);
+assert.match(standalone,/App version: 2\.66\.13/);
+assert.match(builder,/forecast-feed\.js\?v=2\.66\.13/);
 console.log("PASS: redundant Budget Plan prompt removed, minimal result copy, valid sharing protections, vivid matching colours and existing historical data");

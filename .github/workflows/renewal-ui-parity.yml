@@ -1,23 +1,25 @@
-name: Should I Fix renewal UI parity v2.66.12
+name: Should I Fix renewal UI parity v2.66.13
 on:
   pull_request:
     paths:
       - Oct2026.html
       - renewal-builder-v1.html
-      - renewal-mobile-experience-v2.66.12.js
+      - renewal-mobile-experience-v2.66.13.js
       - tests/test_full_month_chart_v26610.cjs
       - tests/test_chart_legends_v26611.cjs
       - tests/test_renewal_simplification_v26612.cjs
+      - tests/test_renewal_quarter_alignment_v26613.cjs
       - .github/workflows/renewal-ui-parity.yml
   push:
     branches: [main]
     paths:
       - Oct2026.html
       - renewal-builder-v1.html
-      - renewal-mobile-experience-v2.66.12.js
+      - renewal-mobile-experience-v2.66.13.js
       - tests/test_full_month_chart_v26610.cjs
       - tests/test_chart_legends_v26611.cjs
       - tests/test_renewal_simplification_v26612.cjs
+      - tests/test_renewal_quarter_alignment_v26613.cjs
 permissions:
   contents: read
 jobs:
@@ -29,9 +31,10 @@ jobs:
         with:
           node-version: '24'
       - name: Check renewal legend JavaScript syntax
-        run: node --check renewal-mobile-experience-v2.66.12.js
+        run: node --check renewal-mobile-experience-v2.66.13.js
       - name: Check whole-month chart, untouched pro-rated totals and compact axis legend
         run: |
           node tests/test_full_month_chart_v26610.cjs
           node tests/test_chart_legends_v26611.cjs
           node tests/test_renewal_simplification_v26612.cjs
+          node tests/test_renewal_quarter_alignment_v26613.cjs
