@@ -1,5 +1,12 @@
 # Historical renewal preview changelog
 
+## v2.66.13 - 29 October 2026 - Quarter forecasts and readable quarterly comparison
+- Existing-customer chart now shows the forecast for each comparison quarter (Confirmed, January scenario, April, July, October) rather than a lone January label.
+- Add four subtle vertical dotted quarter separators, derived from the exact same shared month/quarter edges as the aligned table beneath. Forecast labels sit centrally above their respective quarters.
+- Quarterly cost figures and row names use dark neutral text rather than traffic-light colour; the only green in the table highlights savings, while extra costs remain red. Replace the former green underline on the cheapest-quarter cell with a subtle neutral underline.
+- Keep the three bright tappable hero cards, red/amber/green chart lines, old-tariff grey reference, full-month display, quarterly maths, sharing and seasonal weighting intact.
+- Update the single version and cache to v2.66.13 with new regression checks.
+
 ## v2.66.12 - 28 October 2026 - Minimal existing-customer comparison and vibrant colours
 - Remove the Current monthly payment / Budget Plan question, which was never part of tariff-cost or saving calculations. Retain a hidden legacy field only to safely open previously shared links with bp=.
 - Remove the redundant Ready to share confirmation, share-page boilerplate, What are my options heading, region/usage narration and obsolete grey/red dotted-line introduction. Keep verification error messages, the three tariff cards, price-cap scenario controls and the expandable methodology.
