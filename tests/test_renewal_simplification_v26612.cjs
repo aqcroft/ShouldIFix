@@ -38,6 +38,6 @@ assert.match(mobile,/data\.years\[b\]-data\.years\[a\]/);
 assert.match(builder,/line\(old,colors\.old/);
 assert.doesNotMatch(builder,/line\(Array\(months\.length\)\.fill\(budget\)/);
 assert.match(builder,/renewal-mobile-experience-v2\.66\.13\.js/);
-assert.match(standalone,/App version: 2\.66\.12/);
-assert.match(builder,/forecast-feed\.js\?v=2\.66\.12/);
+assert.match(standalone,/App version: 2\.66\.13/);
+assert.match(builder,/forecast-feed\.js\?v=2\.66\.13/);
 console.log("PASS: redundant Budget Plan prompt removed, minimal result copy, valid sharing protections, vivid matching colours and existing historical data");
