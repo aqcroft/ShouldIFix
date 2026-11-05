@@ -7,10 +7,10 @@ July forecasts used by Should I Fix, the January default and its tappable source
 table (including the EDF, British Gas and E.on Next rows). The built-in October
 2026 snapshot remains available when the JSON feed cannot be loaded.
 
-## Friday check and conditional Saturday follow-up (monitor v1.1)
+## Friday check and conditional Saturday follow-up (monitor v1.2)
 
 - GitHub Actions workflow: `.github/workflows/mse-forecast-review.yml`.
-- Runs **Friday at approximately 5pm UK time**, in GMT or BST.
+- Scheduled for **Friday at approximately 5pm UK time**, in GMT or BST. GitHub Actions can start scheduled jobs late; the run checks the selected UTC cron slot, not the actual start hour, so a late start does not incorrectly mark the forecast check as successful while skipping it.
 - Fetches MSE's public energy price cap prediction page and verifies that the
   current four-quarter table is readable, including missing supplier figures where explicitly marked as unavailable. The MSE average must be complete.
 - If any numerical forecast changes, generates or refreshes a pull request named
@@ -91,6 +91,8 @@ settings that can be confirmed from repository source files alone.
 Source: https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/
 
 ## Changelog
+
+- **5 November 2026 - monitor v1.2:** Corrected the UK-time schedule guard after the 30 and 31 October jobs started well after 5pm and skipped their forecast checks despite reporting job success. The guard now uses the scheduled UTC slot and GMT/BST offset, tolerating ordinary GitHub Actions start delays. MSE's separate HTTP 403 source-access problem is **not** resolved by this timing fix.
 
 - **28 October 2026 - standalone v2.66.8:** Prepared MSE forecasts for the week starting 25 October from a user-supplied screenshot and a direct source cross-check. Updated the parser for unnumbered supplier rows and British Gas's four unavailable forecasts, and corrected the table's missing-date display. The GitHub Actions HTTP 403 from MSE remains a separate source-access issue; these changes do not bypass it.
 - **Manual screenshot fallback:** If the MSE endpoint blocks automated requests, submit a clear screenshot of the complete table in ChatGPT for comparison and preparation of a reviewable GitHub pull request. The forecast must not be automatically published without approval.

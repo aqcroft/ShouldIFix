@@ -1,8 +1,10 @@
 name: Friday and Saturday MSE forecast watch
 on:
   schedule:
-    # UTC triggers are gated to 5pm UK local time across GMT/BST.
-    - cron: '0 16,17 * * 5,6'
+    # Separate UTC slots identify the correct 5pm UK time in BST or GMT.
+    # GitHub can start a scheduled job hours late, so do not gate on start hour.
+    - cron: '0 16 * * 5,6' # 17:00 BST
+    - cron: '0 17 * * 5,6' # 17:00 GMT
   workflow_dispatch:
 
 permissions:
@@ -21,21 +23,30 @@ jobs:
       - name: UK-local 5pm schedule and day guard
         id: clock
         shell: bash
+        env:
+          SCHEDULE_EXPR: ${{ github.event.schedule }}
         run: |
           set -euo pipefail
           DAY=$(TZ=Europe/London date +%u)
-          HOUR=$(TZ=Europe/London date +%H)
+          OFFSET=$(TZ=Europe/London date +%z)
           echo "proceed=false" >> "$GITHUB_OUTPUT"
           echo "day=skip" >> "$GITHUB_OUTPUT"
           if [[ "$GITHUB_EVENT_NAME" == "workflow_dispatch" ]]; then
             echo "proceed=true" >> "$GITHUB_OUTPUT"
             echo "day=manual" >> "$GITHUB_OUTPUT"
-          elif [[ "$HOUR" == "17" && "$DAY" == "5" ]]; then
-            echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "day=friday" >> "$GITHUB_OUTPUT"
-          elif [[ "$HOUR" == "17" && "$DAY" == "6" ]]; then
-            echo "proceed=true" >> "$GITHUB_OUTPUT"
-            echo "day=saturday" >> "$GITHUB_OUTPUT"
+          elif [[ "$DAY" == "5" || "$DAY" == "6" ]]; then
+            # github.event.schedule is the ORIGINAL cron slot, even if GitHub
+            # starts this job late. Gate on that slot and today's UK offset.
+            DUE=false
+            if [[ "$OFFSET" == "+0100" && "$SCHEDULE_EXPR" == "0 16 * * 5,6" ]]; then DUE=true; fi
+            if [[ "$OFFSET" == "+0000" && "$SCHEDULE_EXPR" == "0 17 * * 5,6" ]]; then DUE=true; fi
+            if [[ "$DUE" == "true" ]]; then
+              echo "proceed=true" >> "$GITHUB_OUTPUT"
+              if [[ "$DAY" == "5" ]]; then echo "day=friday" >> "$GITHUB_OUTPUT"
+              else echo "day=saturday" >> "$GITHUB_OUTPUT"; fi
+            else
+              echo "Skipping the UTC cron slot that is not 5pm UK local time."
+            fi
           fi
       - uses: actions/checkout@v4
         if: steps.clock.outputs.proceed == 'true'
