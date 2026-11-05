@@ -11,10 +11,12 @@ for(const file of ['Oct2026.html','renewal-builder-v1.html']){
     const html=read(file);
     for(const block of scriptBlocks(html))new vm.Script(block,{filename:file});
     assert.match(html,/forecastControlMarkup\(janRise\)/);
+    assert.match(html,/\[10,10\.5,11,11\.5,12,13\]/);
+    assert.match(html,/\.forecast-unit-row\{display:grid;grid-template-columns:repeat\(6,minmax\(0,1fr\)\)/);
     assert.match(html,/forecastScenarioMode==='unit'/);
     assert.match(html,/p\.set\('um','1'\)/);
     assert.match(html,/forecastElecUnit=33,forecastElecUnit|forecastGasUnit=11,forecastElecUnit=33/);
-    for(const value of [10,11,12,13,30,31,32,33,34,35])assert.match(html,new RegExp('\\b'+value+'\\b'));
+    for(const value of [10,10.5,11,11.5,12,13,30,31,32,33,34,35])assert.match(html,new RegExp('\\b'+value+'\\b'));
   });
   test(file+' unit mode gives January average unit rate with regional proportional factor',()=>{
     const html=read(file);
@@ -36,6 +38,10 @@ for(const file of ['Oct2026.html','renewal-builder-v1.html']){
     assert(Math.abs(absolute.eU-33)<1e-8);
     assert(Math.abs(absolute.gU-11)<1e-8);
     assert(absolute.eSC===50&&absolute.gSC===30);
+    vm.runInNewContext('setForecastUnit("gas",10.5);',scope);
+    assert(Math.abs(vm.runInNewContext('forecastSteps(28.8).jan.g',scope)-10.5/8)<1e-8);
+    vm.runInNewContext('setForecastUnit("gas",11.5);',scope);
+    assert(Math.abs(vm.runInNewContext('forecastSteps(28.8).jan.g',scope)-11.5/8)<1e-8);
     vm.runInNewContext('setForecastUnit("elec",35);',scope);
     assert(Math.abs(vm.runInNewContext('forecastSteps(28.8).jan.e',scope)-35/26)<1e-8);
     vm.runInNewContext('setForecastScenarioMode("percent");',scope);

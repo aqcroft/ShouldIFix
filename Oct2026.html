@@ -319,7 +319,7 @@
   .forecast-mode-tabs button{border:1px solid #c9b8df;background:#faf7ff;color:#553a78;border-radius:8px;padding:7px 3px;font:800 .67rem system-ui;cursor:pointer}
   .forecast-mode-tabs button[aria-pressed="true"]{background:#553694;color:white;border-color:#553694}
   .forecast-unit-heading{font-size:.67rem;font-weight:850;color:#51416a;margin:7px 0 4px}
-  .forecast-unit-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .forecast-unit-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
   .forecast-unit-row.elec{grid-template-columns:repeat(6,minmax(0,1fr))}
   .forecast-unit-row button{min-width:0;border:1px solid #cabbdc;border-radius:8px;padding:8px 2px;font:800 .74rem system-ui;color:#4d3a6a;background:white;cursor:pointer}
   .forecast-unit-row button[aria-pressed="true"]{background:#0f8f83;color:white;border-color:#0f8f83}
@@ -1066,7 +1066,7 @@ let forecastScenarioMode='percent',forecastGasUnit=11,forecastElecUnit=33;
 function setForecastScenarioMode(mode){if(mode==='unit'||mode==='percent'){forecastScenarioMode=mode;render();}}
 function setForecastUnit(fuel,value){
   const v=Number(value);
-  if(fuel==='gas'&&[10,11,12,13].includes(v))forecastGasUnit=v;
+  if(fuel==='gas'&&[10,10.5,11,11.5,12,13].includes(v))forecastGasUnit=v;
   else if(fuel==='elec'&&[30,31,32,33,34,35].includes(v))forecastElecUnit=v;
   else return;
   forecastScenarioMode='unit';render();
@@ -1078,7 +1078,7 @@ function forecastControlMarkup(janRise){
     forecastScenarioValues().map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(Math.abs(v-janRise)<.001)+'">'+(v>0?'+':'')+v+'%</button>').join('')+'</div>';
   const row=(fuel,label,values,selected)=>'<div class="forecast-unit-heading">'+label+' (p/kWh)</div><div class="forecast-unit-row '+fuel+'" role="group" aria-label="'+label+' unit rates">'+
     values.map(v=>'<button type="button" onclick="setForecastUnit(\''+fuel+'\','+v+')" aria-pressed="'+(selected===v)+'">'+v+'p</button>').join('')+'</div>';
-  return tabs+row('gas','Gas',[10,11,12,13],forecastGasUnit)+row('elec','Electricity',[30,31,32,33,34,35],forecastElecUnit)+
+  return tabs+row('gas','Gas',[10,10.5,11,11.5,12,13],forecastGasUnit)+row('elec','Electricity',[30,31,32,33,34,35],forecastElecUnit)+
     '<p class="forecast-unit-note">Illustrative January UK-average prices, not published unit-rate forecasts. Regional differences and current standing charges are retained; April/July use published change factors.</p>';
 }
 window.ShouldIFixForecastScenario=function(){return{mode:forecastScenarioMode,elec:forecastElecUnit,gas:forecastGasUnit};};
@@ -2257,7 +2257,7 @@ function readParams(){
   if(P.has("j")) document.getElementById("janRise").value=P.get("j");
   if(P.get('um')==='1'){
     forecastScenarioMode='unit';
-    if([10,11,12,13].includes(Number(P.get('ug'))))forecastGasUnit=Number(P.get('ug'));
+    if([10,10.5,11,11.5,12,13].includes(Number(P.get('ug'))))forecastGasUnit=Number(P.get('ug'));
     if([30,31,32,33,34,35].includes(Number(P.get('ue'))))forecastElecUnit=Number(P.get('ue'));
   }
   document.getElementById("electricHeat").checked = P.get("eh")==="1";
