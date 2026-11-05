@@ -1,0 +1,18 @@
+name: January unit-rate feature checks (draft)
+on:
+  push:
+    branches: ['feature/january-unit-rate-scenarios-*']
+  pull_request:
+    paths: ['Oct2026.html', 'renewal-builder-v1.html', 'tests/test_january_unit_scenarios_v26616.cjs']
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check inline JavaScript and January scenario mathematics
+        run: node --test tests/test_january_unit_scenarios_v26616.cjs
