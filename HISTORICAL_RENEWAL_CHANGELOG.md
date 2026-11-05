@@ -1,3 +1,10 @@
+## v2.66.16 - 5 November 2026 - January gas/electricity scenario switch (draft)
+
+- Percentage scenarios remain the default. Unit-rate mode offers UK-average illustrative January rates: gas 10/11/12/13p and electricity 30/31/32/33/34/35p, defaulting to 11p gas and 33p electricity.
+- The monthly/quarterly model preserves regional relationships, standing charges, winter weighting and April/July scenario movements. The rates are not confirmed Ofgem or UW forecasts.
+- New share parameters um/ue/ug preserve unit-mode scenarios. Companion must forward these for customer sharing before the feature goes live.
+- UI change is staged for review, not yet live.
+
 # Historical renewal preview changelog
 
 ## v2.66.13 - 29 October 2026 - Quarter forecasts and readable quarterly comparison
