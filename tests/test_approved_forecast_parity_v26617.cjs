@@ -11,7 +11,7 @@ for(const file of ['Oct2026.html','renewal-builder-v1.html'])test(file+' initial
  for(const [label,fragment] of Object.entries({
   'revision':'name="forecast-bundled-revision" content="'+data.revision+'"',
   'Jan':'let DEFAULT_JAN_RISE='+jan+';',
-  'April':'let APR_FROM_JAN='+(1+apr/100)+';',
+  'April':'let APR_FROM_JAN='+(1+apr/100)+',',
   'July':'JUL_FROM_APR='+(1+jul/100)+';',
   'chosen':'id="janRise" type="hidden" value="'+jan+'"',
   'MSE default':'id="forecastDefault" type="hidden" value="'+jan+'"',
