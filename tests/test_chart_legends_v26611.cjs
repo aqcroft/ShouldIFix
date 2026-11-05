@@ -41,6 +41,7 @@ for (const [name,html] of [["standalone",standalone],["builder",builder]]) {
     ],
     liveFixedRow:()=>null,safeHtml:x=>x,niceStep:()=>50,
     DEFAULT_JAN_RISE:27,forecastScenarioValues:()=>[0,15,27,30],
+    forecastScenarioMode:'percent',forecastControlMarkup:()=>'<div>scenario buttons</div>',
     gbp:n=>"£"+Math.round(n),Math,Number
   };
   vm.runInNewContext(html.slice(start,end)+"\ndraw(res,27,{region:{n:11},tariff:'custom',renewal:false}, {series:'101'});",context);
