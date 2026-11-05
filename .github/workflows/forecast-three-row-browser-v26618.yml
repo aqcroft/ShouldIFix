@@ -1,0 +1,36 @@
+name: Should I Fix forecast controls mobile browser v2.66.18
+on:
+  pull_request:
+    paths:
+      - Oct2026.html
+      - renewal-builder-v1.html
+      - tests/test_three_row_forecast_browser_v26618.cjs
+      - .github/workflows/forecast-three-row-browser-v26618.yml
+  push:
+    branches: [main]
+    paths:
+      - Oct2026.html
+      - renewal-builder-v1.html
+      - tests/test_three_row_forecast_browser_v26618.cjs
+permissions:
+  contents: read
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Prepare Playwright and installed Chrome
+        run: |
+          npm install --no-save playwright@1.58.2
+          BROWSER="$(command -v google-chrome || command -v chromium)"
+          test -n "$BROWSER"
+          echo "CI_BROWSER_PATH=$BROWSER" >> "$GITHUB_ENV"
+      - name: Check percentage and pence controls at phone width
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/sif-preview-http.log 2>&1 &
+          sleep 2
+          node tests/test_three_row_forecast_browser_v26618.cjs
