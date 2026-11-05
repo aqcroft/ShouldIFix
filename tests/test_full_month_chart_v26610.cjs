@@ -38,7 +38,9 @@ for(const [name,html] of [["standalone",standalone],["builder",builder]]){
   const ctx={
     MONTHS:months,res,document:{getElementById:()=>chart},DEFAULT_JAN_RISE:27,
     liveFixedRow:()=>null,safeHtml:x=>x,niceStep:()=>50,
-    forecastScenarioValues:()=>[0,15,27,30],gbp:n=>'£'+Math.round(n),Number,Math
+    forecastScenarioValues:()=>[0,15,27,30],
+    forecastScenarioMode:'percent',forecastControlMarkup:()=>'<div>scenario buttons</div>',
+    gbp:n=>'£'+Math.round(n),Number,Math
   };
   vm.runInNewContext(code+"\ndraw(res,27,{region:{n:11},tariff:'custom',renewal:false},null);",ctx);
   assert.equal(res.rows[0].cap,5,name+": pro-rated model row must remain unchanged");

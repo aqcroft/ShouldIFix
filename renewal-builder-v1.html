@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.13">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.13</title>
+<meta name="app-version" content="2.66.16">
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.16</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -312,6 +312,22 @@
   .chart-scenarios button{min-width:0;font-family:inherit;font-size:.67rem;font-weight:750;line-height:1;border:1px solid #d9dfe8;background:rgba(255,255,255,.86);color:#6f7786;border-radius:7px;padding:7px 3px;cursor:pointer;box-shadow:none;transition:.15s}
   .chart-scenarios button:hover{border-color:#aab4c2;color:#344052}
   .chart-scenarios button[aria-pressed="true"]{background:#0f8f83;border-color:#0f8f83;color:#fff;box-shadow:none}
+
+  .forecast-mode-tabs{display:grid;grid-template-columns:1fr 84px 84px;gap:5px;align-items:center;margin-bottom:7px}
+  .forecast-mode-tabs span{font-size:.65rem;font-weight:850;color:#665779}
+  .forecast-mode-tabs button{border:1px solid #c9b8df;background:#faf7ff;color:#553a78;border-radius:8px;padding:7px 3px;font:800 .67rem system-ui;cursor:pointer}
+  .forecast-mode-tabs button[aria-pressed="true"]{background:#553694;color:white;border-color:#553694}
+  .forecast-unit-heading{font-size:.67rem;font-weight:850;color:#51416a;margin:7px 0 4px}
+  .forecast-unit-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+  .forecast-unit-row.elec{grid-template-columns:repeat(6,minmax(0,1fr))}
+  .forecast-unit-row button{min-width:0;border:1px solid #cabbdc;border-radius:8px;padding:8px 2px;font:800 .74rem system-ui;color:#4d3a6a;background:white;cursor:pointer}
+  .forecast-unit-row button[aria-pressed="true"]{background:#0f8f83;color:white;border-color:#0f8f83}
+  .forecast-unit-note{font-size:.61rem;line-height:1.35;color:#786b86;margin:7px 0}
+  .renewal-scenario-buttons{display:block;width:100%}
+  .renewal-scenario-buttons .chart-scenarios{display:flex;gap:6px;flex-wrap:wrap}
+  .renewal-scenario-buttons .chart-scenarios button{flex:1;min-width:52px}
+  @media(max-width:420px){.forecast-mode-tabs{grid-template-columns:1fr 80px 80px}.forecast-mode-tabs span{font-size:.58rem}.forecast-unit-row{gap:3px}.forecast-unit-row button{font-size:.67rem;padding:7px 1px}}
+
   .chart-info{width:25px;height:25px;border-radius:50%;border:1px solid #d8dfe8;background:#fff;color:#596579;font-family:Georgia,serif;font-weight:800;font-size:.78rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;flex:0 0 auto}
   .chart-info:hover{border-color:var(--purple);background:#faf7ff}
   .chart-shell{position:relative;border:1px solid var(--line);border-radius:13px;background:rgba(255,255,255,.28);overflow:hidden}
@@ -1518,6 +1534,29 @@ function forecastScenarioValues(){
   base.push(base.includes(DEFAULT_JAN_RISE)?25:DEFAULT_JAN_RISE);
   return [...new Set(base)].sort((a,b)=>a-b);
 }
+
+/* v2.66.16 - optional January national-average unit-rate scenarios. */
+let forecastScenarioMode='percent',forecastGasUnit=11,forecastElecUnit=33;
+function setForecastScenarioMode(mode){if(mode==='unit'||mode==='percent'){forecastScenarioMode=mode;render();}}
+function setForecastUnit(fuel,value){
+  const v=Number(value);
+  if(fuel==='gas'&&[10,10.5,11,11.5,12,13].includes(v))forecastGasUnit=v;
+  else if(fuel==='elec'&&[30,31,32,33,34,35].includes(v))forecastElecUnit=v;
+  else return;
+  forecastScenarioMode='unit';render();
+}
+function forecastControlMarkup(janRise){
+  const tab=(mode,label)=>'<button type="button" onclick="setForecastScenarioMode(\''+mode+'\')" aria-pressed="'+(forecastScenarioMode===mode)+'">'+label+'</button>';
+  const tabs='<div class="forecast-mode-tabs" role="group" aria-label="Forecast scenario type"><span>January scenario</span>'+tab('percent','Percentage')+tab('unit','Unit rates')+'</div>';
+  if(forecastScenarioMode==='percent')return tabs+'<div class="chart-scenarios" role="group" aria-label="January price cap percentage scenarios">'+
+    forecastScenarioValues().map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(Math.abs(v-janRise)<.001)+'">'+(v>0?'+':'')+v+'%</button>').join('')+'</div>';
+  const row=(fuel,label,values,selected)=>'<div class="forecast-unit-heading">'+label+' (p/kWh)</div><div class="forecast-unit-row '+fuel+'" role="group" aria-label="'+label+' unit rates">'+
+    values.map(v=>'<button type="button" onclick="setForecastUnit(\''+fuel+'\','+v+')" aria-pressed="'+(selected===v)+'">'+v+'p</button>').join('')+'</div>';
+  return tabs+row('gas','Gas',[10,10.5,11,11.5,12,13],forecastGasUnit)+row('elec','Electricity',[30,31,32,33,34,35],forecastElecUnit)+
+    '<p class="forecast-unit-note">Illustrative January UK-average prices, not published unit-rate forecasts. Regional differences and current standing charges are retained; April/July use published change factors.</p>';
+}
+window.ShouldIFixForecastScenario=function(){return{mode:forecastScenarioMode,elec:forecastElecUnit,gas:forecastGasUnit};};
+
 /* Forecast split: use the fresher headline forecast, but keep standing charges
    at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
    January component forecast gives the electricity-v-gas unit-rate shape. */
@@ -2319,11 +2358,9 @@ function renderRenewalStory(s){
   const savings=document.getElementById("renewalSavingsPair");
   const plot=document.getElementById("renewalFourLineChart");
   const buttons=document.getElementById("renewalScenarioButtons");
-  const tests=forecastScenarioValues();
-  if(!tests.includes(s.janRise))tests.push(s.janRise);
-  tests.sort((a,b)=>a-b);
-  buttons.innerHTML=tests.map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+
-    (Math.abs(v-s.janRise)<.001)+'">'+(v>0?"+":"")+v+'%</button>').join("");
+  buttons.innerHTML=forecastControlMarkup(s.janRise);
+  const title=document.querySelector('.renewal-scenario-bar strong');
+  if(title)title.textContent=forecastScenarioMode==='unit'?'Stress test January unit rates':'Stress test January price-cap change';
   if(!renewalInputsValid(s.mode)){
     savings.innerHTML='<p class="renewal-chart-small">'+(renewalOfferManualActive?
       'Enter the tariff name and all four rates in the offer cog. Manual comparisons cannot be shared.':
@@ -2419,13 +2456,15 @@ function renderRenewalStory(s){
       offer:standardFixedRate(fix99),
       public:standardFixedRate(fix100)
     },
-    scenarios:{janRise:s.janRise},
+    scenarios:{janRise:s.janRise,mode:forecastScenarioMode,electricityUnit:forecastElecUnit,gasUnit:forecastGasUnit},
     monthsMeta:MONTHS.map(m=>({year:m.year,cal:m.cal,phaseLabel:phaseForecastLabel(m.ph,s.janRise)}))
   };
   if(window.RenewalMobileUX)window.RenewalMobileUX.render(window.__renewalVisualData);
   document.getElementById("renewalChartIntro").textContent="";
   document.getElementById("renewalChartDisclosure").textContent=
-    "Scenario: "+(s.janRise>=0?"+":"")+s.janRise+"% is an illustrative change in Ofgem's January price cap, "+
+    "Scenario: "+(forecastScenarioMode==='unit'
+      ? 'illustrative UK-average January prices of '+forecastElecUnit+'p electricity and '+forecastGasUnit+'p gas per kWh, '
+      : (s.janRise>=0?"+":"")+s.janRise+"% illustrative change in Ofgem's January price cap, ")+
     "not a prediction of your UW variable rates. "+
     (builderCurrentMode==="variable"?
       "The grey line uses current variable rates and retrospective seasonality, not actual historic energy prices. ":
@@ -2528,6 +2567,7 @@ function comparisonRange(){
 }
 function comparisonEndLabel(){return formatComparisonDate(periodEndDate);}
 function phaseForecastLabel(ph,janRise){
+  if(ph==='jan'&&forecastScenarioMode==='unit')return forecastElecUnit+'p E / '+forecastGasUnit+'p G';
   if(ph==="conf")return "Confirmed";
   if(ph==="flat")return "0%"; // Tooltip and source modal identify this as an assumption.
   const n=ph==="jan"?janRise:ph==="apr"?(APR_FROM_JAN-1)*100:(JUL_FROM_APR-1)*100;
@@ -2560,8 +2600,11 @@ function shapedUnitStep(base,headlinePct){
 }
 function applyUnitStep(base,m){ return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g}; }
 function forecastSteps(janRisePct){
-  const key=Number(janRisePct).toFixed(4); if(forecastStepCache.has(key)) return forecastStepCache.get(key);
-  const oct=avgRegionalCap("octdec"), janStep=shapedUnitStep(oct,janRisePct), jan=applyUnitStep(oct,janStep);
+  const key=forecastScenarioMode==='unit'?'unit:'+forecastElecUnit+':'+forecastGasUnit:'pct:'+Number(janRisePct).toFixed(4);
+  if(forecastStepCache.has(key))return forecastStepCache.get(key);
+  const oct=avgRegionalCap("octdec"), janStep=forecastScenarioMode==='unit'
+    ? {e:forecastElecUnit/oct.eU,g:forecastGasUnit/oct.gU}
+    : shapedUnitStep(oct,janRisePct), jan=applyUnitStep(oct,janStep);
   const aprStep=shapedUnitStep(jan,(APR_FROM_JAN-1)*100), apr=applyUnitStep(jan,aprStep);
   const julStep=shapedUnitStep(apr,(JUL_FROM_APR-1)*100);
   const result={jan:{e:janStep.e,g:janStep.g},apr:{e:janStep.e*aprStep.e,g:janStep.g*aprStep.g},jul:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g},flat:{e:janStep.e*aprStep.e*julStep.e,g:janStep.g*aprStep.g*julStep.g}};
@@ -3243,6 +3286,7 @@ function fillWindow(saveId,detailId,save,cap,fix){
 /* ---- chart ---- */
 function niceStep(max){const raw=max/4,pow=Math.pow(10,Math.floor(Math.log10(raw||1))),c=raw/pow;return (c<1.5?1:c<3?2:c<7?5:10)*pow;}
 function setJanRise(value){
+  forecastScenarioMode='percent';
   document.getElementById("janRise").value=String(value);
   render();
 }
@@ -3253,7 +3297,7 @@ function openForecastSource(){
   document.getElementById("forecastChoiceSource").setAttribute("aria-pressed","false");
   document.getElementById("forecastChoiceModel").setAttribute("aria-pressed","false");
   const j=document.getElementById("forecastJanChosen");
-  if(j) j.textContent=(+document.getElementById("janRise").value||0)+"%";
+  if(j)j.textContent=forecastScenarioMode==='unit'?forecastElecUnit+'p electricity / '+forecastGasUnit+'p gas':(+document.getElementById("janRise").value||0)+'%';
   m.classList.add("open");
 }
 function showForecastPanel(which){
@@ -3350,8 +3394,8 @@ function draw(res,janRise,s,tracker){
   const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-controls">
-      <div class="chart-forecast-label">Current January forecast: +${DEFAULT_JAN_RISE}%. What if it’s higher or lower?</div>
-      <div class="chart-scenarios" role="group" aria-label="January 2027 price cap rise scenarios">${scenarioButtons}</div>
+      <div class="chart-forecast-label">${forecastScenarioMode==='unit'?'Illustrative January 2027 unit-rate scenarios':'Current January forecast: +'+DEFAULT_JAN_RISE+'%. What if it’s higher or lower?'}</div>
+      ${forecastControlMarkup(janRise)}
     </div>
     <div class="chart-grid">
       <div class="chart-side" aria-label="Chart key and monthly cost scale">
@@ -3552,6 +3596,7 @@ function buildShareUrl(s){
   if(s.mode!=="gas") p.set("e", s.elecY);
   if(s.mode!=="elec") p.set("g", s.gasY);
   if(s.janRise!==DEFAULT_JAN_RISE) p.set("j",s.janRise);
+  if(forecastScenarioMode==='unit'){p.set('um','1');p.set('ue',forecastElecUnit);p.set('ug',forecastGasUnit);}
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
   if(!s.renewal&&s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
@@ -3629,6 +3674,11 @@ function readParams(){
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
   if(P.has("g")) document.getElementById("gas").value=P.get("g");
   if(P.has("j")) document.getElementById("janRise").value=P.get("j");
+  if(P.get('um')==='1'){
+    forecastScenarioMode='unit';
+    if([10,10.5,11,11.5,12,13].includes(Number(P.get('ug'))))forecastGasUnit=Number(P.get('ug'));
+    if([30,31,32,33,34,35].includes(Number(P.get('ue'))))forecastElecUnit=Number(P.get('ue'));
+  }
   document.getElementById("electricHeat").checked = P.get("eh")==="1";
   const region=REGIONS.find(r=>r.n==+document.getElementById("region").value)||REGIONS[1];
   if(P.get("o")==="1"){
@@ -3885,7 +3935,7 @@ function render(){
       return '<div class="annual-cell label '+r.cls+'">'+r.label+badge+'</div><div class="annual-cell '+r.cls+'">'+monthly+monthlySub+'</div><div class="annual-cell '+r.cls+'">'+annual+annualSub+'</div>';
     }).join("");
 
-  const note = s.janRise===0
+  const note = forecastScenarioMode==='percent' && s.janRise===0
     ? `0% January scenario selected: January is held at the confirmed Oct-Dec typical-cost level before the later forecast changes are applied.`
     : s.mode==="elec" && s.electricHeat
     ? `Electric heating is on, so electricity use is weighted more heavily into winter.`

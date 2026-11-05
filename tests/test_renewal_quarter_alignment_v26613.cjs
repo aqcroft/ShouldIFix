@@ -20,6 +20,7 @@ const months=Array.from({length:12},(_,i)=>{
 const svg={innerHTML:"",setAttribute(k,v){this[k]=v}};
 const legend={innerHTML:""};
 const scope={MONTHS:months,APR_FROM_JAN:1.085,JUL_FROM_APR:.904,
+ forecastScenarioMode:'percent',forecastElecUnit:33,forecastGasUnit:11,
  document:{getElementById:id=>id==="renewalFourLineChart"?svg:id==="renewalLineLegend"?legend:null},
  builderCurrentMode:"fixed",renewalManualOldRates:()=>null,
  renewalSelectedRows:()=>({ending:{name:"Fixed Saver 66"},offered:{name:"Fixed Saver 100"},public:{name:"Fixed Saver 101"}}),
