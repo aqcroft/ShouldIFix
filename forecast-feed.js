@@ -1,4 +1,4 @@
-/* Should I Fix forecast feed v1. Approved GitHub JSON is the sole source for
+/* Should I Fix forecast feed v2.66.17. Approved GitHub JSON is the sole source for
    scenarios, the tappable MSE table and dates. On a failed fetch, use the bundled snapshot. */
 (function () {
   'use strict';
@@ -83,6 +83,9 @@
       const res=await fetch(base.toString(),{cache:'no-store'});
       if(!res.ok)throw new Error('HTTP '+res.status);
       const data=validate(await res.json());
+      // Never let stale cached JSON replace a newer approved bundled snapshot.
+      const bundled=document.querySelector('meta[name="forecast-bundled-revision"]')?.content||'';
+      if(bundled && data.revision<bundled)throw new Error('Forecast feed older than approved bundled snapshot');
       const originalDefault=DEFAULT_JAN_RISE;
       DEFAULT_JAN_RISE=data.periods[1].average.change_pct;
       APR_FROM_JAN=1+data.periods[2].average.change_pct/100;
@@ -100,7 +103,8 @@
       if(typeof render==='function')render();
       addStatus('Approved forecast: week starting '+dateLabel(data.source.week_start)+' · '+data.revision+'.',false);
     } catch(error) {
-      addStatus('Forecast feed unavailable - using the bundled '+signed(DEFAULT_JAN_RISE)+'% forecast snapshot. Check MSE for the latest figures.',true);
+      const bundled=document.querySelector('meta[name="forecast-bundled-revision"]')?.content||'';
+      addStatus('Live forecast refresh unavailable. Displaying the approved built-in '+signed(DEFAULT_JAN_RISE)+' January forecast'+(bundled?' ('+bundled+').':'.'),true);
       console.warn('Should I Fix approved forecast could not load',error);
     }
   }

@@ -8,6 +8,8 @@ on:
       - scripts/check_mse_forecast.py
       - tests/test_forecast_scraper.py
       - Oct2026.html
+      - renewal-builder-v1.html
+      - tests/test_approved_forecast_parity_v26617.cjs
       - tests/test_verified_tariff_gate.cjs
       - .github/workflows/forecast-ci.yml
   pull_request:
@@ -17,6 +19,8 @@ on:
       - scripts/check_mse_forecast.py
       - tests/test_forecast_scraper.py
       - Oct2026.html
+      - renewal-builder-v1.html
+      - tests/test_approved_forecast_parity_v26617.cjs
       - tests/test_verified_tariff_gate.cjs
       - .github/workflows/forecast-ci.yml
 
@@ -40,5 +44,7 @@ jobs:
           python -m unittest discover -s tests -p 'test_forecast_*.py'
       - name: Check forecast loader JavaScript syntax
         run: node --check forecast-feed.js
+      - name: Validate both approved MSE forecast snapshots
+        run: node --test tests/test_approved_forecast_parity_v26617.cjs
       - name: Prevent unverified tariff savings and share regressions
         run: node --test tests/test_verified_tariff_gate.cjs
