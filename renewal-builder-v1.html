@@ -4,9 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.17">
+<meta name="app-version" content="2.66.18">
 <meta name="forecast-bundled-revision" content="mse-2026-11-02-manual-review">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.17</title>
+<title>Should I Fix - Fixed Tariff Renewal Options v2.66.18</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -314,20 +314,25 @@
   .chart-scenarios button:hover{border-color:#aab4c2;color:#344052}
   .chart-scenarios button[aria-pressed="true"]{background:#0f8f83;border-color:#0f8f83;color:#fff;box-shadow:none}
 
-  .forecast-mode-tabs{display:grid;grid-template-columns:1fr 84px 84px;gap:5px;align-items:center;margin-bottom:7px}
-  .forecast-mode-tabs span{font-size:.65rem;font-weight:850;color:#665779}
-  .forecast-mode-tabs button{border:1px solid #c9b8df;background:#faf7ff;color:#553a78;border-radius:8px;padding:7px 3px;font:800 .67rem system-ui;cursor:pointer}
-  .forecast-mode-tabs button[aria-pressed="true"]{background:#553694;color:white;border-color:#553694}
-  .forecast-unit-heading{font-size:.67rem;font-weight:850;color:#51416a;margin:7px 0 4px}
+  /* v2.66.18 - all relevant forecast rows visible; only one method active */
+  .forecast-method-explainer{font-size:.65rem;line-height:1.4;color:#615774;margin:0 0 6px}
+  .forecast-method{border:1px solid #d9d5e2;border-radius:9px;padding:9px;margin:6px 0;background:#faf9fc}
+  .forecast-method.is-active{border-color:#0f8f83;background:#f2faf8;box-shadow:inset 3px 0 0 #0f8f83}
+  .forecast-method-heading{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:.72rem;font-weight:850;color:#4d416a;margin:0 0 6px}
+  .forecast-method-used{font-size:.58rem;font-weight:850;color:#087c6c;white-space:nowrap}
+  .forecast-method:not(.is-active) button{border-color:#d7d1df;background:#fff;color:#6f667d}
+  .forecast-method .chart-scenarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .forecast-unit-heading{font-size:.66rem;font-weight:800;color:#51416a;margin:7px 0 4px}
   .forecast-unit-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
-  .forecast-unit-row.elec{grid-template-columns:repeat(6,minmax(0,1fr))}
   .forecast-unit-row button{min-width:0;border:1px solid #cabbdc;border-radius:8px;padding:8px 2px;font:800 .74rem system-ui;color:#4d3a6a;background:white;cursor:pointer}
   .forecast-unit-row button[aria-pressed="true"]{background:#0f8f83;color:white;border-color:#0f8f83}
-  .forecast-unit-note{font-size:.61rem;line-height:1.35;color:#786b86;margin:7px 0}
-  .renewal-scenario-buttons{display:block;width:100%}
-  .renewal-scenario-buttons .chart-scenarios{display:flex;gap:6px;flex-wrap:wrap}
-  .renewal-scenario-buttons .chart-scenarios button{flex:1;min-width:52px}
-  @media(max-width:420px){.forecast-mode-tabs{grid-template-columns:1fr 80px 80px}.forecast-mode-tabs span{font-size:.58rem}.forecast-unit-row{gap:3px}.forecast-unit-row button{font-size:.67rem;padding:7px 1px}}
+  .forecast-unit-note{font-size:.61rem;line-height:1.35;color:#786b86;margin:7px 0 0}
+  .renewal-scenario-buttons{display:block;width:100%;flex:1 0 100%}
+  .renewal-scenario-buttons .forecast-method .chart-scenarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+  .renewal-scenario-buttons .forecast-method .chart-scenarios button{min-width:0;width:100%;flex:none}
+  .renewal-scenario-buttons .forecast-unit-row button[aria-pressed="true"],
+  .renewal-scenario-buttons .forecast-method .chart-scenarios button[aria-pressed="true"]{background:#0f8f83;color:white;border-color:#0f8f83}
+  @media(max-width:420px){.forecast-method{padding:8px}.forecast-unit-row{gap:4px}.forecast-unit-row button{font-size:.68rem;padding:8px 1px}}
 
   .chart-info{width:25px;height:25px;border-radius:50%;border:1px solid #d8dfe8;background:#fff;color:#596579;font-family:Georgia,serif;font-weight:800;font-size:.78rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:none;flex:0 0 auto}
   .chart-info:hover{border-color:var(--purple);background:#faf7ff}
@@ -1533,25 +1538,42 @@ function forecastScenarioValues(){
   return [...new Set([DEFAULT_JAN_RISE,30,35])].sort((a,b)=>a-b);
 }
 
-/* v2.66.16 - optional January national-average unit-rate scenarios. */
+/* v2.66.18 - one active forecast method; relevant fuel rows stay visible. */
 let forecastScenarioMode='percent',forecastGasUnit=11,forecastElecUnit=33;
-function setForecastScenarioMode(mode){if(mode==='unit'||mode==='percent'){forecastScenarioMode=mode;render();}}
+function forecastSelectedFuelMode(){
+  const selected=document.querySelector('#fuelSeg button[aria-pressed="true"]');
+  return selected&&['dual','elec','gas'].includes(selected.dataset.mode)?selected.dataset.mode:'dual';
+}
+function forecastUnitLabel(){
+  const fuel=forecastSelectedFuelMode();
+  return fuel==='elec'?forecastElecUnit+'p electricity':
+    fuel==='gas'?forecastGasUnit+'p gas':
+    forecastElecUnit+'p electricity / '+forecastGasUnit+'p gas';
+}
 function setForecastUnit(fuel,value){
-  const v=Number(value);
-  if(fuel==='gas'&&[10,10.5,11,11.5,12,13].includes(v))forecastGasUnit=v;
-  else if(fuel==='elec'&&[30,31,32,33,34,35].includes(v))forecastElecUnit=v;
+  const v=Number(value),mode=forecastSelectedFuelMode();
+  if(fuel==='gas'&&mode!=='elec'&&[10,10.5,11,11.5,12,13].includes(v))forecastGasUnit=v;
+  else if(fuel==='elec'&&mode!=='gas'&&[30,31,32,33,34,35].includes(v))forecastElecUnit=v;
   else return;
   forecastScenarioMode='unit';render();
 }
 function forecastControlMarkup(janRise){
-  const tab=(mode,label)=>'<button type="button" onclick="setForecastScenarioMode(\''+mode+'\')" aria-pressed="'+(forecastScenarioMode===mode)+'">'+label+'</button>';
-  const tabs='<div class="forecast-mode-tabs" role="group" aria-label="Forecast scenario type"><span>January scenario</span>'+tab('percent','Percentage')+tab('unit','Unit rates')+'</div>';
-  if(forecastScenarioMode==='percent')return tabs+'<div class="chart-scenarios" role="group" aria-label="January price cap percentage scenarios">'+
-    forecastScenarioValues().map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(Math.abs(v-janRise)<.001)+'">'+(v>0?'+':'')+v+'%</button>').join('')+'</div>';
-  const row=(fuel,label,values,selected)=>'<div class="forecast-unit-heading">'+label+' (p/kWh)</div><div class="forecast-unit-row '+fuel+'" role="group" aria-label="'+label+' unit rates">'+
-    values.map(v=>'<button type="button" onclick="setForecastUnit(\''+fuel+'\','+v+')" aria-pressed="'+(selected===v)+'">'+v+'p</button>').join('')+'</div>';
-  return tabs+row('gas','Gas',[10,10.5,11,11.5,12,13],forecastGasUnit)+row('elec','Electricity',[30,31,32,33,34,35],forecastElecUnit)+
-    '<p class="forecast-unit-note">Illustrative January UK-average prices, not published unit-rate forecasts. Regional differences and current standing charges are retained; April/July use published change factors.</p>';
+  const fuel=forecastSelectedFuelMode(),pct=forecastScenarioMode==='percent',unit=!pct;
+  const marker='<span class="forecast-method-used">In use</span>';
+  const percent='<div class="forecast-method'+(pct?' is-active':'')+'" data-forecast-method="percent" role="group" aria-label="January percentage forecast">'+
+    '<div class="forecast-method-heading">Percentage increase'+(pct?marker:'')+'</div>'+
+    '<div class="chart-scenarios">'+forecastScenarioValues().map(v=>
+      '<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(pct&&Math.abs(v-janRise)<.001)+'">'+(v>0?'+':'')+v+'%</button>'
+    ).join('')+'</div></div>';
+  const row=(kind,label,values,chosen)=>'<div class="forecast-unit-heading">'+label+' (p/kWh)</div>'+
+    '<div class="forecast-unit-row '+kind+'" role="group" aria-label="'+label+' forecast unit rates">'+
+    values.map(v=>'<button type="button" onclick="setForecastUnit(\''+kind+'\','+v+')" aria-pressed="'+(unit&&chosen===v)+'">'+v+'p</button>').join('')+'</div>';
+  const prices='<div class="forecast-method'+(unit?' is-active':'')+'" data-forecast-method="unit" role="group" aria-label="January unit-rate forecast">'+
+    '<div class="forecast-method-heading">Unit rates'+(unit?marker:'')+'</div>'+
+    (fuel==='elec'?'':row('gas','Gas',[10,10.5,11,11.5,12,13],forecastGasUnit))+
+    (fuel==='gas'?'':row('elec','Electricity',[30,31,32,33,34,35],forecastElecUnit))+
+    '<div class="forecast-unit-note">Illustrative UK-average rates, not published forecasts. Regional differences and standing charges are retained.</div></div>';
+  return '<div class="forecast-method-explainer">Choose a percentage <strong>or</strong> unit rates - selecting one switches the calculation.</div>'+percent+prices;
 }
 window.ShouldIFixForecastScenario=function(){return{mode:forecastScenarioMode,elec:forecastElecUnit,gas:forecastGasUnit};};
 
@@ -2358,7 +2380,7 @@ function renderRenewalStory(s){
   const buttons=document.getElementById("renewalScenarioButtons");
   buttons.innerHTML=forecastControlMarkup(s.janRise);
   const title=document.querySelector('.renewal-scenario-bar strong');
-  if(title)title.textContent=forecastScenarioMode==='unit'?'Stress test January unit rates':'Stress test January price-cap change';
+  if(title)title.textContent='January forecast scenarios';
   if(!renewalInputsValid(s.mode)){
     savings.innerHTML='<p class="renewal-chart-small">'+(renewalOfferManualActive?
       'Enter the tariff name and all four rates in the offer cog. Manual comparisons cannot be shared.':
@@ -2565,7 +2587,7 @@ function comparisonRange(){
 }
 function comparisonEndLabel(){return formatComparisonDate(periodEndDate);}
 function phaseForecastLabel(ph,janRise){
-  if(ph==='jan'&&forecastScenarioMode==='unit')return forecastElecUnit+'p E / '+forecastGasUnit+'p G';
+  if(ph==='jan'&&forecastScenarioMode==='unit')return forecastSelectedFuelMode()==='elec'?forecastElecUnit+'p E':forecastSelectedFuelMode()==='gas'?forecastGasUnit+'p G':forecastElecUnit+'p E / '+forecastGasUnit+'p G';
   if(ph==="conf")return "Confirmed";
   if(ph==="flat")return "0%"; // Tooltip and source modal identify this as an assumption.
   const n=ph==="jan"?janRise:ph==="apr"?(APR_FROM_JAN-1)*100:(JUL_FROM_APR-1)*100;
@@ -3295,7 +3317,7 @@ function openForecastSource(){
   document.getElementById("forecastChoiceSource").setAttribute("aria-pressed","false");
   document.getElementById("forecastChoiceModel").setAttribute("aria-pressed","false");
   const j=document.getElementById("forecastJanChosen");
-  if(j)j.textContent=forecastScenarioMode==='unit'?forecastElecUnit+'p electricity / '+forecastGasUnit+'p gas':(+document.getElementById("janRise").value||0)+'%';
+  if(j)j.textContent=forecastScenarioMode==='unit'?forecastUnitLabel():(+document.getElementById("janRise").value||0)+'%';
   m.classList.add("open");
 }
 function showForecastPanel(which){
@@ -3392,7 +3414,7 @@ function draw(res,janRise,s,tracker){
   const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-controls">
-      <div class="chart-forecast-label">${forecastScenarioMode==='unit'?'Illustrative January 2027 unit-rate scenarios':'Current January forecast: +'+DEFAULT_JAN_RISE+'%. What if it’s higher or lower?'}</div>
+      <div class="chart-forecast-label">Current MSE January forecast: +${DEFAULT_JAN_RISE}% - test alternative scenarios</div>
       ${forecastControlMarkup(janRise)}
     </div>
     <div class="chart-grid">
@@ -3969,7 +3991,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.17 (5 November 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
+    <div>App version: 2.66.18 (5 November 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -4229,7 +4251,7 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.17"></script>
+<script src="./forecast-feed.js?v=2.66.18"></script>
 <script src="./renewal-mobile-experience-v2.66.13.js"></script>
 </body>
 </html>

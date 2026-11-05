@@ -17,8 +17,8 @@ for(const file of ['Oct2026.html','renewal-builder-v1.html'])test(file+' initial
   'MSE default':'id="forecastDefault" type="hidden" value="'+jan+'"',
   'buttons':'[DEFAULT_JAN_RISE,30,35]',
   'source period':'week beginning 2 November 2026',
-  'version':'App version: 2.66.17',
-  'feed cache':'forecast-feed.js?v=2.66.17',
+  'version':'App version: 2.66.18',
+  'feed cache':'forecast-feed.js?v=2.66.18',
   'gas':'[10,10.5,11,11.5,12,13]',
   'electricity':'[30,31,32,33,34,35]',
   'unit default':"forecastScenarioMode='percent',forecastGasUnit=11,forecastElecUnit=33"
