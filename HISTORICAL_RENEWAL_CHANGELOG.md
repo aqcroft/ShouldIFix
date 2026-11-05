@@ -1,3 +1,11 @@
+## v2.66.18 - 5th November 2026 - Three forecast rows, one active method
+
+- Remove the extra Percentage / Unit rates switch. Show the percentage scenario row and any applicable unit-rate rows simultaneously, clearly distinguishing the active method.
+- Tapping a percentage activates percentage calculations; tapping a gas or electricity rate activates pence calculations. Only one method is active, and previous choices remain available when switching back.
+- Electricity-only customers see no gas pence row; gas-only customers see no electricity pence row; dual-fuel customers see all three rows. Quarter labels and forecast explanations mention only relevant fuels.
+- Preserve 28.8%/30%/35% percentage scenarios, gas 10/10.5/11/11.5/12/13p, electricity 30/31/32/33/34/35p, the original 11p and 33p defaults, November MSE source and shared-link semantics.
+- Includes UI state and rate-calculation regression tests.
+
 ## v2.66.17 - 5 November 2026 - Approved November MSE forecast parity
 
 - Correct January's bundled default and percentage buttons to +28.8%, +30% and +35%; restore +6.4% April and -9.3% July.

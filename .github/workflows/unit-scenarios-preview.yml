@@ -1,7 +1,7 @@
-name: January unit-rate feature checks (draft)
+name: January scenario and fuel-aware UI checks
 on:
   push:
-    branches: ['feature/january-unit-rate-scenarios-*']
+    branches: ['feature/january-unit-rate-scenarios-*', 'feature/forecast-three-rows-*', main]
   pull_request:
     paths: ['Oct2026.html', 'renewal-builder-v1.html', 'tests/test_january_unit_scenarios_v26616.cjs']
 permissions:
@@ -14,5 +14,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check inline JavaScript and January scenario mathematics
+      - name: Check scenario row visibility, exclusivity, JavaScript and forecast maths
         run: node --test tests/test_january_unit_scenarios_v26616.cjs
