@@ -1,3 +1,10 @@
+## v2.66.17 - 5 November 2026 - Approved November MSE forecast parity
+
+- Correct January's bundled default and percentage buttons to +28.8%, +30% and +35%; restore +6.4% April and -9.3% July.
+- Refresh both prospective and existing customer fallbacks, supplier table, help modal, FAQ and source dates to match approved forecast-data.json (week 2 November).
+- Retain six independent unit-rate choices per fuel, seasonality and calculation paths, and customer sharing.
+- Prevent stale remote feed JSON from rolling back a more recent bundled approved forecast. Add regression coverage to enforce snapshot parity.
+
 ## v2.66.16 - 5 November 2026 - January gas/electricity scenario switch (draft)
 
 - Percentage scenarios remain the default. Unit-rate mode offers UK-average illustrative January rates: gas 10/10.5/11/11.5/12/13p and electricity 30/31/32/33/34/35p, defaulting to 11p gas and 33p electricity.
