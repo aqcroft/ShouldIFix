@@ -15,15 +15,15 @@ for(const file of ['Oct2026.html','renewal-builder-v1.html'])test(file+' initial
   'July':'JUL_FROM_APR='+(1+jul/100)+';',
   'chosen':'id="janRise" type="hidden" value="'+jan+'"',
   'MSE default':'id="forecastDefault" type="hidden" value="'+jan+'"',
-  'buttons':'[DEFAULT_JAN_RISE,30,35]',
+  'buttons':'[15,20,25,DEFAULT_JAN_RISE,30,35]',
   'source period':'week beginning 2 November 2026',
-  'version':'App version: 2.66.18',
-  'feed cache':'forecast-feed.js?v=2.66.18',
-  'gas':'[10,10.5,11,11.5,12,13]',
-  'electricity':'[30,31,32,33,34,35]',
-  'unit default':"forecastScenarioMode='percent',forecastGasUnit=11,forecastElecUnit=33"
+  'version':'App version: 2.66.20',
+  'feed cache':'forecast-feed.js?v=2.66.20',
+  'gas':'[10,10.5,11.5,12,13]',
+  'electricity':'[30,31,32,34,35]',
+  'unit default':"forecastScenarioMode='percent',forecastGasUnit=null,forecastElecUnit=null"
  }))assert(s.includes(fragment),file+': missing '+label);
- assert.doesNotMatch(s,/25%|12 October 2026|week starting 12 Oct/);
+ assert.doesNotMatch(s,/12 October 2026|week starting 12 Oct/);
  const panel=s.split('id="forecastPanelSource"')[1].split('id="forecastPanelModel"')[0];
  for(const supplier of [...data.suppliers,{name:'Average',values:data.periods.map(p=>p.average)}]){
   assert(panel.includes(supplier.name),file+': supplier '+supplier.name);

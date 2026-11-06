@@ -1,3 +1,12 @@
+## v2.66.20 - 6th November 2026 - Exact MSE-equivalent pence forecasts and independent fuel projections
+
+- Show six January percentage buttons (15, 20, 25, MSE default, 30 and 35%) with the percentage method active by default. Explicit activation controls switch between percentage and pence forecasts without hiding the other options.
+- Calculate the MSE-equivalent gas/electricity unit rates from the approved national dual-fuel benchmark. The current 28.8% source gives approximately 11.36p gas and 33.3p electricity, while retaining full unrounded precision.
+- Activating pence at the MSE reference keeps every forecast monthly and quarterly cost identical to the current percentage default. Reference unit-rate buttons recalculate when the forecast changes.
+- April and July relative factors in unit-rate stress tests use the fixed approved reference rather than the user-stressed opposite fuel. Electricity-only results cannot change when gas rates change, and vice versa.
+- Share links serialise the full selected pence precision. Retain all existing historical tariffs, standing charges, regional modelling and profile safeguards.
+- This release is coordinated with Appointment Companion v2.66.20, including compact desktop specialist header.
+
 ## v2.66.18 - 5th November 2026 - Three forecast rows, one active method
 
 - Remove the extra Percentage / Unit rates switch. Show the percentage scenario row and any applicable unit-rate rows simultaneously, clearly distinguishing the active method.
