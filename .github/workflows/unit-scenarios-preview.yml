@@ -1,7 +1,7 @@
-name: January scenario and fuel-aware UI checks
+name: MSE forecast equivalence and fuel isolation checks
 on:
   push:
-    branches: ['feature/january-unit-rate-scenarios-*', 'feature/forecast-three-rows-*', main]
+    branches: ['feature/january-unit-rate-scenarios-*', 'feature/forecast-three-rows-*', 'feature/forecast-parity-*', main]
   pull_request:
     paths: ['Oct2026.html', 'renewal-builder-v1.html', 'tests/test_january_unit_scenarios_v26616.cjs']
 permissions:
@@ -14,5 +14,5 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Check scenario row visibility, exclusivity, JavaScript and forecast maths
+      - name: Check dynamic reference, all monthly scenario inputs and fuel isolation
         run: node --test tests/test_january_unit_scenarios_v26616.cjs
