@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="companion-display-version" content="2.66.21">
-<meta name="app-version" content="2.66.21">
+<meta name="companion-display-version" content="2.66.22">
+<meta name="app-version" content="2.66.22">
 <meta name="forecast-bundled-revision" content="mse-2026-11-02-manual-review">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
@@ -387,7 +387,7 @@
   }
   .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
 
-  /* v2.66.21: forecast controls occupy one compact section. */
+  /* v2.66.22: forecast controls occupy one compact section; plotted badges show monthly averages. */
   .chart-controls{padding:8px 9px}
   .chart-forecast-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
   .chart-forecast-label{font-size:.77rem;font-weight:850;color:#4d416a;letter-spacing:0;margin:0}
@@ -2161,9 +2161,13 @@ function draw(res,janRise,s,tracker){
     return peak;
   };
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+  // Restore the same full-month-equivalent average that appeared in the old legend.
+  // The location is the seasonal peak; the number is NOT the peak-month bill.
+  const monthlyAverage=key=>gbp(rows.reduce((total,row)=>total+(Number(row[key])||0),0)/Math.max(1,n));
   const chartBadge=(peak,key,label,cx,cy)=>{
     if(!peak)return '';
-    const value=gbp(peak.value),desc=label+' '+value+' per month at '+peak.month+' peak';
+    const value=monthlyAverage(key==='fix'?'fixed':key);
+    const desc=label+' '+value+' average per month across the charted full-month equivalents; label placed near '+peak.month+' peak';
     return '<g class="chart-cost-tag '+key+'"><title>'+desc+'</title>'+
       '<rect x="'+(cx-39).toFixed(1)+'" y="'+(cy-17).toFixed(1)+'" width="78" height="34" rx="9"/>'+
       '<text x="'+cx.toFixed(1)+'" y="'+(cy+7).toFixed(1)+'" fill="var(--'+(key==='cap'?'cap':key==='tracker'?'tracker':'fixed')+')">'+value+'</text></g>';
@@ -2214,7 +2218,7 @@ function draw(res,janRise,s,tracker){
         </svg>
       </div>
     </div>
-    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Totals, quarterly costs and savings use the actual pro-rated comparison dates.</p>
+    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Floating £ values are monthly averages, positioned near the peaks. Totals, quarterly costs and savings use actual pro-rated dates.</p>
   </div>`;
 }
 
@@ -2763,6 +2767,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.21"></script>
+<script src="./forecast-feed.js?v=2.66.22"></script>
 </body>
 </html>
