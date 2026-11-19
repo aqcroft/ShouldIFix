@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="companion-display-version" content="2.66.22">
-<meta name="app-version" content="2.66.22">
+<meta name="companion-display-version" content="2.66.23">
+<meta name="app-version" content="2.66.23">
 <meta name="forecast-bundled-revision" content="mse-2026-11-02-manual-review">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
@@ -204,6 +204,45 @@
   .usage-pick button:hover{border-color:#cdbff0}
   .usage-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
   .usage-pick .pencil{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;flex:none}
+
+  /* v2.66.23: five stable usage positions, with disabled preset readouts. */
+  .usage-card{padding-top:10px;padding-bottom:11px}
+  .usage-card .usage-topline{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px}
+  .usage-card .usage-topline .lab{margin:0;font-size:.76rem}
+  .usage-card .usage-actions{display:flex;align-items:center;gap:5px}
+  .usage-card .usage-actions button{border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--purple-deep);padding:4px 7px;min-height:26px;font:800 .66rem/1.2 "Nunito",system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+  .usage-card .usage-actions #btnPersonal[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:white}
+  .usage-card .usage-actions button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+  .usage-card .reset-usage{margin:0}
+  .usage-card .reset-usage:disabled{opacity:.35;cursor:default}
+  .usage-card .usage-five-col{display:grid;grid-template-columns:minmax(0,.91fr) minmax(0,1.09fr);gap:5px;align-items:stretch}
+  .usage-card #usageSeg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:0}
+  .usage-card #usageSeg button{width:100%;min-height:51px;padding:6px 2px;font-size:.73rem;min-width:0}
+  .usage-card #manualUsage{display:block;min-width:0;margin:0}
+  .usage-card #manualUsage .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+  .usage-card #manualUsage[data-single-fuel="true"] .two{grid-template-columns:1fr}
+  .usage-card #manualUsage .field{min-width:0;margin:0;padding:4px 4px 3px;border:1px solid var(--line);border-radius:9px;background:#f5f3f8;min-height:51px;display:flex;flex-direction:column;justify-content:center}
+  .usage-card #manualUsage .field label{display:block;color:var(--muted);font:800 .55rem/1.2 "Nunito",system-ui,sans-serif;text-align:center;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .usage-card #manualUsage .field input{display:block;width:100%;min-width:0;height:25px;margin:0;padding:0 1px;background:transparent;border:0;border-radius:0;box-shadow:none;text-align:center;color:#7d748b;font:800 16px/1.3 "Nunito",system-ui,sans-serif;-moz-appearance:textfield}
+  .usage-card #manualUsage .field input::-webkit-outer-spin-button,.usage-card #manualUsage .field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .usage-card #manualUsage .field input:disabled{-webkit-text-fill-color:#827a8c;opacity:1;cursor:default}
+  .usage-card.is-custom #manualUsage .field{background:#fff;border-color:#b8a7dd}
+  .usage-card.is-custom #manualUsage .field input{color:var(--ink)}
+  .usage-card #manualUsage .field:focus-within{outline:2px solid var(--purple);outline-offset:1px}
+  @media(max-width:430px){
+    .usage-card{padding-left:9px;padding-right:9px}
+    .usage-card .usage-five-col{gap:4px;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}
+    .usage-card #usageSeg{gap:3px}
+    .usage-card #usageSeg button{font-size:.65rem;padding:5px 1px}
+    .usage-card #manualUsage .two{gap:3px}
+    .usage-card #manualUsage .field{padding:3px 2px}
+    .usage-card #manualUsage .field label{font-size:.49rem}
+    .usage-card .usage-actions button{font-size:.6rem;padding:4px 6px}
+  }
+  /* Give the full prospective price-cap label room in the narrow vertical legend. */
+  .chart-key-item.cap{flex:1.6}
+  .chart-key-item.fix,.chart-key-item.tracker{flex:.78}
+  .chart-key-item.cap span{font-size:.43rem;letter-spacing:-.02em}
   .usage-manual{margin-top:12px}
   .reset-usage{margin-top:10px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--purple);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
   .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
@@ -689,23 +728,33 @@ html.companion-embedded .wrap{padding-top:2px}
   </section>
 
   <section class="card usage-card" id="usageCard">
-    <div class="rhead">
-      <div class="usage-block">
+    <div class="usage-block">
+      <div class="usage-topline">
         <span class="lab">Set your usage</span>
+        <div class="usage-actions">
+          <button class="reset-usage" id="resetUsageBtn" type="button" disabled title="Reset to the selected usage band">↺ Reset</button>
+          <button type="button" id="btnPersonal" aria-label="Customise annual usage" aria-pressed="false" title="Customise annual electricity and gas usage">✎ Customise</button>
+        </div>
+      </div>
+      <div class="usage-five-col">
         <div class="usage-pick" id="usageSeg" role="group" aria-label="Choose usage">
           <button type="button" data-band="low" data-e="1600" data-g="6000" data-eh="1900">Low</button>
           <button type="button" data-band="med" data-e="2500" data-g="9500" data-eh="3400" aria-pressed="true">Med</button>
           <button type="button" data-band="high" data-e="3800" data-g="14000" data-eh="6100">High</button>
-          <button type="button" id="btnPersonal" aria-label="Enter your own usage" title="Enter your own usage"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
+        </div>
+        <div id="manualUsage" class="usage-manual" data-single-fuel="false">
+          <div class="two">
+            <div class="field" id="elecUsageWrap">
+              <label for="elec">⚡ Elec kWh/yr</label>
+              <input id="elec" type="number" min="0" step="50" value="2500" disabled>
+            </div>
+            <div class="field" id="gasUsageWrap">
+              <label for="gas">🔥 Gas kWh/yr</label>
+              <input id="gas" type="number" min="0" step="100" value="9500" disabled>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div id="manualUsage" class="hidden usage-manual">
-      <div class="two">
-        <div class="field" id="elecUsageWrap" style="margin-bottom:0"><span class="lab">Elec kWh/yr</span><input id="elec" type="number" min="0" step="50" value="2500"></div>
-        <div class="field" id="gasUsageWrap" style="margin-bottom:0"><span class="lab">Gas kWh/yr</span><input id="gas" type="number" min="0" step="100" value="9500"></div>
-      </div>
-      <button class="reset-usage hidden" id="resetUsageBtn" type="button">Reset to selected band</button>
     </div>
   </section>
 
@@ -2151,7 +2200,8 @@ function draw(res,janRise,s,tracker){
 
   // Use plotted full-month peak values for chart badges; rank the legend
   // by total cost across the same pro-rated comparison period.
-  const chartLegend=[{key:'cap',name:'Variable',total:res.yCap},{key:'fix',name:fixedLegend,total:res.yFix}];
+  const variableLegend=s.renewal?safeHtml(s.variableName):'Standard variable price cap';
+  const chartLegend=[{key:'cap',name:variableLegend,total:res.yCap},{key:'fix',name:fixedLegend,total:res.yFix}];
   if(track.length)chartLegend.push({key:'tracker',name:trackerLegend,total:res.rows.reduce((a,r)=>a+r.tracker,0)});
   chartLegend.sort((a,b)=>b.total-a.total);
   const legendMarkup=chartLegend.map(item=>'<div class="chart-key-item '+item.key+'" title="'+item.name+'"><span>'+item.name+'</span></div>').join('');
@@ -2172,7 +2222,7 @@ function draw(res,janRise,s,tracker){
       '<rect x="'+(cx-39).toFixed(1)+'" y="'+(cy-17).toFixed(1)+'" width="78" height="34" rx="9"/>'+
       '<text x="'+cx.toFixed(1)+'" y="'+(cy+7).toFixed(1)+'" fill="var(--'+(key==='cap'?'cap':key==='tracker'?'tracker':'fixed')+')">'+value+'</text></g>';
   };
-  const topPeaks=[{key:'cap',name:'Variable',peak:peakOf('cap')},...(track.length?[{key:'tracker',name:trackerLegend,peak:peakOf('tracker')}]:[])].sort((a,b)=>b.peak.value-a.peak.value);
+  const topPeaks=[{key:'cap',name:variableLegend,peak:peakOf('cap')},...(track.length?[{key:'tracker',name:trackerLegend,peak:peakOf('tracker')}]:[])].sort((a,b)=>b.peak.value-a.peak.value);
   let lastY=0;
   const topBadges=topPeaks.map((item,i)=>{
     const p=item.peak.point;
@@ -2288,7 +2338,12 @@ function fixedRates(s){
 }
 function syncVisibility(s){
   const incE=s.mode!=="gas", incG=s.mode!=="elec";
-  document.getElementById("manualUsage").classList.toggle("hidden",!s.personalise);
+  const usageReadouts=document.getElementById("manualUsage");
+  usageReadouts.classList.remove("hidden");
+  usageReadouts.dataset.singleFuel=String(s.mode!=="dual");
+  document.getElementById("usageCard").classList.toggle("is-custom",s.personalise);
+  document.getElementById("elec").disabled=!s.personalise||!incE;
+  document.getElementById("gas").disabled=!s.personalise||!incG;
   document.getElementById("electricHeatRow").classList.toggle("hidden",s.mode!=="elec");
   document.getElementById("elecUsageWrap").classList.toggle("hidden",!incE);
   document.getElementById("gasUsageWrap").classList.toggle("hidden",!incG);
@@ -2300,7 +2355,7 @@ function syncVisibility(s){
   document.querySelectorAll("[data-renewal-gas]").forEach(el=>el.classList.toggle("hidden",s.mode==="elec"));
   document.getElementById("mElec").classList.toggle("hidden",!incE);
   document.getElementById("mGas").classList.toggle("hidden",!incG);
-  document.getElementById("resetUsageBtn").classList.toggle("hidden",!s.personalise || !customTouched);
+  document.getElementById("resetUsageBtn").disabled=!s.personalise||!customTouched;
   // usage picker highlight: matching band, the pencil if personalising, or none
   const bands=[...document.querySelectorAll('#usageSeg button[data-band]')];
   const match=bands.find(b=>{
@@ -2672,7 +2727,7 @@ function statics(){
     document.getElementById("elec").value=values.e;
     document.getElementById("gas").value=values.g;
     render();
-    document.getElementById("elec").focus();
+    document.getElementById(state().mode==="gas"?"gas":"elec").focus();
   });
   rSel.addEventListener("change",render);
   document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.addEventListener("click",()=>{
@@ -2767,6 +2822,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.22"></script>
+<script src="./forecast-feed.js?v=2.66.23"></script>
 </body>
 </html>
