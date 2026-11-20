@@ -4,9 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="companion-display-version" content="2.66.23">
-<meta name="app-version" content="2.66.23">
-<meta name="forecast-bundled-revision" content="mse-2026-11-02-manual-review">
+<meta name="companion-display-version" content="2.67">
+<meta name="app-version" content="2.67">
+<meta name="forecast-bundled-revision" content="mse-2026-11-02-ci-2026-11-18-v2.67">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -1065,11 +1065,12 @@ html.companion-embedded .wrap{padding-top:2px}
     <div class="forecast-panel" id="forecastPanelModel">
       <div class="forecast-model">
         <div class="forecast-model-row"><div class="forecast-model-key">Confirmed</div><div class="forecast-model-val">Oct-Dec uses published regional price-cap rates.</div></div>
-        <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">+28.8%</span> Standing charges stay at the Oct-Dec level. The forecast movement is applied to unit rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">+28.8%</span><span id="forecastModelJanuaryNote"> Standing charges remain at the October-December level and the selected forecast change applies to unit rates.</span></div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Gas vs electricity</div><div class="forecast-model-val">The split follows Cornwall Insight's late-August component forecast shape, scaled to the fresher MSE consensus.</div></div>
-        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr +6.4%</span><span class="forecast-model-badge">Jul -9.3%</span><span class="forecast-model-badge">Oct 2027: 0% assumed</span> From October 2027 the July-September price-cap rates are held flat. This is an assumption, not a published forecast.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr +6.4%</span><span class="forecast-model-badge">Jul -9.3%</span><span class="forecast-model-badge">Oct 2027: 0% assumed</span> From October 2027 the July-September price-cap rates are held flat. This is an assumption, not a published forecast. <span id="forecastModelLaterNote">Later quarters follow the existing forecast assumptions.</span></div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Annual usage is spread month by month rather than divided evenly by 12. Gas follows the DESNZ seasonal profile; electricity uses the same gentler monthly profile carried forward from the original tool. Electric-heating mode switches electricity to the winter-heavy heating profile.</div></div>
         <button class="seasonality-link" type="button" onclick="openSeasonalityModal()">View monthly usage split<span>See the exact percentage of annual gas and electricity usage allocated to each month.</span></button>
+        <div class="forecast-model-row"><div class="forecast-model-key">Cornwall Insight</div><div class="forecast-model-val">National Jan-Mar 2027 direct-debit forecasts published 18 Nov: electricity 32.54p/kWh + 56p/day; gas 10.90p/kWh + 31p/day. These are not confirmed regional rates. The CI f/c scenario scales each region's October cap rates proportionally. <a href="https://www.cornwall-insight.com/predictions-and-insights-into-the-default-tariff-cap/" target="_blank" rel="noopener">Source</a>.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Tracker</div><div class="forecast-model-val">Future Tracker rates preserve today's regional Tracker-to-price-cap relationship. They are estimates, not published future UW rates.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Chart lines</div><div class="forecast-model-val">Blue = variable price cap · Purple = Fix · Orange = Track.</div></div>
       </div>
@@ -1140,7 +1141,26 @@ function forecastScenarioValues(){
   return [15,20,25,DEFAULT_JAN_RISE,30,35];
 }
 
-/* v2.66.20 - one forecast source of truth; percentage and exact unit-rate defaults are equivalent. */
+
+/* Cornwall Insight 18 Nov 2026: direct debit UK national averages, Jan-Mar 2027.
+   There is no verified regional January rate sheet. Scale the four October
+   regional components independently rather than substituting national values. */
+const CI_JAN_2027=Object.freeze({
+  date:'18 November 2026',
+  url:'https://www.cornwall-insight.com/predictions-and-insights-into-the-default-tariff-cap/',
+  base:Object.freeze({eU:26.32,eSC:54.83,gU:7.97,gSC:29.68}),
+  projected:Object.freeze({eU:32.54,eSC:56,gU:10.90,gSC:31})
+});
+function ciCapMultipliers(){
+  const b=CI_JAN_2027.base,p=CI_JAN_2027.projected;
+  return {e:p.eU/b.eU,g:p.gU/b.gU,eSC:p.eSC/b.eSC,gSC:p.gSC/b.gSC};
+}
+function ciHeadlinePercent(){
+  const b=CI_JAN_2027.base,p=CI_JAN_2027.projected;
+  const annual=x=>(x.eSC+x.gSC)*365+x.eU*2500+x.gU*9500;
+  return (annual(p)/annual(b)-1)*100;
+}
+/* v2.67 - percentage and exact unit-rate defaults remain equivalent. */
 let forecastScenarioMode='percent',forecastGasUnit=null,forecastElecUnit=null;
 function forecastSelectedFuelMode(){
   const selected=document.querySelector('#fuelSeg button[aria-pressed="true"]');
@@ -1174,6 +1194,11 @@ function activateForecastMethod(mode){
     forecastScenarioMode='unit';
     forecastGasUnit=null;
     forecastElecUnit=null;
+  }else if(mode==='cornwall'){
+    forecastScenarioMode='cornwall';
+    // Separate EV extension continues to use an illustrative headline %
+    // rather than claiming exact EV-tariff forecasts.
+    document.getElementById('janRise').value=String(ciHeadlinePercent());
   }else return;
   render();
 }
@@ -1186,6 +1211,9 @@ function setForecastUnit(fuel,value){
 }
 function forecastControlMarkup(janRise){
   const fuel=forecastSelectedFuelMode(),pct=forecastScenarioMode==='percent';
+  if(forecastScenarioMode==='cornwall')return '<div class="forecast-ci-note" role="status" title="National forecast translated proportionally to the selected October regional cap">'+
+    'CI Jan 2027: ⚡ 32.54p/kWh + 56p/day · 🔥 10.90p/kWh + 31p/day'+
+    '<small>National forecast · estimated regional rates</small></div>';
   if(pct)return '<div class="forecast-compact" role="group" aria-label="January forecast percentage options"><div class="chart-scenarios">'+
     forecastScenarioValues().map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(Math.abs(v-janRise)<.001)+'"'+
       (Math.abs(v-DEFAULT_JAN_RISE)<.001?' title="MSE January default forecast"':'')+'>'+(v>0?'+':'')+v+'%</button>').join('')+
@@ -1206,7 +1234,13 @@ function forecastControlMarkup(janRise){
     (fuel==='elec'?'':row('gas','Gas',[10,10.5,11.5,12,13],forecastGasUnit))+
     (fuel==='gas'?'':row('elec','Electricity',[30,31,32,34,35],forecastElecUnit))+'</div>';
 }
-window.ShouldIFixForecastScenario=function(){const selected=forecastCurrentUnitRates();return {mode:forecastScenarioMode,elec:selected.elec,gas:selected.gas};};
+window.ShouldIFixForecastScenario=function(){
+  if(forecastScenarioMode==='cornwall')return {
+    mode:'cornwall',elec:CI_JAN_2027.projected.eU,gas:CI_JAN_2027.projected.gU,
+    elecStanding:CI_JAN_2027.projected.eSC,gasStanding:CI_JAN_2027.projected.gSC
+  };
+  const selected=forecastCurrentUnitRates();return {mode:forecastScenarioMode,elec:selected.elec,gas:selected.gas};
+};
 
 /* Forecast split: use the fresher headline forecast, but keep standing charges
    at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
@@ -1296,7 +1330,9 @@ function renewalVariableRate(base,phase,janRise){
   if(phase==="conf")return base;
   const steps=forecastSteps(janRise);
   const f=steps[phase]||steps.jul;
-  return {eSC:base.eSC,eU:base.eU*f.e,gSC:base.gSC,gU:base.gU*f.g};
+  const standing=forecastScenarioMode==='cornwall'?ciCapMultipliers():null;
+  return {eSC:base.eSC*(standing?standing.eSC:1),eU:base.eU*f.e,
+          gSC:base.gSC*(standing?standing.gSC:1),gU:base.gU*f.g};
 }
 function showRenewalBenchmark(s,res){
   const panel=document.getElementById("renewalBenchmark");
@@ -1364,6 +1400,7 @@ function comparisonRange(){
 }
 function comparisonEndLabel(){return formatComparisonDate(periodEndDate);}
 function phaseForecastLabel(ph,janRise){
+  if(ph==='jan'&&forecastScenarioMode==='cornwall')return 'CI f/c';
   if(ph==='jan'&&forecastScenarioMode==='unit')return forecastUnitLabel().replace(' electricity',' E').replace(' gas',' G').replace(' / ',' / ');
   if(ph==="conf")return "Confirmed";
   if(ph==="flat")return "0%"; // Tooltip and source modal identify this as an assumption.
@@ -1402,9 +1439,11 @@ function forecastSteps(janRisePct){
     ':MSE:'+DEFAULT_JAN_RISE+':Apr:'+APR_FROM_JAN+':Jul:'+JUL_FROM_APR;
   if(forecastStepCache.has(key))return forecastStepCache.get(key);
   const oct=avgRegionalCap('octdec');
-  const janStep=forecastScenarioMode==='unit'
-    ? {e:rates.elec/oct.eU,g:rates.gas/oct.gU}
-    : shapedUnitStep(oct,janRisePct);
+  const janStep=forecastScenarioMode==='cornwall'
+    ? {e:ciCapMultipliers().e,g:ciCapMultipliers().g}
+    : forecastScenarioMode==='unit'
+      ? {e:rates.elec/oct.eU,g:rates.gas/oct.gU}
+      : shapedUnitStep(oct,janRisePct);
   const jan=applyUnitStep(oct,janStep);
   // Future April/July adjustments in unit-rate mode use the unchanged approved
   // reference forecast, not the customer's independently stressed gas/electricity
@@ -1426,7 +1465,9 @@ function forecastSteps(janRisePct){
 function projectedCapRate(region,ph,janRisePct){
   if(ph==="now") return region.cap.julsep; if(ph==="conf") return region.cap.octdec;
   const steps=forecastSteps(janRisePct), m=steps[ph]||steps.jul, base=region.cap.octdec;
-  return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g};
+  const standing=forecastScenarioMode==='cornwall'?ciCapMultipliers():null;
+  return {eSC:base.eSC*(standing?standing.eSC:1),eU:base.eU*m.e,
+          gSC:base.gSC*(standing?standing.gSC:1),gU:base.gU*m.g};
 }
 
 
@@ -2109,7 +2150,15 @@ function openForecastSource(){
   document.getElementById("forecastChoiceSource").setAttribute("aria-pressed","false");
   document.getElementById("forecastChoiceModel").setAttribute("aria-pressed","false");
   const j=document.getElementById("forecastJanChosen");
-  if(j)j.textContent=forecastScenarioMode==='unit'?forecastUnitLabel():(+document.getElementById("janRise").value||0)+'%';
+  if(j)j.textContent=forecastScenarioMode==='cornwall'?'CI f/c (18 Nov)':forecastScenarioMode==='unit'?forecastUnitLabel():(+document.getElementById("janRise").value||0)+'%';
+  const january=document.getElementById('forecastModelJanuaryNote');
+  if(january)january.textContent=forecastScenarioMode==='cornwall'
+    ? ' National electricity and gas unit-rate and standing-charge changes are applied proportionally to the selected regional October rates. Regional January prices are not yet confirmed.'
+    : ' Standing charges remain at the October-December level and the selected forecast change applies to unit rates.';
+  const later=document.getElementById('forecastModelLaterNote');
+  if(later)later.textContent=forecastScenarioMode==='cornwall'
+    ? ' April and July still use the tool’s previous illustrative percentage assumptions; these are not Cornwall Insight predictions.'
+    : ' Later quarters follow the existing forecast assumptions.';
   m.classList.add("open");
 }
 function showForecastPanel(which){
@@ -2240,6 +2289,7 @@ function draw(res,janRise,s,tracker){
       <div class="chart-forecast-row">
         <div class="chart-forecast-label">Current forecast</div>
         <div class="forecast-mode-picker" role="group" aria-label="Choose forecast method">
+          <button type="button" onclick="activateForecastMethod('cornwall')" aria-pressed="${forecastScenarioMode==='cornwall'}" title="Cornwall Insight 18 November forecast: unit rates and standing charges">CI f/c</button>
           <button type="button" onclick="activateForecastMethod('percent')" aria-pressed="${forecastScenarioMode==='percent'}" title="Forecast by percentage increase">%</button>
           <button type="button" onclick="activateForecastMethod('unit')" aria-pressed="${forecastScenarioMode==='unit'}" title="Forecast by pence per kWh">p/kWh</button>
         </div>
@@ -2384,6 +2434,7 @@ function buildShareUrl(s){
   if(s.mode!=="elec") p.set("g", s.gasY);
   if(s.janRise!==DEFAULT_JAN_RISE) p.set("j",s.janRise);
   if(forecastScenarioMode==='unit'){const rates=forecastCurrentUnitRates();p.set('um','1');p.set('ue',rates.elec);p.set('ug',rates.gas);}
+  if(forecastScenarioMode==='cornwall')p.set('ci','1');
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
   if(s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
@@ -2435,7 +2486,10 @@ function readParams(){
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
   if(P.has("g")) document.getElementById("gas").value=P.get("g");
   if(P.has("j")) document.getElementById("janRise").value=P.get("j");
-  if(P.get('um')==='1'){
+  if(P.get('ci')==='1'){
+    forecastScenarioMode='cornwall';
+    document.getElementById('janRise').value=String(ciHeadlinePercent());
+  }else if(P.get('um')==='1'){
     forecastScenarioMode='unit';
     if(P.has('ug')&&Number.isFinite(Number(P.get('ug')))&&Number(P.get('ug'))>=4&&Number(P.get('ug'))<=20)forecastGasUnit=Number(P.get('ug'));
     if(P.has('ue')&&Number.isFinite(Number(P.get('ue')))&&Number(P.get('ue'))>=15&&Number(P.get('ue'))<=60)forecastElecUnit=Number(P.get('ue'));
@@ -2670,7 +2724,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.20. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.67. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -2822,6 +2876,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.23"></script>
+<script src="./forecast-feed.js?v=2.67"></script>
 </body>
 </html>
