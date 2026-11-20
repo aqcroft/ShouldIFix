@@ -948,18 +948,20 @@ html.companion-embedded .wrap{padding-top:2px}
     </div>
   </details>
 
-  <section class="card share">
-    <h2 style="margin-bottom:4px">Share this</h2>
+  <section class="card share spring-actions" aria-label="Share or get a quote">
     <div class="share-row">
-      <input id="shareUrl" type="text" readonly aria-label="Shareable link">
-      <button id="copyBtn" type="button">Copy link</button>
+      <input id="shareUrl" class="spring-share-input" type="text" readonly aria-label="Shareable comparison link">
+      <button id="copyBtn" type="button">Copy comparison link</button>
     </div>
     <div class="cta-row">
-      <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Switch, fix and save?<span>Get a proper quote →</span></a>
-      <a class="uw-cta secondary" href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener">Prefer a helping hand?<span>Book a free bill review →</span></a>
+      <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Get a UW quote</a>
+      <a class="uw-cta secondary" href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener">Book a free bill review</a>
     </div>
   </section>
 
+  <details class="spring-more" id="springDetails">
+    <summary>How it works, forecasts and sources</summary>
+    <div class="spring-more-body">
   <section class="outlook-card" aria-labelledby="energyOutlookTitle">
     <h2 id="energyOutlookTitle">UK energy price outlook - October 2026</h2>
     <div class="outlook-grid">
@@ -997,6 +999,9 @@ html.companion-embedded .wrap{padding-top:2px}
   </details>
 
   <footer id="foot"></footer>
+    </div>
+  </details>
+  <p class="spring-disclosure">Illustrative estimates by an authorised Utility Warehouse Partner - not an official supplier quote.</p>
 </div>
 
 <div class="source-modal" id="forecastSourceModal" role="dialog" aria-modal="true" aria-labelledby="forecastSourceTitle">
@@ -2309,9 +2314,12 @@ function draw(res,janRise,s,tracker){
       </div>
       ${forecastControlMarkup(janRise)}
     </div>
+    <div class="chart-inline-legend" aria-label="Chart legend">
+      <span class="chart-legend-caption">Monthly average</span>
+      <div class="chart-key">${legendMarkup}</div>
+    </div>
     <div class="chart-grid">
-      <div class="chart-side" aria-label="Chart key and monthly cost scale">
-        <div class="chart-key">${legendMarkup}</div>
+      <div class="chart-side" aria-label="Monthly cost scale">
         ${yScale}
       </div>
       <div class="chart-plot">
@@ -2331,7 +2339,6 @@ function draw(res,janRise,s,tracker){
         </svg>
       </div>
     </div>
-    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Floating £/m values are monthly averages, positioned near the peaks. Totals, quarterly costs and savings use actual pro-rated dates.</p>
   </div>`;
 }
 
@@ -2836,11 +2843,11 @@ function statics(){
   });
   const copyBtn=document.getElementById("copyBtn");
   copyBtn.addEventListener("click", async ()=>{
-    if(document.body.dataset.tariffDataStatus!=="verified"){copyBtn.textContent="Complete or verify tariff rates first";setTimeout(()=>copyBtn.textContent="Copy link",2000);return;}
+    if(document.body.dataset.tariffDataStatus!=="verified"){copyBtn.textContent="Verify rates first";setTimeout(()=>copyBtn.textContent="Copy comparison link",2000);return;}
     const inp=document.getElementById("shareUrl");
-    const done=()=>{copyBtn.textContent="Copied";setTimeout(()=>copyBtn.textContent="Copy link",1600);};
+    const done=()=>{copyBtn.textContent="Copied";setTimeout(()=>copyBtn.textContent="Copy comparison link",1600);};
     try{ await navigator.clipboard.writeText(inp.value); done(); }
-    catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy link",1600);} }
+    catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy comparison link",1600);} }
   });
 
   // EV / Economy 7 extension
