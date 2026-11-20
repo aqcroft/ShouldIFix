@@ -4,9 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="companion-display-version" content="2.66.20">
-<meta name="app-version" content="2.66.20">
-<meta name="forecast-bundled-revision" content="mse-2026-11-02-manual-review">
+<meta name="companion-display-version" content="2.67">
+<meta name="app-version" content="2.67">
+<meta name="forecast-bundled-revision" content="mse-2026-11-02-ci-2026-11-18-v2.67">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
@@ -204,6 +204,45 @@
   .usage-pick button:hover{border-color:#cdbff0}
   .usage-pick button[aria-pressed="true"]{background:var(--grad);color:#fff;border-color:transparent}
   .usage-pick .pencil{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linejoin:round;stroke-linecap:round;flex:none}
+
+  /* v2.66.23: five stable usage positions, with disabled preset readouts. */
+  .usage-card{padding-top:10px;padding-bottom:11px}
+  .usage-card .usage-topline{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px}
+  .usage-card .usage-topline .lab{margin:0;font-size:.76rem}
+  .usage-card .usage-actions{display:flex;align-items:center;gap:5px}
+  .usage-card .usage-actions button{border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--purple-deep);padding:4px 7px;min-height:26px;font:800 .66rem/1.2 "Nunito",system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+  .usage-card .usage-actions #btnPersonal[aria-pressed="true"]{background:var(--grad);border-color:transparent;color:white}
+  .usage-card .usage-actions button:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+  .usage-card .reset-usage{margin:0}
+  .usage-card .reset-usage:disabled{opacity:.35;cursor:default}
+  .usage-card .usage-five-col{display:grid;grid-template-columns:minmax(0,.91fr) minmax(0,1.09fr);gap:5px;align-items:stretch}
+  .usage-card #usageSeg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;min-width:0}
+  .usage-card #usageSeg button{width:100%;min-height:51px;padding:6px 2px;font-size:.73rem;min-width:0}
+  .usage-card #manualUsage{display:block;min-width:0;margin:0}
+  .usage-card #manualUsage .two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+  .usage-card #manualUsage[data-single-fuel="true"] .two{grid-template-columns:1fr}
+  .usage-card #manualUsage .field{min-width:0;margin:0;padding:4px 4px 3px;border:1px solid var(--line);border-radius:9px;background:#f5f3f8;min-height:51px;display:flex;flex-direction:column;justify-content:center}
+  .usage-card #manualUsage .field label{display:block;color:var(--muted);font:800 .55rem/1.2 "Nunito",system-ui,sans-serif;text-align:center;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .usage-card #manualUsage .field input{display:block;width:100%;min-width:0;height:25px;margin:0;padding:0 1px;background:transparent;border:0;border-radius:0;box-shadow:none;text-align:center;color:#7d748b;font:800 16px/1.3 "Nunito",system-ui,sans-serif;-moz-appearance:textfield}
+  .usage-card #manualUsage .field input::-webkit-outer-spin-button,.usage-card #manualUsage .field input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .usage-card #manualUsage .field input:disabled{-webkit-text-fill-color:#827a8c;opacity:1;cursor:default}
+  .usage-card.is-custom #manualUsage .field{background:#fff;border-color:#b8a7dd}
+  .usage-card.is-custom #manualUsage .field input{color:var(--ink)}
+  .usage-card #manualUsage .field:focus-within{outline:2px solid var(--purple);outline-offset:1px}
+  @media(max-width:430px){
+    .usage-card{padding-left:9px;padding-right:9px}
+    .usage-card .usage-five-col{gap:4px;grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr)}
+    .usage-card #usageSeg{gap:3px}
+    .usage-card #usageSeg button{font-size:.65rem;padding:5px 1px}
+    .usage-card #manualUsage .two{gap:3px}
+    .usage-card #manualUsage .field{padding:3px 2px}
+    .usage-card #manualUsage .field label{font-size:.49rem}
+    .usage-card .usage-actions button{font-size:.6rem;padding:4px 6px}
+  }
+  /* Give the full prospective price-cap label room in the narrow vertical legend. */
+  .chart-key-item.cap{flex:1.6}
+  .chart-key-item.fix,.chart-key-item.tracker{flex:.78}
+  .chart-key-item.cap span{font-size:.43rem;letter-spacing:-.02em}
   .usage-manual{margin-top:12px}
   .reset-usage{margin-top:10px;font-family:inherit;font-weight:800;font-size:.8rem;color:var(--purple);background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
   .reset-usage:hover{border-color:#cdbff0;background:#faf8ff}
@@ -386,6 +425,38 @@
     .legend .info{margin-left:0!important}
   }
   .source-modal{position:fixed;inset:0;z-index:4000;display:none;align-items:center;justify-content:center;padding:16px;background:rgba(27,20,43,.58)}
+
+  /* v2.66.22: forecast controls occupy one compact section; plotted badges show monthly averages. */
+  .chart-controls{padding:8px 9px}
+  .chart-forecast-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+  .chart-forecast-label{font-size:.77rem;font-weight:850;color:#4d416a;letter-spacing:0;margin:0}
+  .forecast-mode-picker{display:flex;flex:0 0 auto;gap:3px;padding:2px;border:1px solid #d9d5e2;border-radius:9px;background:#f8f6fc}
+  .forecast-mode-picker button{border:0;border-radius:6px;background:transparent;padding:5px 11px;min-height:28px;font:800 .68rem/1 system-ui;color:#5a4f6d;cursor:pointer}
+  .forecast-mode-picker button[aria-pressed="true"]{background:#0f8f83;color:white;box-shadow:0 1px 4px #0002}
+  .forecast-mode-picker button:focus-visible,.forecast-compact button:focus-visible{outline:2px solid #553694;outline-offset:2px}
+  .forecast-compact .chart-scenarios,.forecast-compact .forecast-unit-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
+  .forecast-compact .chart-scenarios button,.forecast-compact .forecast-unit-row button{min-width:0;padding:7px 1px;font-size:.68rem;line-height:1.1}
+  .forecast-compact .forecast-unit-row+.forecast-unit-row{margin-top:5px}
+
+  /* v2.67 Cornwall Insight national forecast, with a compact in-place selector. */
+  .forecast-mode-picker button{padding-left:9px;padding-right:9px}
+  .forecast-mode-picker button:first-child{font-size:.62rem}
+  .forecast-ci-note{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:5px 8px;min-height:28px;border:1px solid #d4e7de;border-radius:7px;background:#f2faf6;color:#235b44;font-size:.66rem;font-weight:800}
+  .forecast-ci-note small{color:#5a7565;font-size:.56rem;line-height:1.25;font-weight:700}
+  @media(max-width:430px){.forecast-mode-picker button{padding-left:7px;padding-right:7px}.forecast-mode-picker button:first-child{font-size:.58rem}.forecast-ci-note{font-size:.6rem}}
+  .chart-cost-tag{pointer-events:none}
+  .chart-cost-tag rect{stroke-width:1}
+  .chart-cost-tag.cap rect{fill:var(--cap-soft);stroke:#bdd4ff}
+  .chart-cost-tag.tracker rect{fill:var(--tracker-soft);stroke:#ffd0a2}
+  .chart-cost-tag.fix rect{fill:var(--fixed-soft);stroke:#d8c8fa}
+  .chart-cost-tag text{font:950 19px "Nunito",system-ui,sans-serif;text-anchor:middle}
+  @media(max-width:430px){
+    .chart-controls{padding:7px 6px}
+    .chart-forecast-label{font-size:.72rem;margin:0}
+    .forecast-mode-picker button{padding:5px 8px;min-height:27px;font-size:.64rem}
+    .forecast-compact .chart-scenarios,.forecast-compact .forecast-unit-row{gap:3px}
+    .forecast-compact .chart-scenarios button,.forecast-compact .forecast-unit-row button{font-size:.62rem;padding:7px 0}
+  }
   .forecast-choices{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 12px}
   .forecast-choice{font-family:inherit;text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:13px;padding:13px;cursor:pointer;color:var(--ink);transition:.15s}
   .forecast-choice:hover,.forecast-choice[aria-pressed="true"]{border-color:#bba9df;background:#faf7ff}
@@ -667,23 +738,33 @@ html.companion-embedded .wrap{padding-top:2px}
   </section>
 
   <section class="card usage-card" id="usageCard">
-    <div class="rhead">
-      <div class="usage-block">
+    <div class="usage-block">
+      <div class="usage-topline">
         <span class="lab">Set your usage</span>
+        <div class="usage-actions">
+          <button class="reset-usage" id="resetUsageBtn" type="button" disabled title="Reset to the selected usage band">↺ Reset</button>
+          <button type="button" id="btnPersonal" aria-label="Customise annual usage" aria-pressed="false" title="Customise annual electricity and gas usage">✎ Customise</button>
+        </div>
+      </div>
+      <div class="usage-five-col">
         <div class="usage-pick" id="usageSeg" role="group" aria-label="Choose usage">
           <button type="button" data-band="low" data-e="1600" data-g="6000" data-eh="1900">Low</button>
           <button type="button" data-band="med" data-e="2500" data-g="9500" data-eh="3400" aria-pressed="true">Med</button>
           <button type="button" data-band="high" data-e="3800" data-g="14000" data-eh="6100">High</button>
-          <button type="button" id="btnPersonal" aria-label="Enter your own usage" title="Enter your own usage"><svg viewBox="0 0 24 24" class="pencil"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>Custom</button>
+        </div>
+        <div id="manualUsage" class="usage-manual" data-single-fuel="false">
+          <div class="two">
+            <div class="field" id="elecUsageWrap">
+              <label for="elec">⚡ Elec kWh/yr</label>
+              <input id="elec" type="number" min="0" step="50" value="2500" disabled>
+            </div>
+            <div class="field" id="gasUsageWrap">
+              <label for="gas">🔥 Gas kWh/yr</label>
+              <input id="gas" type="number" min="0" step="100" value="9500" disabled>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-    <div id="manualUsage" class="hidden usage-manual">
-      <div class="two">
-        <div class="field" id="elecUsageWrap" style="margin-bottom:0"><span class="lab">Elec kWh/yr</span><input id="elec" type="number" min="0" step="50" value="2500"></div>
-        <div class="field" id="gasUsageWrap" style="margin-bottom:0"><span class="lab">Gas kWh/yr</span><input id="gas" type="number" min="0" step="100" value="9500"></div>
-      </div>
-      <button class="reset-usage hidden" id="resetUsageBtn" type="button">Reset to selected band</button>
     </div>
   </section>
 
@@ -994,11 +1075,12 @@ html.companion-embedded .wrap{padding-top:2px}
     <div class="forecast-panel" id="forecastPanelModel">
       <div class="forecast-model">
         <div class="forecast-model-row"><div class="forecast-model-key">Confirmed</div><div class="forecast-model-val">Oct-Dec uses published regional price-cap rates.</div></div>
-        <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">+28.8%</span> Standing charges stay at the Oct-Dec level. The forecast movement is applied to unit rates.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">January</div><div class="forecast-model-val"><span class="forecast-model-badge" id="forecastJanChosen">+28.8%</span><span id="forecastModelJanuaryNote"> Standing charges remain at the October-December level and the selected forecast change applies to unit rates.</span></div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Gas vs electricity</div><div class="forecast-model-val">The split follows Cornwall Insight's late-August component forecast shape, scaled to the fresher MSE consensus.</div></div>
-        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr +6.4%</span><span class="forecast-model-badge">Jul -9.3%</span><span class="forecast-model-badge">Oct 2027: 0% assumed</span> From October 2027 the July-September price-cap rates are held flat. This is an assumption, not a published forecast.</div></div>
+        <div class="forecast-model-row"><div class="forecast-model-key">Later caps</div><div class="forecast-model-val"><span class="forecast-model-badge">Apr +6.4%</span><span class="forecast-model-badge">Jul -9.3%</span><span class="forecast-model-badge">Oct 2027: 0% assumed</span> From October 2027 the July-September price-cap rates are held flat. This is an assumption, not a published forecast. <span id="forecastModelLaterNote">Later quarters follow the existing forecast assumptions.</span></div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Seasonality</div><div class="forecast-model-val">Annual usage is spread month by month rather than divided evenly by 12. Gas follows the DESNZ seasonal profile; electricity uses the same gentler monthly profile carried forward from the original tool. Electric-heating mode switches electricity to the winter-heavy heating profile.</div></div>
         <button class="seasonality-link" type="button" onclick="openSeasonalityModal()">View monthly usage split<span>See the exact percentage of annual gas and electricity usage allocated to each month.</span></button>
+        <div class="forecast-model-row"><div class="forecast-model-key">Cornwall Insight</div><div class="forecast-model-val">National Jan-Mar 2027 direct-debit forecasts published 18 Nov: electricity 32.54p/kWh + 56p/day; gas 10.90p/kWh + 31p/day. These are not confirmed regional rates. The CI f/c scenario scales each region's October cap rates proportionally. <a href="https://www.cornwall-insight.com/predictions-and-insights-into-the-default-tariff-cap/" target="_blank" rel="noopener">Source</a>.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Tracker</div><div class="forecast-model-val">Future Tracker rates preserve today's regional Tracker-to-price-cap relationship. They are estimates, not published future UW rates.</div></div>
         <div class="forecast-model-row"><div class="forecast-model-key">Chart lines</div><div class="forecast-model-val">Blue = variable price cap · Purple = Fix · Orange = Track.</div></div>
       </div>
@@ -1069,7 +1151,26 @@ function forecastScenarioValues(){
   return [15,20,25,DEFAULT_JAN_RISE,30,35];
 }
 
-/* v2.66.20 - one forecast source of truth; percentage and exact unit-rate defaults are equivalent. */
+
+/* Cornwall Insight 18 Nov 2026: direct debit UK national averages, Jan-Mar 2027.
+   There is no verified regional January rate sheet. Scale the four October
+   regional components independently rather than substituting national values. */
+const CI_JAN_2027=Object.freeze({
+  date:'18 November 2026',
+  url:'https://www.cornwall-insight.com/predictions-and-insights-into-the-default-tariff-cap/',
+  base:Object.freeze({eU:26.32,eSC:54.83,gU:7.97,gSC:29.68}),
+  projected:Object.freeze({eU:32.54,eSC:56,gU:10.90,gSC:31})
+});
+function ciCapMultipliers(){
+  const b=CI_JAN_2027.base,p=CI_JAN_2027.projected;
+  return {e:p.eU/b.eU,g:p.gU/b.gU,eSC:p.eSC/b.eSC,gSC:p.gSC/b.gSC};
+}
+function ciHeadlinePercent(){
+  const b=CI_JAN_2027.base,p=CI_JAN_2027.projected;
+  const annual=x=>(x.eSC+x.gSC)*365+x.eU*2500+x.gU*9500;
+  return (annual(p)/annual(b)-1)*100;
+}
+/* v2.67 - percentage and exact unit-rate defaults remain equivalent. */
 let forecastScenarioMode='percent',forecastGasUnit=null,forecastElecUnit=null;
 function forecastSelectedFuelMode(){
   const selected=document.querySelector('#fuelSeg button[aria-pressed="true"]');
@@ -1103,6 +1204,11 @@ function activateForecastMethod(mode){
     forecastScenarioMode='unit';
     forecastGasUnit=null;
     forecastElecUnit=null;
+  }else if(mode==='cornwall'){
+    forecastScenarioMode='cornwall';
+    // Separate EV extension continues to use an illustrative headline %
+    // rather than claiming exact EV-tariff forecasts.
+    document.getElementById('janRise').value=String(ciHeadlinePercent());
   }else return;
   render();
 }
@@ -1114,36 +1220,37 @@ function setForecastUnit(fuel,value){
   forecastScenarioMode='unit';render();
 }
 function forecastControlMarkup(janRise){
-  const fuel=forecastSelectedFuelMode(),pct=forecastScenarioMode==='percent',unit=!pct;
-  const indicator='<span class="forecast-method-used">Active</span>';
-  const activate=(mode,active,label)=>'<button class="forecast-activate" type="button" onclick="activateForecastMethod(\''+mode+'\')" aria-pressed="'+active+'">'+(active?'✓ ':'')+(active?label+' active':'Activate '+label.toLowerCase())+'</button>';
-  const percent='<div class="forecast-method'+(pct?' is-active':'')+'" data-forecast-method="percent" role="group" aria-label="January percentage forecast">'+
-    '<div class="forecast-method-heading"><span>Percentage increase'+(pct?indicator:'')+'</span>'+activate('percent',pct,'Percentage')+'</div>'+
-    '<div class="chart-scenarios">'+forecastScenarioValues().map(v=>
-      '<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(pct&&Math.abs(v-janRise)<.001)+'">'+(v>0?'+':'')+v+'%</button>'
-    ).join('')+'</div></div>';
+  const fuel=forecastSelectedFuelMode(),pct=forecastScenarioMode==='percent';
+  if(forecastScenarioMode==='cornwall')return '<div class="forecast-ci-note" role="status" title="National forecast translated proportionally to the selected October regional cap">'+
+    'CI Jan 2027: ⚡ 32.54p/kWh + 56p/day · 🔥 10.90p/kWh + 31p/day'+
+    '<small>National forecast · estimated regional rates</small></div>';
+  if(pct)return '<div class="forecast-compact" role="group" aria-label="January forecast percentage options"><div class="chart-scenarios">'+
+    forecastScenarioValues().map(v=>'<button type="button" onclick="setJanRise('+v+')" aria-pressed="'+(Math.abs(v-janRise)<.001)+'"'+
+      (Math.abs(v-DEFAULT_JAN_RISE)<.001?' title="MSE January default forecast"':'')+'>'+(v>0?'+':'')+v+'%</button>').join('')+
+    '</div></div>';
   const reference=forecastDefaultUnitRates();
   const row=(kind,label,staticValues,selectedValue)=>{
-    const forecastValue=reference[kind];
-    const values=staticValues.map(v=>({value:v,reference:false})).concat([{value:forecastValue,reference:true}]).sort((a,b)=>a.value-b.value);
-    return '<div class="forecast-unit-heading">'+label+' (p/kWh)</div>'+
-      '<div class="forecast-unit-row '+kind+'" role="group" aria-label="'+label+' forecast unit rates">'+
+    const values=staticValues.map(v=>({value:v,reference:false})).concat([{value:reference[kind],reference:true}]).sort((a,b)=>a.value-b.value);
+    return '<div class="forecast-unit-row '+kind+'" role="group" aria-label="'+label+' January forecast unit rates">'+
       values.map(v=>{
-        const chosen=unit&&(v.reference?selectedValue===null:selectedValue!==null&&Math.abs(selectedValue-v.value)<1e-10);
-        const value=v.reference?'default':String(v.value);
-        const text=forecastRateLabel(v.value,kind);
+        const chosen=v.reference?selectedValue===null:selectedValue!==null&&Math.abs(selectedValue-v.value)<1e-10;
+        const value=v.reference?'default':String(v.value),text=forecastRateLabel(v.value,kind);
         return '<button type="button" onclick="setForecastUnit(\''+kind+'\',\''+value+'\')" aria-pressed="'+chosen+'"'+
-          (v.reference?' title="MSE forecast equivalent, calculated without rounding"':'')+'>'+text+'</button>';
+          ' aria-label="'+label+' '+text+' per kilowatt hour'+(v.reference?', MSE equivalent':'')+'"'+
+          (v.reference?' title="Calculated MSE equivalent, full precision retained"':'')+'>'+text+'</button>';
       }).join('')+'</div>';
   };
-  const prices='<div class="forecast-method'+(unit?' is-active':'')+'" data-forecast-method="unit" role="group" aria-label="January unit-rate forecast">'+
-    '<div class="forecast-method-heading"><span>Unit rates'+(unit?indicator:'')+'</span>'+activate('unit',unit,'Pence forecast')+'</div>'+
+  return '<div class="forecast-compact" role="group" aria-label="January forecast unit-rate options">'+
     (fuel==='elec'?'':row('gas','Gas',[10,10.5,11.5,12,13],forecastGasUnit))+
-    (fuel==='gas'?'':row('elec','Electricity',[30,31,32,34,35],forecastElecUnit))+
-    '<div class="forecast-unit-note">The reference pence buttons are calculated from the current MSE percentage, retaining full precision. Change either fuel to stress test.</div></div>';
-  return '<div class="forecast-method-explainer">Select one method to drive the graph and estimated savings. Both use the same January forecast by default.</div>'+percent+prices;
+    (fuel==='gas'?'':row('elec','Electricity',[30,31,32,34,35],forecastElecUnit))+'</div>';
 }
-window.ShouldIFixForecastScenario=function(){const selected=forecastCurrentUnitRates();return {mode:forecastScenarioMode,elec:selected.elec,gas:selected.gas};};
+window.ShouldIFixForecastScenario=function(){
+  if(forecastScenarioMode==='cornwall')return {
+    mode:'cornwall',elec:CI_JAN_2027.projected.eU,gas:CI_JAN_2027.projected.gU,
+    elecStanding:CI_JAN_2027.projected.eSC,gasStanding:CI_JAN_2027.projected.gSC
+  };
+  const selected=forecastCurrentUnitRates();return {mode:forecastScenarioMode,elec:selected.elec,gas:selected.gas};
+};
 
 /* Forecast split: use the fresher headline forecast, but keep standing charges
    at the latest confirmed Oct-Dec level. Cornwall Insight's late-August
@@ -1233,7 +1340,9 @@ function renewalVariableRate(base,phase,janRise){
   if(phase==="conf")return base;
   const steps=forecastSteps(janRise);
   const f=steps[phase]||steps.jul;
-  return {eSC:base.eSC,eU:base.eU*f.e,gSC:base.gSC,gU:base.gU*f.g};
+  const standing=forecastScenarioMode==='cornwall'?ciCapMultipliers():null;
+  return {eSC:base.eSC*(standing?standing.eSC:1),eU:base.eU*f.e,
+          gSC:base.gSC*(standing?standing.gSC:1),gU:base.gU*f.g};
 }
 function showRenewalBenchmark(s,res){
   const panel=document.getElementById("renewalBenchmark");
@@ -1301,6 +1410,7 @@ function comparisonRange(){
 }
 function comparisonEndLabel(){return formatComparisonDate(periodEndDate);}
 function phaseForecastLabel(ph,janRise){
+  if(ph==='jan'&&forecastScenarioMode==='cornwall')return 'CI f/c';
   if(ph==='jan'&&forecastScenarioMode==='unit')return forecastUnitLabel().replace(' electricity',' E').replace(' gas',' G').replace(' / ',' / ');
   if(ph==="conf")return "Confirmed";
   if(ph==="flat")return "0%"; // Tooltip and source modal identify this as an assumption.
@@ -1339,9 +1449,11 @@ function forecastSteps(janRisePct){
     ':MSE:'+DEFAULT_JAN_RISE+':Apr:'+APR_FROM_JAN+':Jul:'+JUL_FROM_APR;
   if(forecastStepCache.has(key))return forecastStepCache.get(key);
   const oct=avgRegionalCap('octdec');
-  const janStep=forecastScenarioMode==='unit'
-    ? {e:rates.elec/oct.eU,g:rates.gas/oct.gU}
-    : shapedUnitStep(oct,janRisePct);
+  const janStep=forecastScenarioMode==='cornwall'
+    ? {e:ciCapMultipliers().e,g:ciCapMultipliers().g}
+    : forecastScenarioMode==='unit'
+      ? {e:rates.elec/oct.eU,g:rates.gas/oct.gU}
+      : shapedUnitStep(oct,janRisePct);
   const jan=applyUnitStep(oct,janStep);
   // Future April/July adjustments in unit-rate mode use the unchanged approved
   // reference forecast, not the customer's independently stressed gas/electricity
@@ -1363,7 +1475,9 @@ function forecastSteps(janRisePct){
 function projectedCapRate(region,ph,janRisePct){
   if(ph==="now") return region.cap.julsep; if(ph==="conf") return region.cap.octdec;
   const steps=forecastSteps(janRisePct), m=steps[ph]||steps.jul, base=region.cap.octdec;
-  return {eSC:base.eSC,eU:base.eU*m.e,gSC:base.gSC,gU:base.gU*m.g};
+  const standing=forecastScenarioMode==='cornwall'?ciCapMultipliers():null;
+  return {eSC:base.eSC*(standing?standing.eSC:1),eU:base.eU*m.e,
+          gSC:base.gSC*(standing?standing.gSC:1),gU:base.gU*m.g};
 }
 
 
@@ -2046,7 +2160,15 @@ function openForecastSource(){
   document.getElementById("forecastChoiceSource").setAttribute("aria-pressed","false");
   document.getElementById("forecastChoiceModel").setAttribute("aria-pressed","false");
   const j=document.getElementById("forecastJanChosen");
-  if(j)j.textContent=forecastScenarioMode==='unit'?forecastUnitLabel():(+document.getElementById("janRise").value||0)+'%';
+  if(j)j.textContent=forecastScenarioMode==='cornwall'?'CI f/c (18 Nov)':forecastScenarioMode==='unit'?forecastUnitLabel():(+document.getElementById("janRise").value||0)+'%';
+  const january=document.getElementById('forecastModelJanuaryNote');
+  if(january)january.textContent=forecastScenarioMode==='cornwall'
+    ? ' National electricity and gas unit-rate and standing-charge changes are applied proportionally to the selected regional October rates. Regional January prices are not yet confirmed.'
+    : ' Standing charges remain at the October-December level and the selected forecast change applies to unit rates.';
+  const later=document.getElementById('forecastModelLaterNote');
+  if(later)later.textContent=forecastScenarioMode==='cornwall'
+    ? ' April and July still use the tool’s previous illustrative percentage assumptions; these are not Cornwall Insight predictions.'
+    : ' Later quarters follow the existing forecast assumptions.';
   m.classList.add("open");
 }
 function showForecastPanel(which){
@@ -2089,7 +2211,6 @@ function draw(res,janRise,s,tracker){
     return {...row,cap:row.cap*factor,fixed:row.fixed*factor,
       tracker:Number.isFinite(row.tracker)?row.tracker*factor:null};
   }),n=rows.length;
-  const monthlyEq=key=>gbp(rows.reduce((sum,row)=>sum+(Number(row[key])||0),0)/Math.max(1,n))+'/m';
   const values=[...rows.map(r=>r.cap),...rows.map(r=>r.fixed),...rows.map(r=>r.tracker).filter(v=>Number.isFinite(v))];
   const rawMin=Math.min(...values), rawMax=Math.max(...values);
   const span=Math.max(20,rawMax-rawMin);
@@ -2127,12 +2248,6 @@ function draw(res,janRise,s,tracker){
   const forecastCap=firstForecast<0?[]:firstForecast===0?cap:[joinPoint,...cap.slice(firstForecast)];
   const dashCap=forecastCap.length>1?`<path d="${L(forecastCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-dasharray="6 4" stroke-linejoin="round" opacity=".78"/>`:"";
   const capOp=i=>firstForecast<0||i<firstForecast?1:.72;
-  const scenarios=forecastScenarioValues();
-  const scenarioButtons=scenarios.map(v=>{
-    const active=Math.abs(v-janRise)<0.001;
-    const label=Number.isInteger(v)?v.toFixed(0):v.toFixed(1);
-    return `<button type="button" onclick="setJanRise(${v})" aria-pressed="${active?"true":"false"}">${label}%</button>`;
-  }).join("");
   // Like the price cap, Tracker uses known published October-December rates.
   // The January-onwards cost depends on future price caps, so only that section is dashed.
   const trackerJoin=track.length&&firstForecast>0?mid2(track[firstForecast-1],track[firstForecast]):null;
@@ -2141,18 +2256,59 @@ function draw(res,janRise,s,tracker){
   const trackerPath=(trackerKnown.length>1?`<path d="${L(trackerKnown)}" fill="none" stroke="var(--tracker)" stroke-width="4.2" stroke-linejoin="round"/>`:"")+
     (trackerProjected.length>1?`<path d="${L(trackerProjected)}" fill="none" stroke="var(--tracker)" stroke-width="4.2" stroke-dasharray="7 3" stroke-linejoin="round" opacity=".78"/>`:"");
   const trackerDots=track.length?track.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${i===0?3.8:3.0}" fill="var(--tracker)" opacity="${i===0?1:0.78}"/>`).join(""):``;
+
+  // Use plotted full-month peak values for chart badges; rank the legend
+  // by total cost across the same pro-rated comparison period.
+  const variableLegend=s.renewal?safeHtml(s.variableName):'Standard variable price cap';
+  const chartLegend=[{key:'cap',name:variableLegend,total:res.yCap},{key:'fix',name:fixedLegend,total:res.yFix}];
+  if(track.length)chartLegend.push({key:'tracker',name:trackerLegend,total:res.rows.reduce((a,r)=>a+r.tracker,0)});
+  chartLegend.sort((a,b)=>b.total-a.total);
+  const legendMarkup=chartLegend.map(item=>'<div class="chart-key-item '+item.key+'" title="'+item.name+'"><span>'+item.name+'</span></div>').join('');
+  const peakOf=key=>{
+    let peak=null;
+    rows.forEach((r,i)=>{if(Number.isFinite(r[key])&&(!peak||r[key]>peak.value))peak={value:r[key],point:[x(i),y(r[key])],month:r.k};});
+    return peak;
+  };
+  const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
+  // Restore the same full-month-equivalent average that appeared in the old legend.
+  // The location is the seasonal peak; the number is NOT the peak-month bill.
+  const monthlyAverage=key=>gbp(rows.reduce((total,row)=>total+(Number(row[key])||0),0)/Math.max(1,n))+'/m';
+  const chartBadge=(peak,key,label,cx,cy)=>{
+    if(!peak)return '';
+    const value=monthlyAverage(key==='fix'?'fixed':key);
+    const desc=label+' '+value+' average per month across the charted full-month equivalents; label placed near '+peak.month+' peak';
+    return '<g class="chart-cost-tag '+key+'"><title>'+desc+'</title>'+
+      '<rect x="'+(cx-48).toFixed(1)+'" y="'+(cy-17).toFixed(1)+'" width="96" height="34" rx="9"/>'+
+      '<text x="'+cx.toFixed(1)+'" y="'+(cy+7).toFixed(1)+'" fill="var(--'+(key==='cap'?'cap':key==='tracker'?'tracker':'fixed')+')">'+value+'</text></g>';
+  };
+  const topPeaks=[{key:'cap',name:variableLegend,peak:peakOf('cap')},...(track.length?[{key:'tracker',name:trackerLegend,peak:peakOf('tracker')}]:[])].sort((a,b)=>b.peak.value-a.peak.value);
+  let lastY=0;
+  const topBadges=topPeaks.map((item,i)=>{
+    const p=item.peak.point;
+    const cx=clamp(p[0]+(i===0?-36:42),49,W-49);
+    const cy=clamp(Math.max(p[1]-(i===0?54:30),lastY+37),26,H-padB-48);
+    lastY=cy;
+    return chartBadge(item.peak,item.key,item.name,cx,cy);
+  }).join('');
+  const fixedPeak=peakOf('fixed');
+  const fixedX=clamp(fixedPeak.point[0]-24,49,W-49);
+  const fixedY=clamp(Math.max(fixedPeak.point[1]+39,lastY+37),26,H-padB-19);
+  const floatingCosts=topBadges+chartBadge(fixedPeak,'fix',fixedLegend,fixedX,fixedY);
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-controls">
-      <div class="chart-forecast-label">Current MSE January forecast: +${DEFAULT_JAN_RISE}% - test alternative scenarios</div>
+      <div class="chart-forecast-row">
+        <div class="chart-forecast-label">Current forecast</div>
+        <div class="forecast-mode-picker" role="group" aria-label="Choose forecast method">
+          <button type="button" onclick="activateForecastMethod('cornwall')" aria-pressed="${forecastScenarioMode==='cornwall'}" title="Cornwall Insight 18 November forecast: unit rates and standing charges">CI f/c</button>
+          <button type="button" onclick="activateForecastMethod('percent')" aria-pressed="${forecastScenarioMode==='percent'}" title="Forecast by percentage increase">%</button>
+          <button type="button" onclick="activateForecastMethod('unit')" aria-pressed="${forecastScenarioMode==='unit'}" title="Forecast by pence per kWh">p/kWh</button>
+        </div>
+      </div>
       ${forecastControlMarkup(janRise)}
     </div>
     <div class="chart-grid">
       <div class="chart-side" aria-label="Chart key and monthly cost scale">
-        <div class="chart-key">
-          <div class="chart-key-item fix" title="Estimated average full-month fixed cost"><i class="chart-key-swatch fix"></i><span>${fixedLegend}</span><strong>${monthlyEq('fixed')}</strong></div>
-          ${s.renewal?"":'<div class="chart-key-item tracker" title="Estimated average full-month Tracker cost"><i class="chart-key-swatch tracker"></i><span>'+trackerLegend+'</span><strong>'+monthlyEq('tracker')+'</strong></div>'}
-          <div class="chart-key-item cap" title="Estimated average full-month variable cost"><i class="chart-key-swatch cap"></i><span>Variable</span><strong>${monthlyEq('cap')}</strong></div>
-        </div>
+        <div class="chart-key">${legendMarkup}</div>
         ${yScale}
       </div>
       <div class="chart-plot">
@@ -2167,11 +2323,12 @@ function draw(res,janRise,s,tracker){
           ${cap.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.0" fill="var(--cap)" opacity="${capOp(i)}"/>`).join("")}
           ${fix.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="var(--fixed)"/>`).join("")}
           ${trackerDots}
+          ${floatingCosts}
           ${xl}
         </svg>
       </div>
     </div>
-    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Totals, quarterly costs and savings use the actual pro-rated comparison dates.</p>
+    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Floating £/m values are monthly averages, positioned near the peaks. Totals, quarterly costs and savings use actual pro-rated dates.</p>
   </div>`;
 }
 
@@ -2241,7 +2398,12 @@ function fixedRates(s){
 }
 function syncVisibility(s){
   const incE=s.mode!=="gas", incG=s.mode!=="elec";
-  document.getElementById("manualUsage").classList.toggle("hidden",!s.personalise);
+  const usageReadouts=document.getElementById("manualUsage");
+  usageReadouts.classList.remove("hidden");
+  usageReadouts.dataset.singleFuel=String(s.mode!=="dual");
+  document.getElementById("usageCard").classList.toggle("is-custom",s.personalise);
+  document.getElementById("elec").disabled=!s.personalise||!incE;
+  document.getElementById("gas").disabled=!s.personalise||!incG;
   document.getElementById("electricHeatRow").classList.toggle("hidden",s.mode!=="elec");
   document.getElementById("elecUsageWrap").classList.toggle("hidden",!incE);
   document.getElementById("gasUsageWrap").classList.toggle("hidden",!incG);
@@ -2253,7 +2415,7 @@ function syncVisibility(s){
   document.querySelectorAll("[data-renewal-gas]").forEach(el=>el.classList.toggle("hidden",s.mode==="elec"));
   document.getElementById("mElec").classList.toggle("hidden",!incE);
   document.getElementById("mGas").classList.toggle("hidden",!incG);
-  document.getElementById("resetUsageBtn").classList.toggle("hidden",!s.personalise || !customTouched);
+  document.getElementById("resetUsageBtn").disabled=!s.personalise||!customTouched;
   // usage picker highlight: matching band, the pencil if personalising, or none
   const bands=[...document.querySelectorAll('#usageSeg button[data-band]')];
   const match=bands.find(b=>{
@@ -2282,6 +2444,7 @@ function buildShareUrl(s){
   if(s.mode!=="elec") p.set("g", s.gasY);
   if(s.janRise!==DEFAULT_JAN_RISE) p.set("j",s.janRise);
   if(forecastScenarioMode==='unit'){const rates=forecastCurrentUnitRates();p.set('um','1');p.set('ue',rates.elec);p.set('ug',rates.gas);}
+  if(forecastScenarioMode==='cornwall')p.set('ci','1');
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
   if(s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
@@ -2333,7 +2496,10 @@ function readParams(){
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
   if(P.has("g")) document.getElementById("gas").value=P.get("g");
   if(P.has("j")) document.getElementById("janRise").value=P.get("j");
-  if(P.get('um')==='1'){
+  if(P.get('ci')==='1'){
+    forecastScenarioMode='cornwall';
+    document.getElementById('janRise').value=String(ciHeadlinePercent());
+  }else if(P.get('um')==='1'){
     forecastScenarioMode='unit';
     if(P.has('ug')&&Number.isFinite(Number(P.get('ug')))&&Number(P.get('ug'))>=4&&Number(P.get('ug'))<=20)forecastGasUnit=Number(P.get('ug'));
     if(P.has('ue')&&Number.isFinite(Number(P.get('ue')))&&Number(P.get('ue'))>=15&&Number(P.get('ue'))<=60)forecastElecUnit=Number(P.get('ue'));
@@ -2568,7 +2734,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.20. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.67. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -2625,7 +2791,7 @@ function statics(){
     document.getElementById("elec").value=values.e;
     document.getElementById("gas").value=values.g;
     render();
-    document.getElementById("elec").focus();
+    document.getElementById(state().mode==="gas"?"gas":"elec").focus();
   });
   rSel.addEventListener("change",render);
   document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.addEventListener("click",()=>{
@@ -2720,6 +2886,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.20"></script>
+<script src="./forecast-feed.js?v=2.67"></script>
 </body>
 </html>
