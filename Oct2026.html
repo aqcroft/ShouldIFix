@@ -682,6 +682,81 @@
   body.renewal-mode .choice-heroes{grid-template-columns:1fr}
   @media(max-width:520px){.comparison-switch button{font-size:.7rem}.renewal-grid label{font-size:.65rem}}
   body.tariff-unverified #resultCard{display:none!important}
+
+/* v2.68 spring-clean preview - compact customer-facing presentation */
+.wrap{padding:12px 14px 30px}
+header.hero{padding:16px 19px;border-radius:16px}
+header.hero h1{font-size:clamp(1.5rem,5vw,1.95rem);margin:0;line-height:1.2}
+.comparison-switch{margin-top:10px}
+.card{margin-top:10px;padding:13px}
+.seg button{padding:9px 5px 7px;gap:2px}
+.seg button .ic{font-size:18px;height:19px}
+#fixedCard{padding:10px 12px}
+#fixedCard .compare-head{margin-bottom:4px}
+#fixedCard .fixed-row{gap:6px}
+#fixedCard .tariff-current,#fixedCard .tariff-open{min-height:36px;padding-top:7px;padding-bottom:7px}
+.result{padding:13px 12px 12px}
+.spring-result-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.spring-result-header .rlead{margin:0;font-size:.98rem;line-height:1.25}
+.spring-benchmark{margin:2px 0 8px;font-size:.69rem;font-weight:750;color:#6d6084}
+.spring-period-info{position:relative;flex:0 0 auto}
+.spring-period-info summary{list-style:none;border:1px solid #d5cce7;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#6b5785;background:#fff;font:900 15px/1 "Nunito",sans-serif;cursor:pointer}
+.spring-period-info summary::-webkit-details-marker{display:none}
+.spring-period-info .compare-start-note{position:absolute;z-index:12;right:0;top:26px;width:min(320px,80vw);margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:9px;box-shadow:0 5px 22px #29195322;background:#fff;color:#514762;font-size:.72rem;line-height:1.45}
+.choice-heroes{margin:5px 0 9px}
+.choice-hero{padding:11px 12px 10px}
+.choice-copy{font-size:.67rem}
+.chart-shell{border-radius:11px}
+.chart-controls{padding:7px 8px}
+.chart-forecast-label{font-size:.72rem}
+.chart-forecast-row{margin-bottom:5px}
+.forecast-mode-picker button,.forecast-mode-picker button:first-child{font-size:.67rem;min-height:26px;padding:5px 9px}
+.chart-inline-legend{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px 9px;padding:7px 11px 3px}
+.chart-legend-caption{font-size:.65rem;font-weight:850;color:#645a7a}
+.chart-inline-legend .chart-key{position:static;top:auto;left:auto;transform:none;display:flex;flex-flow:row wrap;align-items:center;justify-content:flex-end;width:auto;height:auto;gap:5px 11px;white-space:normal}
+.chart-inline-legend .chart-key-item{display:inline-flex;flex:0 0 auto;align-items:center;gap:4px;min-height:0;padding:0;border:0;background:transparent;font-size:.67rem;line-height:1.15}
+.chart-inline-legend .chart-key-item::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.chart-inline-legend .chart-key-item span{writing-mode:horizontal-tb;transform:none;display:inline;font-size:.65rem;font-weight:800;line-height:1.15;white-space:normal}
+.chart-inline-legend .chart-key-item.cap{flex:0 0 auto}
+.chart-inline-legend .chart-key-item.cap span{font-size:.65rem;letter-spacing:0}
+.chart-grid{grid-template-columns:40px minmax(0,1fr)}
+.chart-side{background:transparent}
+.chart-ylabel{right:4px}
+.spring-quarter{margin:9px 0;border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden}
+.spring-quarter>summary,.spring-more>summary{list-style:none;cursor:pointer;background:#faf9fc;color:var(--ink);padding:10px 12px;font-size:.77rem;font-weight:850;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.spring-quarter>summary::-webkit-details-marker,.spring-more>summary::-webkit-details-marker{display:none}
+.spring-quarter>summary::after,.spring-more>summary::after{content:"⌄";font-size:1rem;color:var(--muted);transition:transform .15s}
+.spring-quarter[open]>summary::after,.spring-more[open]>summary::after{transform:rotate(180deg)}
+.spring-quarter #comparisonPeriodTitle{font-size:.58rem;color:var(--muted);font-weight:700}
+.spring-quarter .quarter-compare-wrap{margin:0;border:0;border-radius:0;border-top:1px solid var(--line)}
+.annual-costs{margin:8px 0 0;border-radius:10px}
+.annual-costs summary{font-size:.76rem;padding:10px 12px}
+.spring-actions{background:transparent;border:0;box-shadow:none;padding:4px 0 0;margin-top:10px}
+.spring-share-input{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.spring-actions .share-row button{width:100%;min-height:39px;padding:9px;border-radius:10px}
+.spring-actions .cta-row{margin-top:7px;gap:7px}
+.spring-actions .uw-cta{border-radius:10px;padding:10px 7px;font-size:.81rem;box-shadow:none}
+.spring-more{margin:12px 0 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.spring-more-body{padding:2px 12px 12px}
+.spring-more .outlook-card{margin-top:10px}
+.spring-more footer{margin-top:12px;font-size:.66rem;line-height:1.5}
+.spring-disclosure{text-align:center;color:var(--muted);font-size:.67rem;font-weight:700;margin:10px 6px 0;line-height:1.4}
+@media(max-width:430px){
+.wrap{padding:8px 9px 22px}
+header.hero{padding:13px 14px}
+.card{padding:10px}
+.result{padding:11px 9px}
+.spring-result-header .rlead{font-size:.87rem}
+.chart-inline-legend{padding:6px 7px 3px;gap:5px}
+.chart-inline-legend .chart-key{justify-content:flex-start;gap:4px 9px}
+.chart-inline-legend .chart-key-item span,.chart-inline-legend .chart-key-item.cap span{font-size:.59rem}
+.chart-grid{grid-template-columns:33px minmax(0,1fr)}
+.chart-ylabel{font-size:.45rem}
+.spring-quarter>summary,.spring-more>summary{font-size:.69rem;padding:9px}
+.spring-quarter #comparisonPeriodTitle{display:none}
+.spring-actions .cta-row{grid-template-columns:1fr 1fr}
+.spring-actions .uw-cta{font-size:.72rem;padding:10px 5px}
+}
 </style>
 <style>
 /* Companion partner view: keep one customer-mode switch. Standalone/Public calculators remain unchanged. */
