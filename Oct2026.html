@@ -4,8 +4,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="companion-display-version" content="2.67">
-<meta name="app-version" content="2.67">
+<meta name="companion-display-version" content="2.68">
+<meta name="app-version" content="2.68">
 <meta name="forecast-bundled-revision" content="mse-2026-11-02-ci-2026-11-18-v2.67">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
@@ -699,10 +699,8 @@ html.companion-embedded .wrap{padding-top:2px}
 
   <header class="hero">
     <h1>Should I fix or track?</h1>
-    <p><b>Compare three routes:</b> stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
   </header>
 
-  <p class="search-intro"><strong>Should you fix your energy tariff?</strong> Compare the latest fixed and Tracker tariffs with the Ofgem price cap, or choose <b>Existing customers</b> to compare verified renewal tariffs from UW's historical tariff catalogue. Both use the same winter-weighted cost model and energy price forecasts.</p>
 
 
   <div class="comparison-switch" id="comparisonSwitch" role="group" aria-label="Comparison type">
@@ -783,38 +781,6 @@ html.companion-embedded .wrap{padding-top:2px}
   </section>
   <input id="janRise" type="hidden" value="28.8"><input id="forecastDefault" type="hidden" value="28.8">
   <div id="tariffCheck" class="tariff-check" role="status" aria-live="polite"><strong>Checking current UW tariff rates…</strong><p id="tariffCheckMessage">Savings will appear after the current tariff has been verified.</p><button id="retryTariffs" type="button" hidden>Retry tariff check</button></div>
-  <section class="card result" id="resultCard">
-    <p class="rlead" id="rlead">&nbsp;</p>
-    <p class="compare-start-note" id="compareStartNote"></p>
-
-    <div class="choice-heroes">
-      <div class="choice-hero fix">
-        <span class="choice-kicker">FIXED</span>
-        <strong class="choice-amount" id="fixHeroAmt">–</strong>
-        <span class="choice-copy" id="fixHeroCopy">vs variable price cap</span>
-      </div>
-      <div class="choice-hero tracker">
-        <span class="choice-kicker">TRACKER</span>
-        <strong class="choice-amount" id="trackHeroAmt">–</strong>
-        <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
-      </div>
-    </div>
-
-    <div id="chart"></div>
-
-    <div class="quarter-compare-wrap">
-      <div class="quarter-compare-title">Forecast Energy Cost by Price Cap Quarter <span id="comparisonPeriodTitle"></span></div>
-      <div class="quarter-compare" id="quarterCompare"></div>
-    </div>
-
-    <div class="renewal-benchmark hidden" id="renewalBenchmark" role="status" aria-live="polite"></div>
-    <details class="annual-costs" id="annualCosts">
-      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Total and average monthly costs</span><span class="annual-period"></span></span></summary>
-      <div class="annual-grid" id="annualCostsGrid"></div>
-    </details>
-
-  </section>
-
   <section class="card" id="fixedCard">
     <div class="compare-head">
       <span class="lab">Compare using</span>
@@ -851,6 +817,43 @@ html.companion-embedded .wrap{padding-top:2px}
         </div>
       </div>
     </div>
+  </section>
+
+  <section class="card result" id="resultCard">
+    <div class="spring-result-header">
+      <p class="rlead" id="rlead">&nbsp;</p>
+      <details class="spring-period-info"><summary title="Comparison period and assumptions" aria-label="Comparison period and assumptions">ⓘ</summary>
+        <p class="compare-start-note" id="compareStartNote"></p>
+      </details>
+    </div>
+    <p class="spring-benchmark" id="benchmarkReference">vs Std Var Price Cap</p>
+
+    <div class="choice-heroes">
+      <div class="choice-hero fix">
+        <span class="choice-kicker">FIXED</span>
+        <strong class="choice-amount" id="fixHeroAmt">–</strong>
+        <span class="choice-copy" id="fixHeroCopy">vs variable price cap</span>
+      </div>
+      <div class="choice-hero tracker">
+        <span class="choice-kicker">TRACKER</span>
+        <strong class="choice-amount" id="trackHeroAmt">–</strong>
+        <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
+      </div>
+    </div>
+
+    <div id="chart"></div>
+
+    <details class="spring-quarter" id="quarterDetails">
+      <summary>Quarterly breakdown <span id="comparisonPeriodTitle"></span></summary>
+      <div class="quarter-compare-wrap"><div class="quarter-compare" id="quarterCompare"></div></div>
+    </details>
+
+    <div class="renewal-benchmark hidden" id="renewalBenchmark" role="status" aria-live="polite"></div>
+    <details class="annual-costs" id="annualCosts">
+      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Full cost comparison</span><span class="annual-period"></span></span></summary>
+      <div class="annual-grid" id="annualCostsGrid"></div>
+    </details>
+
   </section>
 
   <details class="evext" id="evExtension">
@@ -2259,11 +2262,11 @@ function draw(res,janRise,s,tracker){
 
   // Use plotted full-month peak values for chart badges; rank the legend
   // by total cost across the same pro-rated comparison period.
-  const variableLegend=s.renewal?safeHtml(s.variableName):'Standard variable price cap';
+  const variableLegend=s.renewal?safeHtml(s.variableName):'Std Var Price Cap';
   const chartLegend=[{key:'cap',name:variableLegend,total:res.yCap},{key:'fix',name:fixedLegend,total:res.yFix}];
   if(track.length)chartLegend.push({key:'tracker',name:trackerLegend,total:res.rows.reduce((a,r)=>a+r.tracker,0)});
   chartLegend.sort((a,b)=>b.total-a.total);
-  const legendMarkup=chartLegend.map(item=>'<div class="chart-key-item '+item.key+'" title="'+item.name+'"><span>'+item.name+'</span></div>').join('');
+  const legendMarkup=chartLegend.map(item=>'<div class="chart-key-item '+item.key+'" title="'+(item.key==='cap'&&!s.renewal?'Standard variable price cap':item.name)+'"><span>'+item.name+'</span></div>').join('');
   const peakOf=key=>{
     let peak=null;
     rows.forEach((r,i)=>{if(Number.isFinite(r[key])&&(!peak||r[key]>peak.value))peak={value:r[key],point:[x(i),y(r[key])],month:r.k};});
@@ -2297,11 +2300,11 @@ function draw(res,janRise,s,tracker){
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-controls">
       <div class="chart-forecast-row">
-        <div class="chart-forecast-label">Current forecast</div>
+        <div class="chart-forecast-label">Forecast:</div>
         <div class="forecast-mode-picker" role="group" aria-label="Choose forecast method">
-          <button type="button" onclick="activateForecastMethod('cornwall')" aria-pressed="${forecastScenarioMode==='cornwall'}" title="Cornwall Insight 18 November forecast: unit rates and standing charges">CI f/c</button>
-          <button type="button" onclick="activateForecastMethod('percent')" aria-pressed="${forecastScenarioMode==='percent'}" title="Forecast by percentage increase">%</button>
-          <button type="button" onclick="activateForecastMethod('unit')" aria-pressed="${forecastScenarioMode==='unit'}" title="Forecast by pence per kWh">p/kWh</button>
+          <button type="button" onclick="activateForecastMethod('cornwall')" aria-pressed="${forecastScenarioMode==='cornwall'}" title="Cornwall Insight forecast - unit rates and standing charges">CI</button>
+          <button type="button" onclick="activateForecastMethod('percent')" aria-pressed="${forecastScenarioMode==='percent'}" title="MoneySavingExpert percentage forecast and scenarios">MSE%</button>
+          <button type="button" onclick="activateForecastMethod('unit')" aria-pressed="${forecastScenarioMode==='unit'}" title="MoneySavingExpert pence per kWh stress-test scenarios">MSEp</button>
         </div>
       </div>
       ${forecastControlMarkup(janRise)}
@@ -2585,9 +2588,8 @@ function render(){
   if(!s.renewal)renderCompareInfo(s,tracker);
 
   const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
-  document.getElementById("rlead").innerHTML=s.renewal
-    ?"What could <strong>"+safeHtml(s.offerName)+"</strong> save until <strong>"+comparisonEndLabel()+"</strong>?"
-    :"What could fixing save you until <strong>"+comparisonEndLabel()+"</strong>?";
+  document.getElementById("rlead").innerHTML="Potential savings to <strong>"+comparisonEndLabel()+"</strong>";
+  document.getElementById("benchmarkReference").textContent=s.renewal?"vs "+s.variableName:"vs Std Var Price Cap";
   document.getElementById("compareStartNote").textContent=s.renewal
     ?"Comparison from "+formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)+". "+(periodIsFallback?"12-month illustrative period.":"Customer-offer end date.")+" Forecast variable changes are indicative, not confirmed UW prices."
     :"Based on energy going live in about 3 days ("+formatComparisonDate(periodStartDate)+"). "+(periodIsFallback?"Fixed end date is indicative.":"Fixed end date from UW tariff data.");
@@ -2605,7 +2607,7 @@ function render(){
       return;
     }
     amt.textContent=gbp(Math.abs(diff));
-    copy.textContent=diff>=0 ? (s.renewal?"saved vs variable tariff forecast":"saved vs variable price cap") : (s.renewal?"more than variable tariff forecast":"more than variable price cap");
+    copy.textContent=diff>=0 ? "Potential saving" : "Higher cost";
   };
   setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
   setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
@@ -2676,7 +2678,7 @@ function render(){
 
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
-  document.getElementById("annualSummaryText").textContent="Total costs until "+comparisonEndLabel();
+  document.getElementById("annualSummaryText").textContent="Full cost comparison";
   document.querySelector(".annual-period").textContent=comparisonRange()+
     (s.renewal?(periodIsFallback?" · illustrative period":" · offered end date"):(periodIsFallback?" · indicative expiry":" · UW live expiry"));
   document.getElementById("comparisonPeriodTitle").textContent=" · "+comparisonRange();
@@ -2734,7 +2736,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.67. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: 2.68. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -2886,6 +2888,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.67"></script>
+<script src="./forecast-feed.js?v=2.68"></script>
 </body>
 </html>
