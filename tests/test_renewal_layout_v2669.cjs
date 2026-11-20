@@ -1,30 +1,31 @@
 "use strict";
 const fs=require("node:fs");
 const assert=require("node:assert/strict");
-const legend=fs.readFileSync("renewal-mobile-experience-v2.66.9.js","utf8");
+const legend=fs.readFileSync("renewal-mobile-experience-v2.66.13.js","utf8");
 const builder=fs.readFileSync("renewal-builder-v1.html","utf8");
 const standalone=fs.readFileSync("Oct2026.html","utf8");
 
 assert.match(legend,/data\.years\[b\]-data\.years\[a\]/,"Legend must order most expensive first");
 assert.match(legend,/\['green','amber','red'\]\[i\]/,"Dynamic price ranks retain traffic-light colours");
-assert.match(legend,/grid-template-columns:98px minmax\(0,1fr\)/,"Legend must sit left of graph");
+assert.match(legend,/#renewalFourLineChart #renewalLineLegend\{position:absolute!important/,"Legend must overlay the chart's left gutter");
+assert.match(legend,/left:0!important/);assert.match(legend,/top:8%!important;height:83%!important;width:15%!important/);
 assert.match(legend,/writing-mode:vertical-rl/,"Monthly amount must be perpendicular");
 assert.match(legend,/class="renewal-key-monthly"/);
-assert.match(legend,/scroller\.parentNode\.insertBefore\(layout,scroller\)/);
-assert.match(legend,/layout\.appendChild\(scroller\)/);
+assert.match(legend,/chartPanel\.parentNode\.insertBefore\(scroller,chartPanel\)/);
+assert.match(legend,/scroller\.appendChild\(chartPanel\)/);
 assert.match(legend,/quarterly\.style\.setProperty\('--renewal-quarter-columns'/,"Quarterly table must keep shared SVG month geometry");
 assert.match(legend,/chartPanel\.parentNode\.insertBefore\(scroller,chartPanel\)/,"Chart and table stay within the same scroller");
 assert.doesNotMatch(legend,/Budget Plan '\+gbp\(data\.budget\)/,"Do not bring back noisy reference legend rows");
 
-assert.match(builder,/renewal-mobile-experience-v2\.66\.9\.js/);
+assert.match(builder,/renewal-mobile-experience-v2\.66\.13\.js/);
 assert.match(builder,/quarterLayout:renewalQuarterGeometry\(MONTHS\)/);
 assert.match(builder,/id="renewalSavingsPair"/,"Three hero cards remain");
 assert.match(builder,/id="renewalFourLineChart"/);
 assert.match(builder,/id="renewalLineLegend"/);
 assert.match(legend,/quarterly\.id='renewalQuarterlyCosts'/,"Quarterly table is created alongside the shared chart");
-assert.match(standalone,/data-compare-mode="renewal"[^>]*>Existing customers<\/button>/);
+assert.match(standalone,/data-compare-mode="renewal"[^>]*>Existing<\/button>/);
 assert.match(standalone,/new URL\('\.\/renewal-builder-v1\.html',location\.href\)/);
 assert.match(standalone,/url\.searchParams\.set\('existing','1'\)/);
 assert.match(standalone,/routeParams\.get\('renew'\)!=='1'/,"Legacy renew=1 shares remain intact");
-assert.match(standalone,/App version: 2\.66\.9/);
+assert.match(standalone,/meta name="app-version" content="2\.69\.0"/);
 console.log("PASS: left docked descending legend, vertical monthly labels, shared chart/table geometry, new standalone route and legacy link safety");

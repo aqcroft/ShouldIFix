@@ -2,6 +2,7 @@
 const fs=require("node:fs");
 const vm=require("node:vm");
 const assert=require("node:assert/strict");
+const ShouldIFixLabelPlacement=require("../chart-label-placement-v2.69.js");
 const builder=fs.readFileSync("renewal-builder-v1.html","utf8");
 const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.13.js","utf8");
 const functionChunk=(start,end)=>{
@@ -26,13 +27,14 @@ const scope={MONTHS:months,APR_FROM_JAN:1.085,JUL_FROM_APR:.904,
  renewalSelectedRows:()=>({ending:{name:"Fixed Saver 66"},offered:{name:"Fixed Saver 100"},public:{name:"Fixed Saver 101"}}),
  renewalRawName:row=>row?.name||"",niceStep:()=>50,
  gbp:n=>"£"+Math.round(n),safeHtml:x=>String(x).replaceAll("<","&lt;"),
- Math,Number,Date
+ Math,Number,Date,ShouldIFixLabelPlacement
 };
 vm.runInNewContext(geometry+forecast+fullChart+
  "renewalFullChart({janRise:27,variableName:'Double Gold',offerName:'Fixed Saver 100'},null,Array(12).fill(200),Array(12).fill(183),Array(12).fill(185));",scope);
 const expected=["Confirmed","+27%","+8.5%","−9.6%","0%"];
 const labels=[...svg.innerHTML.matchAll(/class="renewal-quarter-forecast" data-quarter="([^"]+)" x="([^"]+)" y="16"[^>]*>([^<]+)<\/text>/g)];
 assert.equal(labels.length,5,"Each of the five comparison quarters needs a forecast label");
+assert.equal((svg.innerHTML.match(/class="renewal-cost-tag"/g)||[]).length,3,"Each selected tariff needs a placed monthly-average tag");
 assert.deepEqual(labels.map(m=>m[3]),expected);
 const edges=svg.innerHTML.match(/data-quarter-edges="([^"]+)"/)?.[1].split(",").map(Number);
 assert.equal(edges?.length,6,"Five quarters require six shared geometry boundaries");

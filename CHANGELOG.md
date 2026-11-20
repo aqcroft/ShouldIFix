@@ -45,3 +45,9 @@
 Testing: the main embedded JavaScript compiles; forecast-control modes were checked in dual, electricity-only and gas-only configurations; the compute() calculation was verified unchanged. Visual/manual mobile and desktop browser review is still required before production merge.
 
 Preview-only pages were retired after the v2.67 live release.
+# v2.69.0 - 20 November 2026
+- Refined the prospective entry, region and usage controls; restored the cost-ranked left chart legend, aligned period totals and improved monthly-average label placement.
+- Reworked existing-customer renewal selection around verified expiry dates while retaining archived tariff versions and showing catalogue freshness.
+- Added an optional, source-gated early-exit comparison with monthly audit, explicit fee status, editable future-rate assumptions and non-sensitive share parameters.
+- Added Companion-only usage provenance and restore controls. No rates or expiry dates are inferred; unknown tariff or fee data blocks the comparison.
+- Added engine and chart-placement acceptance tests. Production entry points and service-worker caches are unchanged.
