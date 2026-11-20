@@ -30,4 +30,4 @@
 
 Testing: the main embedded JavaScript compiles; forecast-control modes were checked in dual, electricity-only and gas-only configurations; the compute() calculation was verified unchanged. Visual/manual mobile and desktop browser review is still required before production merge.
 
-Review-only hosted preview: https://aqcroft.github.io/ShouldIFix/forecast-preview-v26623.html
+Preview-only pages were retired after the v2.67 live release.
