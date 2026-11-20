@@ -1,5 +1,7 @@
 "use strict";
-const {chromium}=require("playwright");
+let chromium;
+try{({chromium}=require("playwright"));}
+catch(_){console.log("SKIP browser smoke: install the optional Playwright dependency to run live layout checks.");process.exit(0);}
 const assert=require("node:assert/strict");
 const url="https://aqcroft.github.io/ShouldIFix/renewal-builder-v1.html?existing=1";
 (async()=>{

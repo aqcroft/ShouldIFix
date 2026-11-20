@@ -4,8 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="companion-display-version" content="2.67">
-<meta name="app-version" content="2.67">
+<meta name="app-version" content="2.69.0">
 <meta name="forecast-bundled-revision" content="mse-2026-11-02-ci-2026-11-18-v2.67">
 <title>Should I Fix My Energy Tariff? UK Fix vs Tracker Calculator 2026/27</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
@@ -89,8 +88,12 @@
   html,body{margin:0;padding:0}
   body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
   .wrap{max-width:760px;margin:0 auto;padding:20px 16px 56px}
-  header.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px 24px;box-shadow:0 12px 30px rgba(124,58,237,.22)}
-  header.hero h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.7rem,6vw,2.4rem);margin:0 0 6px;letter-spacing:-.01em}
+  header.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px 24px;box-shadow:0 12px 30px rgba(124,58,237,.22);display:flex;align-items:center;justify-content:space-between;gap:14px}
+  header.hero h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.7rem,6vw,2.4rem);margin:0;letter-spacing:-.01em}
+  .hero .comparison-switch{flex:0 0 min(330px,52%);margin:0;background:#ffffff24;border-color:#ffffff45}
+  .hero .comparison-switch button{color:#fff}
+  .hero .comparison-switch button[aria-pressed="true"]{color:var(--purple-deep)}
+  @media(max-width:520px){header.hero{align-items:stretch;flex-direction:column;gap:10px}.hero .comparison-switch{flex-basis:auto;width:100%}}
   header.hero p{margin:0;opacity:.94;font-size:1rem;font-weight:600}
   header.hero p b{opacity:1;font-weight:800}
   header.hero p .hsrc{color:#fff;opacity:.9;font-weight:700;font-size:.82rem;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
@@ -208,6 +211,16 @@
   /* v2.66.23: five stable usage positions, with disabled preset readouts. */
   .usage-card{padding-top:10px;padding-bottom:11px}
   .usage-card .usage-topline{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 0 6px}
+  .usage-heading-group{display:flex;align-items:center;gap:10px;min-width:0;flex-wrap:wrap}
+  .inline-region{position:relative;z-index:5}
+  .inline-region>button{border:0;background:transparent;padding:2px 3px;color:#5a4b78;font:850 .67rem/1.25 "Nunito",system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+  .inline-region>button:focus-visible{outline:2px solid var(--purple);border-radius:4px}
+  .inline-region-pop{position:absolute;top:calc(100% + 5px);left:0;width:min(250px,78vw);padding:10px;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 20px #24143b26}
+  .inline-region-pop[hidden]{display:none}
+  .inline-region-pop label{display:block;font-size:.7rem;font-weight:850;margin-bottom:4px}
+  #companionUsageSource{color:#386747;font-size:.63rem;font-weight:850}
+  #restoreCompanionUsage{border:0;background:transparent;color:var(--purple);font:800 .62rem/1.2 "Nunito",system-ui,sans-serif;text-decoration:underline;cursor:pointer;padding:2px}
+  #usageSeg button:disabled{opacity:.5;cursor:not-allowed}
   .usage-card .usage-topline .lab{margin:0;font-size:.76rem}
   .usage-card .usage-actions{display:flex;align-items:center;gap:5px}
   .usage-card .usage-actions button{border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--purple-deep);padding:4px 7px;min-height:26px;font:800 .66rem/1.2 "Nunito",system-ui,sans-serif;cursor:pointer;white-space:nowrap}
@@ -256,11 +269,11 @@
   .choice-hero.tracker .choice-kicker,.choice-hero.tracker .choice-amount{color:var(--tracker)}
   .choice-amount{display:block;font-family:"Fraunces",Georgia,serif;font-size:clamp(1.55rem,6vw,2.15rem);font-weight:650;line-height:1.05}
   .choice-copy{display:block;margin-top:4px;font-size:.72rem;font-weight:750;color:var(--muted);line-height:1.25}
-  .result{--compare-label:72px;--end-col-width:clamp(48px,10vw,65px)}
+  .result{--compare-label:102px;--end-col-width:clamp(62px,12vw,82px)}
   .compare-start-note{font-size:.65rem;color:var(--muted);font-weight:750;margin:-4px 0 10px;line-height:1.4}
   .quarter-compare-wrap{margin:0 0 10px;border:1px solid var(--line);border-radius:12px;overflow-x:auto;background:#fff}
   .quarter-compare-title{font-size:.64rem;font-weight:850;color:var(--muted);padding:7px 9px;background:#faf9fc;border-bottom:1px solid var(--line)}
-  .quarter-compare{display:grid;grid-template-columns:var(--compare-label) repeat(4,1fr);font-size:.66rem}
+  .quarter-compare{display:grid;grid-template-columns:var(--compare-label) repeat(4,minmax(62px,1fr)) var(--end-col-width);font-size:.66rem;min-width:560px}
   .qc-cell{padding:7px 5px;text-align:center;border-right:1px solid rgba(0,0,0,.045);border-bottom:1px solid rgba(0,0,0,.045);min-width:0}
   .qc-last{border-right:0}
   .qc-head{font-size:.56rem;font-weight:850;text-transform:uppercase;color:var(--muted);background:#fff}
@@ -271,6 +284,9 @@
   .qc-cap{background:var(--cap-soft)}
   .qc-fix{background:var(--fixed-soft)}
   .qc-track{background:var(--tracker-soft)}
+  .qc-cell.best-overall{background:#edf7ef!important}
+  .qc-cell.best-overall.qc-label{border-left:3px solid #78b88a}
+  .best-overall-badge{display:block;margin-top:2px;color:#24673a;font-size:.48rem;font-weight:950;letter-spacing:.03em}
   /* Usage rows share the price-cap grid, including its narrow final column. */
   .qc-usage-toggle{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:27px;padding:5px 9px;border:0;border-bottom:1px solid rgba(0,0,0,.06);background:#faf9fd;color:var(--muted);font:800 .6rem/1.2 "Nunito",system-ui,sans-serif;text-align:left;cursor:pointer}
   .qc-usage-toggle:hover,.qc-usage-toggle:focus-visible{background:#f0ebfa;color:var(--purple)}
@@ -682,6 +698,85 @@
   body.renewal-mode .choice-heroes{grid-template-columns:1fr}
   @media(max-width:520px){.comparison-switch button{font-size:.7rem}.renewal-grid label{font-size:.65rem}}
   body.tariff-unverified #resultCard{display:none!important}
+
+/* v2.68 spring-clean preview - compact customer-facing presentation */
+.wrap{padding:12px 14px 30px}
+header.hero{padding:16px 19px;border-radius:16px}
+header.hero h1{font-size:clamp(1.5rem,5vw,1.95rem);margin:0;line-height:1.2}
+.comparison-switch{margin-top:10px}
+.card{margin-top:10px;padding:13px}
+.seg button{padding:9px 5px 7px;gap:2px}
+.seg button .ic{font-size:18px;height:19px}
+#fixedCard{padding:10px 12px}
+#fixedCard .compare-head{margin-bottom:4px}
+#fixedCard .fixed-row{gap:6px}
+#fixedCard .tariff-current,#fixedCard .tariff-open{min-height:36px;padding-top:7px;padding-bottom:7px}
+.result{padding:13px 12px 12px}
+.spring-result-header{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.spring-result-header .rlead{margin:0;font-size:.98rem;line-height:1.25}
+.spring-benchmark{margin:2px 0 8px;font-size:.69rem;font-weight:750;color:#6d6084}
+.spring-period-info{position:relative;flex:0 0 auto}
+.spring-period-info summary{list-style:none;border:1px solid #d5cce7;border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;color:#6b5785;background:#fff;font:900 15px/1 "Nunito",sans-serif;cursor:pointer}
+.spring-period-info summary::-webkit-details-marker{display:none}
+.spring-period-info .compare-start-note{position:absolute;z-index:12;right:0;top:26px;width:min(320px,80vw);margin:0;padding:10px 12px;border:1px solid var(--line);border-radius:9px;box-shadow:0 5px 22px #29195322;background:#fff;color:#514762;font-size:.72rem;line-height:1.45}
+.choice-heroes{margin:5px 0 9px}
+.choice-hero{padding:11px 12px 10px}
+.choice-copy{font-size:.67rem}
+.chart-shell{border-radius:11px}
+.chart-controls{padding:7px 8px}
+.chart-forecast-label{font-size:.72rem}
+.chart-forecast-row{margin-bottom:5px}
+.forecast-mode-picker button,.forecast-mode-picker button:first-child{font-size:.67rem;min-height:26px;padding:5px 9px}
+.chart-main-grid{display:grid;grid-template-columns:minmax(96px,132px) minmax(0,1fr);gap:8px;align-items:stretch}
+.chart-inline-legend{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:7px;padding:8px 3px 3px 8px}
+.chart-legend-caption{font-size:.65rem;font-weight:850;color:#645a7a}
+.chart-inline-legend .chart-key{position:static;top:auto;left:auto;transform:none;display:flex;flex-flow:column nowrap;align-items:flex-start;justify-content:flex-start;width:auto;height:auto;gap:8px;white-space:normal}
+.chart-inline-legend .chart-key-item{display:inline-flex;flex:0 0 auto;align-items:flex-start;gap:5px;min-height:0;padding:0;border:0;background:transparent;font-size:.67rem;line-height:1.15;text-align:left}
+.chart-inline-legend .chart-key-item::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor;flex:0 0 auto}
+.chart-inline-legend .chart-key-item span{writing-mode:horizontal-tb;transform:none;display:inline;font-size:.65rem;font-weight:800;line-height:1.25;white-space:normal}
+.chart-inline-legend .chart-key-item.cap{flex:0 0 auto}
+.chart-inline-legend .chart-key-item.cap span{font-size:.65rem;letter-spacing:0}
+.chart-grid{grid-template-columns:40px minmax(0,1fr)}
+.chart-side{background:transparent}
+.chart-ylabel{right:4px}
+.spring-quarter{margin:9px 0;border:1px solid var(--line);border-radius:10px;background:#fff;overflow:hidden}
+.spring-quarter>summary,.spring-more>summary{list-style:none;cursor:pointer;background:#faf9fc;color:var(--ink);padding:10px 12px;font-size:.77rem;font-weight:850;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.spring-quarter>summary::-webkit-details-marker,.spring-more>summary::-webkit-details-marker{display:none}
+.spring-quarter>summary::after,.spring-more>summary::after{content:"⌄";font-size:1rem;color:var(--muted);transition:transform .15s}
+.spring-quarter[open]>summary::after,.spring-more[open]>summary::after{transform:rotate(180deg)}
+.spring-quarter #comparisonPeriodTitle{font-size:.58rem;color:var(--muted);font-weight:700}
+.spring-quarter .quarter-compare-wrap{margin:0;border:0;border-radius:0;border-top:1px solid var(--line)}
+.annual-costs{margin:8px 0 0;border-radius:10px}
+.annual-costs summary{font-size:.76rem;padding:10px 12px}
+.spring-actions{background:transparent;border:0;box-shadow:none;padding:4px 0 0;margin-top:10px}
+.spring-share-input{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+.spring-actions .share-row button{width:100%;min-height:39px;padding:9px;border-radius:10px}
+.spring-actions .cta-row{margin-top:7px;gap:7px}
+.spring-actions .uw-cta{border-radius:10px;padding:10px 7px;font-size:.81rem;box-shadow:none}
+.spring-more{margin:12px 0 0;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.spring-more-body{padding:2px 12px 12px}
+.spring-more .outlook-card{margin-top:10px}
+.spring-more footer{margin-top:12px;font-size:.66rem;line-height:1.5}
+#annualCosts{display:none!important}
+#annualCosts{display:none!important}
+.spring-disclosure{text-align:center;color:var(--muted);font-size:.67rem;font-weight:700;margin:10px 6px 0;line-height:1.4}
+@media(max-width:430px){
+.wrap{padding:8px 9px 22px}
+header.hero{padding:13px 14px}
+.card{padding:10px}
+.result{padding:11px 9px}
+.spring-result-header .rlead{font-size:.87rem}
+  .chart-main-grid{grid-template-columns:minmax(76px,96px) minmax(0,1fr);gap:3px}
+  .chart-inline-legend{padding:5px 1px 3px 2px;gap:5px}
+  .chart-inline-legend .chart-key{gap:6px}
+  .chart-inline-legend .chart-key-item span,.chart-inline-legend .chart-key-item.cap span{font-size:.56rem}
+.chart-grid{grid-template-columns:33px minmax(0,1fr)}
+.chart-ylabel{font-size:.45rem}
+.spring-quarter>summary,.spring-more>summary{font-size:.69rem;padding:9px}
+.spring-quarter #comparisonPeriodTitle{display:none}
+.spring-actions .cta-row{grid-template-columns:1fr 1fr}
+.spring-actions .uw-cta{font-size:.72rem;padding:10px 5px}
+}
 </style>
 <style>
 /* Companion partner view: keep one customer-mode switch. Standalone/Public calculators remain unchanged. */
@@ -690,6 +785,7 @@ html.companion-embedded #comparisonSwitch,
 html.companion-embedded #renewalCard{display:none!important}
 html.companion-embedded .wrap{padding-top:2px}
 </style>
+<script src="./chart-label-placement-v2.69.js?v=2.69.0"></script>
 <script>
  if(new URLSearchParams(location.search).get('companion')==='1')document.documentElement.classList.add('companion-embedded');
 </script>
@@ -698,17 +794,15 @@ html.companion-embedded .wrap{padding-top:2px}
 <div class="wrap">
 
   <header class="hero">
-    <h1>Should I fix or track?</h1>
-    <p><b>Compare three routes:</b> stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
+    <h1>Should I Fix?</h1>
+    <div class="comparison-switch" id="comparisonSwitch" role="group" aria-label="Customer type">
+      <button type="button" data-compare-mode="standard" aria-pressed="true">Prospective</button>
+      <button type="button" data-compare-mode="renewal" aria-pressed="false">Existing</button>
+    </div>
   </header>
 
-  <p class="search-intro"><strong>Should you fix your energy tariff?</strong> Compare the latest fixed and Tracker tariffs with the Ofgem price cap, or choose <b>Existing customers</b> to compare verified renewal tariffs from UW's historical tariff catalogue. Both use the same winter-weighted cost model and energy price forecasts.</p>
 
 
-  <div class="comparison-switch" id="comparisonSwitch" role="group" aria-label="Comparison type">
-    <button type="button" data-compare-mode="standard" aria-pressed="true">Prospective customers</button>
-    <button type="button" data-compare-mode="renewal" aria-pressed="false">Existing customers</button>
-  </div>
   <section class="card">
     <h2 class="hidden">Your details</h2>
 
@@ -731,16 +825,18 @@ html.companion-embedded .wrap{padding-top:2px}
       <span style="display:flex;align-items:center"><input type="checkbox" id="electricHeat"><span class="track"></span></span>
     </label>
 
-    <div class="field reg" style="margin-bottom:0">
-      <span class="lab">Choose your region</span>
-      <select id="region"></select>
-    </div>
   </section>
 
   <section class="card usage-card" id="usageCard">
     <div class="usage-block">
       <div class="usage-topline">
-        <span class="lab">Set your usage</span>
+        <div class="usage-heading-group"><span class="lab">Your usage</span>
+          <div class="inline-region"><button type="button" id="regionEdit" aria-controls="regionPicker" aria-expanded="false" aria-label="Edit energy region">East Midlands ✎</button>
+            <div class="inline-region-pop" id="regionPicker" hidden><label for="region">Energy region</label><select id="region"></select></div>
+          </div>
+          <span id="companionUsageSource" class="hidden" role="status"></span>
+          <button type="button" id="restoreCompanionUsage" class="hidden">Restore imported use</button>
+        </div>
         <div class="usage-actions">
           <button class="reset-usage" id="resetUsageBtn" type="button" disabled title="Reset to the selected usage band">↺ Reset</button>
           <button type="button" id="btnPersonal" aria-label="Customise annual usage" aria-pressed="false" title="Customise annual electricity and gas usage">✎ Customise</button>
@@ -783,54 +879,22 @@ html.companion-embedded .wrap{padding-top:2px}
   </section>
   <input id="janRise" type="hidden" value="28.8"><input id="forecastDefault" type="hidden" value="28.8">
   <div id="tariffCheck" class="tariff-check" role="status" aria-live="polite"><strong>Checking current UW tariff rates…</strong><p id="tariffCheckMessage">Savings will appear after the current tariff has been verified.</p><button id="retryTariffs" type="button" hidden>Retry tariff check</button></div>
-  <section class="card result" id="resultCard">
-    <p class="rlead" id="rlead">&nbsp;</p>
-    <p class="compare-start-note" id="compareStartNote"></p>
-
-    <div class="choice-heroes">
-      <div class="choice-hero fix">
-        <span class="choice-kicker">FIXED</span>
-        <strong class="choice-amount" id="fixHeroAmt">–</strong>
-        <span class="choice-copy" id="fixHeroCopy">vs variable price cap</span>
-      </div>
-      <div class="choice-hero tracker">
-        <span class="choice-kicker">TRACKER</span>
-        <strong class="choice-amount" id="trackHeroAmt">–</strong>
-        <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
-      </div>
-    </div>
-
-    <div id="chart"></div>
-
-    <div class="quarter-compare-wrap">
-      <div class="quarter-compare-title">Forecast Energy Cost by Price Cap Quarter <span id="comparisonPeriodTitle"></span></div>
-      <div class="quarter-compare" id="quarterCompare"></div>
-    </div>
-
-    <div class="renewal-benchmark hidden" id="renewalBenchmark" role="status" aria-live="polite"></div>
-    <details class="annual-costs" id="annualCosts">
-      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Total and average monthly costs</span><span class="annual-period"></span></span></summary>
-      <div class="annual-grid" id="annualCostsGrid"></div>
-    </details>
-
-  </section>
-
   <section class="card" id="fixedCard">
     <div class="compare-head">
-      <span class="lab">Compare using</span>
+      <span class="lab">Bundle</span>
       <button class="detail-link" id="tariffDetailsBtn" type="button">Detailed tariff information</button>
     </div>
     <div class="fixed-row">
       <button type="button" class="tariff-current" id="tariffCurrent" aria-pressed="true" title="Change service level">
-        <b id="bundleChoiceTitle">3 services</b><span id="bundleChoicePair">Fixed Saver + Tracker Saver</span>
+        <b id="bundleChoiceTitle">Energy + 2 services</b><span id="bundleChoicePair">Fixed Saver + Tracker Saver</span>
       </button>
       <button type="button" class="tariff-open" id="openTariffs" aria-pressed="false" aria-label="Change service level" title="Change service level">Change</button>
     </div>
     <div class="tariff-panel" id="tariffPanel">
       <div class="tariff-pick" role="group" aria-label="Choose service level">
-        <button type="button" data-tariff="start"><b>1 service</b><span id="pairStart">Fixed Start + Tracker Start</span></button>
-        <button type="button" data-tariff="fixed"><b>2 services</b><span id="pairFixed">Fixed + Tracker Plus</span></button>
-        <button type="button" data-tariff="saver" aria-pressed="true"><b>3 services</b><span id="pairSaver">Fixed Saver + Tracker Saver</span></button>
+        <button type="button" data-tariff="start"><b>Energy only</b><span id="pairStart">Fixed Start + Tracker Start</span></button>
+        <button type="button" data-tariff="fixed"><b>Energy + 1 service</b><span id="pairFixed">Fixed + Tracker Plus</span></button>
+        <button type="button" data-tariff="saver" aria-pressed="true"><b>Energy + 2 services</b><span id="pairSaver">Fixed Saver + Tracker Saver</span></button>
       </div>
       <div class="tariff-custom-row">
         <button type="button" data-tariff="custom"><b>Own fixed tariff</b><span>Enter another fixed deal - Tracker comparison stays on the 3-service Tracker tier</span></button>
@@ -851,6 +915,43 @@ html.companion-embedded .wrap{padding-top:2px}
         </div>
       </div>
     </div>
+  </section>
+
+  <section class="card result" id="resultCard">
+    <div class="spring-result-header">
+      <p class="rlead" id="rlead">&nbsp;</p>
+      <details class="spring-period-info"><summary title="Comparison period and assumptions" aria-label="Comparison period and assumptions">ⓘ</summary>
+        <p class="compare-start-note" id="compareStartNote"></p>
+      </details>
+    </div>
+    <p class="spring-benchmark" id="benchmarkReference">vs Std Var Price Cap</p>
+
+    <div class="choice-heroes">
+      <div class="choice-hero fix">
+        <span class="choice-kicker">FIXED</span>
+        <strong class="choice-amount" id="fixHeroAmt">–</strong>
+        <span class="choice-copy" id="fixHeroCopy">vs variable price cap</span>
+      </div>
+      <div class="choice-hero tracker">
+        <span class="choice-kicker">TRACKER</span>
+        <strong class="choice-amount" id="trackHeroAmt">–</strong>
+        <span class="choice-copy" id="trackHeroCopy">vs variable price cap</span>
+      </div>
+    </div>
+
+    <div id="chart"></div>
+
+    <details class="spring-quarter" id="quarterDetails">
+      <summary>Quarterly breakdown <span id="comparisonPeriodTitle"></span></summary>
+      <div class="quarter-compare-wrap"><div class="quarter-compare" id="quarterCompare"></div></div>
+    </details>
+
+    <div class="renewal-benchmark hidden" id="renewalBenchmark" role="status" aria-live="polite"></div>
+    <details class="annual-costs" id="annualCosts">
+      <summary><span class="annual-summary-copy"><span id="annualSummaryText">Full cost comparison</span><span class="annual-period"></span></span></summary>
+      <div class="annual-grid" id="annualCostsGrid"></div>
+    </details>
+
   </section>
 
   <details class="evext" id="evExtension">
@@ -945,18 +1046,20 @@ html.companion-embedded .wrap{padding-top:2px}
     </div>
   </details>
 
-  <section class="card share">
-    <h2 style="margin-bottom:4px">Share this</h2>
+  <section class="card share spring-actions" aria-label="Share or get a quote">
     <div class="share-row">
-      <input id="shareUrl" type="text" readonly aria-label="Shareable link">
-      <button id="copyBtn" type="button">Copy link</button>
+      <input id="shareUrl" class="spring-share-input" type="text" readonly aria-label="Shareable comparison link">
+      <button id="copyBtn" type="button">Copy comparison link</button>
     </div>
     <div class="cta-row">
-      <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Switch, fix and save?<span>Get a proper quote →</span></a>
-      <a class="uw-cta secondary" href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener">Prefer a helping hand?<span>Book a free bill review →</span></a>
+      <a class="uw-cta" href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener">Get a UW quote</a>
+      <a class="uw-cta secondary" href="https://tidycal.com/aqcroft/uwpresent" target="_blank" rel="noopener">Book a free bill review</a>
     </div>
   </section>
 
+  <details class="spring-more" id="springDetails">
+    <summary>How it works, forecasts and sources</summary>
+    <div class="spring-more-body">
   <section class="outlook-card" aria-labelledby="energyOutlookTitle">
     <h2 id="energyOutlookTitle">UK energy price outlook - October 2026</h2>
     <div class="outlook-grid">
@@ -994,6 +1097,9 @@ html.companion-embedded .wrap{padding-top:2px}
   </details>
 
   <footer id="foot"></footer>
+    </div>
+  </details>
+  <p class="spring-disclosure">Illustrative estimates by an authorised Utility Warehouse Partner - not an official supplier quote.</p>
 </div>
 
 <div class="source-modal" id="forecastSourceModal" role="dialog" aria-modal="true" aria-labelledby="forecastSourceTitle">
@@ -1119,6 +1225,7 @@ html.companion-embedded .wrap{padding-top:2px}
 
 <script>
 "use strict";
+const APP_VERSION=document.querySelector('meta[name="app-version"]')?.content||"2.69.0";
 
 /* ---------- DATA (Direct Debit) ----------
    uw = UW Fixed Saver 96, fallback ex-VAT rates replaced by the live feed.
@@ -1566,10 +1673,10 @@ function liveTrackerSeries(){
 }
 function bundleCopy(tariff){
   const fs=liveFixedSeries(), ts=liveTrackerSeries();
-  if(tariff==="start") return {label:"1 service",pair:"Fixed Start "+fs+" + Tracker Start "+ts};
-  if(tariff==="fixed") return {label:"2 services",pair:"Fixed "+fs+" + Tracker Plus "+ts};
+  if(tariff==="start") return {label:"Energy only",pair:"Fixed Start "+fs+" + Tracker Start "+ts};
+  if(tariff==="fixed") return {label:"Energy + 1 service",pair:"Fixed "+fs+" + Tracker Plus "+ts};
   if(tariff==="custom") return {label:"Own fixed tariff",pair:"Custom fix + Tracker Saver "+ts};
-  return {label:"3 services",pair:"Fixed Saver "+fs+" + Tracker Saver "+ts};
+  return {label:"Energy + 2 services",pair:"Fixed Saver "+fs+" + Tracker Saver "+ts};
 }
 function updateBundleChoiceCopy(tariff){
   const x=bundleCopy(tariff);
@@ -1598,6 +1705,10 @@ function fixedEndLabel(tariff,regionNo){
   const row=liveFixedRow(regionNo,tariff);
   const raw=row&&(row.fixed_end_date||row.contract_end_date),end=parseContractEnd(raw);
   return end&&end.getTime()>=FALLBACK_END_UTC?String(raw).trim():formatComparisonDate(provisionalFixedEnd())+" (indicative)";
+}
+function trackerEndLabel(tariff,regionNo){
+  const row=liveTrackerRow(regionNo,tariff),raw=row&&(row.fixed_end_date||row.contract_end_date),end=parseContractEnd(raw);
+  return end&&end.getTime()>=FALLBACK_END_UTC?formatComparisonDate(raw):"unavailable";
 }
 function standardFixedRate(row){
   if(!row) return null;
@@ -2259,11 +2370,11 @@ function draw(res,janRise,s,tracker){
 
   // Use plotted full-month peak values for chart badges; rank the legend
   // by total cost across the same pro-rated comparison period.
-  const variableLegend=s.renewal?safeHtml(s.variableName):'Standard variable price cap';
+  const variableLegend=s.renewal?safeHtml(s.variableName):'Std Var Price Cap';
   const chartLegend=[{key:'cap',name:variableLegend,total:res.yCap},{key:'fix',name:fixedLegend,total:res.yFix}];
   if(track.length)chartLegend.push({key:'tracker',name:trackerLegend,total:res.rows.reduce((a,r)=>a+r.tracker,0)});
   chartLegend.sort((a,b)=>b.total-a.total);
-  const legendMarkup=chartLegend.map(item=>'<div class="chart-key-item '+item.key+'" title="'+item.name+'"><span>'+item.name+'</span></div>').join('');
+  const legendMarkup=chartLegend.map(item=>'<div class="chart-key-item '+item.key+'" title="'+(item.key==='cap'&&!s.renewal?'Standard variable price cap':item.name)+'"><span>'+item.name+'</span></div>').join('');
   const peakOf=key=>{
     let peak=null;
     rows.forEach((r,i)=>{if(Number.isFinite(r[key])&&(!peak||r[key]>peak.value))peak={value:r[key],point:[x(i),y(r[key])],month:r.k};});
@@ -2273,47 +2384,47 @@ function draw(res,janRise,s,tracker){
   // Restore the same full-month-equivalent average that appeared in the old legend.
   // The location is the seasonal peak; the number is NOT the peak-month bill.
   const monthlyAverage=key=>gbp(rows.reduce((total,row)=>total+(Number(row[key])||0),0)/Math.max(1,n))+'/m';
-  const chartBadge=(peak,key,label,cx,cy)=>{
+  const chartBadge=(peak,key,label,placement)=>{
     if(!peak)return '';
+    const cx=placement.x,cy=placement.y,w=placement.w||96,h=placement.h||34;
     const value=monthlyAverage(key==='fix'?'fixed':key);
     const desc=label+' '+value+' average per month across the charted full-month equivalents; label placed near '+peak.month+' peak';
-    return '<g class="chart-cost-tag '+key+'"><title>'+desc+'</title>'+
-      '<rect x="'+(cx-48).toFixed(1)+'" y="'+(cy-17).toFixed(1)+'" width="96" height="34" rx="9"/>'+
+    const leader=placement.leader?'<line x1="'+placement.anchorX.toFixed(1)+'" y1="'+placement.anchorY.toFixed(1)+'" x2="'+cx.toFixed(1)+'" y2="'+cy.toFixed(1)+'" stroke="var(--'+(key==='cap'?'cap':key==='tracker'?'tracker':'fixed')+')" stroke-width="1.5" stroke-dasharray="2 2" opacity=".7"/>':'';
+    return leader+'<g class="chart-cost-tag '+key+'"><title>'+desc+'</title>'+
+      '<rect x="'+(cx-w/2).toFixed(1)+'" y="'+(cy-h/2).toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="9"/>'+
       '<text x="'+cx.toFixed(1)+'" y="'+(cy+7).toFixed(1)+'" fill="var(--'+(key==='cap'?'cap':key==='tracker'?'tracker':'fixed')+')">'+value+'</text></g>';
   };
-  const topPeaks=[{key:'cap',name:variableLegend,peak:peakOf('cap')},...(track.length?[{key:'tracker',name:trackerLegend,peak:peakOf('tracker')}]:[])].sort((a,b)=>b.peak.value-a.peak.value);
-  let lastY=0;
-  const topBadges=topPeaks.map((item,i)=>{
-    const p=item.peak.point;
-    const cx=clamp(p[0]+(i===0?-36:42),49,W-49);
-    const cy=clamp(Math.max(p[1]-(i===0?54:30),lastY+37),26,H-padB-48);
-    lastY=cy;
-    return chartBadge(item.peak,item.key,item.name,cx,cy);
-  }).join('');
+  const plotted=[{key:'cap',points:cap},{key:'fix',points:fix},...(track.length?[{key:'tracker',points:track}]:[])];
+  const labelTargets=plotted.map(item=>({key:item.key,points:item.points}));
+  const placements=ShouldIFixLabelPlacement.place(labelTargets,plotted,{width:W,height:H,plotTop:padT,plotBottom:H-padB});
+  const placementByKey=Object.fromEntries(placements.map(p=>[p.key,p]));
+  const topPeaks=[{key:'cap',name:variableLegend,peak:peakOf('cap')},...(track.length?[{key:'tracker',name:trackerLegend,peak:peakOf('tracker')}]:[])];
+  const topBadges=topPeaks.map(item=>chartBadge(item.peak,item.key,item.name,placementByKey[item.key])).join('');
   const fixedPeak=peakOf('fixed');
-  const fixedX=clamp(fixedPeak.point[0]-24,49,W-49);
-  const fixedY=clamp(Math.max(fixedPeak.point[1]+39,lastY+37),26,H-padB-19);
-  const floatingCosts=topBadges+chartBadge(fixedPeak,'fix',fixedLegend,fixedX,fixedY);
+  const floatingCosts=topBadges+chartBadge(fixedPeak,'fix',fixedLegend,placementByKey.fix);
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
     <div class="chart-controls">
       <div class="chart-forecast-row">
-        <div class="chart-forecast-label">Current forecast</div>
+        <div class="chart-forecast-label">Forecast:</div>
         <div class="forecast-mode-picker" role="group" aria-label="Choose forecast method">
-          <button type="button" onclick="activateForecastMethod('cornwall')" aria-pressed="${forecastScenarioMode==='cornwall'}" title="Cornwall Insight 18 November forecast: unit rates and standing charges">CI f/c</button>
-          <button type="button" onclick="activateForecastMethod('percent')" aria-pressed="${forecastScenarioMode==='percent'}" title="Forecast by percentage increase">%</button>
-          <button type="button" onclick="activateForecastMethod('unit')" aria-pressed="${forecastScenarioMode==='unit'}" title="Forecast by pence per kWh">p/kWh</button>
+          <button type="button" onclick="activateForecastMethod('cornwall')" aria-pressed="${forecastScenarioMode==='cornwall'}" title="Cornwall Insight forecast - unit rates and standing charges">CI</button>
+          <button type="button" onclick="activateForecastMethod('percent')" aria-pressed="${forecastScenarioMode==='percent'}" title="MoneySavingExpert percentage forecast and scenarios">MSE%</button>
+          <button type="button" onclick="activateForecastMethod('unit')" aria-pressed="${forecastScenarioMode==='unit'}" title="MoneySavingExpert pence per kWh stress-test scenarios">MSEp</button>
         </div>
       </div>
       ${forecastControlMarkup(janRise)}
     </div>
-    <div class="chart-grid">
-      <div class="chart-side" aria-label="Chart key and monthly cost scale">
+    <div class="chart-main-grid">
+      <div class="chart-inline-legend" aria-label="Chart legend">
+        <span class="chart-legend-caption">Monthly average</span>
         <div class="chart-key">${legendMarkup}</div>
-        ${yScale}
       </div>
-      <div class="chart-plot">
+      <div class="chart-grid">
+        <div class="chart-side" aria-label="Monthly cost scale">
+          ${yScale}
+        </div>
+        <div class="chart-plot">
         <svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="${s.renewal?"Monthly energy cost: offered fixed vs entered variable forecast":"Monthly energy cost in pounds: variable price-cap forecast, fixed tariff and Tracker"}">
-          <text x="6" y="16" font-size="11" fill="#6f7786" font-weight="750">Monthly energy cost (£)</text>
           ${grid}${qlines}
           ${bandFills}
           ${solidCap.length>1?`<path d="${L(solidCap)}" fill="none" stroke="var(--cap)" stroke-width="3.4" stroke-linejoin="round"/>`:""}
@@ -2326,9 +2437,9 @@ function draw(res,janRise,s,tracker){
           ${floatingCosts}
           ${xl}
         </svg>
+        </div>
       </div>
     </div>
-    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Floating £/m values are monthly averages, positioned near the peaks. Totals, quarterly costs and savings use actual pro-rated dates.</p>
   </div>`;
 }
 
@@ -2336,6 +2447,7 @@ function draw(res,janRise,s,tracker){
 let lastBand={e:2500,g:9500};
 let lastCustom={e:2500,g:9500};
 let customTouched=false;
+let importedCompanionUsage=null,companionUsageOverride=false;
 let tariffPanelOpen=false;
 let quarterUsageExpanded=false;
 function toggleQuarterUsageRows(){
@@ -2359,6 +2471,7 @@ function selectedUsageBand(){
   return document.querySelector('#usageSeg button[data-band][aria-pressed="true"]') || document.querySelector('#usageSeg button[data-band="med"]');
 }
 function applyUsageBand(button){
+  if(importedCompanionUsage&&!companionUsageOverride)return;
   const vals=usageBandValues(button);
   document.getElementById("btnPersonal").setAttribute("aria-pressed","false");
   document.getElementById("elec").value=vals.e;
@@ -2368,6 +2481,7 @@ function applyUsageBand(button){
   render();
 }
 function refreshSelectedUsageBand(){
+  if(importedCompanionUsage&&!companionUsageOverride){render();return;}
   if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){ render(); return; }
   const band=selectedUsageBand();
   if(band) applyUsageBand(band);
@@ -2422,8 +2536,19 @@ function syncVisibility(s){
     const vals=usageBandValues(b,s.mode,s.electricHeat);
     return usageMatches(s.mode,s.electricHeat,s.elecY,s.gasY,vals);
   });
-  bands.forEach(b=>b.setAttribute("aria-pressed", (!s.personalise && b===match)?"true":"false"));
+  bands.forEach(b=>{
+    b.setAttribute("aria-pressed", (!s.personalise && b===match)?"true":"false");
+    b.disabled=!!importedCompanionUsage&&!companionUsageOverride;
+    b.setAttribute("aria-disabled",String(b.disabled));
+  });
   document.getElementById("btnPersonal").setAttribute("aria-pressed", s.personalise?"true":"false");
+  const provenance=document.getElementById("companionUsageSource");
+  const restore=document.getElementById("restoreCompanionUsage");
+  if(provenance){
+    provenance.textContent=importedCompanionUsage?(companionUsageOverride?"Edited from Appointment Companion":"From Appointment Companion"):"";
+    provenance.classList.toggle("hidden",!importedCompanionUsage);
+  }
+  if(restore)restore.classList.toggle("hidden",!importedCompanionUsage||!companionUsageOverride);
 }
 function prefillManual(region, tariff=document.querySelector('#fixedCard button[data-tariff][aria-pressed="true"]')?.dataset.tariff || "saver"){
   const rates=tariff==="fixed"?region.fixed:tariff==="start"?region.start:region.uw;
@@ -2446,6 +2571,7 @@ function buildShareUrl(s){
   if(forecastScenarioMode==='unit'){const rates=forecastCurrentUnitRates();p.set('um','1');p.set('ue',rates.elec);p.set('ug',rates.gas);}
   if(forecastScenarioMode==='cornwall')p.set('ci','1');
   if(s.mode==="elec" && s.electricHeat) p.set("eh","1");
+  if(importedCompanionUsage&&!companionUsageOverride){p.set("companion","1");p.set("usageSource","companion");}
   if(s.tariff!=="saver") p.set("t",s.tariff);
   if(s.renewal){
     p.set("renew","1");p.set("rv",document.getElementById("renewalVat").value);
@@ -2495,6 +2621,19 @@ function readParams(){
   if(P.has("f")){const m=P.get("f");document.querySelectorAll('#fuelSeg button').forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m?"true":"false"));}
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
   if(P.has("g")) document.getElementById("gas").value=P.get("g");
+  if(P.get("companion")==="1"&&P.get("usageSource")==="companion"){
+    const mode=document.querySelector('#fuelSeg button[aria-pressed="true"]')?.dataset.mode||"dual";
+    const eRaw=P.get("e"),gRaw=P.get("g"),e=Number(eRaw),g=Number(gRaw);
+    const validE=mode==="gas"||(eRaw!==null&&Number.isFinite(e)&&e>0&&e<=200000);
+    const validG=mode==="elec"||(gRaw!==null&&Number.isFinite(g)&&g>0&&g<=300000);
+    if(validE&&validG){
+      importedCompanionUsage={e:mode==="gas"?(+document.getElementById("elec").value||0):e,
+        g:mode==="elec"?(+document.getElementById("gas").value||0):g,mode};
+      companionUsageOverride=false;customTouched=true;
+      lastCustom={e:importedCompanionUsage.e,g:importedCompanionUsage.g};
+      document.getElementById("btnPersonal").setAttribute("aria-pressed","true");
+    }
+  }
   if(P.has("j")) document.getElementById("janRise").value=P.get("j");
   if(P.get('ci')==='1'){
     forecastScenarioMode='cornwall';
@@ -2546,6 +2685,8 @@ function readParams(){
 
 function render(){
   const s=state();
+  const regionName=s.region?.name?.replace(/\s*\(\d+\)$/,"" )||"Choose region";
+  document.getElementById("regionEdit").textContent=regionName+" ✎";
   // Fail closed: the embedded rates are historic examples, NEVER verified customer savings.
   // The same guard applies to the Companion and the customer-facing share iframe.
   const selectedLiveRow=liveFixedRow(s.region.n,s.tariff==="custom"?"saver":s.tariff);
@@ -2585,12 +2726,16 @@ function render(){
   if(!s.renewal)renderCompareInfo(s,tracker);
 
   const fuelWord=s.mode==="gas"?"gas":s.mode==="elec"?"electricity":"energy";
-  document.getElementById("rlead").innerHTML=s.renewal
-    ?"What could <strong>"+safeHtml(s.offerName)+"</strong> save until <strong>"+comparisonEndLabel()+"</strong>?"
-    :"What could fixing save you until <strong>"+comparisonEndLabel()+"</strong>?";
+  document.getElementById("rlead").innerHTML="Potential savings to <strong>"+comparisonEndLabel()+"</strong>";
+  document.getElementById("benchmarkReference").textContent=s.renewal?"vs "+s.variableName:"vs Std Var Price Cap";
+  const fixedEndText=fixedEndLabel(s.tariff,s.region.n),trackerEndText=trackerEndLabel(s.tariff,s.region.n);
+  const dateAssumptions=fixedEndText!=="unavailable"&&trackerEndText!=="unavailable"&&fixedEndText!==trackerEndText
+    ?"Fixed ends: "+fixedEndText+". Tracker ends: "+trackerEndText+". ":
+    fixedEndText!=="unavailable"&&trackerEndText!=="unavailable"?"Fixed and Tracker tariffs end: "+fixedEndText+". ":
+    "Fixed end: "+fixedEndText+"; Tracker end: "+trackerEndText+". ";
   document.getElementById("compareStartNote").textContent=s.renewal
     ?"Comparison from "+formatComparisonDate(periodStartDate)+" to "+formatComparisonDate(periodEndDate)+". "+(periodIsFallback?"12-month illustrative period.":"Customer-offer end date.")+" Forecast variable changes are indicative, not confirmed UW prices."
-    :"Based on energy going live in about 3 days ("+formatComparisonDate(periodStartDate)+"). "+(periodIsFallback?"Fixed end date is indicative.":"Fixed end date from UW tariff data.");
+    :"Assumed energy live: "+formatComparisonDate(periodStartDate)+". "+dateAssumptions+"Common cost comparison runs to "+comparisonEndLabel()+". Quarterly totals are pro-rated to those dates; chart £/m values are full-month averages.";
 
   const trackerTotal=tracker
     ? res.rows.reduce((a,r)=>a+(Number.isFinite(r.tracker)?r.tracker:0),0)
@@ -2605,17 +2750,16 @@ function render(){
       return;
     }
     amt.textContent=gbp(Math.abs(diff));
-    copy.textContent=diff>=0 ? (s.renewal?"saved vs variable tariff forecast":"saved vs variable price cap") : (s.renewal?"more than variable tariff forecast":"more than variable price cap");
+    copy.textContent=diff>=0 ? "Potential saving" : "Higher cost";
   };
   setChoiceHero("fixHeroAmt","fixHeroCopy",res.ySave,"Fix");
   setChoiceHero("trackHeroAmt","trackHeroCopy",trackerSave,"Tracker");
 
   const chartQuarters=QUARTERS;
-  const narrowLast=chartQuarters.length>1&&chartQuarters[chartQuarters.length-1].mk.length===1;
-  document.getElementById("quarterCompare").style.gridTemplateColumns=narrowLast
-    ?"var(--compare-label) repeat("+(chartQuarters.length-1)+",minmax(0,1fr)) var(--end-col-width)"
-    :"var(--compare-label) repeat("+chartQuarters.length+",minmax(0,1fr))";
+  document.getElementById("quarterCompare").style.gridTemplateColumns=
+    "var(--compare-label) "+chartQuarters.map(q=>"minmax(92px,"+q.mk.length+"fr)").join(" ")+" var(--end-col-width)";
   const quarterCost=(q,key)=>{
+    if(!q){if(key==="variable")return res.yCap;if(key==="fixed")return fixedTotal;return trackerTotal;}
     const rr=res.rows.filter(r=>q.mk.includes(r.id));
     if(key==="tracker" && rr.some(r=>!Number.isFinite(r.tracker))) return null;
     return rr.reduce((a,r)=>a+(key==="variable"?r.cap:key==="fixed"?r.fixed:r.tracker),0);
@@ -2634,7 +2778,7 @@ function render(){
     return (n>0?"+":"−")+clean+"%";
   };
   const capMoves=chartQuarters.map(q=>phaseForecastLabel(q.ph,s.janRise));
-  const qCost=(q,key,cls,isLast=false)=>{
+  const qCost=(q,key,cls,isLast=false,overall=false)=>{
     const edge=isLast?" qc-last":"";
     const v=quarterCost(q,key);
     if(v===null)return '<div class="qc-cell qc-value '+cls+edge+' qc-muted">–</div>';
@@ -2645,38 +2789,44 @@ function render(){
       else if(diff>0) sub='<span class="saving-sub">save '+gbp(diff)+'</span>';
       else sub='<span class="saving-sub more">'+gbp(Math.abs(diff))+' more</span>';
     }
-    return '<div class="qc-cell qc-value '+cls+edge+'">'+gbp(v)+sub+'</div>';
+    return '<div class="qc-cell qc-value '+cls+edge+(overall?' best-overall':'')+'">'+gbp(v)+sub+'</div>';
   };
   const qLabel=(key,label,cls)=>{
-    const badge=key===cheapest.key?'<span class="best-badge">BEST</span>':"";
-    return '<div class="qc-cell qc-label '+cls+'">'+label+badge+'</div>';
+    const overall=key===cheapest.key;
+    const badge=overall?'<span class="best-overall-badge">BEST OVERALL</span>':"";
+    return '<div class="qc-cell qc-label '+cls+(overall?' best-overall':'')+'">'+label+badge+'</div>';
   };
   const qUsage=(q,key,isLast=false)=>{
-    const total=res.rows.filter(r=>q.mk.includes(r.id)).reduce((a,r)=>a+r[key],0);
+    const total=q?res.rows.filter(r=>q.mk.includes(r.id)).reduce((a,r)=>a+r[key],0):
+      res.rows.reduce((a,r)=>a+(Number(r[key])||0),0);
     return '<div class="qc-cell qc-value qc-usage'+(isLast?' qc-last':'')+'">'+Math.round(total).toLocaleString("en-GB")+'</div>';
   };
   const usageLabel=(icon,label)=>'<div class="qc-cell qc-label qc-usage">'+icon+' '+label+' kWh</div>';
-  const usageCols=key=>chartQuarters.map((q,i)=>qUsage(q,key,i===chartQuarters.length-1)).join("");
+  const usageCols=key=>chartQuarters.map((q,i)=>qUsage(q,key,i===chartQuarters.length-1)).join("")+qUsage(null,key,true);
+  const usageTotal=(key)=>res.rows.reduce((a,r)=>a+(Number(r[key])||0),0);
   const usageToggle='<button type="button" class="qc-usage-toggle" aria-expanded="'+quarterUsageExpanded+'" onclick="toggleQuarterUsageRows()"><span>⚡🔥 Usage (kWh) - show quarterly assumptions</span><span class="qc-usage-chevron" aria-hidden="true">⌄</span></button>';
   const usageRows=(s.mode!=="gas"?usageLabel("⚡","Elec")+usageCols("eK"):"")+
     (s.mode!=="elec"?usageLabel("🔥","Gas")+usageCols("gK"):"");
   const quarterGrid=document.getElementById("quarterCompare");
   quarterGrid.classList.toggle("show-usage",quarterUsageExpanded);
+  document.getElementById("comparisonPeriodTitle").textContent=" · Costs through "+comparisonEndLabel();
   quarterGrid.innerHTML =
     '<div class="qc-cell qc-label qc-forecast-label qc-label-info"><span>'+(s.renewal?'VARIABLE<br>SCENARIO':'PRICE CAP<br>FORECAST')+'</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
     chartQuarters.map((q,i)=>'<div class="qc-cell qc-head'+(i===chartQuarters.length-1?' qc-last':'')+'">'+q.lab+'</div>').join("")+
+    '<div class="qc-cell qc-head qc-total-head">TOTAL</div>'+
     capMoves.map((v,i)=>'<div class="qc-cell qc-value qc-capmove'+(i===capMoves.length-1?' qc-last':'')+'"'+(chartQuarters[i].ph==="flat"?' title="October price cap assumed unchanged, not an official forecast"':'')+'>'+v+'</div>').join("")+
+    '<div class="qc-cell qc-value qc-capmove qc-last">Period</div>'+
     qLabel("variable",s.renewal?safeHtml(s.variableName.toUpperCase()):"VARIABLE TARIFF","qc-cap")+
-    chartQuarters.map((q,i)=>qCost(q,"variable","qc-cap",i===chartQuarters.length-1)).join("")+
+    chartQuarters.map(q=>qCost(q,"variable","qc-cap",false,cheapest.key==="variable")).join("")+qCost(null,"variable","qc-cap",true,cheapest.key==="variable")+
     qLabel("fixed",s.renewal?safeHtml(s.offerName.toUpperCase()):"FIXED TARIFF","qc-fix")+
-    chartQuarters.map((q,i)=>qCost(q,"fixed","qc-fix",i===chartQuarters.length-1)).join("")+
+    chartQuarters.map(q=>qCost(q,"fixed","qc-fix",false,cheapest.key==="fixed")).join("")+qCost(null,"fixed","qc-fix",true,cheapest.key==="fixed")+
     (s.renewal?"":qLabel("tracker","TRACKER TARIFF","qc-track")+
-    chartQuarters.map((q,i)=>qCost(q,"tracker","qc-track",i===chartQuarters.length-1)).join(""))+
+    chartQuarters.map(q=>qCost(q,"tracker","qc-track",false,cheapest.key==="tracker")).join("")+qCost(null,"tracker","qc-track",true,cheapest.key==="tracker"))+
      usageToggle+usageRows;
 
   const annualNames={variable:"Variable",fixed:"Fixed",tracker:"Tracker"};
   const annualSaving=res.yCap-cheapest.total;
-  document.getElementById("annualSummaryText").textContent="Total costs until "+comparisonEndLabel();
+  document.getElementById("annualSummaryText").textContent="Period totals";
   document.querySelector(".annual-period").textContent=comparisonRange()+
     (s.renewal?(periodIsFallback?" · illustrative period":" · offered end date"):(periodIsFallback?" · indicative expiry":" · UW live expiry"));
   document.getElementById("comparisonPeriodTitle").textContent=" · "+comparisonRange();
@@ -2734,7 +2884,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.67. Not an official Utility Warehouse tool or quote.</div>
+    <div>App version: ${APP_VERSION}. Not an official Utility Warehouse tool or quote.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -2743,6 +2893,7 @@ function statics(){
   const rSel=document.getElementById("region");
   REGIONS.forEach(r=>{const o=document.createElement("option");o.value=r.n;o.textContent=r.name;rSel.appendChild(o);});
   rSel.value=11;
+  document.getElementById("chart").after(document.getElementById("fixedCard"));
   prefillManual(REGIONS.find(r=>r.n==11));
   // Standalone existing customers use the same verified historical tariff-selector builder
   // as Appointment Companion; existing customer-share renew=1 links remain unchanged.
@@ -2786,6 +2937,7 @@ function statics(){
   }));
   document.querySelectorAll('#usageSeg button[data-band]').forEach(b=>b.addEventListener("click",()=>applyUsageBand(b)));
   document.getElementById("btnPersonal").addEventListener("click",()=>{
+    if(importedCompanionUsage)companionUsageOverride=true;
     document.getElementById("btnPersonal").setAttribute("aria-pressed","true");
     const values=customTouched?lastCustom:lastBand;
     document.getElementById("elec").value=values.e;
@@ -2793,7 +2945,32 @@ function statics(){
     render();
     document.getElementById(state().mode==="gas"?"gas":"elec").focus();
   });
-  rSel.addEventListener("change",render);
+  document.getElementById("restoreCompanionUsage").addEventListener("click",()=>{
+    if(!importedCompanionUsage)return;
+    document.getElementById("elec").value=importedCompanionUsage.e;
+    document.getElementById("gas").value=importedCompanionUsage.g;
+    lastCustom={e:importedCompanionUsage.e,g:importedCompanionUsage.g};
+    companionUsageOverride=false;
+    document.getElementById("btnPersonal").setAttribute("aria-pressed","false");
+    render();
+  });
+  document.getElementById("regionEdit").addEventListener("click",()=>{
+    const picker=document.getElementById("regionPicker"),open=picker.hidden;
+    picker.hidden=!open;document.getElementById("regionEdit").setAttribute("aria-expanded",String(open));
+    if(open)document.getElementById("region").focus();
+  });
+  document.addEventListener("pointerdown",event=>{
+    const picker=document.getElementById("regionPicker");
+    if(!picker.hidden&&!picker.contains(event.target)&&event.target!==document.getElementById("regionEdit")){
+      picker.hidden=true;document.getElementById("regionEdit").setAttribute("aria-expanded","false");
+    }
+  });
+  rSel.addEventListener("change",()=>{
+    const selected=REGIONS.find(r=>r.n===+rSel.value),label=selected?.name?.replace(/\s*\(\d+\)$/,"" )||"Choose region";
+    document.getElementById("regionEdit").textContent=label+" ✎";
+    document.getElementById("regionPicker").hidden=true;document.getElementById("regionEdit").setAttribute("aria-expanded","false");
+    render();
+  });
   document.querySelectorAll('#fixedCard button[data-tariff]').forEach(b=>b.addEventListener("click",()=>{
     const was=state().tariff;
     setTariffChoice(b.dataset.tariff);
@@ -2820,6 +2997,7 @@ function statics(){
   // remember personalised figures so the pencil can bring them back
   ["elec","gas"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{
     if(document.getElementById("btnPersonal").getAttribute("aria-pressed")==="true"){
+      if(importedCompanionUsage)companionUsageOverride=true;
       customTouched=true;
       lastCustom={e:+document.getElementById("elec").value||0, g:+document.getElementById("gas").value||0};
     }
@@ -2834,11 +3012,11 @@ function statics(){
   });
   const copyBtn=document.getElementById("copyBtn");
   copyBtn.addEventListener("click", async ()=>{
-    if(document.body.dataset.tariffDataStatus!=="verified"){copyBtn.textContent="Complete or verify tariff rates first";setTimeout(()=>copyBtn.textContent="Copy link",2000);return;}
+    if(document.body.dataset.tariffDataStatus!=="verified"){copyBtn.textContent="Verify rates first";setTimeout(()=>copyBtn.textContent="Copy comparison link",2000);return;}
     const inp=document.getElementById("shareUrl");
-    const done=()=>{copyBtn.textContent="Copied";setTimeout(()=>copyBtn.textContent="Copy link",1600);};
+    const done=()=>{copyBtn.textContent="Copied";setTimeout(()=>copyBtn.textContent="Copy comparison link",1600);};
     try{ await navigator.clipboard.writeText(inp.value); done(); }
-    catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy link",1600);} }
+    catch{ inp.focus(); inp.select(); inp.setSelectionRange(0,99999); try{document.execCommand("copy");done();}catch{copyBtn.textContent="Select + copy";setTimeout(()=>copyBtn.textContent="Copy comparison link",1600);} }
   });
 
   // EV / Economy 7 extension
@@ -2886,6 +3064,6 @@ function statics(){
   loadEvFeed();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.67"></script>
+<script src="./forecast-feed.js?v=2.69.0"></script>
 </body>
 </html>

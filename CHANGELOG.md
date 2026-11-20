@@ -1,5 +1,19 @@
 # Should I Fix? - changes
 
+## v2.68 (preview only) - 20 November 2026
+- Public-facing Spring Clean preview, not merged into production.
+- Three compact forecast buttons are now **CI**, **MSE%** and **MSEp**, retaining MoneySavingExpert percentage as the default. Original calculations and forecast options are unchanged.
+- The selected fixed/Tracker service tier now appears before the headline comparison.
+- Results use a short "Potential savings to [date]" heading, with the estimated start-date detail behind an information control and one shared "vs Std Var Price Cap" benchmark label.
+- All three floating £/m values remain monthly averages; moved "Monthly average" to a horizontal, readable chart legend and removed the repeating explanatory paragraph below the graph.
+- Shortened the prospective chart legend to "Std Var Price Cap"; existing-customer scenarios still show the customer-entered variable tariff name.
+- Collapsed the quarterly breakdown, kept the full cost comparison and EV controls collapsed, and combined the outlook, FAQs, model assumptions and source links in one expandable information section.
+- Simplified sharing to "Copy comparison link" and shorter quote and bill review links. Kept a short, visible UW Partner / estimate disclosure.
+- Retained calculator element IDs and the entire underlying compute() function, verified unchanged against production; checked embedded JavaScript syntax and static HTML tag nesting.
+- Review link: https://aqcroft.github.io/ShouldIFix/spring-clean-preview-v268.html
+- No production changes until the preview is approved.
+
+
 ## v2.67 - 20 November 2026
 - Added CI f/c to the left of the percentage and pence forecast controls. Percentage remains the default.
 - CI f/c uses Cornwall Insight's 18 November 2026 UK national Jan-Mar 2027 unit and standing rates (electricity 32.54p/kWh, 56p/day; gas 10.90p/kWh, 31p/day). Proportionally adjusts the selected October regional Ofgem cap using October national benchmarks (26.32p, 54.83p, 7.97p, 29.68p). These are regional estimates, not confirmed local rates.
@@ -31,3 +45,9 @@
 Testing: the main embedded JavaScript compiles; forecast-control modes were checked in dual, electricity-only and gas-only configurations; the compute() calculation was verified unchanged. Visual/manual mobile and desktop browser review is still required before production merge.
 
 Preview-only pages were retired after the v2.67 live release.
+# v2.69.0 - 20 November 2026
+- Refined the prospective entry, region and usage controls; restored the cost-ranked left chart legend, aligned period totals and improved monthly-average label placement.
+- Reworked existing-customer renewal selection around verified expiry dates while retaining archived tariff versions and showing catalogue freshness.
+- Added an optional, source-gated early-exit comparison with monthly audit, explicit fee status, editable future-rate assumptions and non-sensitive share parameters.
+- Added Companion-only usage provenance and restore controls. No rates or expiry dates are inferred; unknown tariff or fee data blocks the comparison.
+- Added engine and chart-placement acceptance tests. Production entry points and service-worker caches are unchanged.

@@ -13,7 +13,7 @@ assert.doesNotMatch(builder,/function renewalBudgetReference\(s\)/);
 assert.match(builder,/<input id="renewalBudgetMonthly" type="hidden" value=""/);
 assert.match(builder,/if\(P\.has\("bp"\)\)document\.getElementById\("renewalBudgetMonthly"\)/);
 assert.match(builder,/if\(budget!==null\)p\.set\("bp",budget\.toFixed\(2\)\)/);
-assert.match(builder,/<span class="renewal-simple-number">3<\/span> Estimated annual usage/);
+assert.match(builder,/<span class="renewal-simple-number">3<\/span> Your usage/);
 
 // Remove decorative copy, but do not weaken the permission-based share gate.
 assert.doesNotMatch(builder,/Only share a customer link after verifying the tariff options and usage/);
@@ -38,6 +38,6 @@ assert.match(mobile,/data\.years\[b\]-data\.years\[a\]/);
 assert.match(builder,/line\(old,colors\.old/);
 assert.doesNotMatch(builder,/line\(Array\(months\.length\)\.fill\(budget\)/);
 assert.match(builder,/renewal-mobile-experience-v2\.66\.13\.js/);
-assert.match(standalone,/App version: 2\.66\.20/);
-assert.match(builder,/forecast-feed\.js\?v=2\.66\.20/);
+assert.match(standalone,/meta name="app-version" content="2\.69\.0"/);
+assert.match(builder,/forecast-feed\.js\?v=2\.69\.0/);
 console.log("PASS: redundant Budget Plan prompt removed, minimal result copy, valid sharing protections, vivid matching colours and existing historical data");

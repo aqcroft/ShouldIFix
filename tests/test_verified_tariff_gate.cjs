@@ -26,7 +26,7 @@ function check(status, hasSelectedFixedTariff) {
     liveFixedRow: () => selected,
     standardFixedRate: row => row ? { eSC: 1, eU: 2, gSC: 3, gU: 4 } : null,
     evFeedStatus: status,
-    document: { body, getElementById: id => elements[id] }
+    document: { body, getElementById: id => elements[id] || { textContent: '', hidden: false, value: '', innerHTML: '', classList: { toggle() {} } } }
   };
   vm.runInNewContext('function verifyRender(){' + renderPrelude[1] + '\n}\nverifyRender();', context);
   return { notice, message, retry, strong, classes, body };
@@ -67,7 +67,7 @@ test('partial live tariff feed for another region must not unlock the wrong quot
 
 test('a standalone share URL cannot be copied before the feed is verified', () => {
   assert.match(html, /shareUrl"\)\.value=canShow\?buildShareUrl\(s\):""/);
-  assert.match(html, /if\(document\.body\.dataset\.tariffDataStatus!=="verified"\)\{copyBtn\.textContent="Complete or verify tariff rates first"/);
+  assert.match(html, /if\(document\.body\.dataset\.tariffDataStatus!=="verified"\)\{copyBtn\.textContent="Verify rates first"/);
 });
 
 test('failed network request retries, then reports an error rather than using fallback', () => {

@@ -1,5 +1,6 @@
 'use strict';
-const {chromium}=require('playwright'),assert=require('node:assert/strict');
+let chromium;try{({chromium}=require('playwright'));}catch(_){console.log('SKIP browser scenarios: install the optional Playwright dependency to run viewport checks.');process.exit(0);}
+const assert=require('node:assert/strict');
 const close=(x,y,label)=>assert(Math.abs(x-y)<1e-8,label+': '+x+' vs '+y);
 (async()=>{
  const browser=await chromium.launch({headless:true,...(process.env.CI_BROWSER_PATH?{executablePath:process.env.CI_BROWSER_PATH}:{})});

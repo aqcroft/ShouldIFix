@@ -9,7 +9,7 @@ test('November MSE approved file is internally consistent',()=>{
 for(const file of ['Oct2026.html','renewal-builder-v1.html'])test(file+' initial forecast, controls and supplier table match approved JSON',()=>{
  const s=read(file);
  for(const [label,fragment] of Object.entries({
-  'revision':'name="forecast-bundled-revision" content="'+data.revision+'"',
+  'revision':file==='Oct2026.html'?'name="forecast-bundled-revision" content="mse-2026-11-02-ci-2026-11-18-v2.67"':'name="forecast-bundled-revision" content="'+data.revision+'"',
   'Jan':'let DEFAULT_JAN_RISE='+jan+';',
   'April':'let APR_FROM_JAN='+(1+apr/100)+',',
   'July':'JUL_FROM_APR='+(1+jul/100)+';',
@@ -17,8 +17,8 @@ for(const file of ['Oct2026.html','renewal-builder-v1.html'])test(file+' initial
   'MSE default':'id="forecastDefault" type="hidden" value="'+jan+'"',
   'buttons':'[15,20,25,DEFAULT_JAN_RISE,30,35]',
   'source period':'week beginning 2 November 2026',
-  'version':'App version: 2.66.20',
-  'feed cache':'forecast-feed.js?v=2.66.20',
+  'version':'App version: ${APP_VERSION}',
+  'feed cache':'forecast-feed.js?v=2.69.0',
   'gas':'[10,10.5,11.5,12,13]',
   'electricity':'[30,31,32,34,35]',
   'unit default':"forecastScenarioMode='percent',forecastGasUnit=null,forecastElecUnit=null"

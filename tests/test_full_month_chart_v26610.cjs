@@ -1,5 +1,6 @@
 "use strict";
 const fs=require("node:fs"),vm=require("node:vm"),assert=require("node:assert/strict");
+const ShouldIFixLabelPlacement=require("../chart-label-placement-v2.69.js");
 const mobile=fs.readFileSync("renewal-mobile-experience-v2.66.13.js","utf8");
 const builder=fs.readFileSync("renewal-builder-v1.html","utf8");
 const standalone=fs.readFileSync("Oct2026.html","utf8");
@@ -25,7 +26,7 @@ for(const [name,html] of [["standalone",standalone],["builder",builder]]){
   const code=html.slice(start,end);
   assert.match(code,/m\.fullDays\/m\.days/,name+": normalize edge chart months");
   assert.match(code,/res\.rows\.map/,name+": plot derives a separate array");
-  assert.match(code,/full-calendar-month equivalents/,name+": visible explanatory note");
+  assert.match(code,/full-calendar-month equivalents|full-month-equivalent average/,name+": badge values use full-month-equivalent averages");
   const chart={innerHTML:""};
   const months=[
     {k:"Oct",cal:9,quarter:"2026-Q4",days:1,fullDays:31},
@@ -40,7 +41,7 @@ for(const [name,html] of [["standalone",standalone],["builder",builder]]){
     liveFixedRow:()=>null,safeHtml:x=>x,niceStep:()=>50,
     forecastScenarioValues:()=>[0,15,27,30],
     forecastScenarioMode:'percent',forecastControlMarkup:()=>'<div>scenario buttons</div>',
-    gbp:n=>'£'+Math.round(n),Number,Math
+    gbp:n=>'£'+Math.round(n),Number,Math,ShouldIFixLabelPlacement
   };
   vm.runInNewContext(code+"\ndraw(res,27,{region:{n:11},tariff:'custom',renewal:false},null);",ctx);
   assert.equal(res.rows[0].cap,5,name+": pro-rated model row must remain unchanged");
@@ -50,6 +51,6 @@ for(const [name,html] of [["standalone",standalone],["builder",builder]]){
   const coordinates=[...match[1].matchAll(/[ML]([\d.]+) ([\d.]+)/g)].map(m=>[Number(m[1]),Number(m[2])]);
   assert.equal(coordinates.length,3);
   assert(Math.abs(coordinates[0][1]-coordinates[1][1])<80,name+": first one-day month must look like a whole month");
-  assert(chart.innerHTML.includes("quarterly costs and savings use the actual pro-rated comparison dates"));
+  assert.match(standalone,/Quarterly totals are pro-rated to those dates; chart £\/m values are full-month averages/);
 }
 console.log("PASS: compact vertical overlay and hero tint; omitted budget plot; full-month graph, untouched pro-rated data, standalone and renewal builder");

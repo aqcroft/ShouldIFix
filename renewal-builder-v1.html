@@ -4,9 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="app-version" content="2.66.20">
+<meta name="app-version" content="2.69.0">
 <meta name="forecast-bundled-revision" content="mse-2026-11-02-manual-review">
-<title>Should I Fix - Fixed Tariff Renewal Options v2.66.20</title>
+<title>Should I Fix? Existing customer options</title>
 <meta name="description" content="Compare a fixed energy tariff, Tracker tariff and the Ofgem price cap using your UK region and annual gas and electricity usage, with winter seasonality and 2026/27 forecasts.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://aqcroft.github.io/ShouldIFix/Oct2026.html">
@@ -88,8 +88,12 @@
   html,body{margin:0;padding:0}
   body{font-family:"Nunito",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink);background:var(--bg);line-height:1.5;-webkit-font-smoothing:antialiased}
   .wrap{max-width:760px;margin:0 auto;padding:20px 16px 56px}
-  header.hero{background:var(--grad);color:#fff;border-radius:20px;padding:26px 22px 24px;box-shadow:0 12px 30px rgba(124,58,237,.22)}
-  header.hero h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.7rem,6vw,2.4rem);margin:0 0 6px;letter-spacing:-.01em}
+  header.hero{background:var(--grad);color:#fff;border-radius:20px;padding:20px 22px;box-shadow:0 12px 30px rgba(124,58,237,.22);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  header.hero h1{font-family:"Fraunces",Georgia,serif;font-weight:600;font-size:clamp(1.7rem,6vw,2.4rem);margin:0;letter-spacing:-.01em}
+  .hero .comparison-switch{margin:0;flex:0 0 min(340px,54%);background:#ffffff24;border-color:#ffffff45}
+  .hero .comparison-switch button{color:#fff}
+  .hero .comparison-switch button[aria-pressed="true"]{color:var(--purple-deep)}
+  @media(max-width:520px){header.hero{align-items:stretch;flex-direction:column;gap:9px}.hero .comparison-switch{flex-basis:auto;width:100%}}
   header.hero p{margin:0;opacity:.94;font-size:1rem;font-weight:600}
   header.hero p b{opacity:1;font-weight:800}
   header.hero p .hsrc{color:#fff;opacity:.9;font-weight:700;font-size:.82rem;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
@@ -674,6 +678,10 @@
   .renewal-chart-key .dash i{border-top-style:dashed}
   .renewal-chart-plot{position:relative;width:100%;padding:0}
   .renewal-chart-plot svg{width:100%;height:auto;display:block;overflow:visible}
+  .renewal-cost-tag rect{fill:#fff;fill-opacity:.96;stroke:var(--tag-color);stroke-width:1.5}
+  .renewal-cost-tag text{font:800 14px Nunito,system-ui,sans-serif;text-anchor:middle}
+  .renewal-cost-leader{stroke-width:1.5;stroke-dasharray:2 2;opacity:.72}
+  .renewal-monthly-key{font-size:.72rem;font-weight:800;color:#675b7d;background:#faf7ff;border-radius:8px;padding:4px 7px}
   .renewal-chart-caption{font-size:.71rem;color:var(--muted);line-height:1.55;font-weight:700;margin:10px 0 21px}
   .renewal-table-heading{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap;margin:0 0 10px}
   .renewal-table-heading h3{font:800 1rem Nunito,sans-serif;color:var(--ink);margin:0}
@@ -794,6 +802,13 @@
   .builder-service-switch button[aria-pressed="true"]{background:#553694;color:white;border-color:#553694}
   .builder-usage-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
   .builder-usage{border:1px solid #eee8f4;border-radius:11px;padding:11px 13px;background:#fcfbfe;min-width:0}
+  .builder-usage-provenance{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:-2px 0 8px;font-size:.7rem;font-weight:850;color:#386747}
+  .builder-usage-provenance button{border:0;background:transparent;color:#4e3482;text-decoration:underline;font:800 .68rem Nunito,sans-serif;cursor:pointer;padding:2px}
+  #renewalBuilder .builder-usage-five{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:0}
+  #renewalBuilder .builder-usage-band{border:1px solid #dfd6eb;border-radius:9px;background:#fff;color:#5b4d73;font:850 .72rem Nunito,sans-serif;min-width:0;min-height:39px;cursor:pointer}
+  #renewalBuilder .builder-usage-band[aria-pressed="true"]{background:#eee7fa;border-color:#9b83c4;color:#493474}
+  #renewalBuilder .builder-usage-band:disabled{opacity:.46;cursor:not-allowed}
+  @media(max-width:650px){#renewalBuilder .builder-usage-five{grid-template-columns:repeat(3,minmax(0,1fr))}#renewalBuilder .builder-usage-five .builder-field{grid-column:span 1}}
   .builder-usage-label{display:flex;justify-content:space-between;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;font-size:.8rem}
   .builder-usage-label label{font-weight:800;color:#544666}
   .builder-usage-label strong{color:#4e3482;font-weight:900}
@@ -808,6 +823,20 @@
   .builder-share a[aria-disabled="true"]{pointer-events:none;opacity:.52}
   #builderShareStatus{font-size:.72rem;color:#64566d;font-weight:750}
   .renewal-builder .builder-privacy{font-size:.68rem;margin:12px 0 0}
+  .early-exit-card{margin:14px 0;border:1px solid #dfd7e8;border-radius:12px;background:#fcfbfe;padding:12px}
+  .early-exit-card summary{font-weight:900;color:#493474;cursor:pointer}
+  .early-exit-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:12px}
+  .early-exit-grid label{display:block;font-size:.72rem;font-weight:850;color:#554a65}
+  .early-exit-grid input,.early-exit-grid select{display:block;width:100%;margin-top:4px;min-height:39px;padding:8px;border:1px solid #dcd3e7;border-radius:8px;background:white;font:700 .8rem Nunito,system-ui,sans-serif;color:#332940}
+  .early-exit-fees{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .early-exit-result{margin-top:12px;padding:12px;border:1px solid #d6eadc;border-radius:10px;background:#f4fbf6;color:#284c36;font-size:.78rem;line-height:1.5}
+  .early-exit-result h4{margin:0 0 6px;font-size:.95rem}
+  .early-exit-months{width:100%;border-collapse:collapse;margin-top:9px;font-variant-numeric:tabular-nums;font-size:.69rem}
+  .early-exit-months th,.early-exit-months td{padding:5px 4px;border-top:1px solid #dceade;text-align:right}
+  .early-exit-months th:first-child,.early-exit-months td:first-child{text-align:left}
+  .early-exit-source{margin-top:9px;font-size:.68rem;line-height:1.45;color:#625970}
+  .renewal-date-filter{display:grid;grid-template-columns:minmax(120px,1fr) minmax(220px,2fr);gap:8px;align-items:end}
+  @media(max-width:650px){.early-exit-grid{grid-template-columns:1fr 1fr}.renewal-date-filter{grid-template-columns:1fr}}
   body.renewal-mode #generalControls,body.renewal-mode #usageCard,body.renewal-mode #fixedCard{display:none!important}
   body.renewal-mode #renewalBuilder{display:block}
   .customer-renewal #renewalBuilder{display:none!important}
@@ -887,6 +916,8 @@
 #renewalBuilder .renewal-more-settings{border:1px solid #e5ddf0;background:#fbf9ff;padding:9px 12px;border-radius:11px;margin:10px 0 18px}
 #renewalBuilder .renewal-more-settings>summary{display:flex;justify-content:space-between;gap:8px;align-items:center;flex-wrap:wrap}
 #renewalBuilder #builderSettingsSummary{font-weight:650;color:#796b91;font-size:.72rem}
+#renewalBuilder #builderRegionShortcut{border:0;background:transparent;color:#5b467b;font:850 .68rem Nunito,sans-serif;padding:3px 4px;cursor:pointer;white-space:nowrap}
+#renewalBuilder #builderRegionShortcut:focus-visible{outline:2px solid #7047a9;border-radius:5px}
 #renewalBuilder .builder-share{margin-top:15px}
 #renewalBuilder .renewal-setup{padding:13px 0 0!important;border:0!important;border-top:1px solid #ece6f4!important;background:none!important;border-radius:0!important;margin:11px 0 16px!important}
 #renewalBuilder .renewal-setup h3{font:900 .94rem Nunito,sans-serif}
@@ -945,17 +976,15 @@ body.existing-builder #renewalBuilder{margin:14px auto}
 
 
   <header class="hero">
-    <h1 id="heroHeading">Should I fix or track?</h1>
-    <p id="heroDeck"><b>Compare three routes:</b> stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
+    <h1 id="heroHeading">Should I Fix?</h1>
+    <div class="comparison-switch" id="comparisonSwitch" role="group" aria-label="Customer type">
+      <button type="button" data-compare-mode="standard" aria-pressed="true">Prospective</button>
+      <button type="button" data-compare-mode="renewal" aria-pressed="false">Existing</button>
+    </div>
+    <p id="heroDeck" hidden>Compare three routes: stay on the variable price cap, fix your rates, or track the cap at a discount.</p>
   </header>
 
-  <p class="search-intro" id="mainSearchIntro"><strong>Should you fix your energy tariff?</strong> Compare the latest fixed and Tracker tariffs with the Ofgem price cap, or choose <b>Existing customer - fixed ending</b> for a personalised renewal offer versus the default variable tariff. Both use the same winter-weighted cost model and energy price forecasts.</p>
-
-
-  <div class="comparison-switch" id="comparisonSwitch" role="group" aria-label="Comparison type">
-    <button type="button" data-compare-mode="standard" aria-pressed="true">Current tariffs</button>
-    <button type="button" data-compare-mode="renewal" aria-pressed="false">Existing customer - fixed ending</button>
-  </div>
+  <p class="search-intro" id="mainSearchIntro"><strong>Compare energy tariffs using your region and annual use.</strong> Existing customers can review renewal options or compare changing a fixed tariff now with waiting.</p>
   <section class="card" id="generalControls">
     <h2 class="hidden">Your details</h2>
 
@@ -987,7 +1016,7 @@ body.existing-builder #renewalBuilder{margin:14px auto}
   <section class="card usage-card" id="usageCard">
     <div class="rhead">
       <div class="usage-block">
-        <span class="lab">Set your usage</span>
+        <span class="lab">Your usage</span>
         <div class="usage-pick" id="usageSeg" role="group" aria-label="Choose usage">
           <button type="button" data-band="low" data-e="1600" data-g="6000" data-eh="1900">Low</button>
           <button type="button" data-band="med" data-e="2500" data-g="9500" data-eh="3400" aria-pressed="true">Med</button>
@@ -1014,8 +1043,8 @@ body.existing-builder #renewalBuilder{margin:14px auto}
           <option value="1">Energy only</option><option value="2">Energy + 1 service</option><option value="3" selected>Energy + 2 services</option>
         </select>
       </div>
-      <div class="field"><label for="renewalEnding">Fixed tariff coming to an end</label>
-        <select id="renewalEnding"><option value="">Loading historical tariffs…</option></select>
+      <div class="field"><label for="renewalEndingMonth">When does your current fix end?</label>
+        <div class="renewal-date-filter"><input id="renewalEndingMonth" type="month" aria-label="Filter tariffs by fixed end month"/><select id="renewalEnding"><option value="">Loading historical tariffs…</option></select></div>
       </div>
       <div class="field"><label for="renewalVariable">Variable tariff if no action</label>
         <select id="renewalVariable"><option value="">Loading variable tariffs…</option></select>
@@ -1033,6 +1062,45 @@ body.existing-builder #renewalBuilder{margin:14px auto}
       <div class="body" id="renewalAudit">Earlier versions will be shown when the archive contains them.</div>
     </details>
     <p class="renewal-help">Future variable costs use the existing January, April and July forecast model. Actual changes to UW's variable tariff may differ. Estimated costs are not Direct Debit amounts or a guarantee of future prices.</p>
+    <details id="earlyExitPanel" class="early-exit-card">
+      <summary>Change my fix now or wait?</summary>
+      <p class="renewal-help">Compare keeping your current fix, changing to the selected available fix from the first day of the month after processing, and waiting to a date you choose. Future fixed rates are assumptions you enter. This is not a recommendation to leave a fix.</p>
+      <div class="early-exit-grid">
+        <label for="earlyProcessDate">Request / processing date
+          <input id="earlyProcessDate" type="date"/>
+        </label>
+        <label for="earlyWaitDate">Wait request date
+          <input id="earlyWaitDate" type="date"/>
+        </label>
+        <label for="earlyCompareEnd">Compare costs through
+          <input id="earlyCompareEnd" type="date"/>
+        </label>
+        <label for="earlyFutureEnd">Assumed future fix ends
+          <input id="earlyFutureEnd" type="date"/>
+        </label>
+        <label for="earlyFeeStatus">Exit-fee status
+          <select id="earlyFeeStatus"><option value="assumed-fee">Assume £75 per fuel applies</option><option value="confirmed-free">Fee-free confirmed for this tariff</option><option value="confirmed-other">Waived / other fee confirmed</option><option value="unconfirmed">Not confirmed - check with UW</option></select>
+        </label>
+      </div>
+      <div class="early-exit-grid early-exit-fees">
+        <label for="earlyElecFee">Electricity exit fee (£)
+          <input id="earlyElecFee" type="number" min="0" max="1000" step="1" value="75"/>
+        </label>
+        <label for="earlyGasFee">Gas exit fee (£)
+          <input id="earlyGasFee" type="number" min="0" max="1000" step="1" value="75"/>
+        </label>
+      </div>
+      <h4>Assumed future fixed rates</h4>
+      <p class="renewal-help">Enter the relevant future fuel rates in p/kWh and p/day, excluding VAT. These fields stay blank until you enter your own assumptions. We do not have verified future UW fixed rates.</p>
+      <div class="early-exit-grid">
+        <label for="earlyFutureEU">Electricity unit (p/kWh)<input id="earlyFutureEU" type="number" min="0" max="150" step="0.00001"/></label>
+        <label for="earlyFutureESC">Electricity standing (p/day)<input id="earlyFutureESC" type="number" min="0" max="300" step="0.00001"/></label>
+        <label for="earlyFutureGU">Gas unit (p/kWh)<input id="earlyFutureGU" type="number" min="0" max="50" step="0.00001"/></label>
+        <label for="earlyFutureGSC">Gas standing (p/day)<input id="earlyFutureGSC" type="number" min="0" max="300" step="0.00001"/></label>
+      </div>
+      <div id="earlyExitResult" class="early-exit-result" role="status" aria-live="polite">Choose a verified expiring fix and an available fix, enter future rate assumptions and confirm how exit fees apply to see a like-for-like comparison.</div>
+      <div class="early-exit-source">Tariff selection and fee treatment must be confirmed for your contract. UW says energy exit fees may apply: <a href="https://help.uw.co.uk/article/energy/about_my_bill/ive-been-charged-exit-fees-for-energy-what-is-this" target="_blank" rel="noopener">UW exit-fee help</a>. Switching guidance: <a href="https://www.moneysavingexpert.com/utilities/how-to-switch-energy-suppliers/" target="_blank" rel="noopener">MoneySavingExpert</a> and <a href="https://www.citizensadvice.org.uk/consumer/energy/energy-supply/get-a-better-energy-deal/switching-energy-supplier/" target="_blank" rel="noopener">Citizens Advice</a>. The 49-day date is an eligibility reference, not confirmation of an internal UW fee waiver.</div>
+    </details>
   </section>
 
   <input id="janRise" type="hidden" value="28.8"><input id="forecastDefault" type="hidden" value="28.8">
@@ -1121,12 +1189,16 @@ body.existing-builder #renewalBuilder{margin:14px auto}
     <input id="renewalBudgetMonthly" type="hidden" value=""/>
 
     <div class="renewal-simple-step">
-      <h3><span class="renewal-simple-number">3</span> Estimated annual usage</h3>
-      <div class="renewal-simple-usage builder-form-grid" id="builderExactUsage">
-        <label class="builder-field" for="builderElecExact">⚡ Electricity <span>(kWh/year)</span>
+      <h3><span class="renewal-simple-number">3</span> Your usage <button type="button" id="builderRegionShortcut" aria-controls="builderOptionalSettings">East Midlands ✎</button></h3>
+      <div class="builder-usage-provenance"><span id="builderUsageOrigin" class="hidden" role="status">From Appointment Companion</span><button type="button" id="builderEditUsage" class="hidden">✎ Edit imported usage</button><button type="button" id="builderRestoreUsage" class="hidden">Restore imported figures</button></div>
+      <div class="renewal-simple-usage builder-usage-five" id="builderExactUsage">
+        <button type="button" class="builder-usage-band" data-e="1600" data-g="6000" data-eh="1900">Low</button>
+        <button type="button" class="builder-usage-band" data-e="2500" data-g="9500" data-eh="3400">Med</button>
+        <button type="button" class="builder-usage-band" data-e="3800" data-g="14000" data-eh="6100">High</button>
+        <label class="builder-field" id="builderElecExactWrap" for="builderElecExact">⚡ Electricity <span>(kWh/year)</span>
           <input id="builderElecExact" type="number" min="0" max="200000" step="1" inputmode="numeric" placeholder="e.g. 3000"/>
         </label>
-        <label class="builder-field" for="builderGasExact">🔥 Gas <span>(kWh/year)</span>
+        <label class="builder-field" id="builderGasExactWrap" for="builderGasExact">🔥 Gas <span>(kWh/year)</span>
           <input id="builderGasExact" type="number" min="0" max="300000" step="1" inputmode="numeric" placeholder="e.g. 12500"/>
         </label>
       </div>
@@ -1509,7 +1581,10 @@ body.existing-builder #renewalBuilder{margin:14px auto}
   </div>
 </div>
 
+<script src="./early-exit-engine-v2.69.js?v=2.69.0"></script>
+<script src="./chart-label-placement-v2.69.js?v=2.69.0"></script>
 <script>
+const APP_VERSION=document.querySelector('meta[name="app-version"]')?.content||"2.69.0";
 "use strict";
 
 /* ---------- DATA (Direct Debit) ----------
@@ -1753,15 +1828,45 @@ function renewalOptionsFor(id){
   });
   return [...byKey.values()].sort((a,b)=>{
     if(id==="renewalVariable")return renewalRawName(a).localeCompare(renewalRawName(b));
+    if(id==="renewalEnding")return (Date.parse(a.fixed_end_date||a.contract_end_date||"")||Infinity)-
+      (Date.parse(b.fixed_end_date||b.contract_end_date||"")||Infinity)||
+      renewalRawName(a).localeCompare(renewalRawName(b))||renewalVersionPreference(b)-renewalVersionPreference(a);
     const na=Number(renewalRawName(a).match(/\d+$/)?.[0]||0),nb=Number(renewalRawName(b).match(/\d+$/)?.[0]||0);
     return nb-na||renewalVersionPreference(b)-renewalVersionPreference(a);
   });
 }
+function renewalEndingOptionsForDate(){
+  const all=renewalOptionsFor("renewalEnding");
+  const month=document.getElementById("renewalEndingMonth")?.value||"";
+  const match=month.match(/^(\d{4})-(\d{2})$/);
+  let rows=all;
+  if(match)rows=rows.filter(row=>{
+    const end=renewalEndTimestamp(row);
+    return end!==null&&new Date(end).toISOString().slice(0,7)===month;
+  });
+  // A forward comparison uses the effective version valid at the selected
+  // expiry month. Keep the other rate versions in the archive for audit.
+  if(match&&month>="2026-04"){
+    const post=rows.filter(row=>row.rate_version_code==="POST_APR_2026");
+    if(post.length)rows=post;
+  }
+  if(match&&month<"2026-04"){
+    const pre=rows.filter(row=>row.rate_version_code==="PRE_APR_2026");
+    if(pre.length)rows=pre;
+  }
+  return rows;
+}
 function renewalSetOptions(id){
   const el=document.getElementById(id),before=renewalUserChoices[id]||el.value;
-  const candidates=renewalOptionsFor(id);
+  const candidates=id==="renewalEnding"?renewalEndingOptionsForDate():renewalOptionsFor(id);
   const preferred=renewalPendingSelections&&renewalPendingSelections[id];
-  const options=candidates.map(row=>({value:renewalRowKey(row),label:renewalDisplayName(row)}));
+  const options=candidates.map(row=>{
+    const end=renewalEndTimestamp(row),version=row.rate_version_code==="POST_APR_2026"?"post-April 2026 rates":
+      row.rate_version_code==="PRE_APR_2026"?"pre-April 2026 rates":"";
+    const source=id==="renewalEnding"?(row.source_ref||row.sourceRef||"source not listed"):"";
+    const date=end?" - ends "+new Date(end).toLocaleDateString("en-GB",{month:"long",year:"numeric",timeZone:"UTC"}):"";
+    return {value:renewalRowKey(row),label:renewalDisplayName(row)+date+(version?" - "+version:"")+(source?" - "+source:"")};
+  });
   el.replaceChildren();
   if(!options.length){
     const o=document.createElement("option");o.value="";o.textContent="Tariff not in catalogue";el.appendChild(o);return;
@@ -2024,11 +2129,18 @@ function renewalPublicSeries(){
   return numbers.length?Math.max(...numbers):null;
 }
 function renewalLikelyEnding(){
-  const start=parseContractEnd(renewalStartDate())?.getTime()||0;
-  const options=renewalOptionsFor("renewalEnding");
-  return [66,65].map(n=>options.filter(row=>renewalFixedNumber(row)===n&&renewalEndTimestamp(row)!==null&&
-    Math.abs((renewalEndTimestamp(row)-start)/86400000)<=120)
-    .sort((a,b)=>renewalVersionPreference(b)-renewalVersionPreference(a)||renewalSourceDate(b)-renewalSourceDate(a))[0]).filter(Boolean);
+  const today=todayUTC().getTime(),limit=today+240*DAY_MS;
+  const rows=renewalOptionsFor("renewalEnding").filter(row=>{
+    const end=renewalEndTimestamp(row);
+    return end!==null&&end>=today&&end<=limit&&!!row.tariff_version_id;
+  });
+  const unique=new Map();
+  for(const row of rows){
+    const key=renewalNameKey(row)+"|"+renewalEndTimestamp(row),prior=unique.get(key);
+    if(!prior||renewalVersionPreference(row)>renewalVersionPreference(prior))unique.set(key,row);
+  }
+  return [...unique.values()].sort((a,b)=>renewalEndTimestamp(a)-renewalEndTimestamp(b)||
+    renewalVersionPreference(b)-renewalVersionPreference(a)).slice(0,3);
 }
 function renewalSelectEnding(key){
   const row=renewalFindRow(key);
@@ -2091,8 +2203,8 @@ function renewalUpdateQuickPicks(){
     button.addEventListener("click",()=>renewalSelectEnding(key));
     endButtons.appendChild(button);
   }
-  if(!ends.length)endButtons.textContent="66 / 65 unavailable";
-  const all=renewalOptionsFor("renewalEnding");
+  if(!ends.length)endButtons.textContent="No verified tariff expiry dates within the next eight months.";
+  const all=renewalEndingOptionsForDate();
   dropdown.replaceChildren();
   const blank=document.createElement("option");blank.value="";blank.textContent="Choose a historical fixed tariff";dropdown.appendChild(blank);
   all.forEach(row=>{
@@ -2339,7 +2451,7 @@ function renewalQuarterGeometry(months){
   return {labelWidth,quarterWidths,monthX,edges,groups:groups.map(g=>g.key)};
 }
 function renewalFullChart(s,old,variable,fix99,fix100){
-  const W=690,H=325,L=130,R=0,T=24,B=39,months=MONTHS;
+  const W=690,H=325,L=130,R=0,T=64,B=39,months=MONTHS;
   const quarterLayout=renewalQuarterGeometry(months);
   const all=[old,variable,fix99,fix100].filter(Array.isArray).flat();
   const min=Math.min(...all),max=Math.max(...all);
@@ -2379,11 +2491,27 @@ function renewalFullChart(s,old,variable,fix99,fix100){
   const variablePath=line(variable,colors.variable);
   const dots=(values,color)=>values.map((v,i)=>'<circle cx="'+x(i).toFixed(1)+'" cy="'+y(v).toFixed(1)+
     '" r="3" fill="#fff" stroke="'+color+'" stroke-width="2"><title>'+months[i].k+': '+gbp(v)+'</title></circle>').join("");
+  // Monthly pastel tags show the same full-calendar-month-equivalent averages as the legend.
+  const tagValues={...(old?{old:old}:{}),variable,offer:fix99,public:fix100};
+  const plottedSeries=Object.entries(tagValues).map(([key,values])=>({key,
+    points:values.map((value,index)=>[x(index),y(value)])}));
+  const costTagMarkup=ShouldIFixLabelPlacement.place(plottedSeries,plottedSeries,{
+    width:W,height:H,plotTop:T,plotBottom:H-B,plotLeft:L,boxWidth:92,boxHeight:31,pathClearance:5,gap:5
+  }).map(tag=>{
+    const color=tag.key==="old"?colors.old:colors[tag.key],values=tagValues[tag.key];
+    const average=values.reduce((a,b)=>a+b,0)/values.length;
+    const name=tag.key==="old"?"Previous tariff":tag.key==="variable"?s.variableName:tag.key==="offer"?renewalRawName(fix99):renewalRawName(fix100);
+    const leader=tag.leader?'<line class="renewal-cost-leader" x1="'+tag.anchorX.toFixed(1)+'" y1="'+tag.anchorY.toFixed(1)+
+      '" x2="'+tag.x.toFixed(1)+'" y2="'+tag.y.toFixed(1)+'" stroke="'+color+'"/>':'';
+    return leader+'<g class="renewal-cost-tag" style="--tag-color:'+color+'"><title>'+safeHtml(name)+' average '+gbp(average)+' per month</title><rect x="'+
+      (tag.x-tag.w/2).toFixed(1)+'" y="'+(tag.y-tag.h/2).toFixed(1)+'" width="'+tag.w.toFixed(1)+'" height="'+tag.h.toFixed(1)+
+      '" rx="8"/><text x="'+tag.x.toFixed(1)+'" y="'+(tag.y+5).toFixed(1)+'" fill="'+color+'">'+gbp(average)+'/m</text></g>';
+  }).join("");
   const svg='<svg viewBox="0 0 '+W+' '+H+'" data-quarter-edges="'+quarterLayout.edges.map(v=>v.toFixed(2)).join(',')+'" role="img" aria-label="Monthly energy costs by tariff">'+grid.join("")+
     quarterBoundaries+quarterForecastLabels+
     (old?line(old,colors.old,'stroke-dasharray="2 5"'):'')+
     variablePath+line(fix99,colors.offer)+line(fix100,colors.public,'stroke-dasharray="7 4"')+
-    (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+
+    (old?dots(old,colors.old):"")+dots(variable,colors.variable)+dots(fix99,colors.offer)+dots(fix100,colors.public)+costTagMarkup+
     // Monthly and yearly costs are shown in the responsive colour-coded legend above.
     labels+'</svg>';
   const original=renewalManualOldRates();
@@ -2394,8 +2522,13 @@ function renewalFullChart(s,old,variable,fix99,fix100){
     ["offer",renewalRawName(renewalSelectedRows().offered),true],
     ["public",renewalRawName(renewalSelectedRows().public),true]
   ];
-  document.getElementById("renewalLineLegend").innerHTML=legends.filter(r=>r[2]).map(([key,label])=>
-    '<span class="'+(key==="old"?"dash":"")+'" style="--lc:'+colors[key]+'"><i aria-hidden="true"></i>'+safeHtml(label)+'</span>').join("");
+  const legendOrder=legends.filter(r=>r[2]);
+  const history=legendOrder.find(row=>row[0]==="old");
+  const costOrder=legendOrder.filter(row=>row[0]!=="old").sort((a,b)=>
+    (tagValues[b[0]]||[]).reduce((sum,v)=>sum+v,0)-(tagValues[a[0]]||[]).reduce((sum,v)=>sum+v,0));
+  document.getElementById("renewalLineLegend").innerHTML=(history?[history]:[]).concat(costOrder).map(([key,label])=>
+    '<span class="'+(key==="old"?"dash":"")+'" style="--lc:'+colors[key]+'"><i aria-hidden="true"></i>'+safeHtml(key==="variable"?s.variableName:label)+'</span>').join("")+
+    '<span class="renewal-monthly-key">Monthly average</span>';
   document.getElementById("renewalFourLineChart").innerHTML=svg;
   document.getElementById("renewalFourLineChart").setAttribute("aria-label",
     "Monthly comparison: "+(old?"previous fixed tariff, ":"")+
@@ -2534,10 +2667,78 @@ function renderRenewalStory(s){
       "The grey previous-year line uses your original confirmation-email rates throughout, ignoring any subsequent price adjustments. ":
       "The grey previous-year line uses dated archive records, including rate revisions. ")+
     "Previous-year monthly costs are modelled at the selected rates and usage. "+
-    "Annual / monthly equivalent costs are not Direct Debit instalments. "+
+    "The pastel £/m chart tags are full-month-equivalent averages, not peak-month bills or Direct Debit instalments. "+
     (renewalCatalogueSource==="demo"?"DEMONSTRATION ONLY - these tariff rates are made up.":
      renewalCatalogueSource==="snapshot"?"Rates from the UW_Tariff_Data snapshot dated 26 Oct 2026, not live. Confirm current prices before switching.":
      "Prices loaded from the published UW tariff feed. Check the individual renewal offer before accepting.");
+}
+function earlyExitRateInputs(mode){
+  const values=["earlyFutureEU","earlyFutureESC","earlyFutureGU","earlyFutureGSC"].map(id=>{
+    const raw=document.getElementById(id).value.trim();return raw===""?null:Number(raw);
+  });
+  const required=mode==="gas"?[2,3]:mode==="elec"?[0,1]:[0,1,2,3];
+  if(required.some(i=>values[i]===null||!Number.isFinite(values[i])||values[i]<0))return null;
+  return {eU:values[0],eSC:values[1],gU:values[2],gSC:values[3]};
+}
+function earlyExitTable(result){
+  const rows=result.paths.keep.months,now=result.paths.now.months,wait=result.paths.wait.months;
+  const monthName=m=>new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric",timeZone:"UTC"}).format(new Date(Date.UTC(m.year,m.month,1)));
+  return '<div style="overflow-x:auto"><table class="early-exit-months"><thead><tr><th>Month</th><th>Keep current fix</th><th>Change now</th><th>Wait then refix</th></tr></thead><tbody>'+rows.map((m,i)=>
+    '<tr><th scope="row">'+monthName(m)+'</th><td>'+gbp(m.total)+'</td><td>'+gbp(now[i].total)+'</td><td>'+gbp(wait[i].total)+'</td></tr>').join("")+
+    '<tr><th scope="row">Period total</th><td><b>'+gbp(result.paths.keep.total)+'</b></td><td><b>'+gbp(result.paths.now.total)+'</b></td><td><b>'+gbp(result.paths.wait.total)+'</b></td></tr></tbody></table></div>';
+}
+function earlyExitResultMessage(s){
+  const box=document.getElementById("earlyExitResult"),panel=document.getElementById("earlyExitPanel");
+  if(!panel.open){box.textContent="Open this optional comparison to compare keeping your current fix, changing now, or waiting to a date you choose.";return;}
+  if(renewalCatalogueSource!=="live"||renewalFeedStatus!=="ready"){
+    box.textContent=renewalCatalogueSource==="snapshot"?
+      "This comparison needs live, verified tariff records. The East Midlands catalogue currently offers only a dated 26 October 2026 snapshot, so costs are not shown.":
+      "This comparison needs live, verified tariff records. No prices are shown while the tariff feed is unavailable.";return;
+  }
+  const rows=renewalSelectedRows(),old=rows.ending,newFix=rows.public,variable=rows.variable;
+  const required=[old,newFix,variable].every(row=>row&&standardFixedRate(row)&&row.tariff_version_id&&Number(row.region_no)===+document.getElementById("region").value);
+  const expiry=old&&renewalEndTimestamp(old),newExpiry=newFix&&renewalEndTimestamp(newFix);
+  if(!required||!expiry||!newExpiry){box.textContent="Select an expiring fixed tariff with a verified exact end date, and a live available fixed tariff with a verified end date. The selected UW variable tariff is also required for the keep / later paths.";return;}
+  const request=document.getElementById("earlyProcessDate"),waitRequest=document.getElementById("earlyWaitDate"),endInput=document.getElementById("earlyCompareEnd"),futureEnd=document.getElementById("earlyFutureEnd"),now=todayUTC();
+  if(!request.value)request.value=renewalISO(now);
+  if(!waitRequest.value)waitRequest.value=renewalISO(new Date(Math.max(now.getTime(),expiry-49*DAY_MS)));
+  if(!endInput.value)endInput.value=renewalISO(new Date(newExpiry));
+  const todayValue=renewalISO(now);
+  if(request.value<todayValue||waitRequest.value<todayValue){box.textContent="Use today or a future date for both processing-date inputs. Past changes cannot be compared as a decision scenario.";return;}
+  if(endInput.value<todayValue){box.textContent="Choose today or a future comparison end date.";return;}
+  if(expiry<now.getTime()){box.textContent="The selected fixed tariff has already expired, so an early-exit comparison is not available.";return;}
+  if(ShouldIFixEarlyExit.iso(ShouldIFixEarlyExit.firstNextMonth(request.value))>renewalISO(new Date(newExpiry))){box.textContent="The selected available fix expires before it would take effect. Choose another verified offer.";return;}
+      if(!futureEnd.value){box.textContent="Enter the assumed end date of the future fixed tariff. The comparison uses the selected tariff's verified end date, plus this explicit future term, and applies the selected variable rate after either fix ends.";return;}
+  if(futureEnd.value<=renewalISO(ShouldIFixEarlyExit.firstNextMonth(waitRequest.value))){box.textContent="The assumed future fix must remain in force after its effective start date.";return;}
+  const futureRate=earlyExitRateInputs(s.mode);
+  if(!futureRate){box.textContent="Enter future fixed rate assumptions for each selected fuel (p/kWh and p/day, excluding VAT) to compare the wait-then-refix path. No future UW quote is available in the tariff feed.";return;}
+  const feeStatus=document.getElementById("earlyFeeStatus").value;
+  if(feeStatus==="unconfirmed"){
+    box.textContent="Exit-fee treatment is not confirmed for this contract. No winner or after-fee comparison is shown. Check the tariff terms or confirm the amount with UW, then choose the matching fee status.";return;
+  }
+  try{
+    const result=ShouldIFixEarlyExit.compare({startDate:renewalISO(now),endDate:endInput.value,
+      expiryDate:renewalISO(new Date(expiry)),newExpiryDate:renewalISO(new Date(newExpiry)),futureExpiryDate:futureEnd.value,
+      processDate:request.value,waitProcessDate:waitRequest.value,mode:s.mode,electricHeat:s.electricHeat,
+      elecKwh:s.elecY,gasKwh:s.gasY,elecWeights:ELEC_W,gasWeights:GAS_W,dualFuelDiscountPDay:DISCOUNT,
+      oldRate:standardFixedRate(old),newRate:standardFixedRate(newFix),variableRate:standardFixedRate(variable),futureRate,
+      feeStatus,elecFee:document.getElementById("earlyElecFee").value,gasFee:document.getElementById("earlyGasFee").value});
+    const difference=result.differenceNowVsWait,answer=Math.abs(difference)<.01?"Changing now and waiting have the same modelled period cost.":difference>0?
+      "Changing now would cost "+gbp(difference)+" more than waiting, after the stated fees.":"Changing now would save "+gbp(-difference)+" against waiting, after the stated fees.";
+    const feeNote=feeStatus==="assumed-fee"?"£75 per selected fuel is assumed, not confirmed by your contract.":
+      feeStatus==="confirmed-free"?"Fee-free status is recorded as confirmed for this contract.":"The entered waived / other fee amount is recorded as confirmed.";
+    const breakEven=result.breakEvenFutureRateRisePct===null?
+      (difference<=0?"At these inputs, changing now is already no more expensive than waiting.":"No break-even was reached within the 400% rate sensitivity range."):
+      "Under the chosen sensitivity (all four assumed future rate components rise together), future fixed rates would need to rise by about "+result.breakEvenFutureRateRisePct.toFixed(1)+"% for changing now to match waiting.";
+    box.innerHTML='<h4>'+safeHtml(answer)+'</h4><div>Request processed '+safeHtml(result.dates.request)+'; new fix starts '+safeHtml(result.dates.changeEffective)+'. Current fix ends '+safeHtml(result.dates.expiry)+'. The 49-day reference date is '+safeHtml(result.dates.feeFreeThreshold)+'. Compare through '+safeHtml(result.dates.end)+'.</div><div style="margin-top:5px"><b>Exit-fee impact:</b> '+safeHtml(feeNote)+' Fees are counted once in the month the new fix takes effect. Change now: electricity '+gbp(result.paths.now.fees.e||0)+', gas '+gbp(result.paths.now.fees.g||0)+'. Wait then refix: electricity '+gbp(result.paths.wait.fees.e||0)+', gas '+gbp(result.paths.wait.fees.g||0)+'.</div><div style="margin-top:5px">'+safeHtml(breakEven)+'</div>'+earlyExitTable(result)+'<div style="margin-top:8px"><button type="button" id="copyEarlyExitSummary">Copy WhatsApp summary</button> <button type="button" id="copyEarlyExitLink">Copy non-sensitive comparison link</button></div><div class="early-exit-source">Modelled using verified UW tariff rates, monthly seasonal usage, day-prorated standing charges and fuel-specific VAT. Existing fixes stay at their selected fixed rates until expiry. Future fixed rates are manual assumptions; a fee-free 49-day window is not assumed unless confirmed above.</div>';
+    document.getElementById("copyEarlyExitSummary").addEventListener("click",async()=>{
+      const url=buildShareUrl(s),message="Should I Fix? early-exit comparison: "+answer+" Period to "+result.dates.end+". This is an estimate using selected tariff rates and stated exit-fee assumptions. "+url;
+      try{await navigator.clipboard.writeText(message);document.getElementById("copyEarlyExitSummary").textContent="Summary copied";}catch(_){document.getElementById("copyEarlyExitSummary").textContent="Copy failed";}
+    });
+    document.getElementById("copyEarlyExitLink").addEventListener("click",async()=>{
+      try{await navigator.clipboard.writeText(buildShareUrl(s));document.getElementById("copyEarlyExitLink").textContent="Link copied";}catch(_){document.getElementById("copyEarlyExitLink").textContent="Copy failed";}
+    });
+  }catch(error){box.textContent="Comparison unavailable: "+String(error.message||error)+". No missing tariff rates are filled in.";}
 }
 function renewalAnnualEquivalent(row,s){
   const rate=standardFixedRate(row);
@@ -2780,10 +2981,10 @@ function liveTrackerSeries(){
 }
 function bundleCopy(tariff){
   const fs=liveFixedSeries(), ts=liveTrackerSeries();
-  if(tariff==="start") return {label:"1 service",pair:"Fixed Start "+fs+" + Tracker Start "+ts};
-  if(tariff==="fixed") return {label:"2 services",pair:"Fixed "+fs+" + Tracker Plus "+ts};
+  if(tariff==="start") return {label:"Energy only",pair:"Fixed Start "+fs+" + Tracker Start "+ts};
+  if(tariff==="fixed") return {label:"Energy + 1 service",pair:"Fixed "+fs+" + Tracker Plus "+ts};
   if(tariff==="custom") return {label:"Own fixed tariff",pair:"Custom fix + Tracker Saver "+ts};
-  return {label:"3 services",pair:"Fixed Saver "+fs+" + Tracker Saver "+ts};
+  return {label:"Energy + 2 services",pair:"Fixed Saver "+fs+" + Tracker Saver "+ts};
 }
 function updateBundleChoiceCopy(tariff){
   const x=bundleCopy(tariff);
@@ -3508,6 +3709,7 @@ function draw(res,janRise,s,tracker){
 let lastBand={e:2500,g:9500};
 let lastCustom={e:2500,g:9500};
 let customTouched=false;
+let importedCompanionUsage=null,companionUsageOverride=false;
 let tariffPanelOpen=false;
 let quarterUsageExpanded=false;
 function toggleQuarterUsageRows(){
@@ -3615,13 +3817,16 @@ function builderRefreshInputs(){
   document.getElementById("builderRegion").value=region.value;
   document.getElementById("builderStart").value=renewalStartDate().slice(0,7);
   const summary=document.getElementById("builderSettingsSummary");
-  if(summary)summary.textContent=(REGIONS.find(r=>r.n===Number(region.value))?.name||"Choose region")+
-    " · "+(["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]||"Choose services");
+  const regionName=(REGIONS.find(r=>r.n===Number(region.value))?.name||"Choose region").replace(/\s*\(\d+\)$/,"" );
+  if(summary)summary.textContent=regionName+" · "+
+    (["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]||"Choose services");
+  const shortcut=document.getElementById("builderRegionShortcut");
+  if(shortcut)shortcut.textContent=regionName+" ✎";
   document.getElementById("builderServiceSwitch").querySelectorAll("button").forEach(button=>
     button.setAttribute("aria-pressed",String(button.dataset.svc===renewalTier())));
-  for(const [key,range,exact,label,container] of [
-    ["elec","builderElecRange","builderElecExact","builderElecValue","builderElecWrap"],
-    ["gas","builderGasRange","builderGasExact","builderGasValue","builderGasWrap"]
+  for(const [key,range,exact,label,sliderWrap,exactWrap] of [
+    ["elec","builderElecRange","builderElecExact","builderElecValue","builderElecWrap","builderElecExactWrap"],
+    ["gas","builderGasRange","builderGasExact","builderGasValue","builderGasWrap","builderGasExactWrap"]
   ]){
     const v=Math.max(0,+document.getElementById(key).value||0);
     const slider=document.getElementById(range);
@@ -3629,12 +3834,29 @@ function builderRefreshInputs(){
     slider.value=String(bounded);
     document.getElementById(exact).value=String(v);
     document.getElementById(label).textContent=v.toLocaleString("en-GB");
-    document.getElementById(container).hidden=
-      (document.querySelector('#fuelSeg button[aria-pressed="true"]')?.dataset.mode===
-       (key==="gas"?"elec":"gas"));
+    const hidden=document.querySelector('#fuelSeg button[aria-pressed="true"]')?.dataset.mode===
+       (key==="gas"?"elec":"gas");
+    document.getElementById(sliderWrap).hidden=hidden;
+    document.getElementById(exactWrap).hidden=hidden;
   }
+  const origin=document.getElementById("builderUsageOrigin"),edit=document.getElementById("builderEditUsage"),restore=document.getElementById("builderRestoreUsage");
+  const locked=!!importedCompanionUsage&&!companionUsageOverride;
+  if(origin){origin.textContent=importedCompanionUsage?(companionUsageOverride?"Edited from Appointment Companion":"From Appointment Companion"):"";origin.classList.toggle("hidden",!importedCompanionUsage);}
+  if(edit)edit.classList.toggle("hidden",!importedCompanionUsage||companionUsageOverride);
+  if(restore)restore.classList.toggle("hidden",!importedCompanionUsage||!companionUsageOverride);
+  for(const id of ["builderElecExact","builderGasExact","builderElecRange","builderGasRange"]){const el=document.getElementById(id);if(el)el.disabled=locked;}
+  document.querySelectorAll("#builderUsageAdjust .builder-step").forEach(button=>button.disabled=locked);
+  const mode=document.querySelector('#fuelSeg button[aria-pressed="true"]')?.dataset.mode||"dual",heat=document.getElementById("electricHeat").checked;
+  document.querySelectorAll(".builder-usage-band").forEach(button=>{
+    const e=mode==="elec"&&heat?+button.dataset.eh:+button.dataset.e;
+    const g=mode==="elec"?0:+button.dataset.g;
+    button.disabled=locked;
+    button.setAttribute("aria-pressed",String((mode==="gas"||e===(+document.getElementById("elec").value||0))&&
+      (mode==="elec"||g===(+document.getElementById("gas").value||0))));
+  });
 }
 function builderSetUsage(type,value){
+  if(importedCompanionUsage&&!companionUsageOverride)return;
   const n=Number(value);
   const maximum=type==="elec"?200000:300000;
   if(!Number.isFinite(n)||n<0||n>maximum||!Number.isInteger(n))return;
@@ -3681,7 +3903,7 @@ function buildShareUrl(s){
     p.set("renew","1");
     p.set("ct",builderCurrentMode);
     const name=builderName();
-    if(name)p.set("cn",name);
+    if(name&&!document.getElementById("earlyExitPanel").open)p.set("cn",name);
     p.set("svc",renewalTier());
     p.set("ending",document.getElementById("renewalEnding").value);
     p.set("variable",document.getElementById("renewalVariable").value);
@@ -3697,6 +3919,15 @@ function buildShareUrl(s){
       p.set("oeu",old.eU);p.set("oes",old.eSC);
       p.set("ogu",old.gU);p.set("ogs",old.gSC);
       p.set("ot",renewalOldSourceTier||renewalTier());
+    }
+    if(importedCompanionUsage&&!companionUsageOverride){p.set("companion","1");p.set("usageSource","companion");}
+    if(document.getElementById("earlyExitPanel").open){
+      p.set("ex","1");
+      for(const [param,id] of [["exd","earlyProcessDate"],["exw","earlyWaitDate"],["exe","earlyCompareEnd"],
+        ["exfe","earlyFutureEnd"],["exs","earlyFeeStatus"],["exee","earlyElecFee"],["exge","earlyGasFee"],
+        ["exeu","earlyFutureEU"],["exes","earlyFutureESC"],["exgu","earlyFutureGU"],["exgs","earlyFutureGSC"]]){
+        const value=document.getElementById(id).value;if(value!=="")p.set(param,value);
+      }
     }
   }
   if(!s.renewal&&s.tariff==="custom"){
@@ -3747,10 +3978,28 @@ function readParams(){
     }
     if(["1","2","3"].includes(P.get("ot")))renewalOldSourceTier=P.get("ot");
     if(P.has("oeu")||P.has("ogu"))document.getElementById("renewalManualDetails").open=true;
+    if(P.get("ex")==="1"){
+      document.getElementById("earlyExitPanel").open=true;
+      for(const [param,id] of [["exd","earlyProcessDate"],["exw","earlyWaitDate"],["exe","earlyCompareEnd"],
+        ["exfe","earlyFutureEnd"],["exs","earlyFeeStatus"],["exee","earlyElecFee"],["exge","earlyGasFee"],
+        ["exeu","earlyFutureEU"],["exes","earlyFutureESC"],["exgu","earlyFutureGU"],["exgs","earlyFutureGSC"]])
+        if(P.has(param))document.getElementById(id).value=P.get(param);
+    }
   }
   if(P.has("f")){const m=P.get("f");document.querySelectorAll('#fuelSeg button').forEach(b=>b.setAttribute("aria-pressed",b.dataset.mode===m?"true":"false"));}
   if(P.has("e")) document.getElementById("elec").value=P.get("e");
   if(P.has("g")) document.getElementById("gas").value=P.get("g");
+  if(P.get("companion")==="1"&&P.get("usageSource")==="companion"){
+    const mode=document.querySelector('#fuelSeg button[aria-pressed="true"]')?.dataset.mode||"dual";
+    const eRaw=P.get("e"),gRaw=P.get("g"),e=Number(eRaw),g=Number(gRaw);
+    const validE=mode==="gas"||(eRaw!==null&&Number.isFinite(e)&&e>0&&e<=200000);
+    const validG=mode==="elec"||(gRaw!==null&&Number.isFinite(g)&&g>0&&g<=300000);
+    if(validE&&validG){
+      importedCompanionUsage={e:mode==="gas"?(+document.getElementById("elec").value||0):e,
+        g:mode==="elec"?(+document.getElementById("gas").value||0):g,mode};
+      companionUsageOverride=false;customTouched=true;lastCustom={...importedCompanionUsage};
+    }
+  }
   if(P.has("j")) document.getElementById("janRise").value=P.get("j");
   if(P.get('um')==='1'){
     forecastScenarioMode='unit';
@@ -3806,11 +4055,11 @@ function render(){
   document.body.classList.toggle("existing-builder",query.get("existing")==="1"&&!customer);
   document.getElementById("heroHeading").textContent=s.renewal?
     (builderCurrentMode==="fixed"?"Exploring your options at the end of your fixed tariff":"Your energy tariff options"):
-    "Should I fix or track?";
+    "Should I Fix?";
   document.getElementById("heroDeck").textContent=s.renewal?
     (builderCurrentMode==="fixed"?
       "Compare the cost of defaulting to a variable tariff, the offer in your renewal email from UW, and the fixed tariff publicly available.":
-      "Compare your current variable tariff with public fixed rates. Older tariffs are available only if individually offered."): 
+      "Compare your current variable tariff with public fixed rates. Older tariffs are available only if individually offered."):
     "Compare the variable tariff, fixed rates and Tracker against energy price forecasts.";
   document.getElementById("renewalSetup").classList.toggle("hidden",!s.renewal);
   document.getElementById("renewalBuilder").classList.toggle("hidden",!s.renewal||customer);
@@ -3823,7 +4072,7 @@ function render(){
     ["","Energy only","Energy + 1 service","Energy + 2 services"][Number(renewalTier())]+".":"";
   const warning=document.getElementById("renewalPreviewWarning");
   if(warning){
-    warning.hidden=renewalCatalogueSource!=="demo";
+    warning.hidden=!(["demo","snapshot"].includes(renewalCatalogueSource)||renewalFeedStatus==="error");
     if(renewalCatalogueSource==="snapshot")warning.innerHTML=
       "<strong>DATED TARIFF DATA - 26 OCT 2026</strong> These rates are sourced from UW_Tariff_Data, not from a live tariff feed. Please check the latest tariff labels before making a change.";
     else if(renewalCatalogueSource==="demo")warning.innerHTML=
@@ -3858,6 +4107,7 @@ function render(){
   setComparisonPeriod(s);
   syncVisibility(s);
   renderRenewalStory(s);
+  earlyExitResultMessage(s);
   const pastMonths=s.renewal&&canShow?renewalLastYearMonthly(s):null;
   const historyComplete=Array.isArray(pastMonths)&&pastMonths.length===12&&pastMonths.every(Boolean);
   // A missing old tariff is not a reason to suppress verified forward options.
@@ -4049,7 +4299,7 @@ function statics(){
     <div>Rates: current live UW Fixed Saver ${series}, UW Fixed ${series} and UW Fixed Start ${series} tariff information. Full details here <a href="https://uw.co.uk/legal/terms-conditions/energy-tariff-information#6L2UtsDxLsB6aLvl6rQFmy" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">UW tariff information</a> - and <a href="https://www.ofgem.gov.uk/information-consumers/energy-advice-households/energy-price-cap-unit-rates-and-standing-charges" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">Ofgem price cap</a> (Direct Debit).</div>
     <div>Forecast: <a href="https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">MoneySavingExpert consensus</a> of EDF, British Gas and E.on.</div>
     <div>Seasonal gas weighting: <a href="https://www.gov.uk/government/statistics/gas-section-4-energy-trends" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">DESNZ Energy Trends, Table 4.2</a>.</div>
-    <div>App version: 2.66.20 (6 November 2026) - Renewal builder: current Variable/Fixed selector, automatic Value/Gold/Double Gold matching by qualifying services, conditional original fixed-rate input, plus/minus 50 kWh controls alongside the usage sliders, exact usage and customer share links, concise mobile choice cards and stable status messages. Historic variable comparisons are illustrative profiles at available current rates, not actual previous-year bills. Older Fixed Saver 99 comparisons apply only when specifically offered. East Midlands fallback tariff rates are a dated 26 October 2026 snapshot and must be checked before any decision.</div>
+    <div>App version: ${APP_VERSION} (20 November 2026) - Date-first historical tariff selection, source-dated tariff status, dynamic expiring tariff suggestions and an optional early-exit comparison. Future fixed prices and unconfirmed exit fees remain explicit assumptions. Historic comparisons retain archived tariff versions and source references.</div>
     <div>Visit <a href="https://uw.partners/adrian.croft/join" target="_blank" rel="noopener" style="color:var(--purple);font-weight:700">uw.partners/adrian.croft/join</a> for an official quote.</div>`;
 }
 
@@ -4074,6 +4324,9 @@ function statics(){
     document.getElementById("builderShareStatus").textContent="Region changed. Please supply the matching previous tariff rates.";
     loadRenewalCatalogue();render();
   });
+  document.getElementById("builderRegionShortcut").addEventListener("click",()=>{
+    const settings=document.getElementById("builderOptionalSettings");settings.open=true;builderRegion.focus();
+  });
   document.getElementById("builderStart").addEventListener("change",event=>{
     const value=event.target.value;
     if(!/^20\d{2}-(0[1-9]|1[0-2])$/.test(value))return;
@@ -4085,6 +4338,26 @@ function statics(){
   });
   document.getElementById("builderServiceSwitch").querySelectorAll("button").forEach(button=>
     button.addEventListener("click",()=>builderSetService(button.dataset.svc)));
+  document.querySelectorAll(".builder-usage-band").forEach(button=>button.addEventListener("click",()=>{
+    if(importedCompanionUsage&&!companionUsageOverride)return;
+    const mode=document.querySelector('#fuelSeg button[aria-pressed="true"]')?.dataset.mode||"dual";
+    const e=mode==="elec"&&document.getElementById("electricHeat").checked?+button.dataset.eh:+button.dataset.e;
+    const g=mode==="elec"?0:+button.dataset.g;
+    document.getElementById("elec").value=e;document.getElementById("gas").value=g;
+    lastBand={e,g};lastCustom={e,g};customTouched=false;
+    document.getElementById("btnPersonal").setAttribute("aria-pressed","false");
+    render();
+  }));
+  document.getElementById("builderEditUsage").addEventListener("click",()=>{
+    if(!importedCompanionUsage)return;companionUsageOverride=true;render();
+    document.getElementById("builderElecExact").focus();
+  });
+  document.getElementById("builderRestoreUsage").addEventListener("click",()=>{
+    if(!importedCompanionUsage)return;
+    document.getElementById("elec").value=importedCompanionUsage.e;
+    document.getElementById("gas").value=importedCompanionUsage.g;
+    lastCustom={...importedCompanionUsage};companionUsageOverride=false;render();
+  });
   document.getElementById("builderCurrentSwitch").querySelectorAll("button").forEach(button=>
     button.addEventListener("click",()=>builderSetCurrentMode(button.dataset.current)));
   document.querySelectorAll(".builder-step").forEach(button=>button.addEventListener("click",()=>{
@@ -4133,6 +4406,14 @@ function statics(){
     render();
   });
   document.getElementById("renewalEndingQuickSelect").addEventListener("change",e=>renewalSelectEnding(e.target.value));
+  document.getElementById("renewalEndingMonth").addEventListener("change",()=>{
+    const current=renewalSelectedRows().ending,month=document.getElementById("renewalEndingMonth").value;
+    if(current&&month&&new Date(renewalEndTimestamp(current)).toISOString().slice(0,7)!==month){
+      document.getElementById("renewalEnding").value="";renewalUserChoices.renewalEnding="";
+    }
+    if(renewalFeedStatus==="ready")renewalRefreshChoices();
+    render();
+  });
   document.getElementById("renewalOfferedQuickSelect").addEventListener("change",e=>{
     const row=renewalFindRow(e.target.value);
     if(!row||!renewalFixedFamily(renewalTier()).test(renewalRawName(row)))return;
@@ -4158,6 +4439,10 @@ function statics(){
     });
   }
   document.getElementById("renewalBudgetMonthly").addEventListener("input",render);
+  document.getElementById("earlyExitPanel").addEventListener("toggle",render);
+  for(const id of ["earlyProcessDate","earlyWaitDate","earlyCompareEnd","earlyFutureEnd","earlyFeeStatus",
+    "earlyElecFee","earlyGasFee","earlyFutureEU","earlyFutureESC","earlyFutureGU","earlyFutureGSC"])
+    document.getElementById(id).addEventListener("input",render);
   RENEWAL_FIELDS.forEach(id=>document.getElementById(id).addEventListener("change",()=>{
     renewalUserChoices[id]=document.getElementById(id).value;
     render();
@@ -4309,7 +4594,7 @@ function statics(){
   if(renewalMode())loadRenewalCatalogue();
 })();
 </script>
-<script src="./forecast-feed.js?v=2.66.20"></script>
-<script src="./renewal-mobile-experience-v2.66.13.js"></script>
+<script src="./forecast-feed.js?v=2.69.0"></script>
+<script src="./renewal-mobile-experience-v2.66.13.js?v=2.69.0"></script>
 </body>
 </html>

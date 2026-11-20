@@ -43,15 +43,19 @@ for(const filename of ['Oct2026.html','renewal-builder-v1.html']){
    const percentHtml=e('forecastControlMarkup(DEFAULT_JAN_RISE)');
    assert.match(percentHtml,/15%/);assert.match(percentHtml,/20%/);assert.match(percentHtml,/25%/);
    assert.match(percentHtml,/\+28\.8%/);assert.match(percentHtml,/\+30%/);assert.match(percentHtml,/\+35%/);
-   assert.match(percentHtml,/Activate pence forecast/);
-   assert.match(percentHtml,/data-forecast-method="percent"/);
-   assert.match(percentHtml,/data-forecast-method="unit"/);
-   page.fuel='elec';
-   assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Gas \(p\/kWh\)/);
-   assert.match(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Electricity \(p\/kWh\)/);
-   page.fuel='gas';
-   assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Electricity \(p\/kWh\)/);
-   assert.match(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Gas \(p\/kWh\)/);
+   if(filename==='renewal-builder-v1.html'){
+     assert.match(percentHtml,/Percentage active/);
+     assert.match(percentHtml,/Activate pence forecast/);
+   }else{
+     assert.match(html,/class="chart-forecast-label">Forecast:<\/div>/);
+     assert.match(html,/title="Cornwall Insight forecast - unit rates and standing charges">CI/);
+     assert.match(html,/title="MoneySavingExpert percentage forecast and scenarios">MSE%/);
+     assert.match(html,/title="MoneySavingExpert pence per kWh stress-test scenarios">MSEp/);
+   }
+   if(filename==='renewal-builder-v1.html'){
+     page.fuel='elec';assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Gas \(p\/kWh\)/);
+     page.fuel='gas';assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Electricity \(p\/kWh\)/);
+   }
    page.fuel='dual';
    e("activateForecastMethod('unit')");
    const unit=e('forecastSteps(DEFAULT_JAN_RISE)');
@@ -60,8 +64,9 @@ for(const filename of ['Oct2026.html','renewal-builder-v1.html']){
      close(unit[phase].g,pct[phase].g,phase+' gas same graph');
    }
    const markup=e('forecastControlMarkup(DEFAULT_JAN_RISE)');
-   assert.match(markup,/Pence forecast active/);
-   assert.match(markup,/aria-pressed="true">/);
+   if(filename==='renewal-builder-v1.html')assert.match(markup,/Pence forecast active/);
+   else assert.match(html,/MSEp/);
+   assert.match(markup,/aria-pressed="true"/);
    const before=e('forecastSteps(DEFAULT_JAN_RISE)');
    e("setForecastUnit('gas',12)");
    const afterGas=e('forecastSteps(DEFAULT_JAN_RISE)');
