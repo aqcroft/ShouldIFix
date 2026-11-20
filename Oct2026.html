@@ -437,9 +437,19 @@
   .forecast-compact .chart-scenarios,.forecast-compact .forecast-unit-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:4px}
   .forecast-compact .chart-scenarios button,.forecast-compact .forecast-unit-row button{min-width:0;padding:7px 1px;font-size:.68rem;line-height:1.1}
   .forecast-compact .forecast-unit-row+.forecast-unit-row{margin-top:5px}
+
+  /* v2.67 Cornwall Insight national forecast, with a compact in-place selector. */
+  .forecast-mode-picker button{padding-left:9px;padding-right:9px}
+  .forecast-mode-picker button:first-child{font-size:.62rem}
+  .forecast-ci-note{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:5px 8px;min-height:28px;border:1px solid #d4e7de;border-radius:7px;background:#f2faf6;color:#235b44;font-size:.66rem;font-weight:800}
+  .forecast-ci-note small{color:#5a7565;font-size:.56rem;line-height:1.25;font-weight:700}
+  @media(max-width:430px){.forecast-mode-picker button{padding-left:7px;padding-right:7px}.forecast-mode-picker button:first-child{font-size:.58rem}.forecast-ci-note{font-size:.6rem}}
   .chart-cost-tag{pointer-events:none}
-  .chart-cost-tag rect{fill:white;stroke:#e6e0ef;stroke-width:1}
-  .chart-cost-tag text{font:950 20px "Nunito",system-ui,sans-serif;text-anchor:middle}
+  .chart-cost-tag rect{stroke-width:1}
+  .chart-cost-tag.cap rect{fill:var(--cap-soft);stroke:#bdd4ff}
+  .chart-cost-tag.tracker rect{fill:var(--tracker-soft);stroke:#ffd0a2}
+  .chart-cost-tag.fix rect{fill:var(--fixed-soft);stroke:#d8c8fa}
+  .chart-cost-tag text{font:950 19px "Nunito",system-ui,sans-serif;text-anchor:middle}
   @media(max-width:430px){
     .chart-controls{padding:7px 6px}
     .chart-forecast-label{font-size:.72rem;margin:0}
@@ -2262,26 +2272,26 @@ function draw(res,janRise,s,tracker){
   const clamp=(v,min,max)=>Math.min(max,Math.max(min,v));
   // Restore the same full-month-equivalent average that appeared in the old legend.
   // The location is the seasonal peak; the number is NOT the peak-month bill.
-  const monthlyAverage=key=>gbp(rows.reduce((total,row)=>total+(Number(row[key])||0),0)/Math.max(1,n));
+  const monthlyAverage=key=>gbp(rows.reduce((total,row)=>total+(Number(row[key])||0),0)/Math.max(1,n))+'/m';
   const chartBadge=(peak,key,label,cx,cy)=>{
     if(!peak)return '';
     const value=monthlyAverage(key==='fix'?'fixed':key);
     const desc=label+' '+value+' average per month across the charted full-month equivalents; label placed near '+peak.month+' peak';
     return '<g class="chart-cost-tag '+key+'"><title>'+desc+'</title>'+
-      '<rect x="'+(cx-39).toFixed(1)+'" y="'+(cy-17).toFixed(1)+'" width="78" height="34" rx="9"/>'+
+      '<rect x="'+(cx-48).toFixed(1)+'" y="'+(cy-17).toFixed(1)+'" width="96" height="34" rx="9"/>'+
       '<text x="'+cx.toFixed(1)+'" y="'+(cy+7).toFixed(1)+'" fill="var(--'+(key==='cap'?'cap':key==='tracker'?'tracker':'fixed')+')">'+value+'</text></g>';
   };
   const topPeaks=[{key:'cap',name:variableLegend,peak:peakOf('cap')},...(track.length?[{key:'tracker',name:trackerLegend,peak:peakOf('tracker')}]:[])].sort((a,b)=>b.peak.value-a.peak.value);
   let lastY=0;
   const topBadges=topPeaks.map((item,i)=>{
     const p=item.peak.point;
-    const cx=clamp(p[0]+(i===0?-36:42),42,W-42);
+    const cx=clamp(p[0]+(i===0?-36:42),49,W-49);
     const cy=clamp(Math.max(p[1]-(i===0?54:30),lastY+37),26,H-padB-48);
     lastY=cy;
     return chartBadge(item.peak,item.key,item.name,cx,cy);
   }).join('');
   const fixedPeak=peakOf('fixed');
-  const fixedX=clamp(fixedPeak.point[0]-24,42,W-42);
+  const fixedX=clamp(fixedPeak.point[0]-24,49,W-49);
   const fixedY=clamp(Math.max(fixedPeak.point[1]+39,lastY+37),26,H-padB-19);
   const floatingCosts=topBadges+chartBadge(fixedPeak,'fix',fixedLegend,fixedX,fixedY);
   document.getElementById("chart").innerHTML=`<div class="chart-shell">
@@ -2318,7 +2328,7 @@ function draw(res,janRise,s,tracker){
         </svg>
       </div>
     </div>
-    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Floating £ values are monthly averages, positioned near the peaks. Totals, quarterly costs and savings use actual pro-rated dates.</p>
+    <p class="chart-month-note" style="font-size:.68rem;color:var(--muted);margin:5px 12px 7px;line-height:1.35">Chart shows full-calendar-month equivalents. Floating £/m values are monthly averages, positioned near the peaks. Totals, quarterly costs and savings use actual pro-rated dates.</p>
   </div>`;
 }
 
