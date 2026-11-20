@@ -2809,7 +2809,7 @@ function render(){
     (s.mode!=="elec"?usageLabel("🔥","Gas")+usageCols("gK"):"");
   const quarterGrid=document.getElementById("quarterCompare");
   quarterGrid.classList.toggle("show-usage",quarterUsageExpanded);
-  document.querySelector(".quarter-compare-title").textContent="Quarterly costs - total to "+comparisonEndLabel();
+  document.getElementById("comparisonPeriodTitle").textContent=" · Costs through "+comparisonEndLabel();
   quarterGrid.innerHTML =
     '<div class="qc-cell qc-label qc-forecast-label qc-label-info"><span>'+(s.renewal?'VARIABLE<br>SCENARIO':'PRICE CAP<br>FORECAST')+'</span><button type="button" class="qc-info" onclick="openForecastSource()" aria-label="Price cap forecast information" title="Price cap forecast information">i</button></div>'+
     chartQuarters.map((q,i)=>'<div class="qc-cell qc-head'+(i===chartQuarters.length-1?' qc-last':'')+'">'+q.lab+'</div>').join("")+

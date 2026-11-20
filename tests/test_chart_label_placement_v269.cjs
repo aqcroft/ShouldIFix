@@ -66,7 +66,7 @@ test("prospective chart shows left legend, monthly average once, and no duplicat
 });
 
 test("quarter totals show actual comparison end date and mark best overall row",()=>{
-  assert.match(html,/Quarterly costs - total to /);
+  assert.match(html,/document\.getElementById\("comparisonPeriodTitle"\)\.textContent=" · Costs through "\+comparisonEndLabel\(\)/);
   assert.match(html,/BEST OVERALL/);
   assert.match(html,/qCost\(null,"variable"/);
   assert.match(html,/#annualCosts\{display:none!important\}/);
