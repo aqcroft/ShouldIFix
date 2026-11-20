@@ -1,5 +1,16 @@
 # Should I Fix? - changes
 
+## v2.67 - 20 November 2026
+- Added CI f/c to the left of the percentage and pence forecast controls. Percentage remains the default.
+- CI f/c uses Cornwall Insight's 18 November 2026 UK national Jan-Mar 2027 unit and standing rates (electricity 32.54p/kWh, 56p/day; gas 10.90p/kWh, 31p/day). Proportionally adjusts the selected October regional Ofgem cap using October national benchmarks (26.32p, 54.83p, 7.97p, 29.68p). These are regional estimates, not confirmed local rates.
+- Confirmed current Oct-Dec regional cap rates remain unchanged. Later April and July model scenarios retain the pre-existing illustrative percentage movements, not Cornwall Insight forecasts.
+- CI scenario is encoded in shared links as ci=1, with existing percentage/pence links remaining compatible. Renewal comparisons proportionally stress entered variable rates, rather than substituting national cap rates.
+- Floating monthly-average chart labels now read £X/m in blue, orange and purple pastel backgrounds, positioned near the seasonal peaks.
+- Retains the compact forecast controls, full price-cap legend wording and five-position usage picker.
+- Validated JS syntax, national and regional forecast ratios (all four components), October preservation, default percentage mode, share state and graphical monthly-average badges. Manual browser review should follow publication.
+- Published source: https://www.cornwall-insight.com/predictions-and-insights-into-the-default-tariff-cap/
+
+
 ## v2.66.23 - 19 November 2026
 - Confirmed prospective-customer variable costs use regional Ofgem price-cap rates and forecast uplifts, not Utility Warehouse Value Gold or Double Gold variable tariff rates.
 - Renamed the prospective chart legend "Standard variable price cap"; existing-customer comparisons continue to display the actual entered variable tariff name.
