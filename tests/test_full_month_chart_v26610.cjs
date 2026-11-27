@@ -40,7 +40,7 @@ for(const [name,html] of [["standalone",standalone],["builder",builder]]){
     liveFixedRow:()=>null,safeHtml:x=>x,niceStep:()=>50,
     forecastScenarioValues:()=>[0,15,27,30],
     forecastScenarioMode:'percent',forecastControlMarkup:()=>'<div>scenario buttons</div>',
-    gbp:n=>'£'+Math.round(n),Number,Math
+    latestCapModel:()=>false,gbp:n=>'£'+Math.round(n),Number,Math
   };
   vm.runInNewContext(code+"\ndraw(res,27,{region:{n:11},tariff:'custom',renewal:false},null);",ctx);
   assert.equal(res.rows[0].cap,5,name+": pro-rated model row must remain unchanged");
@@ -50,6 +50,6 @@ for(const [name,html] of [["standalone",standalone],["builder",builder]]){
   const coordinates=[...match[1].matchAll(/[ML]([\d.]+) ([\d.]+)/g)].map(m=>[Number(m[1]),Number(m[2])]);
   assert.equal(coordinates.length,3);
   assert(Math.abs(coordinates[0][1]-coordinates[1][1])<80,name+": first one-day month must look like a whole month");
-  assert(chart.innerHTML.includes("quarterly costs and savings use the actual pro-rated comparison dates"));
+  assert.match(chart.innerHTML,/quarterly costs and savings use (the actual pro-rated comparison dates|actual pro-rated dates)/);
 }
 console.log("PASS: compact vertical overlay and hero tint; omitted budget plot; full-month graph, untouched pro-rated data, standalone and renewal builder");

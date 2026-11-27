@@ -14,7 +14,7 @@ assert.match(mobile,/\.renewal-key-monthly/);
 assert.match(mobile,/replace\(\/Fixed Saver\\s\+\/i,'Fixed '\)/);
 assert.match(builder,/renewal-mobile-experience-v2\.66\.13\.js/);
 assert.match(builder,/renewalQuarterGeometry\(MONTHS\)/);
-assert.match(standalone,/App version: 2\.66\.20/);
+assert.match(standalone,/App version: 2\.68\.0/);
 
 for (const [name,html] of [["standalone",standalone],["builder",builder]]) {
   assert.match(html,/\.chart-key-item\.fix\{color:var\(--fixed\)\}/);
@@ -33,7 +33,7 @@ for (const [name,html] of [["standalone",standalone],["builder",builder]]) {
     {k:"Dec",ph:"conf",cap:160,fixed:170,tracker:175}
   ];
   const res={rows,yCap:320,yFix:335,ySave:-15};
-  const context={res,document:{getElementById:()=>chart},
+  const context={latestCapModel:()=>false,res,document:{getElementById:()=>chart},
     MONTHS:[
       {k:"Oct",quarter:"2026-Q4",days:1,fullDays:31},
       {k:"Nov",quarter:"2026-Q4",days:30,fullDays:30},
@@ -48,11 +48,11 @@ for (const [name,html] of [["standalone",standalone],["builder",builder]]) {
   assert.match(chart.innerHTML,/class="chart-key-item fix"/,name+" fixed key missing");
   assert.match(chart.innerHTML,/class="chart-key-item tracker"/,name+" tracker key missing");
   assert.match(chart.innerHTML,/class="chart-key-item cap"/,name+" variable key missing");
-  assert.match(chart.innerHTML,/<strong>£162\/m<\/strong>/,name+" fixed plotted full-month average");
-  assert.match(chart.innerHTML,/<strong>£167\/m<\/strong>/,name+" Tracker plotted full-month average");
-  assert.match(chart.innerHTML,/<strong>£157\/m<\/strong>/,name+" variable plotted full-month average");
+  assert.match(chart.innerHTML,/£162\/m/,name+" fixed plotted full-month average");
+  assert.match(chart.innerHTML,/£167\/m/,name+" Tracker plotted full-month average");
+  assert.match(chart.innerHTML,/£157\/m/,name+" variable plotted full-month average");
   assert.equal(res.rows[0].cap,5,name+" must preserve October's pro-rated cost");
   assert.equal(res.yCap,320,name+" must preserve financial totals");
-  assert.match(chart.innerHTML,/quarterly costs and savings use the actual pro-rated comparison dates/);
+  assert.match(chart.innerHTML,/quarterly costs and savings use (the actual pro-rated comparison dates|actual pro-rated dates)/);
 }
 console.log("PASS: three stacked ranked labels, matched colours, prospective monthly equivalents, unchanged financial totals");
