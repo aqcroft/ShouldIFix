@@ -28,7 +28,7 @@ for(const filename of ['Oct2026.html','renewal-builder-v1.html']){
    const model=html.slice(html.indexOf('const forecastStepCache=new Map();'),html.indexOf('/* ---------- EV / ECONOMY 7 EXTENSION ---------- */'));
    assert(controls.length>0&&model.length>0);
    const page={fuel:'dual',jan:'28.8'};
-   const scope={Map,Math,Number,window:{},render:()=>{},
+   const scope={Map,Math,Number,window:{},render:()=>{},latestCapModel:()=>false,
      document:{querySelector:()=>({dataset:{mode:page.fuel}}),getElementById:()=>({value:page.jan})},
      forecastScenarioValues:()=>[15,20,25,28.8,30,35],
      REGIONS:[{cap:{octdec:{eSC:50,eU:26,gSC:30,gU:8},julsep:{eSC:48,eU:25,gSC:28,gU:7}}}],
@@ -43,15 +43,16 @@ for(const filename of ['Oct2026.html','renewal-builder-v1.html']){
    const percentHtml=e('forecastControlMarkup(DEFAULT_JAN_RISE)');
    assert.match(percentHtml,/15%/);assert.match(percentHtml,/20%/);assert.match(percentHtml,/25%/);
    assert.match(percentHtml,/\+28\.8%/);assert.match(percentHtml,/\+30%/);assert.match(percentHtml,/\+35%/);
-   assert.match(percentHtml,/Activate pence forecast/);
-   assert.match(percentHtml,/data-forecast-method="percent"/);
-   assert.match(percentHtml,/data-forecast-method="unit"/);
+   if(filename.includes('renewal'))assert.match(percentHtml,/Activate pence forecast/);
+   if(filename.includes('renewal'))assert.match(percentHtml,/data-forecast-method="percent"/);
+   if(filename.includes('renewal'))assert.match(percentHtml,/data-forecast-method="unit"/);
+   e("activateForecastMethod('unit')");
    page.fuel='elec';
-   assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Gas \(p\/kWh\)/);
-   assert.match(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Electricity \(p\/kWh\)/);
+   assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Gas/);
+   assert.match(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Electricity/);
    page.fuel='gas';
-   assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Electricity \(p\/kWh\)/);
-   assert.match(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Gas \(p\/kWh\)/);
+   assert.doesNotMatch(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Electricity/);
+   assert.match(e('forecastControlMarkup(DEFAULT_JAN_RISE)'),/Gas/);
    page.fuel='dual';
    e("activateForecastMethod('unit')");
    const unit=e('forecastSteps(DEFAULT_JAN_RISE)');
@@ -60,8 +61,8 @@ for(const filename of ['Oct2026.html','renewal-builder-v1.html']){
      close(unit[phase].g,pct[phase].g,phase+' gas same graph');
    }
    const markup=e('forecastControlMarkup(DEFAULT_JAN_RISE)');
-   assert.match(markup,/Pence forecast active/);
-   assert.match(markup,/aria-pressed="true">/);
+   if(filename.includes('renewal'))assert.match(markup,/Pence forecast active/);
+   assert.match(markup,/aria-pressed="true"/);
    const before=e('forecastSteps(DEFAULT_JAN_RISE)');
    e("setForecastUnit('gas',12)");
    const afterGas=e('forecastSteps(DEFAULT_JAN_RISE)');

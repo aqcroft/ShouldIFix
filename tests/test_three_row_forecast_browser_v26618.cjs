@@ -1,14 +1,15 @@
+// Legacy renewal controls. Current compact chart is covered by test_announced_cap_browser.cjs.
 'use strict';
 const {chromium}=require('playwright'),assert=require('node:assert/strict');
 const close=(x,y,label)=>assert(Math.abs(x-y)<1e-8,label+': '+x+' vs '+y);
 (async()=>{
  const browser=await chromium.launch({headless:true,...(process.env.CI_BROWSER_PATH?{executablePath:process.env.CI_BROWSER_PATH}:{})});
  try{
-  for(const file of ['Oct2026.html','renewal-builder-v1.html']){
+  for(const file of ['renewal-builder-v1.html']){
    for(const fuel of ['dual','elec','gas']){
     const page=await browser.newPage({viewport:{width:390,height:844},deviceScaleFactor:1});
     try{
-     const url='http://127.0.0.1:8765/'+file+'?r=11&f='+fuel+'&e=3000&g=12000'+(file.includes('renewal')?'&existing=1':'');
+     const url='http://127.0.0.1:8765/'+file+'?r=11&f='+fuel+'&e=3000&g=12000'+'&legacy=1';
      const response=await page.goto(url,{waitUntil:'domcontentloaded',timeout:40000});
      assert(response&&response.ok(),url+' failed to load');
      await page.waitForFunction(()=>typeof forecastControlMarkup==='function'&&document.querySelector('#fuelSeg button[aria-pressed="true"]'),{timeout:20000});
