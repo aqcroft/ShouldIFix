@@ -2,6 +2,9 @@
    scenarios, the tappable MSE table and dates. On a failed fetch, use the bundled snapshot. */
 (function () {
   'use strict';
+  // The immutable January announcement and newer forecast snapshot own new comparisons.
+  // Keep the earlier approved feed only for legacy saved scenarios.
+  if(typeof latestCapModel==='function'&&latestCapModel())return;
   const sourceLink = 'https://www.moneysavingexpert.com/utilities/energy-price-cap-prediction/';
   const $ = selector => document.querySelector(selector);
   const dateLabel = date => new Date(date + 'T12:00:00Z').toLocaleDateString('en-GB', {day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});

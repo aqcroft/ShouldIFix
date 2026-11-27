@@ -1,5 +1,16 @@
 # Should I Fix? - changes
 
+## v2.68.0 - 27 November 2026
+- January now uses all 56 published regional Direct Debit cap components; confirmed through March.
+- April/July use MSE week beginning 23 November annual forecasts of £2,222/£2,034 (displayed +2.5%/−8.5%). Unit forecasts retain the illustrative fuel split and regional differences, with standing charges flat before VAT.
+- Electricity VAT stays zero through June; July forecast modelling accounts for the return to 5% once.
+- Default percentage/pence modes match exactly. Alternative January scenarios remain available and labelled as scenarios.
+- New shares carry cr=20261127; existing unversioned customer URLs retain the previous forecast assumptions. This does not add fixed-rate or date snapshots to legacy links.
+- Future Tracker and entered renewal tariffs remain estimates, even when the underlying January cap is confirmed.
+- Tests: 25 Node checks passed locally; browser checks added to PR workflow. Local browser unavailable (binary missing; download blocked).
+- Sources: MSE regional cap table and fixing guide, retrieved 27 November 2026. Preview does not register a service worker or write customer profiles.
+
+
 ## v2.67 - 20 November 2026
 - Added CI f/c to the left of the percentage and pence forecast controls. Percentage remains the default.
 - CI f/c uses Cornwall Insight's 18 November 2026 UK national Jan-Mar 2027 unit and standing rates (electricity 32.54p/kWh, 56p/day; gas 10.90p/kWh, 31p/day). Proportionally adjusts the selected October regional Ofgem cap using October national benchmarks (26.32p, 54.83p, 7.97p, 29.68p). These are regional estimates, not confirmed local rates.

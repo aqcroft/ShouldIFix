@@ -1,0 +1,27 @@
+name: January cap and future forecast checks
+on:
+  pull_request:
+    paths:
+      - '*20261127.js'
+      - Oct2026.html
+      - renewal-builder-v1.html
+      - tests/test_announced_cap*
+      - .github/workflows/announced-cap-2027.yml
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: node --test tests/test_announced_cap_2027.cjs tests/test_verified_tariff_gate.cjs tests/test_approved_forecast_parity_v26617.cjs
+      - run: npm install --no-save playwright@1.58.2
+      - name: Check phone and desktop rendering
+        run: |
+          export CI_BROWSER_PATH="$(command -v google-chrome || command -v chromium)"
+          test -n "$CI_BROWSER_PATH"
+          python3 -m http.server 8765 --bind 127.0.0.1 > /tmp/cap-http.log 2>&1 &
+          node tests/test_announced_cap_browser.cjs
